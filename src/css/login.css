@@ -352,10 +352,10 @@
 .password-toggle {
     position: relative;
     left: 350px;
-    transform: translateY(-140%);
+    transform: translateY(-130%);
     background: rgba(0, 0, 0, 0.3);
     border: none;
-    border-radius: 50%;
+    border-radius: 100%;
     padding: 4px;
     cursor: pointer;
     transition: background 0.3s ease, color 0.3s ease;

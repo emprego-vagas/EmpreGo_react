@@ -1,0 +1,32 @@
+.erro-mensagem-geral2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    animation: slideDown 0.5s ease;
+    font-size: 1.1rem;
+}
+
+.erro-mensagem-contraste2 svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+@media (max-width: 480px) { 
+    .erro-mensagem-contraste2 {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

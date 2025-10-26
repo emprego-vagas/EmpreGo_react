@@ -1,7 +1,10 @@
 import logoEmpreGo from '../assets/logos/logoEmpreGo.png';
 import genPfp from '../assets/imgs/genPfp.png';
+import { logout, DadosUsuario } from '../utils/globalFunctions';
+import '../css/header.css';
 
 export default function Header1(){
+    const User = DadosUsuario.getUsuario();
     return (
         <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-20 transition-colors duration-300">
 
@@ -33,20 +36,20 @@ export default function Header1(){
 
                         {/* Login / Cadastrar */}
                         <a href="/login"
-                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center animate-pulse-glow"
+                            className={User?"hidden":"px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center animate-pulse-glow"}
                             id="loginOuCadas">
                             <i className='bx bx-log-in mr-2'></i> Login / Cadastrar
                         </a>
 
                         {/* Foto de Perfil (inicialmente oculta) */}
-                        <a href="/perfil/candidato" className="rounded-full w-10 h-10 border-2 border-primary-500"
+                        <a href="/perfil/candidato" className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
                             id="fotoPerfil">
-                            <img src={genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
+                            <img src={User? User.foto : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
                                 className="w-full h-full object-cover rounded-full" />
                         </a>
 
                         {/* Botão de Logout (inicialmente oculto) */}
-                        <a href="#" className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" id="logout">Sair</a>
+                        <a href="#" className={User?"text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors":"hidden"} id="logout" onClick={()=>logout()}>Sair</a>
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -80,7 +83,7 @@ export default function Header1(){
                     </a>
 
                     {/* Botão de Logout (inicialmente oculto) */}
-                    <a href="#" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 text-center transition-colors"
+                    <a href="#" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 text-center transition-colors" onClick={()=>logout()}
                         id="mobileLogout">Sair</a>
                 </div>
             </div>
