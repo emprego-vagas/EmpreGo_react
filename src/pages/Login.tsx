@@ -5,7 +5,7 @@ import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@for
 import { useNavigate } from "react-router-dom";
 
 // * Funções
-import {candidatoLogin, candidatoRegister, formatarData} from '../ts/loginFunctions'
+import {candidatoLogin, candidatoRegister, empresaLogin, formatarCnpj, formatarData} from '../ts/loginFunctions'
 
 // * CSS
 import '../css/login.css'
@@ -19,15 +19,20 @@ export default function Login(){
         setActiveTab(tabId);
     };
     const [showOtherGender, setShowOtherGender] = useState(false);
+
     const [errorInputCand, setErrorInputCand] = useState({campo: "", mensagem: ""});
     function limparErroCand():void {
         setErrorInputCand({campo: "", mensagem: ""});
     };
+    const [erroInputEmp, setErrorInputEmp] = useState({campo: "", mensagem: ""});
+    function limparErroEmp():void {
+        setErrorInputEmp({campo: "", mensagem: ""});
+    }
 
     const [userLogin, setUserLogin] = useState({ email: "", senha: "", lembreMe: false });
-    const [userRegister, setUserRegister] = useState({ 
-        nome: "", sobrenome: "", email: "", senha: "", senhaConfirm: "", data_nasc: "", genero: "", outroGenero: ""
-    });
+    const [userRegister, setUserRegister] = useState({ nome: "", sobrenome: "", email: "", senha: "", senhaConfirm: "", data_nasc: "", genero: "", outroGenero: "" });
+    const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "" });
+    const [companyRegister, setCompanyRegister] = useState({ email: "", razao_soci: "", nome_fant: "", cnpj: "", telefone: "", senha: "", senhaConfirm: "", cep: "", rua: "", bairro: "", cidade: "", estado: "", numero: "", complemento: "" });
 
     return (
         <div className="containerLogin">
@@ -199,12 +204,13 @@ export default function Login(){
                     </div>
 
                     <button type="submit" id="registerBtn" className="submit-btn" onClick={async (e)=>{
+                        const emailRedirect = userRegister.email;
                         const registro = await candidatoRegister(e, userRegister);
                         if(!registro.success) {
+                            if(registro.inputError?.campo==='general') return;
                             setErrorInputCand({campo: registro.inputError?.campo || "", mensagem: registro.inputError?.mensagem || ""});
                             return;
-                        }
-                        navigate('/');
+                        } else navigate(`/confirmar?email=${emailRedirect}`);
                     }}>Cadastrar</button>
                 </form>
 
@@ -222,20 +228,25 @@ export default function Login(){
                 <form id="loginEmpresaForm" action="#">
                     <div className="input-group">
                     <label htmlFor="empresaCNPJ" className="input-label">CNPJ</label>
-                    <input type="text" id="empresaCNPJ" className="input-field" placeholder="00.000.000/0000-00" required />
+                    <input type="text" id="empresaCNPJ" className="input-field" placeholder="00.000.000/0000-00" required 
+                        value={companyLogin.cnpj} onChange={(e)=>{formatarCnpj(e); setCompanyLogin({...companyLogin, cnpj: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaSenha" className="input-label">Senha</label>
                     <div className="password-container">
-                        <input type={showPassword ? "text" : "password"} id="empresaSenha" className="input-field" placeholder="Digite sua senha" required />
-                        <button type="button" id="toggleEmpresaPassword" className="password-toggle">
+                        <input type={showPassword ? "text" : "password"} id="empresaSenha" className="input-field" placeholder="Digite sua senha" required 
+                            value={companyLogin.senha} onChange={(e)=>setCompanyLogin({...companyLogin, senha: e.target.value})} />
+                        <button type="button" id="toggleEmpresaPassword" className="password-toggle" onClick={() => setShowPassword((p) => !p)}>
                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} id="eyeIconEmpresa"/>
                         </button>
                     </div>
                     </div>
 
-                    <button type="submit" id="empresaLoginBtn" className="submit-btn">Entrar</button>
+                    <button type="submit" id="empresaLoginBtn" className="submit-btn" onClick={async (e)=>{
+                        const logado = await empresaLogin(e, companyLogin);
+                        if(logado) navigate('/');
+                    }}>Entrar</button>
                 </form>
 
                 <div className="form-footer">
@@ -251,37 +262,41 @@ export default function Login(){
 
                 <form id="registerEmpresaForm" action="#">
                     <div className="input-group">
-                    <label htmlFor="empresaEmail" className="input-label">Email</label>
-                    <input type="email" id="empresaEmail" className="input-field" placeholder="empresa@email.com" required />
+                        <label htmlFor="empresaEmail" className="input-label">Email</label>
+                        <input type="email" id="empresaEmail" className="input-field" placeholder="empresa@email.com" required 
+                            value={companyRegister.email} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, email: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaRazao" className="input-label">Razão Social</label>
-                    <input type="text" id="empresaRazao" className="input-field" placeholder="Nome legal da empresa" required />
+                    <input type="text" id="empresaRazao" className="input-field" placeholder="Nome legal da empresa" required 
+                        value={companyRegister.razao_soci} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, razao_soci: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaFantasia" className="input-label">Nome Fantasia</label>
                     <input type="text" id="empresaFantasia" className="input-field" placeholder="Nome comercial da empresa"
-                        required />
+                        required value={companyRegister.nome_fant} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, nome_fant: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaCNPJRegister" className="input-label">CNPJ</label>
-                    <input type="text" id="empresaCNPJRegister" className="input-field" placeholder="00.000.000/0000-00" required />
+                    <input type="text" id="empresaCNPJRegister" className="input-field" placeholder="00.000.000/0000-00" required 
+                        value={companyRegister.cnpj} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, cnpj: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaTelefone" className="input-label">Telefone</label>
-                    <input type="tel" id="empresaTelefone" className="input-field" placeholder="+55 11 12345-6789" required />
+                    <input type="tel" id="empresaTelefone" className="input-field" placeholder="+55 11 12345-6789" required 
+                        value={companyRegister.telefone} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, telefone: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaRegisterPassword" className="input-label">Senha</label>
                     <div className="password-container">
                         <input type={showPassword ? "text" : "password"} id="empresaRegisterPassword" className="input-field"
-                        placeholder="Crie uma senha forte" required />
-                        <button type="button" id="toggleEmpresaRegisterPassword" className="password-toggle">
+                        placeholder="Crie uma senha forte" required value={companyRegister.senha} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, senha: e.target.value})}} />
+                        <button type="button" id="toggleEmpresaRegisterPassword" className="password-toggle" onClick={() => setShowPassword((p) => !p)}>
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} id="eyeIconEmpresaRegister"/>
                         </button>
                     </div>
@@ -291,8 +306,8 @@ export default function Login(){
                     <label htmlFor="empresaConfirmPassword" className="input-label">Confirmar senha</label>
                     <div className="password-container">
                         <input type={showPassword ? "text" : "password"} id="empresaConfirmPassword" className="input-field" placeholder="Confirme sua senha"
-                        required />
-                        <button type="button" id="toggleEmpresaConfirmPassword" className="password-toggle">
+                        required value={companyRegister.senhaConfirm} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, senhaConfirm: e.target.value})}} />
+                        <button type="button" id="toggleEmpresaConfirmPassword" className="password-toggle" onClick={() => setShowPassword((p) => !p)}>
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} id="eyeIconEmpresaConfirm"/>
                         </button>
                     </div>
@@ -300,37 +315,44 @@ export default function Login(){
 
                     <div className="input-group">
                     <label htmlFor="empresaCep" className="input-label">CEP</label>
-                    <input type="text" id="empresaCep" className="input-field" placeholder="00000-000" required />
+                    <input type="text" id="empresaCep" className="input-field" placeholder="00000-000" required 
+                        value={companyRegister.cep} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, cep: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaRua" className="input-label">Rua</label>
-                    <input type="text" id="empresaRua" className="input-field" placeholder="Nome da rua" readOnly />
+                    <input type="text" id="empresaRua" className="input-field" placeholder="Nome da rua" readOnly 
+                        value={companyRegister.rua} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaBairro" className="input-label">Bairro</label>
-                    <input type="text" id="empresaBairro" className="input-field" placeholder="Nome do bairro" readOnly/>
+                    <input type="text" id="empresaBairro" className="input-field" placeholder="Nome do bairro" readOnly
+                        value={companyRegister.bairro} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaCidade" className="input-label">Cidade</label>
-                    <input type="text" id="empresaCidade" className="input-field" placeholder="Nome da cidade" readOnly />
+                    <input type="text" id="empresaCidade" className="input-field" placeholder="Nome da cidade" readOnly 
+                        value={companyRegister.cidade} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaEstado" className="input-label">Estado</label>
-                    <input type="text" id="empresaEstado" className="input-field" placeholder="UF" readOnly />
+                    <input type="text" id="empresaEstado" className="input-field" placeholder="UF" readOnly 
+                        value={companyRegister.estado}/>
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaNumero" className="input-label">Número</label>
-                    <input type="text" id="empresaNumero" className="input-field" placeholder="Número ou S/N" required />
+                    <input type="text" id="empresaNumero" className="input-field" placeholder="Número ou S/N" required 
+                        value={companyRegister.numero} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, numero: e.target.value})}} />
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaComplemento" className="input-label">Complemento</label>
-                    <input type="text" id="empresaComplemento" className="input-field" placeholder="Complemento (opcional)" />
+                    <input type="text" id="empresaComplemento" className="input-field" placeholder="Complemento (opcional)" 
+                        value={companyRegister.complemento} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, complemento: e.target.value})}} />
                     </div>
 
                     <button type="submit" id="empresaRegisterBtn" className="submit-btn">Cadastrar Empresa</button>

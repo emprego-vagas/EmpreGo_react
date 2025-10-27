@@ -44,7 +44,7 @@ export default function Header1(){
                         {/* Foto de Perfil (inicialmente oculta) */}
                         <a href="/perfil/candidato" className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
                             id="fotoPerfil">
-                            <img src={User? User.foto : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
+                            <img src={User ? User.foto!=="/assets/imgs/genPfp.png" ? User.foto : genPfp : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
                                 className="w-full h-full object-cover rounded-full" />
                         </a>
 

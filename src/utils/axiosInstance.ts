@@ -64,4 +64,10 @@ axiosWe.interceptors.response.use(function (config) {
   return Promise.reject({ message: msg, status: status, originalError: originalError });
 });
 
+export interface AxiosWeError {
+  message: string;
+  status: number;
+  originalError: string;
+}
+
 export default axiosWe;
