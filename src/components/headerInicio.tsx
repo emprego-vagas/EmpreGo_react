@@ -1,7 +1,8 @@
 import logoEmpreGo from '../assets/logos/logoEmpreGo.png';
 import genPfp from '../assets/imgs/genPfp.png';
 import { logout, DadosUsuario } from '../utils/globalFunctions';
-import '../css/header.css';
+// import '../css/header.css';
+
 
 export default function Header1(){
     const User = DadosUsuario.getUsuario();
