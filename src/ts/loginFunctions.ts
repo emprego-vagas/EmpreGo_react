@@ -1,7 +1,7 @@
 import type { MouseEvent, FormEvent } from 'react';
 import axiosWe from '../utils/axiosInstance';
 import type {AxiosWeError} from '../utils/axiosInstance';
-import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
+import { DadosUsuario, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
 import axios from 'axios';
 
 export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin: {email: string, senha: string, lembreMe: boolean}): Promise<boolean> {
@@ -144,7 +144,7 @@ interface EmpRegisterResponse {
 export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegister: {email: string, razao_soci: string, nome_fant: string, cnpj: string, telefone: string, senha: string, senhaConfirm: string, cep: string, rua: string, bairro: string, cidade: string, estado: string, numero: string, complemento: string}): Promise<EmpRegisterResponse>{
     e.preventDefault();
     const target = e.target as HTMLButtonElement;
-    const {email, razao_soci, nome_fant, cnpj, telefone, senha, senhaConfirm, cep, rua, numero, complemento} = empRegister;
+    const {email, razao_soci, nome_fant, cnpj, telefone, senha, senhaConfirm, cep, rua, estado, cidade, numero, complemento} = empRegister;
 
     if (!email) return { success: false, inputError: {campo:"email", mensagem:"Preencha o email." }};
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, inputError: {campo:"email", mensagem:"Digite um email válido." }};
@@ -162,7 +162,38 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
     if (!/^\d{5}-\d{3}$/.test(cep)||!rua) return { success: false, inputError: { campo: "cep", mensagem: "CEP inválido (use XXXXX-XXX)." }};
     if (!numero) return { success: false, inputError: { campo: "numero", mensagem: "Preencha o número." }};
 
+    target.textContent = 'Cadastrando...';
+    target.disabled = true;
 
+    try {
+        await axiosWe.post("/empresas", {
+            cnpj: cnpj.replace(/[^\d]/g, ""),
+            nome_fant,
+            telefone,
+            email,
+            senha,
+            razao_soci,
+            cep,
+            complemento,
+            numero,
+            estado,
+            cidade
+        });
+
+        const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha });
+        const user = response.data.user;
+        DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
+
+        mostrarSucessoTopo("Empresa cadastrada com SUCESSO!");
+        return {success: true};
+    } catch (erro) {
+        target.disabled = false;
+        target.textContent = "Cadastrar Empresa";
+        if (erro.status === 409) {
+            mostrarErroTopo("Empresa já cadastrada.");
+        }
+        return {success: false, inputError: {campo: "general", mensagem:""}};
+    }
 }
 
 export function formatarData(e: FormEvent<HTMLInputElement>) {

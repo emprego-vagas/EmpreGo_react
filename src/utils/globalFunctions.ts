@@ -33,6 +33,37 @@ export function mostrarErroTopo(mensagem: string) {
     }, 3000);
 }
 
+export function mostrarSucessoTopo(mensagem: string) {
+    const old = document.querySelector('.sucesso-mensagem-geral');
+    if (old) old.remove();
+
+    const sucessoDiv = document.createElement('div');
+    sucessoDiv.className = 'sucesso-mensagem-geral';
+
+    const contrasteDiv = document.createElement('div');
+    contrasteDiv.className = 'sucesso-mensagem-contraste';
+    contrasteDiv.innerHTML = `
+        <div class="fixed top-0 left-0 w-full flex justify-center z-9999">
+            <div class="max-w-lg mx-auto">
+            <div class="flex items-center bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 shadow-md rounded-b mb-4">
+                <i class="fas fa-check-circle mr-3"></i>
+                <div>
+                <strong class="font-bold">Sucesso: </strong>
+                <span class="block sm:inline">${mensagem}</span>
+                </div>
+            </div>
+            </div>
+        </div>
+    `;
+
+    sucessoDiv.appendChild(contrasteDiv);
+    document.body.prepend(sucessoDiv);
+
+    setTimeout(() => {
+        if (sucessoDiv.parentNode) sucessoDiv.remove();
+    }, 3000);
+};
+
 export function logout(){
   axiosWe.post('/logout')
   .then(()=>{

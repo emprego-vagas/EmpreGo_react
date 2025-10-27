@@ -5,7 +5,7 @@ import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@for
 import { useNavigate } from "react-router-dom";
 
 // * Funções
-import {candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, validarCep} from '../ts/loginFunctions'
+import {candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, formatarTelefone, validarCep} from '../ts/loginFunctions'
 
 // * CSS
 import '../css/login.css'
@@ -308,7 +308,7 @@ export default function Login(){
                     <div className="input-group">
                     <label htmlFor="empresaTelefone" className="input-label">Telefone</label>
                     <input type="tel" id="empresaTelefone" className="input-field" placeholder="+55 11 12345-6789" required 
-                        value={companyRegister.telefone} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, telefone: e.target.value})}} />
+                        value={companyRegister.telefone} onChange={(e)=>{limparErroEmp();formatarTelefone(e);setCompanyRegister({...companyRegister, telefone: e.target.value})}} />
                         {erroInputEmp.campo==="telefone" && (
                             <div className="erro-mensagem">
                                 <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
@@ -422,8 +422,13 @@ export default function Login(){
                     <button type="submit" id="empresaRegisterBtn" className="submit-btn" onClick={async (e)=>{
                         const registro = await empresaRegister(e, companyRegister);
                         if(!registro.success) {
+                            if(registro.inputError?.campo==='general') return;
                             setErroInputEmp({campo: registro.inputError?.campo || "", mensagem: registro.inputError?.mensagem || ""});
                             return;
+                        } else {
+                            setTimeout(()=>{
+                                navigate('/');
+                            }, 1000);
                         }
                     }}>Cadastrar Empresa</button>
                 </form>
