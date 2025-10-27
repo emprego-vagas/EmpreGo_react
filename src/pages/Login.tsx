@@ -5,7 +5,7 @@ import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@for
 import { useNavigate } from "react-router-dom";
 
 // * Funções
-import {candidatoLogin, candidatoRegister, empresaLogin, formatarCnpj, formatarData} from '../ts/loginFunctions'
+import {candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, validarCep} from '../ts/loginFunctions'
 
 // * CSS
 import '../css/login.css'
@@ -24,9 +24,9 @@ export default function Login(){
     function limparErroCand():void {
         setErrorInputCand({campo: "", mensagem: ""});
     };
-    const [erroInputEmp, setErrorInputEmp] = useState({campo: "", mensagem: ""});
+    const [erroInputEmp, setErroInputEmp] = useState({campo: "", mensagem: ""});
     function limparErroEmp():void {
-        setErrorInputEmp({campo: "", mensagem: ""});
+        setErroInputEmp({campo: "", mensagem: ""});
     }
 
     const [userLogin, setUserLogin] = useState({ email: "", senha: "", lembreMe: false });
@@ -265,30 +265,55 @@ export default function Login(){
                         <label htmlFor="empresaEmail" className="input-label">Email</label>
                         <input type="email" id="empresaEmail" className="input-field" placeholder="empresa@email.com" required 
                             value={companyRegister.email} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, email: e.target.value})}} />
+                        {erroInputEmp.campo==="email" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaRazao" className="input-label">Razão Social</label>
                     <input type="text" id="empresaRazao" className="input-field" placeholder="Nome legal da empresa" required 
                         value={companyRegister.razao_soci} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, razao_soci: e.target.value})}} />
+                        {erroInputEmp.campo==="razao_soci" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaFantasia" className="input-label">Nome Fantasia</label>
                     <input type="text" id="empresaFantasia" className="input-field" placeholder="Nome comercial da empresa"
                         required value={companyRegister.nome_fant} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, nome_fant: e.target.value})}} />
+                        {erroInputEmp.campo==="nome_fant" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaCNPJRegister" className="input-label">CNPJ</label>
                     <input type="text" id="empresaCNPJRegister" className="input-field" placeholder="00.000.000/0000-00" required 
-                        value={companyRegister.cnpj} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, cnpj: e.target.value})}} />
+                        value={companyRegister.cnpj} onChange={(e)=>{limparErroEmp();formatarCnpj(e);setCompanyRegister({...companyRegister, cnpj: e.target.value})}} />
+                        {erroInputEmp.campo==="cnpj" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaTelefone" className="input-label">Telefone</label>
                     <input type="tel" id="empresaTelefone" className="input-field" placeholder="+55 11 12345-6789" required 
                         value={companyRegister.telefone} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, telefone: e.target.value})}} />
+                        {erroInputEmp.campo==="telefone" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
@@ -296,6 +321,11 @@ export default function Login(){
                     <div className="password-container">
                         <input type={showPassword ? "text" : "password"} id="empresaRegisterPassword" className="input-field"
                         placeholder="Crie uma senha forte" required value={companyRegister.senha} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, senha: e.target.value})}} />
+                            {erroInputEmp.campo==="senha" && (
+                                <div className="erro-mensagem">
+                                    <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                                </div>
+                            )}
                         <button type="button" id="toggleEmpresaRegisterPassword" className="password-toggle" onClick={() => setShowPassword((p) => !p)}>
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} id="eyeIconEmpresaRegister"/>
                         </button>
@@ -307,6 +337,11 @@ export default function Login(){
                     <div className="password-container">
                         <input type={showPassword ? "text" : "password"} id="empresaConfirmPassword" className="input-field" placeholder="Confirme sua senha"
                         required value={companyRegister.senhaConfirm} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, senhaConfirm: e.target.value})}} />
+                            {erroInputEmp.campo==="senhaConfirm" && (
+                                <div className="erro-mensagem">
+                                    <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                                </div>
+                            )}
                         <button type="button" id="toggleEmpresaConfirmPassword" className="password-toggle" onClick={() => setShowPassword((p) => !p)}>
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} id="eyeIconEmpresaConfirm"/>
                         </button>
@@ -316,7 +351,26 @@ export default function Login(){
                     <div className="input-group">
                     <label htmlFor="empresaCep" className="input-label">CEP</label>
                     <input type="text" id="empresaCep" className="input-field" placeholder="00000-000" required 
-                        value={companyRegister.cep} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, cep: e.target.value})}} />
+                        value={companyRegister.cep} onChange={async(e)=>{
+                            limparErroEmp();
+                            formatarCep(e);
+                            const newCep = e.target.value
+                            setCompanyRegister({...companyRegister, cep: newCep});
+                            if(newCep.length===9){
+                                const cepVali = await validarCep(newCep);
+                                if(!cepVali.sucesso) {
+                                    setErroInputEmp({campo:"cep", mensagem:"CEP inválido."});
+                                    setCompanyRegister({...companyRegister, cep: newCep, rua: "", bairro: "", cidade: "", estado: ""});
+                                    return;
+                                }
+                                else setCompanyRegister({...companyRegister, cep: newCep, rua: cepVali.rua, bairro: cepVali.bairro, cidade: cepVali.cidade, estado: cepVali.estado})
+                            } else setCompanyRegister({...companyRegister, cep: newCep, rua: "", bairro: "", cidade: "", estado: ""});
+                        }} />
+                        {erroInputEmp.campo==="cep" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
@@ -347,15 +401,31 @@ export default function Login(){
                     <label htmlFor="empresaNumero" className="input-label">Número</label>
                     <input type="text" id="empresaNumero" className="input-field" placeholder="Número ou S/N" required 
                         value={companyRegister.numero} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, numero: e.target.value})}} />
+                        {erroInputEmp.campo==="numero" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
                     <div className="input-group">
                     <label htmlFor="empresaComplemento" className="input-label">Complemento</label>
                     <input type="text" id="empresaComplemento" className="input-field" placeholder="Complemento (opcional)" 
                         value={companyRegister.complemento} onChange={(e)=>{limparErroEmp();setCompanyRegister({...companyRegister, complemento: e.target.value})}} />
+                        {erroInputEmp.campo==="complemento" && (
+                            <div className="erro-mensagem">
+                                <FontAwesomeIcon icon={faExclamationCircle} /> {erroInputEmp.mensagem}
+                            </div>
+                        )}
                     </div>
 
-                    <button type="submit" id="empresaRegisterBtn" className="submit-btn">Cadastrar Empresa</button>
+                    <button type="submit" id="empresaRegisterBtn" className="submit-btn" onClick={async (e)=>{
+                        const registro = await empresaRegister(e, companyRegister);
+                        if(!registro.success) {
+                            setErroInputEmp({campo: registro.inputError?.campo || "", mensagem: registro.inputError?.mensagem || ""});
+                            return;
+                        }
+                    }}>Cadastrar Empresa</button>
                 </form>
 
                 <div className="form-footer">

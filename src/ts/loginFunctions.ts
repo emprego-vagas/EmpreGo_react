@@ -2,6 +2,7 @@ import type { MouseEvent, FormEvent } from 'react';
 import axiosWe from '../utils/axiosInstance';
 import type {AxiosWeError} from '../utils/axiosInstance';
 import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
+import axios from 'axios';
 
 export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin: {email: string, senha: string, lembreMe: boolean}): Promise<boolean> {
     e.preventDefault();
@@ -133,6 +134,37 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
     }
 }
 
+interface EmpRegisterResponse {
+    success: boolean;
+    inputError? : {
+        campo: string,
+        mensagem: string
+    }
+}
+export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegister: {email: string, razao_soci: string, nome_fant: string, cnpj: string, telefone: string, senha: string, senhaConfirm: string, cep: string, rua: string, bairro: string, cidade: string, estado: string, numero: string, complemento: string}): Promise<EmpRegisterResponse>{
+    e.preventDefault();
+    const target = e.target as HTMLButtonElement;
+    const {email, razao_soci, nome_fant, cnpj, telefone, senha, senhaConfirm, cep, rua, numero, complemento} = empRegister;
+
+    if (!email) return { success: false, inputError: {campo:"email", mensagem:"Preencha o email." }};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { success: false, inputError: {campo:"email", mensagem:"Digite um email válido." }};
+    if (!razao_soci) return { success: false, inputError: { campo: "razao_soci", mensagem: "Preencha a razão social." }};
+    if (!nome_fant) return { success: false, inputError: { campo: "nome_fant", mensagem: "Preencha o nome fantasia." }};
+    if (!cnpj) return { success: false, inputError: { campo: "cnpj", mensagem: "Preencha o CNPJ." }};
+    if (cnpj.length !== 18 || !/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(cnpj)) return { success: false, inputError: { campo: "cnpj", mensagem: "CNPJ inválido. Formato 00.000.000/0000-00." }};
+    if (!telefone) return { success: false, inputError: { campo: "telefone", mensagem: "Preencha o telefone." }};
+    if (!/^\+55 \d{2} \d{4,5}-\d{4}$/.test(telefone)) return { success: false, inputError: { campo: "telefone", mensagem: "Telefone inválido (use +55 XX XXXXX-XXXX)." }};
+    if (!senha) return { success: false, inputError: { campo: "senha", mensagem: "Preencha a senha." }};
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(senha)) return { success: false, inputError: { campo: "senha", mensagem: "Senha deve conter letra maiúscula, minúscula, número e símbolo." }};
+    if (!senhaConfirm) return { success: false, inputError: { campo: "senhaConfirm", mensagem: "Confirme a senha." }};
+    if (senha !== senhaConfirm) return { success: false, inputError: { campo: "senhaConfirm", mensagem: "As senhas não coincidem." }};
+    if (!cep) return { success: false, inputError: { campo: "cep", mensagem: "Preencha o CEP." }};
+    if (!/^\d{5}-\d{3}$/.test(cep)||!rua) return { success: false, inputError: { campo: "cep", mensagem: "CEP inválido (use XXXXX-XXX)." }};
+    if (!numero) return { success: false, inputError: { campo: "numero", mensagem: "Preencha o número." }};
+
+
+}
+
 export function formatarData(e: FormEvent<HTMLInputElement>) {
     const target = e.target as HTMLInputElement;
     let value = target.value.replace(/\D/g, "");
@@ -158,6 +190,70 @@ export function formatarCnpj(e: FormEvent<HTMLInputElement>) {
     if (value.length >= 13) value = value.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
 
     target.value = value;
+}
+
+export function formatarTelefone(e: FormEvent<HTMLInputElement>){
+    e.preventDefault();
+    const target = e.target as HTMLInputElement;
+
+    let raw = target.value.replace(/\D/g, "");
+    if (raw.startsWith("55")) {
+        raw = raw.slice(2);
+    }
+    raw = raw.slice(0, 11);
+
+    let formatted = "+55";
+    if (raw.length > 0) {
+        formatted += " " + raw.slice(0, 2);
+    }
+    if (raw.length > 2) {
+        formatted += " " + raw.slice(2, 7);
+    }
+    if (raw.length > 7) {
+        formatted += "-" + raw.slice(7, 11);
+    }
+
+    target.value = formatted;
+}
+
+export function formatarCep(e: FormEvent<HTMLInputElement>): void{
+    const target = e.target as HTMLInputElement;
+
+    let value = target.value.replace(/\D/g, "").slice(0, 8);
+    if (value.length > 5) {
+        value = value.slice(0, 5) + "-" + value.slice(5);
+    }
+    target.value = value;
+}
+
+interface CepValidationtResponse {
+    sucesso: boolean;
+    rua?: string;
+    bairro?: string;
+    cidade?:string;
+    estado?: string
+}
+export async function validarCep(cep: string): Promise<CepValidationtResponse>{
+    const cepLimpo = cep.replace(/\D/g, "");
+
+    try {
+        console.log(cepLimpo)
+        const response = await axios.get(`/viacep/ws/${cepLimpo}/json/`);
+        const data = response.data;
+
+        if(data.erro==='true') throw new Error("Erro")
+
+        return {
+            sucesso: true,
+            rua: data.logradouro,
+            bairro: data.bairro,
+            cidade: data.localidade,
+            estado: data.uf
+        }
+    } catch (erro) {
+        console.error(erro);
+        return {sucesso: false}
+    }
 }
 
 function validarDataNascimento(dobStr: string): boolean {
