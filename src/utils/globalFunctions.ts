@@ -104,18 +104,12 @@ export class DadosUsuario {
         if(!userString){
             if(exigeLogin){
                 mostrarErroTopo('Você não está logado');
-                setTimeout(()=>{
-                    window.location.href = '/login';
-                }, 3*1000);
             }
             return false;
         } else {
             const userJson = JSON.parse(userString);
             if(restricao&&userJson.tipo!==restricao&&userJson.nivel!==restricao){
                 mostrarErroTopo(`Acesso apenas para ${restricao}s`);
-                setTimeout(()=>{
-                    window.location.href = '/';
-                }, 3*1000);
                 return false;
             }
             return userJson;
