@@ -3,14 +3,15 @@ import { DadosUsuario } from '../utils/globalFunctions';
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faHeart, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
 
 import '../css/chat.css';
 import genPfp from '../assets/imgs/genPfp.png';
-import { carregarConversasBack } from '../ts/chatsFunctions';
+import { carregarConversasBack, validarSeEhArquivo } from '../ts/chatsFunctions';
 
 export default function Chats(){
     const navigate = useNavigate();
-    const usuario = DadosUsuario.getUsuario(true);
+    const [usuario] = useState(DadosUsuario.getUsuario(true));
     if(!usuario) {
         setTimeout(()=>{
             navigate('/')
@@ -19,6 +20,8 @@ export default function Chats(){
 
     const [dadosConversas, setDadosConversas] = useState([]);
     const [estadoConversas, setEstadoConversas] = useState({conversaAtualId: "", conversas: [], contadorMensagens: 0, contadorFavoritos: 0, resultadosPesquisa: 0, indicePesquisaAtual: -1});
+    const [conversasFavoritadas, setConversasFavoritadas] = useState([]);
+    const [conversasNaoFavoritadas, setConversasNaoFavoritadas] = useState([]);
 
     useEffect(()=>{
         if(!usuario) return;
@@ -36,12 +39,15 @@ export default function Chats(){
                     }, 0)
                 })()
                 });
+                setConversasFavoritadas(conversasInit.conversas.filter(con=>con.favoritada));
+                setConversasNaoFavoritadas(conversasInit.conversas.filter(con=>!con.favoritada));
             } catch (erro) {
                 console.error("Erro ao carregar conversas:", erro);
             }
         }
         carregarConversas();
-    },[]);
+        
+    }, [usuario]);
 
     return (
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
@@ -91,6 +97,42 @@ export default function Chats(){
                 {/* <!-- Lista das conversas --> */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
                     {/* <!-- As conversas serão inseridas aqui via JavaScript (O código todo está lá) --> */}
+                    <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Conversas</div>
+                    {dadosConversas.length>0 && dadosConversas.map(conversa=>(
+                        <div className="flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg" key={conversa.id}>
+
+                            <div className="flex items-center w-full">
+                                <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                                    <img src={conversa.avatar} className="w-full h-full object-cover rounded-full"/>
+                                </div>
+                                <div className="ml-3 flex-1 min-w-0">
+                                    <div className="flex justify-between items-baseline">
+                                        <h3 className="font-semibold truncate">{conversa.nome}</h3>
+                                        <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
+                                    </div>
+                                    {(() => {
+                                        const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
+
+                                        if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
+
+                                        if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
+
+                                        return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
+                                    })()}
+                                </div>
+                                {conversa.naoLidas > 0 && (
+                                    <div className="ml-2 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {conversa.naoLidas}
+                                    </div>
+                                )}
+                                <button className={`ml-2 botao-favorito p-1 rounded-full ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
+                                    data-id={conversa.id}>
+                                    <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
+                                </button>
+                            </div>
+
+                        </div>
+                    ))}
                 </div>
 
             </aside>

@@ -35,7 +35,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
     const response = usuarioTipo === 'candidato' ? await axiosWe('/chats/candidato'): await axiosWe('/chats/empresa');
     const data = response.data;
 
-    const conversas = data.map((chat:any)=>{
+    const conversas = data.map(chat=>{
         if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
         const ct = {
             id: chat.id,
@@ -157,4 +157,28 @@ function hojeOntem(data: Date){
     } else {
         return `${data.getDate().toString().padStart(2, '0')}/${data.getMonth().toString().padStart(2, '0')}/${data.getFullYear()}`
     }
+}
+
+interface ValidarSeEhArquivoResponse {
+    url?: string;
+    size?: string; 
+    filename?: string;
+    extensao?: string;
+    nomeExib?: string;
+    tipo?: string;
+    eh: boolean;
+}
+export function validarSeEhArquivo(texto: string): ValidarSeEhArquivoResponse{
+    const textoSplited = texto.split('|');
+    if(textoSplited.length !== 5) return {eh: false};
+    const [prefixo, url, size, nomeExib, sufixo] = textoSplited;
+    let tipo = '';
+    if(prefixo==='NewSendFile' && sufixo==='fileNew' && size.endsWith('KB') && url.startsWith('https://res.cloudinary.com/ddbfifdxd/raw/upload/')){
+        tipo = 'raw';
+    } else if(prefixo==='NewSendImage' && sufixo==='imageNew' && size.endsWith('KB') && url.startsWith('https://res.cloudinary.com/ddbfifdxd/image/upload/')){
+        tipo = 'img';
+    } else return {eh: false};
+    const filename = url.split('/').pop();
+    const extensao = filename.split('.').pop().toUpperCase();
+    return {url, size, filename, extensao, nomeExib, tipo, eh: true};
 }
