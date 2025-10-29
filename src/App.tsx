@@ -4,6 +4,7 @@ import Index from './pages/Index'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
 import ConfirmEmail from './pages/ConfirmEmail'
+import Teste from './pages/teste'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path='/' element={<Index />} />
         <Route path='/login' element={<Login />} />
         <Route path='/confirmar' element={<ConfirmEmail/>} />
+        <Route path='/teste' element={<Teste/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
