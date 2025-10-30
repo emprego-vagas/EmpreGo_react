@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import anime from "animejs";
+import { animate } from 'animejs';
 
 // document.addEventListener('DOMContentLoaded', function() {
 //     if (document.getElementById('particles-js')) {
@@ -182,116 +182,106 @@ logoContainer.addEventListener("mouseenter", () => {
   }, 1000);
 });
 
-export async function animacao(
-  e: React.MouseEvent<HTMLButtonElement>
-): Promise<void> {
+export default function Animacoes() {
   useEffect(() => {
-    anime({
-      targets: "#hero-content",
+    animate('#hero-content', {
       opacity: [0, 1],
       translateY: [40, 0],
       duration: 1000,
       easing: "easeOutExpo",
     });
+
+
+    animate('#hero-image', {
+      opacity: [0, 1],
+      translateY: [40, 0],
+      duration: 1000,
+      delay: 300,
+      easing: "easeOutExpo",
+    });
+
+    animate('#hero-title span', {
+      opacity: [0, 1],
+      translateY: [20, 0],
+      duration: 800,
+      delay: 500,
+      easing: "easeOutExpo",
+    });
+
+    const servicesObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animate('#services-header', {
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              easing: "easeOutExpo",
+            });
+
+            animate('#timeline-container', {
+              opacity: [0, 1],
+              duration: 800,
+              delay: 300,
+              easing: "easeOutExpo",
+            });
+
+            animate('.timeline-item', {
+              opacity: [0, 1],
+              translateX: (el, i) => (i % 2 === 0 ? [-50, 0] : [50, 0]),
+              duration: 800,
+              delay: (el, i) => 500 + i * 200,
+              easing: "easeOutExpo",
+            });
+
+            servicesObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    servicesObserver.observe(document.querySelector("#servicos"));
+
+    const profilesObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animate('#profiles-header', {
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              easing: "easeOutExpo",
+            });
+
+            animate('.profile-card', {
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              delay: (el) => parseInt(el.dataset.delay),
+              easing: "easeOutExpo",
+            });
+
+            animate('#profiles-cta', {
+              opacity: [0, 1],
+              translateY: [40, 0],
+              duration: 800,
+              delay: 1000,
+              easing: "easeOutExpo",
+            });
+
+            profilesObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    profilesObserver.observe(document.querySelector("#testperfis"));
   }, []);
-
-  anime({
-    targets: "#hero-image",
-    opacity: [0, 1],
-    translateY: [40, 0],
-    duration: 1000,
-    delay: 300,
-    easing: "easeOutExpo",
-  });
-
-  anime({
-    targets: "#hero-title span",
-    opacity: [0, 1],
-    translateY: [20, 0],
-    duration: 800,
-    delay: 500,
-    easing: "easeOutExpo",
-  });
-
-  const servicesObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          anime({
-            targets: "#services-header",
-            opacity: [0, 1],
-            translateY: [40, 0],
-            duration: 800,
-            easing: "easeOutExpo",
-          });
-
-          anime({
-            targets: "#timeline-container",
-            opacity: [0, 1],
-            duration: 800,
-            delay: 300,
-            easing: "easeOutExpo",
-          });
-
-          anime({
-            targets: ".timeline-item",
-            opacity: [0, 1],
-            translateX: (el, i) => (i % 2 === 0 ? [-50, 0] : [50, 0]),
-            duration: 800,
-            delay: (el, i) => 500 + i * 200,
-            easing: "easeOutExpo",
-          });
-
-          servicesObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.2 }
-  );
-
-  servicesObserver.observe(document.querySelector("#servicos"));
-
-  const profilesObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          anime({
-            targets: "#profiles-header",
-            opacity: [0, 1],
-            translateY: [40, 0],
-            duration: 800,
-            easing: "easeOutExpo",
-          });
-
-          anime({
-            targets: ".profile-card",
-            opacity: [0, 1],
-            translateY: [40, 0],
-            duration: 800,
-            delay: (el) => parseInt(el.dataset.delay),
-            easing: "easeOutExpo",
-          });
-
-          anime({
-            targets: "#profiles-cta",
-            opacity: [0, 1],
-            translateY: [40, 0],
-            duration: 800,
-            delay: 1000,
-            easing: "easeOutExpo",
-          });
-
-          profilesObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  profilesObserver.observe(document.querySelector("#testperfis"));
-
-  const canvas = document.getElementById("particles");
-  const ctx = canvas.getContext("2d");
+   return null; 
+  // const canvas = document.getElementById("particles");
+  // const ctx = canvas.getContext("2d");
 }
 
 // Perfil de usuario (PC/CELL)
