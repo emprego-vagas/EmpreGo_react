@@ -3,6 +3,7 @@ import socket from "../utils/socketsConnection";
 
 // === Tipos auxiliares ===
 interface Mensagem {
+    id: string;
     texto: string;
     remetente: 'usuario' | 'eles';
     hora: string;
@@ -71,7 +72,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                         const horario = new Date(msg.data_criacao);
                         const txtData = hojeOntem(horario);
                         return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
-                    })()
+                    })(),
+                    id: msg.id
                 }
             })
         };
@@ -124,7 +126,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                                 const horario = new Date(msg.data_criacao);
                                 const txtData = hojeOntem(horario);
                                 return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
-                            })()
+                            })(),
+                            id: msg.id
                         }
                     })
                 })
@@ -132,7 +135,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
             } catch (erro) {
                 console.error(erro)
             }
-        } else conversaAtual = idAtual;
+        } else conversaAtual = atual;
     }
     console.log(conversas, conversaAtual)
     return {conversas, conversaAtual};
@@ -181,4 +184,9 @@ export function validarSeEhArquivo(texto: string): ValidarSeEhArquivoResponse{
     const filename = url.split('/').pop();
     const extensao = filename.split('.').pop().toUpperCase();
     return {url, size, filename, extensao, nomeExib, tipo, eh: true};
+}
+
+export function transformarLinksEmAnchors(mensagem: string): string{
+    const regex = /(https?:\/\/[^\s]+)/g;
+    return mensagem.replace(regex, '<a href="$1" target="_blank" class="text-blue-400 underline hover:text-blue-600">$1</a>');
 }
