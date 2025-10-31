@@ -88,7 +88,11 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                     empresa: usuarioTipo === 'candidato' ? idAtual : usuarioId,
                     candidato: usuarioTipo === 'candidato' ? usuarioId : idAtual
                 }
-                const response = await axiosWe.post('/chats', obj);
+                const response = await axiosWe.post('/chats', obj).catch((err)=>{
+                    console.error(err);
+                    return {data:''}
+                });
+                if(response.data==='') return;
                 const chat = response.data;
                 
                 if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
@@ -139,6 +143,39 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
     }
     console.log(conversas, conversaAtual)
     return {conversas, conversaAtual};
+}
+
+interface EnviarMensagemResponse {
+    success: boolean,
+    texto?: string;
+    remetente?: string;
+    hora?: string;
+    id?: string;
+}
+export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string): Promise<EnviarMensagemResponse> {
+    try {
+        const response = await axiosWe.post('/mensagens', {
+            autor: usuario.nome,
+            mensagem,
+            chat: conversaAtualId,
+            de: usuario.tipo
+        })
+        const agora = new Date();
+        const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.idMsg };
+        const messageObject = {
+            author: usuario.nome,
+            message: mensagem,
+            room: conversaAtualId,
+            type: usuario.tipo,
+            idMsg: response.data.idMsg
+        };
+        socket.emit('sendMessage', messageObject);
+        return novaMensagem;
+    } catch (erro) {
+        console.error(erro);
+        return { success: false };
+    }
 }
 
 function hojeOntem(data: Date){

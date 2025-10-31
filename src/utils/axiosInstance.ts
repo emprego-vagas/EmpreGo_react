@@ -6,7 +6,7 @@ const axiosWe = axios.create();
 axiosWe.defaults.withCredentials = true;
 
 const hostName = window.location.hostname;
-axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:3001' : 'urlDeployBack';
+axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:3002' : 'urlDeployBack';
 
 axiosWe.interceptors.response.use(function (config) {
   return config;

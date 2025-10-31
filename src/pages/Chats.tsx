@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { DadosUsuario, fileDownload } from '../utils/globalFunctions';
-import { useEffect, useState } from 'react';
+import { DadosUsuario, fileDownload, mostrarErroTopo } from '../utils/globalFunctions';
+import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faHeart, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
@@ -10,7 +10,9 @@ import genPfp from '../assets/imgs/genPfp.png';
 import PDFpng from '../assets/imgs/PDF.png';
 import DOCXICONROXO from '../assets/imgs/DOCXICONROXO.png'
 import TXTAZUL from '../assets/imgs/TXTAZUL.png'
-import { carregarConversasBack, transformarLinksEmAnchors, validarSeEhArquivo } from '../ts/chatsFunctions';
+import { carregarConversasBack, enviarMensagem, transformarLinksEmAnchors, validarSeEhArquivo } from '../ts/chatsFunctions';
+import axiosWe from '../utils/axiosInstance';
+import socket from '../utils/socketsConnection';
 
 export default function Chats(){
     const navigate = useNavigate();
@@ -19,6 +21,15 @@ export default function Chats(){
         setTimeout(()=>{
             navigate('/')
         }, 3000)
+    };
+
+    const [mensagemEnvio, setMensagemEnvio] = useState("");
+    const textareaRef = useRef(null);
+    const handleChangeMsg = (e)=>{
+        const target = e.target;
+        setMensagemEnvio(target.value);
+        target.style.height = 'auto';
+        target.style.height = `${target.scrollHeight}px`;
     };
 
     const [dadosConversas, setDadosConversas] = useState([]);
@@ -47,15 +58,81 @@ export default function Chats(){
             }
         }
         carregarConversas();
-        
+        const intervalId = setInterval(()=>{
+            socket.emit('refreshStatus');
+        }, 5000);
+        return () => clearInterval(intervalId);
     }, [usuario]);
+
+    const estadoConversasRef = useRef(estadoConversas);
+    useEffect(() => {
+        estadoConversasRef.current = estadoConversas;
+    }, [estadoConversas]);
+    useEffect(()=>{
+        if (!usuario) return;
+
+        const receivedMessage = async(message)=>{
+            if (message.type === usuario.tipo) return;
+            console.log(message)
+
+            const agora = new Date();
+            const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+            const messageFormat = { texto: message.message, remetente: 'eles', hora, id: message.idMsg };
+
+            setDadosConversas(prev => {
+                const conversaExiste = prev.some(c => c.id === message.room);
+                if (!conversaExiste) return prev;
+
+                return prev.map(conversa =>
+                    conversa.id === message.room
+                        ? {
+                            ...conversa,
+                            mensagens: [...conversa.mensagens, messageFormat],
+                            naoLidas: estadoConversasRef.current.conversaAtualId === message.room ? 0 : conversa.naoLidas + 1
+                        }
+                        : conversa
+                );
+            });
+
+            if(estadoConversasRef.current.conversaAtualId===message.room){
+                axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
+            }
+        }
+        const userStatus = (user)=>{
+            if(user.socket===socket.id) return;
+            
+            setDadosConversas(prev => {
+                const conversaExiste = prev.some(c => c.id === user.room);
+                if (!conversaExiste) return prev;
+
+                return prev.map(conversa =>
+                    conversa.id === user.room
+                        ? {
+                            ...conversa,
+                            statusRemetente: user.status,
+                            bloqueadoStatus: false,
+                            bloqueador: null
+                        }
+                        : conversa
+                );
+            });
+        }
+
+        socket.on('receivedMessage', receivedMessage);
+        socket.on('userStatus', userStatus);
+
+        return () => {
+            socket.off('receivedMessage', receivedMessage);
+            socket.off('userStatus', userStatus);
+        };
+    }, [usuario])
 
     return (
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
             <aside className="w-16 bg-dark-800 border-r border-gray-800 flex flex-col h-full items-center py-4">
                 {/* <!-- Foto de perfil do usuário --> */}
                 <a href="/perfil/candidato" className="relative mb-8">
-                    <img src={usuario.foto||genPfp} alt="Foto de perfil do usuário" id="FotoDePerfil"
+                    <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
                         className="w-8 h-8 object-cover rounded-full cursor-pointer" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark-800"
                         id="bolaSemMexer"></div>
@@ -98,11 +175,11 @@ export default function Chats(){
                 {/* <!-- Lista das conversas --> */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
                     {dadosConversas.filter(con=>con.favoritada).length>0 && dadosConversas.filter(con=>con.favoritada).map(conversa=>(
-                        <div className="flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg" key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
+                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
 
                             <div className="flex items-center w-full">
                                 <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img src={conversa.avatar} className="w-full h-full object-cover rounded-full"/>
+                                    <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} className="w-full h-full object-cover rounded-full"/>
                                 </div>
                                 <div className="ml-3 flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline">
@@ -124,8 +201,34 @@ export default function Chats(){
                                         {conversa.naoLidas}
                                     </div>
                                 )}
-                                <button className={`ml-2 botao-favorito p-1 rounded-full ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
-                                    data-id={conversa.id}>
+                                <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
+                                    data-id={conversa.id} onClick={async()=>{
+                                        if(conversa.favoritada){
+                                            conversa.favoritada = false;
+                                            estadoConversas.contadorFavoritos--;
+                                            try {
+                                                await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                            } catch (erro) {
+                                                console.error(erro);
+                                                conversa.favoritada = true;
+                                                estadoConversas.contadorFavoritos++;
+                                            }
+                                        } else {
+                                            if (estadoConversas.contadorFavoritos >= 3) {
+                                                mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
+                                                return;
+                                            }
+                                            conversa.favoritada = true;
+                                            estadoConversas.contadorFavoritos++;
+                                            try {
+                                                await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                            } catch (erro) {
+                                                console.error(erro);
+                                                conversa.favoritada = false;
+                                                estadoConversas.contadorFavoritos--;
+                                            }
+                                        }
+                                    }}>
                                     <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
                                 </button>
                             </div>
@@ -135,11 +238,11 @@ export default function Chats(){
                     {/* <!-- As conversas serão inseridas aqui via JavaScript (O código todo está lá) --> */}
                     <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Conversas</div>
                     {dadosConversas.filter(con=>!con.favoritada).length>0 && dadosConversas.filter(con=>!con.favoritada).map(conversa=>(
-                        <div className="flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg" key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
+                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
 
                             <div className="flex items-center w-full">
                                 <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img src={conversa.avatar} className="w-full h-full object-cover rounded-full"/>
+                                    <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} className="w-full h-full object-cover rounded-full"/>
                                 </div>
                                 <div className="ml-3 flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline">
@@ -161,8 +264,34 @@ export default function Chats(){
                                         {conversa.naoLidas}
                                     </div>
                                 )}
-                                <button className={`ml-2 botao-favorito p-1 rounded-full ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
-                                    data-id={conversa.id}>
+                                <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
+                                    data-id={conversa.id} onClick={async()=>{
+                                        if(conversa.favoritada){
+                                            conversa.favoritada = false;
+                                            estadoConversas.contadorFavoritos--;
+                                            try {
+                                                await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                            } catch (erro) {
+                                                console.error(erro);
+                                                conversa.favoritada = true;
+                                                estadoConversas.contadorFavoritos++;
+                                            }
+                                        } else {
+                                            if (estadoConversas.contadorFavoritos >= 3) {
+                                                mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
+                                                return;
+                                            }
+                                            conversa.favoritada = true;
+                                            estadoConversas.contadorFavoritos++;
+                                            try {
+                                                await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                            } catch (erro) {
+                                                console.error(erro);
+                                                conversa.favoritada = false;
+                                                estadoConversas.contadorFavoritos--;
+                                            }
+                                        }
+                                    }}>
                                     <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
                                 </button>
                             </div>
@@ -219,7 +348,7 @@ export default function Chats(){
                                 <div className="flex items-center space-x-4">
                                     <div
                                         className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
-                                        <img src={conversa.avatar||genPfp} id="current-chat-avatar"
+                                        <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
                                             className="w-full h-full object-cover rounded-full"/>
                                     </div>
                                     <div>
@@ -309,6 +438,7 @@ export default function Chats(){
                                 {/* <!-- As mensagens serão inseridas aqui via JavaScript --> */}
                                 {conversa.mensagens.map(msg=>{
                                         const ehUsuario = msg.remetente === 'usuario';
+                                        console.log(msg)
                                         const ehArquivo = validarSeEhArquivo(msg.texto);
                                         console.log(msg)
                                         return (
@@ -429,12 +559,56 @@ export default function Chats(){
                                     <div className="flex-1 bg-dark-700 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500">
                                         <textarea id="message-input"
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
-                                            placeholder="Digite sua mensagem..." rows={1} maxLength={500}></textarea>
+                                            placeholder="Digite sua mensagem..." rows={1} maxLength={500}
+                                            ref={textareaRef} value={mensagemEnvio} onChange={handleChangeMsg} onKeyDown={async(e)=>{
+                                                if (e.key === "Enter" && !e.shiftKey) {
+                                                    e.preventDefault();
+
+                                                    if (mensagemEnvio.trim() === "") return;
+
+                                                    if(conversa.bloqueadoStatus) {
+                                                        setMensagemEnvio("");
+                                                        textareaRef.current.style.height = "auto";
+                                                        mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
+                                                        return;
+                                                    }
+                                                    const msge = await enviarMensagem(mensagemEnvio, usuario, estadoConversas.conversaAtualId);
+                                                    setMensagemEnvio("");
+                                                    const el = textareaRef.current;
+                                                    if (el) el.style.height = "auto";
+                                                    if(msge.success){
+                                                        conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: msge.id});
+                                                        conversa.ultimaMensagem = msge.texto;
+                                                        conversa.hora = msge.hora;
+                                                        setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                        </textarea>
                                     </div>
 
                                     <button id="send-button"
-                                        className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2"
-                                        aria-label="Enviar mensagem">
+                                        className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2 cursor-pointer"
+                                        aria-label="Enviar mensagem" onClick={async()=>{
+                                            if (mensagemEnvio.trim() !== "") {
+                                                if(conversa.bloqueadoStatus) {
+                                                    setMensagemEnvio("");
+                                                    textareaRef.current.style.height = "auto";
+                                                    mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
+                                                    return;
+                                                }
+                                                const msge = await enviarMensagem(mensagemEnvio, usuario, estadoConversas.conversaAtualId);
+                                                setMensagemEnvio("");
+                                                textareaRef.current.style.height = "auto";
+                                                if(msge.success){
+                                                    conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: msge.id});
+                                                    conversa.ultimaMensagem = msge.texto;
+                                                    conversa.hora = msge.hora;
+                                                    setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
+                                                }
+                                            }
+                                        }}>
                                         <FontAwesomeIcon icon={faPaperPlane} className='text-gray-400'/>
                                     </button>
                                 </div>

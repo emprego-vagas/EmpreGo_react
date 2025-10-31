@@ -123,7 +123,7 @@ export class DadosUsuario {
 }
 
 export async function fileDownload(url: string, tipo: string){
-    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:3001' : 'urlDeployBack';
+    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:3002' : 'urlDeployBack';
     const link = document.createElement('a');   // * Cria um link temporário
     link.href = `${hostName}/mensagens/download?link=${encodeURIComponent(url)}&tipo=${tipo}`;   // * Seta a rota de download como href do link
     document.body.appendChild(link);   // * Insere o link temporário na Árvore DOM
