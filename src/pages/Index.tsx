@@ -1,10 +1,113 @@
 import Header1 from '../components/HeaderInit'
 import ThemeTogle from '../components/ThemeTogle'
 import teste from '../assets/imgs/BIGSlogo.png'
+import { useEffect } from "react";
+import { animate } from 'animejs';
+import '../ts/indexFunctions'
+import '../App.css'
+import '../css/index.css'
+import { interacaoUI } from "../ts/indexFunctions";
+
 
 
 export default function Index(){
-
+    interacaoUI();
+    useEffect(() => {
+        animate('#hero-content', {
+          opacity: [0, 1],
+          translateY: [40, 0],
+          duration: 1000,
+          easing: "easeOutExpo",
+        });
+    
+    
+        animate('#hero-image', {
+          opacity: [0, 1],
+          translateY: [40, 0],
+          duration: 1000,
+          delay: 300,
+          easing: "easeOutExpo",
+        });
+    
+        animate('#hero-title span', {
+          opacity: [0, 1],
+          translateY: [20, 0],
+          duration: 800,
+          delay: 500,
+          easing: "easeOutExpo",
+        });
+    
+        const servicesObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                animate('#services-header', {
+                  opacity: [0, 1],
+                  translateY: [40, 0],
+                  duration: 800,
+                  easing: "easeOutExpo",
+                });
+    
+                animate('#timeline-container', {
+                  opacity: [0, 1],
+                  duration: 800,
+                  delay: 300,
+                  easing: "easeOutExpo",
+                });
+    
+                animate('.timeline-item', {
+                  opacity: [0, 1],
+                  translateX: (_el, i) => (i % 2 === 0 ? [-50, 0] : [50, 0]),
+                  duration: 800,
+                  delay: (_el, i) => 500 + i * 200,
+                  easing: "easeOutExpo",
+                });
+    
+                servicesObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+    
+        servicesObserver.observe(document.querySelector("#servicos"));
+    
+        const profilesObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                animate('#profiles-header', {
+                  opacity: [0, 1],
+                  translateY: [40, 0],
+                  duration: 800,
+                  easing: "easeOutExpo",
+                });
+    
+                animate('.profile-card', {
+                  opacity: [0, 1],
+                  translateY: [40, 0],
+                  duration: 800,
+                  delay: (_el) => parseInt(_el.dataset.delay),
+                  easing: "easeOutExpo",
+                });
+    
+                animate('#profiles-cta', {
+                  opacity: [0, 1],
+                  translateY: [40, 0],
+                  duration: 800,
+                  delay: 1000,
+                  easing: "easeOutExpo",
+                });
+    
+                profilesObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+    
+        profilesObserver.observe(document.querySelector("#testperfis"));
+      }, []); 
     return (
         <>
             <Header1 />

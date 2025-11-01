@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { animate } from 'animejs';
+
 
 // document.addEventListener('DOMContentLoaded', function() {
 //     if (document.getElementById('particles-js')) {
@@ -111,175 +110,117 @@ import { animate } from 'animejs';
 //     }
 // });
 
-// Menu do celular
-const mobileMenuButton = document.getElementById("mobile-menu-button");
-const mobileMenu = document.getElementById("mobile-menu");
+// uiInteractions.ts
+import { useEffect } from "react";
 
-mobileMenuButton.addEventListener("click", () => {
-  mobileMenu.classList.toggle("hidden");
-});
+export function interacaoUI() {
+  useEffect(() => {
+    // Menu do celular 
+    const mobileMenuButton = document.getElementById("mobile-menu-button") as HTMLButtonElement | null;
+    const mobileMenu = document.getElementById("mobile-menu") as HTMLElement | null;
 
-// botão de sair do menu
-const backToTopButton = document.getElementById("back-to-top");
-
-window.addEventListener("scroll", () => {
-  if (window.pageYOffset > 300) {
-    backToTopButton.classList.remove("opacity-0", "invisible");
-    backToTopButton.classList.add("opacity-100", "visible");
-  } else {
-    backToTopButton.classList.remove("opacity-100", "visible");
-    backToTopButton.classList.add("opacity-0", "invisible");
-  }
-});
-
-backToTopButton.addEventListener("click", () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-});
-
-// links
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    const targetId = this.getAttribute("href");
-    const targetElement = document.querySelector(targetId);
-
-    if (targetElement) {
-      window.scrollTo({
-        top: targetElement.offsetTop - 80,
-        behavior: "smooth",
-      });
-
-      // sair e abrir menu celular
-      if (!mobileMenu.classList.contains("hidden")) {
-        mobileMenu.classList.add("hidden");
-      }
+    if (mobileMenuButton && mobileMenu) {
+      const toggleMenu = () => mobileMenu.classList.toggle("hidden");
+      mobileMenuButton.addEventListener("click", toggleMenu);
+      return () => mobileMenuButton.removeEventListener("click", toggleMenu);
     }
-  });
-});
+  }, []);
 
-// Efeito de glitch
-const logoContainer = document.getElementById("logo-container");
-let isGlitching = false;
+  useEffect(() => {
+    // Botão de voltar ao topo 
+    const backToTopButton = document.getElementById("back-to-top") as HTMLButtonElement | null;
 
-logoContainer.addEventListener("mouseenter", () => {
-  if (isGlitching) return;
-  isGlitching = true;
+    if (!backToTopButton) return;
 
-  // animação
-  logoContainer.classList.add("animate-text-glitch");
+    const handleScroll = () => {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove("opacity-0", "invisible");
+        backToTopButton.classList.add("opacity-100", "visible");
+      } else {
+        backToTopButton.classList.remove("opacity-100", "visible");
+        backToTopButton.classList.add("opacity-0", "invisible");
+      }
+    };
 
-  setTimeout(() => {
-    logoContainer.classList.add("text-glitch-active");
-  }, 100);
+    const handleClick = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
-  setTimeout(() => {
-    logoContainer.classList.remove("animate-text-glitch", "text-glitch-active");
-    isGlitching = false;
-  }, 1000);
-});
+    window.addEventListener("scroll", handleScroll);
+    backToTopButton.addEventListener("click", handleClick);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      backToTopButton.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Links com rolagem suave 
+    const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    const handleAnchorClick = (e: MouseEvent) => {
+      e.preventDefault();
+      const anchor = e.currentTarget as HTMLAnchorElement;
+      const targetId = anchor.getAttribute("href");
+      if (!targetId) return;
+
+      const targetElement = document.querySelector(targetId) as HTMLElement | null;
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 80,
+          behavior: "smooth",
+        });
+
+        if (mobileMenu && !mobileMenu.classList.contains("hidden")) {
+          mobileMenu.classList.add("hidden");
+        }
+      }
+    };
+
+    anchors.forEach((anchor) => anchor.addEventListener("click", handleAnchorClick));
+
+    return () => {
+      anchors.forEach((anchor) => anchor.removeEventListener("click", handleAnchorClick));
+    };
+  }, []);
+
+  useEffect(() => {
+    // Efeito de glitch no logo 
+    const logoContainer = document.getElementById("logo-container") as HTMLElement | null;
+    if (!logoContainer) return;
+
+    let isGlitching = false;
+
+    const handleMouseEnter = () => {
+      if (isGlitching) return;
+      isGlitching = true;
+
+      logoContainer.classList.add("animate-text-glitch");
+
+      setTimeout(() => {
+        logoContainer.classList.add("text-glitch-active");
+      }, 100);
+
+      setTimeout(() => {
+        logoContainer.classList.remove("animate-text-glitch", "text-glitch-active");
+        isGlitching = false;
+      }, 1000);
+    };
+
+    logoContainer.addEventListener("mouseenter", handleMouseEnter);
+
+    return () => {
+      logoContainer.removeEventListener("mouseenter", handleMouseEnter);
+    };
+  }, []);
+}
+
+
 
 export default function Animacoes() {
-  useEffect(() => {
-    animate('#hero-content', {
-      opacity: [0, 1],
-      translateY: [40, 0],
-      duration: 1000,
-      easing: "easeOutExpo",
-    });
-
-
-    animate('#hero-image', {
-      opacity: [0, 1],
-      translateY: [40, 0],
-      duration: 1000,
-      delay: 300,
-      easing: "easeOutExpo",
-    });
-
-    animate('#hero-title span', {
-      opacity: [0, 1],
-      translateY: [20, 0],
-      duration: 800,
-      delay: 500,
-      easing: "easeOutExpo",
-    });
-
-    const servicesObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            animate('#services-header', {
-              opacity: [0, 1],
-              translateY: [40, 0],
-              duration: 800,
-              easing: "easeOutExpo",
-            });
-
-            animate('#timeline-container', {
-              opacity: [0, 1],
-              duration: 800,
-              delay: 300,
-              easing: "easeOutExpo",
-            });
-
-            animate('.timeline-item', {
-              opacity: [0, 1],
-              translateX: (el, i) => (i % 2 === 0 ? [-50, 0] : [50, 0]),
-              duration: 800,
-              delay: (el, i) => 500 + i * 200,
-              easing: "easeOutExpo",
-            });
-
-            servicesObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    servicesObserver.observe(document.querySelector("#servicos"));
-
-    const profilesObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            animate('#profiles-header', {
-              opacity: [0, 1],
-              translateY: [40, 0],
-              duration: 800,
-              easing: "easeOutExpo",
-            });
-
-            animate('.profile-card', {
-              opacity: [0, 1],
-              translateY: [40, 0],
-              duration: 800,
-              delay: (el) => parseInt(el.dataset.delay),
-              easing: "easeOutExpo",
-            });
-
-            animate('#profiles-cta', {
-              opacity: [0, 1],
-              translateY: [40, 0],
-              duration: 800,
-              delay: 1000,
-              easing: "easeOutExpo",
-            });
-
-            profilesObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    profilesObserver.observe(document.querySelector("#testperfis"));
-  }, []);
-   return null; 
   // const canvas = document.getElementById("particles");
   // const ctx = canvas.getContext("2d");
 }
