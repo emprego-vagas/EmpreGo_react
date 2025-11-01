@@ -178,6 +178,26 @@ export async function enviarMensagem(mensagem: string, usuario:{id: string, nome
     }
 }
 
+interface ModalActionsResponse {
+    success: boolean;
+}
+export async function modalActions(action: string, id: string, valor: string): Promise<ModalActionsResponse> {
+    switch (action) {
+        case 'block': {
+            try {
+                const status = valor === 'true' ? true : false;
+                await axiosWe.patch(`/chats/block/${id}`, { bloqueado: status});
+            } catch (erro) {
+                console.error(erro);
+                return {success: false}
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 function hojeOntem(data: Date){
     const hoje = new Date();
     const ontem = new Date();

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo } from '../utils/globalFunctions';
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faHeart, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
 
 import '../css/chat.css';
@@ -22,6 +22,8 @@ export default function Chats(){
             navigate('/')
         }, 3000)
     };
+    const [mostrarMenu, setMostrarMenu] = useState(false);
+    const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
 
     const [mensagemEnvio, setMensagemEnvio] = useState("");
     const textareaRef = useRef(null);
@@ -73,7 +75,6 @@ export default function Chats(){
 
         const receivedMessage = async(message)=>{
             if (message.type === usuario.tipo) return;
-            console.log(message)
 
             const agora = new Date();
             const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
@@ -95,6 +96,11 @@ export default function Chats(){
             });
 
             if(estadoConversasRef.current.conversaAtualId===message.room){
+                const conversa = dadosConversas.find(con => con.id === estadoConversasRef.current.conversaAtualId);
+                setEstadoConversas(prev => ({
+                    ...prev,
+                    contadorMensagens: conversa.mensagens.length
+                }));
                 axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
             }
         }
@@ -126,6 +132,43 @@ export default function Chats(){
             socket.off('userStatus', userStatus);
         };
     }, [usuario])
+
+    const messagesContainerRef = useRef(null);
+    useEffect(() => {
+        if (estadoConversas.conversaAtualId !== '0' && messagesContainerRef.current) {
+            const container = messagesContainerRef.current;
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 2);
+            setDadosConversas(prev => {
+                const conversaExiste = prev.some(c => c.id === estadoConversas.conversaAtualId);
+                if (!conversaExiste) return prev;
+
+                return prev.map(conversa =>
+                    conversa.id === estadoConversas.conversaAtualId
+                        ? {
+                            ...conversa,
+                            naoLidas: 0
+                        }
+                        : conversa
+                );
+            });
+            setMostrarMenu(false)
+            axiosWe.patch(`/mensagens/vizualizar/${estadoConversas.conversaAtualId}`).catch(console.error);
+        }
+    }, [estadoConversas.conversaAtualId, estadoConversas.contadorMensagens]);
+
+    useEffect(() => {
+        if (estadoConversas.conversaAtualId === '0') return;
+
+        const conversa = dadosConversas.find(con => con.id === estadoConversas.conversaAtualId);
+        if (!conversa) return;
+
+        setEstadoConversas(prev => ({
+            ...prev,
+            contadorMensagens: conversa.mensagens.length
+        }));
+    }, [estadoConversas.conversaAtualId, dadosConversas]);
 
     return (
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
@@ -174,12 +217,17 @@ export default function Chats(){
 
                 {/* <!-- Lista das conversas --> */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
+                    {estadoConversas.contadorFavoritos>0 && <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Favoritadas: {estadoConversas.contadorFavoritos}</div>}
                     {dadosConversas.filter(con=>con.favoritada).length>0 && dadosConversas.filter(con=>con.favoritada).map(conversa=>(
                         <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
 
                             <div className="flex items-center w-full">
-                                <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} className="w-full h-full object-cover rounded-full"/>
+                                <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
+                                    <img
+                                        src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                    {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
                                 </div>
                                 <div className="ml-3 flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline">
@@ -241,8 +289,12 @@ export default function Chats(){
                         <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
 
                             <div className="flex items-center w-full">
-                                <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} className="w-full h-full object-cover rounded-full"/>
+                                <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
+                                    <img
+                                        src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                    {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
                                 </div>
                                 <div className="ml-3 flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline">
@@ -366,48 +418,55 @@ export default function Chats(){
                                     </button>
 
                                     <div className="relative">
-                                        <button id="menu-toggle" className="p-2 rounded-full hover:bg-gray-700 w-12 h-12 transition-colors"
-                                            aria-label="Menu">
+                                        <button id="menu-toggle" className="p-2 rounded-full hover:bg-gray-700 w-12 h-12 transition-colors cursor-pointer"
+                                            aria-label="Menu" onClick={()=>{setMostrarMenu((p)=>!p)}}>
                                             <FontAwesomeIcon icon={faEllipsisVertical} />
                                         </button>
-
                                         {/* <!-- Dropdown Menu --> */}
-                                        <div id="menu-dropdown"
-                                            className="hidden absolute right-0 mt-2 w-64 bg-dark-800 shadow-lg rounded-lg overflow-hidden border border-gray-700 z-50">
-                                            <ul className="py-2 text-sm text-gray-200">
-                                                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
-                                                    <span>Dados do contato</span>
-                                                </li>
-                                                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faHeart} className='text-gray-400' />
-                                                    <span>Adicionar aos favoritos</span>
-                                                </li>
-                                                <li id="fecharBtn"
-                                                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faXmark} className='text-gray-400' />
-                                                    <span>Fechar conversa</span>
-                                                </li>
+                                        {mostrarMenu && 
+                                            <div id="menu-dropdown"
+                                                className="absolute right-0 mt-2 w-64 bg-dark-800 shadow-lg rounded-lg overflow-hidden border border-gray-700 z-50">
+                                                <ul className="py-2 text-sm text-gray-200">
+                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
+                                                        <span>Dados do contato</span>
+                                                    </li>
+                                                    <li id="fecharBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setEstadoConversas({...estadoConversas, conversaAtualId: '0'});
+                                                        }} >
+                                                        <FontAwesomeIcon icon={faXmark} className='text-gray-400'/>
+                                                        <span>Fechar conversa</span>
+                                                    </li>
 
-                                                <hr className="border-gray-700 my-2"/>
+                                                    <hr className="border-gray-700 my-2"/>
 
-                                                <li id="bloquearBtn"
-                                                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faBan} className='text-gray-400' />
-                                                    <span id="bloquearTxt">{conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear'}</span>
-                                                </li>
-                                                <li id="limparBtn"
-                                                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faTrash} className='text-gray-400' />
-                                                    <span id="limparTxt">Limpar conversa</span>
-                                                </li>
-                                                <li id="apagarBtn"
-                                                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
-                                                    <FontAwesomeIcon icon={faTrashCan} className='text-gray-400' />
-                                                    <span id="apagarTxt">Apagar conversa</span>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                                    <li id="bloquearBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            const txt = conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear';
+                                                            const val = !conversa.bloqueadoStatus ? 'true' : 'false';
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja ${txt} ${conversa.nome}?`, action: 'block', valor: val, chatId: conversa.id})
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faBan} className='text-gray-400' />
+                                                        <span id="bloquearTxt">{conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear'}</span>
+                                                    </li>
+                                                    <li id="limparBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        <FontAwesomeIcon icon={faTrash} className='text-gray-400' />
+                                                        <span id="limparTxt">Limpar conversa</span>
+                                                    </li>
+                                                    <li id="apagarBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        <FontAwesomeIcon icon={faTrashCan} className='text-gray-400' />
+                                                        <span id="apagarTxt">Apagar conversa</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        }
                                     </div>
 
                                 </div>
@@ -434,13 +493,11 @@ export default function Chats(){
                             </div>
 
                             {/* <!-- Área das mensagens --> */}
-                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-dark-900 bg-opacity-50" id="messages-container">
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-dark-900 bg-opacity-50" id="messages-container" ref={messagesContainerRef}>
                                 {/* <!-- As mensagens serão inseridas aqui via JavaScript --> */}
                                 {conversa.mensagens.map(msg=>{
                                         const ehUsuario = msg.remetente === 'usuario';
-                                        console.log(msg)
                                         const ehArquivo = validarSeEhArquivo(msg.texto);
-                                        console.log(msg)
                                         return (
                                             <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id}>
                                                 {(()=>{
@@ -615,9 +672,33 @@ export default function Chats(){
 
                                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500 px-2">
                                     <span>Pressione Enter para enviar</span>
-                                    <span id="message-counter">0 mensagens nesta conversa</span>
+                                    <span id="message-counter">{estadoConversas.contadorMensagens} mensagens nesta conversa</span>
                                 </div>
                             </div>
+
+                            {modalAction.status && (
+                                <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                                    <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
+                                        <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
+                                        <div className="flex justify-center space-x-3">
+                                            <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})}>Cancelar</button>
+                                            <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={()=>{
+                                                // const action = await funasdjgasdj();
+                                                // if(action.success) {
+                                                //     switch (modalAction.action) {
+                                                //         case 'block': {
+
+                                                //             break;
+                                                //         }                                                    
+                                                //         default:
+                                                //             break;
+                                                //     }
+                                                // }
+                                            }}>Confirmar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
                 )()}
