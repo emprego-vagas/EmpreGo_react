@@ -2,8 +2,10 @@ import logoEmpreGo from '../assets/logos/logoEmpreGo.png';
 import genPfp from '../assets/imgs/genPfp.png';
 import { logout, DadosUsuario } from '../utils/globalFunctions';
 import '../css/headerTW.css';
+import { interacaoUI } from "../ts/indexFunctions";
 
 export default function Header1(){
+        interacaoUI();
     const User = DadosUsuario.getUsuario();
     return (
         <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-20 transition-colors duration-300">
