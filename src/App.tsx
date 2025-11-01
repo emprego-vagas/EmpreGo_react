@@ -6,17 +6,19 @@ import NotFound from './pages/NotFound'
 import ConfirmEmail from './pages/ConfirmEmail'
 import Teste from './pages/teste'
 import Chats from './pages/Chats'
+import PerfilCandidato from './pages/PerfilCandidato'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path='*' element={<NotFound />} />
         <Route path='/' element={<Index />} />
         <Route path='/login' element={<Login />} />
         <Route path='/confirmar' element={<ConfirmEmail/>} />
         <Route path='/teste' element={<Teste/>} />
-        <Route path='*' element={<NotFound />} />
         <Route path='/chats' element={<Chats/>} />
+        <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
       </Routes>
     </BrowserRouter>
   )
