@@ -23,6 +23,7 @@ export default function Chats(){
         }, 3000)
     };
     const [mostrarMenu, setMostrarMenu] = useState(false);
+    const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
 
     const [mensagemEnvio, setMensagemEnvio] = useState("");
     const textareaRef = useRef(null);
@@ -443,7 +444,13 @@ export default function Chats(){
                                                     <hr className="border-gray-700 my-2"/>
 
                                                     <li id="bloquearBtn"
-                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            const txt = conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear';
+                                                            const val = !conversa.bloqueadoStatus ? 'true' : 'false';
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja ${txt} ${conversa.nome}?`, action: 'block', valor: val, chatId: conversa.id})
+                                                        }}>
                                                         <FontAwesomeIcon icon={faBan} className='text-gray-400' />
                                                         <span id="bloquearTxt">{conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear'}</span>
                                                     </li>
@@ -668,6 +675,30 @@ export default function Chats(){
                                     <span id="message-counter">{estadoConversas.contadorMensagens} mensagens nesta conversa</span>
                                 </div>
                             </div>
+
+                            {modalAction.status && (
+                                <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                                    <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
+                                        <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
+                                        <div className="flex justify-center space-x-3">
+                                            <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})}>Cancelar</button>
+                                            <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={()=>{
+                                                // const action = await funasdjgasdj();
+                                                // if(action.success) {
+                                                //     switch (modalAction.action) {
+                                                //         case 'block': {
+
+                                                //             break;
+                                                //         }                                                    
+                                                //         default:
+                                                //             break;
+                                                //     }
+                                                // }
+                                            }}>Confirmar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
                 )()}
