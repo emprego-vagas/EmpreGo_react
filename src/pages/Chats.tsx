@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo } from '../utils/globalFunctions';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
@@ -10,7 +10,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import PDFpng from '../assets/imgs/PDF.png';
 import DOCXICONROXO from '../assets/imgs/DOCXICONROXO.png'
 import TXTAZUL from '../assets/imgs/TXTAZUL.png'
-import { carregarConversasBack, enviarMensagem, transformarLinksEmAnchors, validarSeEhArquivo } from '../ts/chatsFunctions';
+import { carregarConversasBack, enviarMensagem, modalActions, transformarLinksEmAnchors, validarSeEhArquivo } from '../ts/chatsFunctions';
 import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
 
@@ -22,8 +22,28 @@ export default function Chats(){
             navigate('/')
         }, 3000)
     };
+    const [mostrarAttachmentMenu, setMostrarAttachmentMenu] = useState(false);
     const [mostrarMenu, setMostrarMenu] = useState(false);
     const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
+    const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
+    const [fileData, setFileData] = useState({name: '', size: '', tipo: ''});
+
+    const handleFileInput = (e: ChangeEvent<HTMLInputElement>, tipo: string): void=>{
+        setMostrarAttachmentMenu(false);
+        const target = e.target;
+        const arquivo = target.files[0];
+        if (arquivo && arquivo.size > 2 * 1024 * 1024) {
+            mostrarErroTopo("O arquivo deve ter no máximo 2MB.");
+            target.value = "";
+            return;
+        }
+        setFileData({name: arquivo.name, size: `${(arquivo.size / 1024).toFixed(2)} KB`, tipo})
+        setMostrarModalConfirmacao(true);
+    }
+
+    const inputDocRef = useRef(null);
+    const inputImgRef = useRef(null);
+    const inputCamRef = useRef(null);
 
     const [mensagemEnvio, setMensagemEnvio] = useState("");
     const textareaRef = useRef(null);
@@ -84,25 +104,32 @@ export default function Chats(){
                 const conversaExiste = prev.some(c => c.id === message.room);
                 if (!conversaExiste) return prev;
 
-                return prev.map(conversa =>
+                const novasConversas = prev.map(conversa =>
                     conversa.id === message.room
                         ? {
                             ...conversa,
                             mensagens: [...conversa.mensagens, messageFormat],
-                            naoLidas: estadoConversasRef.current.conversaAtualId === message.room ? 0 : conversa.naoLidas + 1
+                            naoLidas:
+                                estadoConversasRef.current.conversaAtualId === message.room
+                                    ? 0
+                                    : conversa.naoLidas + 1,
                         }
                         : conversa
                 );
-            });
 
-            if(estadoConversasRef.current.conversaAtualId===message.room){
-                const conversa = dadosConversas.find(con => con.id === estadoConversasRef.current.conversaAtualId);
-                setEstadoConversas(prev => ({
-                    ...prev,
-                    contadorMensagens: conversa.mensagens.length
-                }));
-                axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
-            }
+                if (estadoConversasRef.current.conversaAtualId === message.room) {
+                    const conversa = novasConversas.find(
+                        c => c.id === message.room
+                    );
+                    setEstadoConversas(prev => ({
+                        ...prev,
+                        contadorMensagens: conversa.mensagens.length,
+                    }));
+                    axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
+                }
+
+                return novasConversas;
+            });
         }
         const userStatus = (user)=>{
             if(user.socket===socket.id) return;
@@ -139,7 +166,7 @@ export default function Chats(){
             const container = messagesContainerRef.current;
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
-            }, 2);
+            }, 10);
             setDadosConversas(prev => {
                 const conversaExiste = prev.some(c => c.id === estadoConversas.conversaAtualId);
                 if (!conversaExiste) return prev;
@@ -154,6 +181,7 @@ export default function Chats(){
                 );
             });
             setMostrarMenu(false)
+            setMostrarAttachmentMenu(false);
             axiosWe.patch(`/mensagens/vizualizar/${estadoConversas.conversaAtualId}`).catch(console.error);
         }
     }, [estadoConversas.conversaAtualId, estadoConversas.contadorMensagens]);
@@ -455,12 +483,21 @@ export default function Chats(){
                                                         <span id="bloquearTxt">{conversa.bloqueadoStatus && conversa.bloqueador === usuario.tipo ? 'Desbloquear' : 'Bloquear'}</span>
                                                     </li>
                                                     <li id="limparBtn"
-                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            if(conversa.mensagens.length===0) return mostrarErroTopo(`A conversa com ${conversa.nome} já está vazia!`);
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja limpar a conversa com ${conversa.nome} (Esta ação ocultará para você todas as mensagens desta conversa)?`, action: 'clean', valor: '', chatId: conversa.id})
+                                                        }}>
                                                         <FontAwesomeIcon icon={faTrash} className='text-gray-400' />
                                                         <span id="limparTxt">Limpar conversa</span>
                                                     </li>
                                                     <li id="apagarBtn"
-                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja apagar a conversa com ${conversa.nome} (Esta ação é irreversível e apagará completamente esta conversa)?`, action: 'remove', valor: '', chatId: conversa.id})
+                                                        }}>
                                                         <FontAwesomeIcon icon={faTrashCan} className='text-gray-400' />
                                                         <span id="apagarTxt">Apagar conversa</span>
                                                     </li>
@@ -564,51 +601,81 @@ export default function Chats(){
                             </div>
 
                             {/* <!-- Menu de anexos --> */}
-                            <div id="attachment-menu"
-                                className="hidden absolute bottom-24 left-4 bg-[#1e1e1e] rounded-xl p-2 w-56 z-50 shadow-lg">
-                                <ul className="space-y-2">
-                                    <li id="btn-documento" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer">
-                                        <FontAwesomeIcon icon={faFile} className='text-purple-400 text-xl'/>
-                                        <span className="text-gray-200">Documento</span>
-                                    </li>
-                                    <li id="btn-fotos" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer">
-                                        <FontAwesomeIcon icon={faImage} className='text-blue-400 text-xl'/>
-                                        <span className="text-gray-200">Fotos</span>
-                                    </li>
-                                    <li id="btn-camera" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer">
-                                        <FontAwesomeIcon icon={faCamera} className='text-pink-500 text-xl'/>
-                                        <span className="text-gray-200">Câmera</span>
-                                    </li>
-                                </ul>
-                            </div>
+                            {mostrarAttachmentMenu && (
+                                <div id="attachment-menu"
+                                    className="absolute bottom-24 left-4 bg-[#1e1e1e] rounded-xl p-2 w-56 z-50 shadow-lg">
+                                    <ul className="space-y-2">
+                                        <li id="btn-documento" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer"
+                                        onClick={()=>inputDocRef.current.click()}>
+                                            <FontAwesomeIcon icon={faFile} className='text-purple-400 text-xl'/>
+                                            <span className="text-gray-200">Documento</span>
+                                        </li>
+                                        <li id="btn-fotos" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer"
+                                        onClick={()=>inputImgRef.current.click()}>
+                                            <FontAwesomeIcon icon={faImage} className='text-blue-400 text-xl'/>
+                                            <span className="text-gray-200">Fotos</span>
+                                        </li>
+                                        <li id="btn-camera" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer"
+                                        onClick={()=>inputCamRef.current.click()}>
+                                            <FontAwesomeIcon icon={faCamera} className='text-pink-500 text-xl'/>
+                                            <span className="text-gray-200">Câmera</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
 
-                            <input type="file" id="input-documento" className="hidden" accept=".pdf,.doc,.docx,.txt,.zip" />
-                            <input type="file" id="input-fotos" className="hidden" accept=".jpg,.jpeg,.png,.webp" />
-                            <input type="file" id="input-camera" accept="image/*" capture="environment" className="hidden"/>
+                            <input type="file" id="input-documento" className="hidden" accept=".pdf,.doc,.docx,.txt,.zip" ref={inputDocRef} onChange={(e)=>handleFileInput(e, 'documento')}/>
+                            <input type="file" id="input-fotos" className="hidden" accept=".jpg,.jpeg,.png,.webp" ref={inputImgRef} onChange={(e)=>handleFileInput(e, 'foto')}/>
+                            <input type="file" id="input-camera" accept="image/*" capture="environment" className="hidden" ref={inputCamRef} onChange={(e)=>handleFileInput(e, 'camera')}/>
 
                             {/* <!-- Modal de confirmação --> */}
-                            <div id="modalConfirmacao"
-                                className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
-                                <div className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
-                                    <h3 className="text-lg font-semibold mb-4 text-center"><strong>Enviar arquivo?</strong></h3>
-                                    <div className="bg-dark-700 rounded-xl p-3 mb-4 flex items-center">
-                                        <span id="modal-file-name" className="text-white font-semibold"></span>
-                                        <span id="modal-file-size" className="text-gray-400 ml-2"></span>
-                                    </div>
-                                    <div className="flex justify-center space-x-3">
-                                        <button id="btnCancelarEnvio"
-                                            className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors">Cancelar</button>
-                                        <button id="btnConfirmarEnvio"
-                                            className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors">Confirmar</button>
+                            {mostrarModalConfirmacao && (
+                                <div id="modalConfirmacao"
+                                    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                                    <div className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
+                                        <h3 className="text-lg font-semibold mb-4 text-center"><strong>Enviar arquivo?</strong></h3>
+                                        <div className="bg-dark-700 rounded-xl p-3 mb-4 flex items-center">
+                                            <span id="modal-file-name" className="text-white font-semibold">{fileData.name}</span>
+                                            <span id="modal-file-size" className="text-gray-400 ml-2">{fileData.size}</span>
+                                        </div>
+                                        <div className="flex justify-center space-x-3">
+                                            <button id="btnCancelarEnvio" onClick={()=>{
+                                                inputDocRef.current.value = '';
+                                                inputImgRef.current.value = '';
+                                                inputCamRef.current.value = '';
+                                                setFileData({name: '', size: '', tipo: ''});
+                                                setMostrarModalConfirmacao(false);
+                                            }}
+                                                className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer">Cancelar</button>
+                                            <button id="btnConfirmarEnvio" onClick={async()=>{
+                                                const fileDataTipo = fileData.tipo;
+                                                const arquivoSelecionado = fileDataTipo === 'documento' ? inputDocRef.current.files[0] : fileDataTipo === 'foto' ? inputImgRef.current.files[0] : inputCamRef.current.files[0];
+                                                const formData = new FormData();
+                                                formData.append('file', arquivoSelecionado);
+                                                formData.append('autor', usuario.nome);
+                                                formData.append('chat', conversa.id);
+                                                formData.append('de', usuario.tipo);
+                                                const response = await axiosWe.post(`/mensagens/upload${fileData.tipo!=='documento'?'/image':''}`, formData);
+                                                const msge = await enviarMensagem(response.data.newFile, usuario, conversa.id, response.data.idFile);
+                                                if(msge.success){
+                                                    conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: response.data.idFile});
+                                                    conversa.ultimaMensagem = msge.texto;
+                                                    conversa.hora = msge.hora;
+                                                    setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
+                                                }
+                                                setFileData({name: '', size: '', tipo: ''});
+                                                setMostrarModalConfirmacao(false);
+                                            }}
+                                                className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer">Confirmar</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-
+                            )}
+                            
                             <div className="bg-dark-800 p-4 border-t border-gray-800">
                                 <div className="flex items-end space-x-3">
-                                    <button id="attach-button" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors mb-2"
-                                        aria-label="Anexar arquivo">
+                                    <button id="attach-button" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors mb-2 cursor-pointer"
+                                        aria-label="Anexar arquivo" onClick={()=>setMostrarAttachmentMenu(a=>!a)}>
                                         <FontAwesomeIcon icon={faPaperclip} className='text-gray-400'/>
                                     </button>
 
@@ -616,7 +683,7 @@ export default function Chats(){
                                     <div className="flex-1 bg-dark-700 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500">
                                         <textarea id="message-input"
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
-                                            placeholder="Digite sua mensagem..." rows={1} maxLength={500}
+                                            placeholder="Digite sua mensagem..." rows={1} maxLength={500} onClick={()=>{setMostrarAttachmentMenu(false);setMostrarMenu(false)}}
                                             ref={textareaRef} value={mensagemEnvio} onChange={handleChangeMsg} onKeyDown={async(e)=>{
                                                 if (e.key === "Enter" && !e.shiftKey) {
                                                     e.preventDefault();
@@ -648,6 +715,8 @@ export default function Chats(){
                                     <button id="send-button"
                                         className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2 cursor-pointer"
                                         aria-label="Enviar mensagem" onClick={async()=>{
+                                            setMostrarAttachmentMenu(false);
+                                            setMostrarMenu(false);
                                             if (mensagemEnvio.trim() !== "") {
                                                 if(conversa.bloqueadoStatus) {
                                                     setMensagemEnvio("");
@@ -682,18 +751,48 @@ export default function Chats(){
                                         <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
                                         <div className="flex justify-center space-x-3">
                                             <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})}>Cancelar</button>
-                                            <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={()=>{
-                                                // const action = await funasdjgasdj();
-                                                // if(action.success) {
-                                                //     switch (modalAction.action) {
-                                                //         case 'block': {
-
-                                                //             break;
-                                                //         }                                                    
-                                                //         default:
-                                                //             break;
-                                                //     }
-                                                // }
+                                            <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={async()=>{
+                                                const {action, valor, chatId} = modalAction;
+                                                setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})
+                                                const actionRes = await modalActions(action, chatId, valor);
+                                                if(actionRes.success) {
+                                                    switch (action) {
+                                                        case 'block': {
+                                                            setDadosConversas(prev=> {
+                                                                return prev.map((con)=>
+                                                                    con.id === chatId ?
+                                                                    {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador}
+                                                                    : con
+                                                                )
+                                                            });
+                                                            if(valor==='true') socket.emit('leaveRoom', chatId);
+                                                            else socket.emit('joinRoom', chatId);
+                                                            break;
+                                                        }
+                                                        case 'clean': {
+                                                            setDadosConversas(prev=> {
+                                                                return prev.map((con)=>
+                                                                    con.id === chatId ?
+                                                                    {...con, mensagens: [], ultimaMensagem: ''}
+                                                                    : con
+                                                                )
+                                                            });
+                                                            break;
+                                                        }
+                                                        case 'remove': {
+                                                            setDadosConversas(prev=> {
+                                                                return prev.filter((con)=>
+                                                                    con.id !== chatId 
+                                                                )
+                                                            });
+                                                            setEstadoConversas({...estadoConversas, conversaAtualId: '0'});
+                                                            socket.emit('leaveRoom', chatId);
+                                                            break;
+                                                        }                                      
+                                                        default:
+                                                            break;
+                                                    }
+                                                }
                                             }}>Confirmar</button>
                                         </div>
                                     </div>

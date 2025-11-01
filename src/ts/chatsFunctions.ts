@@ -152,23 +152,26 @@ interface EnviarMensagemResponse {
     hora?: string;
     id?: string;
 }
-export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string): Promise<EnviarMensagemResponse> {
+export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string, arquivoId?:string): Promise<EnviarMensagemResponse> {
     try {
-        const response = await axiosWe.post('/mensagens', {
-            autor: usuario.nome,
-            mensagem,
-            chat: conversaAtualId,
-            de: usuario.tipo
-        })
+        let response;
+        if(!arquivoId){
+            response = await axiosWe.post('/mensagens', {
+                autor: usuario.nome,
+                mensagem,
+                chat: conversaAtualId,
+                de: usuario.tipo
+            })
+        }
         const agora = new Date();
         const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.idMsg };
+        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response?.data?.idMsg || arquivoId};
         const messageObject = {
             author: usuario.nome,
             message: mensagem,
             room: conversaAtualId,
             type: usuario.tipo,
-            idMsg: response.data.idMsg
+            idMsg: response?.data?.idMsg || arquivoId
         };
         socket.emit('sendMessage', messageObject);
         return novaMensagem;
@@ -181,17 +184,35 @@ export async function enviarMensagem(mensagem: string, usuario:{id: string, nome
 interface ModalActionsResponse {
     success: boolean;
 }
-export async function modalActions(action: string, id: string, valor: string): Promise<ModalActionsResponse> {
+export async function modalActions(action: string, id: string, valor?: string): Promise<ModalActionsResponse> {
     switch (action) {
         case 'block': {
             try {
                 const status = valor === 'true' ? true : false;
                 await axiosWe.patch(`/chats/block/${id}`, { bloqueado: status});
+                return {success: true}
             } catch (erro) {
                 console.error(erro);
                 return {success: false}
             }
-            break;
+        }
+        case 'clean': {
+            try {
+                await axiosWe.delete(`/mensagens/limpar/${id}`);
+                return {success: true};
+            } catch (erro) {
+                console.error(erro);
+                return {success: false};
+            }
+        }
+        case 'remove': {
+            try {
+                await axiosWe.delete(`/chats/${id}`);
+                return {success: true};
+            } catch (erro) {
+                console.error(erro);
+                return {success: false};
+            }
         }
         default:
             break;
