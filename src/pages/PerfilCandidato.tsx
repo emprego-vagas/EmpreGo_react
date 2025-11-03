@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
-import { DadosUsuario } from "../utils/globalFunctions";
+import { DadosUsuario, fileDownload, mostrarErroTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBirthdayCake, faBriefcase, faBuilding, faEdit, faIdCard, faMapMarkerAlt, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faHandshake, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import genPfp from '../assets/imgs/genPfp.png';
+import type { Custom, Tags, Usua } from "../ts/perfilCandidatoFunctions";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -14,14 +16,41 @@ export default function PerfilCandidato() {
             navigate('/')
         }, 3000)
     };
-    const [candPerfil, setCandPerfil] = useState({});
-    const [customPerfil, setCustomPerfil] = useState({});
+
+    const handleMostrarTodasTags = async()=>{
+        try {
+            if(customPerfil.tags_count<=6) {
+                setMostrarMaisTags(false);
+                setMostrarMaisTagsExib(false);
+                return;
+            };
+            setMostrarMaisTags(false);
+            const response = await axiosWe(`/tags?limit=9999999&offset=6`) as {data: Tags[]};
+            setCustomPerfil(prev=>({...customPerfil, tags: [...prev.tags, ...response.data]}));
+            setMostrarMaisTagsExib(false);
+        } catch (erro) {
+            setMostrarMaisTags(true);
+            setMostrarMaisTagsExib(true);
+            console.error('Erro ao mostrar todas as tags:',erro)
+        }
+        
+    }
+
+    const [candPerfil, setCandPerfil] = useState<Usua | null>(null);
+    const [customPerfil, setCustomPerfil] = useState<Custom | null>(null);
+    const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
+    const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
+    const mostrarMaisTagsRef = useRef(null);
+    const [mostrarModalAddTag, setMostrarModalAddTag] = useState(false);
+    const [tagToAdd, setTagToAdd] = useState('');
+    const [mostrarModalRmvTag, setMostrarModalRmvTag] = useState(false);
+    const [tagToRemove, setTagToRemove] = useState({nome: '', id: ''});
 
     useEffect(()=>{
         console.log('opa');
         async function loadCand(){
             try {
-                const response = await axiosWe('/custom/perfil-candidato');
+                const response = await axiosWe('/custom/perfil-candidato') as {data: {usua: Usua, custom: Custom}};
                 const data = response.data;
                 const {usua, custom} = data;
                 DadosUsuario.setarFoto(usua.foto);
@@ -34,8 +63,19 @@ export default function PerfilCandidato() {
         };
         loadCand();
     },[]);
+
+    useEffect(()=>{
+        if(!mostrarMaisTags) {
+            if(!mostrarMaisTagsRef.current) return;
+            mostrarMaisTagsRef.current.disabled = true;
+            mostrarMaisTagsRef.current.textContent = 'Carregando...';
+        };
+    }, [mostrarMaisTags]);
+
     return (
         <div id="main" className="container mx-auto px-4 pt-28 pb-10">
+            {candPerfil && (
+            <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* <!-- Coluna esquerda - Informações principais --> */}
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
@@ -46,35 +86,48 @@ export default function PerfilCandidato() {
                             className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
-                            <div className="bg-professional-gray rounded-lg p-3" title="CPF">
-                                <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />
-                                <span id="cpfUsuario" className="text-sm">XXX.XXX.XXX-XX</span>
-                            </div>
-                            <div className="bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
-                                <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-accent mr-2" />
-                                <span id="nascUsuario" className="text-sm">XX/XX/XXXX</span>
-                            </div>
-
-                            <div className="bg-professional-gray rounded-lg p-3" title="Pronomes">
-                                <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-2" />
-                                <span id="pronUsuario" className="text-sm">Elx/Delx</span>
-                            </div>
-
-                            <div className="bg-professional-gray rounded-lg p-3" title="Cargo Atual">
-                                <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
-                                <span id="cargoUsuario" className="text-sm">Cargo Atual</span>
-                            </div>
-                            <div className="bg-professional-gray rounded-lg p-3" title="Empresa Atual">
-                                <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />
-                                <span id="empresaUsuario" className="text-sm">Empresa Atual</span>
-                            </div>
-                            <div id="divLocalizacao" className="bg-professional-gray rounded-lg p-3" title="Localização">
-                                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
-                                <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
-                                <span id="estadoUsuario" className="text-sm">Estado: (XX)</span><br/>
-                                <span id="cidadeUsuario" className="text-sm">Cidade: (Nenhuma)</span>
-                            </div>
-
+                            {candPerfil.cpf && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="CPF">
+                                    <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />
+                                    <span id="cpfUsuario" className="text-sm">{candPerfil.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")}</span>
+                                </div>
+                            )}
+                            {candPerfil.data_nasc && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
+                                    <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-accent mr-2" />
+                                    {(()=>{
+                                        const dataISO = candPerfil.data_nasc.split('T')[0];
+                                        const [anoNasc, mesNasc, diaNasc] = String(dataISO).split('-');
+                                        return (<span id="nascUsuario" className="text-sm">{`${diaNasc}/${mesNasc}/${anoNasc}`}</span>)
+                                    })()}
+                                </div>
+                            )}
+                            {candPerfil.pronomes && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Pronomes">
+                                    <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-2" />
+                                    <span id="pronUsuario" className="text-sm">{candPerfil.pronomes}</span>
+                                </div>
+                            )}
+                            {candPerfil.cargo_atual && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Cargo Atual">
+                                    <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
+                                    <span id="cargoUsuario" className="text-sm">{candPerfil.cargo_atual}</span>
+                                </div>
+                            )}
+                            {candPerfil.empresa_atual && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Empresa Atual">
+                                    <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />
+                                    <span id="empresaUsuario" className="text-sm">{candPerfil.empresa_atual}</span>
+                                </div>
+                            )}
+                            {candPerfil.estado && (
+                                <div id="divLocalizacao" className="bg-professional-gray rounded-lg p-3" title="Localização">
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
+                                    <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
+                                    <span id="estadoUsuario" className="text-sm">{`Estado: (${candPerfil.estado})`}</span><br/>
+                                    <span id="cidadeUsuario" className="text-sm">{`Cidade: ${candPerfil.cidade||'Não informada'}`}</span>
+                                </div>
+                            )}
                         </div>
                         <button id="btnEditarPerfil" onClick={()=>{navigate('/perfil/candidato/editar')}}
                             className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer"
@@ -86,11 +139,11 @@ export default function PerfilCandidato() {
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
                         className="bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left">Nome Completo</h1>
-                        <div className="flex items-center justify-center lg:justify-start mb-4">
-                            <i className="fas fa-envelope text-professional-accent mr-2" title="Email"></i>
+                        <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.nome}</h1>
+                        <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
+                            <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-2" />
                             <a id="emailUsuario"
-                                className="text-lg text-professional-subtitle">email.profissional@empresa.com</a>
+                                className="text-lg text-professional-subtitle">{candPerfil.email}</a>
                         </div>
 
                         <div className="bg-professional-gray rounded-lg p-4 mb-6">
@@ -101,73 +154,86 @@ export default function PerfilCandidato() {
                             </h2>
 
                             <p id="descUsuario" className="text-professional-subtitle text-center">
-                                Profissional com X anos de experiência na área de [sua área], especializado em [suas
-                                especialidades].
-                                Possuo expertise em [tecnologias/ferramentas] e experiência comprovada em
-                                [projetosrelevantes].
-                                Busco oportunidades desafiadoras para aplicar minhas habilidades e contribuir para o
-                                crescimento
-                                da organização.
+                                {candPerfil.descricao}
                             </p>
                         </div>
 
 
                         <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fas fa-magic text-professional-accent mr-3 text-xl" title="Portfólio"></i>
-                                <a id="portUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Portfólio">
+                                <FontAwesomeIcon icon={faMagic} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.portifolio && (
+                                <a id="portUsuario" href={candPerfil.portifolio}
                                     className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Portfólio
                                 </a>
+                                )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fab fa-github text-professional-accent mr-3 text-xl" title="GitHub"></i>
-                                <a id="gitUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="GitHub">
+                                <FontAwesomeIcon icon={faGithub} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.github && (
+                                <a id="gitUsuario" href={candPerfil.github}
                                     className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     GitHub
                                 </a>
+                                )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fas fa-file-invoice text-professional-accent mr-3 text-xl"
-                                    title="Currículo"></i>
-                                <a id="curriculoUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Currículo">
+                                <FontAwesomeIcon icon={faFileInvoice} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.curriculo && (
+                                <a id="curriculoUsuario" href={candPerfil.curriculo}
                                     className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Currículo
                                 </a>
-                                <p id="curriculoSize" className="hidden ml-auto"></p>
-                                <i id="downloadCurriculo" className="fa-solid fa-download text-lg cursor-pointer hidden ml-2" title="Download do Currículo"></i>
+                                )}
+                                {(()=>{
+                                    if(!candPerfil.curriculo_file) return;
+                                    const curriculo_fileSplited = candPerfil.curriculo_file.split('|');
+                                    return (
+                                        <>
+                                        <p id="curriculoSize" className="ml-auto">{`${(parseFloat(curriculo_fileSplited[1])/1024).toFixed(2)}MB`}</p>
+                                        <FontAwesomeIcon icon={faDownload} className="text-lg cursor-pointer ml-2" id="downloadCurriculo" onClick={()=>fileDownload(curriculo_fileSplited[0],'raw')}/>
+                                        </>
+                                    )
+                                })()}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fab fa-instagram text-professional-accent mr-3 text-xl" title="Instagram"></i>
-                                <a id="instUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Instagram">
+                                <FontAwesomeIcon icon={faInstagram} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.instagram && (
+                                <a id="instUsuario" href={candPerfil.instagram}
                                     className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Instagram
                                 </a>
+                                )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fas fa-globe text-professional-accent mr-3 text-xl" title="Site Pessoal"></i>
-                                <a id="siteUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Site Pessoal">
+                                <FontAwesomeIcon icon={faGlobe} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.site_pessoal && (
+                                <a id="siteUsuario" href={candPerfil.site_pessoal}
                                     className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Site Pessoal
                                 </a>
+                                )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3">
-                                <i className="fab fa-x-twitter text-professional-accent mr-3 text-xl" title="Twitter/X"></i>
-                                <a id="twtUsuario" href="#"
+                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Twitter/X">
+                                <FontAwesomeIcon icon={faXTwitter} className="text-professional-accent mr-3 text-xl" />
+                                {candPerfil.twitter && (
+                                <a id="twtUsuario" href={candPerfil.twitter}
                                     className="twtUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Twitter/X
                                 </a>
+                                )}
                             </div>
                         </div>
 
@@ -213,21 +279,38 @@ export default function PerfilCandidato() {
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                            Habilidades & Competências</h1>
+                            {`Habilidades & Competências ${customPerfil.tags_count>0?`(${customPerfil.tags_count})`:''}`}</h1>
                         <div id="boxTags"
                             className="bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
-                                <button id="maisTags"
-                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5"
-                                    title="Carregar mais Habilidades">
-                                    <i className="fas fa-plus text-professional-accent"></i>
-                                </button>
+                                {customPerfil.tags_count>0 && customPerfil.tags.map(tag=>{
+                                    return (
+                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                            key={tag.id} title={`Tag: ${tag.nome}`} onClick={()=>{
+                                                setTagToRemove({nome: tag.nome, id: tag.id});
+                                                setMostrarModalRmvTag(true);
+                                            }}>
+                                            <span>{tag.nome}</span>
+                                        </div>
+                                    )
+                                })}
+                                {(mostrarMaisTagsExib&&customPerfil.tags_count>6) && (
+                                    <button id="maisTags"
+                                        className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-accent text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                        title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async()=>{
+                                            await handleMostrarTodasTags();
+                                        }}>
+                                        <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
+                                    </button>
+                                )}
                             </div>
                             <button id="btnAddTags"
-                                className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors"
-                                title="Adicionar Habilidade">
-                                <i className="fas fa-plus-circle mr-2"></i>
+                                className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer"
+                                title="Adicionar Habilidade" onClick={()=>{
+                                    setMostrarModalAddTag(true);
+                                }}>
+                                <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                                 Adicionar habilidade
                             </button>
                         </div>
@@ -244,7 +327,7 @@ export default function PerfilCandidato() {
                             <div
                                 className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
                                 <div id="experienciasCount" className="text-[2rem] font-bold text-professional-accent mb-1">
-                                    12</div>
+                                    {customPerfil.experiencias_count}</div>
                                 <div className="text-sm text-professional-subtitle">Experiências</div>
                             </div>
                             <div
@@ -254,7 +337,7 @@ export default function PerfilCandidato() {
                             </div>
                             <div
                                 className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
-                                <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">15
+                                <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">{customPerfil.projetos_count}
                                 </div>
                                 <div className="text-sm text-professional-subtitle">Projetos</div>
                             </div>
@@ -272,16 +355,16 @@ export default function PerfilCandidato() {
                         <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                            Idiomas</h2>
+                            {`Idiomas (${customPerfil.idiomas_count})`}</h2>
                         <button id="btnAddIdiomas"
                             className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors">
-                            <i className="fas fa-plus-circle mr-2"></i>
+                            <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                             Adicionar Idioma
                         </button>
                         <div id="divIdiomasExib" className="space-y-3">
                             <button id="maisIdiomas"
                                 className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5">
-                                <i className="fas fa-plus text-professional-accent"></i>
+                                <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
                             </button>
                         </div>
                     </div>
@@ -295,65 +378,65 @@ export default function PerfilCandidato() {
                     <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="dashboard-tabs">
                         <li className="mr-2">
                             <button id="experienciasTelinha" className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="experiencias">
-                                <i className="fas fa-briefcase mr-2"></i>Experiências
+                                <FontAwesomeIcon icon={faBriefcase} className="mr-2" />Experiências
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="certificacoes">
-                                <i className="fas fa-certificate mr-2"></i>Certificações
+                                <FontAwesomeIcon icon={faCertificate} className="mr-2" />Certificações
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="projetos">
-                                <i className="fas fa-project-diagram mr-2"></i>Projetos
+                                <FontAwesomeIcon icon={faProjectDiagram} className="mr-2" />Projetos
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="formacoes">
                                 <div className="relative">
-                                    <i className="fa-solid fa-book mr-2"></i>Formações
+                                    <FontAwesomeIcon icon={faBook} className="mr-2" />Formações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="solicitacoes">
                                 <div className="relative">
-                                    <i className="fas fa-handshake mr-2"></i>Solicitações
+                                    <FontAwesomeIcon icon={faHandshake} className="mr-2" />Solicitações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="notificacoes">
                                 <div className="relative">
-                                    <i className="fas fa-bell mr-2"></i>Notificações
+                                    <FontAwesomeIcon icon={faBell} className="mr-2" />Notificações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:-bottom-0 after:left-0 after:w-full after:h-0.5
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="recomendacoes">
                                 <div className="relative">
-                                    <i className="fas fa-star mr-2"></i>Favoritos
+                                    <FontAwesomeIcon icon={faStar} className="mr-2" />Favoritos
                                 </div>
                             </button>
                         </li>
@@ -369,7 +452,7 @@ export default function PerfilCandidato() {
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>{navigate('/experiencias/criar')}}>
                                 <a href="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <i className="fas fa-plus-circle text-4xl text-professional-accent mb-3"></i>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-accent mb-3 text-4xl" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar nova experiência
                                         profissional</p>
                                 </a>
@@ -386,7 +469,7 @@ export default function PerfilCandidato() {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
                                 <a href="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <i className="fas fa-plus-circle text-4xl text-professional-accent mb-3"></i>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novas Certificações
                                     </p>
                                 </a>
@@ -440,7 +523,7 @@ export default function PerfilCandidato() {
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>{navigate('/projetos/criar')}}>
                                 <a href="/projetos/criar" className="flex flex-col items-center text-center">
-                                    <i className="fas fa-plus-circle text-4xl text-professional-accent mb-3"></i>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novos projetos</p>
                                 </a>
                             </div>
@@ -453,7 +536,7 @@ export default function PerfilCandidato() {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
                                 <a href="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <i className="fas fa-plus-circle text-4xl text-professional-accent mb-3"></i>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar uma nova formação</p>
                                 </a>
                             </div>
@@ -521,11 +604,11 @@ export default function PerfilCandidato() {
                                             <p className="text-professional-subtitle">Diretora de Projetos na Tech Solutions
                                             </p>
                                             <div className="flex text-yellow-400 my-2">
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
                                             </div>
                                             <p className="text-professional-subtitle">"Profissional excepcional com grande
                                                 capacidade de liderança e resolução de problemas. Sempre entrega
@@ -544,11 +627,11 @@ export default function PerfilCandidato() {
                                             <h4 className="font-medium text-white">João Santos</h4>
                                             <p className="text-professional-subtitle">CTO na Inovação Digital</p>
                                             <div className="flex text-yellow-400 my-2">
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
-                                                <i className="fas fa-star"></i>
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
+                                                <FontAwesomeIcon icon={faStar} />
                                             </div>
                                             <p className="text-professional-subtitle">"Um dos melhores profissionais com
                                                 quem já
@@ -566,38 +649,77 @@ export default function PerfilCandidato() {
             </div>
 
             {/* <!-- Modais --> */}
-            <div id="modalInput"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalInput-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
-                    <input type="text" id="inputTag" placeholder="Digite a habilidade"
-                        className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent"/>
-                    <div className="flex justify-end space-x-3">
-                        <button id="btnCancelar"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmar"
-                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent">Confirmar</button>
+            {mostrarModalAddTag && (
+                <div id="modalInput"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalInput-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
+                        <input type="text" id="inputTag" placeholder="Digite a habilidade" onChange={(e)=>setTagToAdd(e.target.value)}
+                            className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" value={tagToAdd}/>
+                        <div className="flex justify-end space-x-3">
+                            <button id="btnCancelar" onClick={()=>{
+                                setTagToAdd('');
+                                setMostrarModalAddTag(false);
+                            }}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmar" onClick={async()=>{
+                                try {
+                                    const tagNome = tagToAdd;
+                                    if(!tagNome) return mostrarErroTopo('A tag não pode ser vazia.');
+                                    setTagToAdd('');
+                                    setMostrarModalAddTag(false);
+                                    if(mostrarMaisTags) await handleMostrarTodasTags();
+                                    const response = await axiosWe.post('/tags', { nome: tagNome }) as {data: {id:string}};
+                                    setCustomPerfil(prev=>({...customPerfil, tags:[{nome: tagNome, id: response.data.id}, ...prev.tags], tags_count: prev.tags_count+1}));
+                                } catch (erro) {
+                                    console.error(erro);
+                                }
+                                
+                            }}
+                                className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div id="modalDelete"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalDelete-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
-                    <p className="text-professional-subtitle text-center mb-6">Tem certeza que deseja remover esta
-                        habilidade?
-                    </p>
-                    <div className="flex justify-center space-x-3">
-                        <button id="btnCancelarDel"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmarDel"
-                            className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700">Confirmar</button>
+            )}
+            {mostrarModalRmvTag && (
+                <div id="modalDelete"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalDelete-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
+                        <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover esta
+                            habilidade? (${tagToRemove.nome})`}
+                        </p>
+                        <div className="flex justify-center space-x-3">
+                            <button id="btnCancelarDel" onClick={()=>{setMostrarModalRmvTag(false);setTagToRemove({nome:'',id:''});}}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmarDel" onClick={async(e)=>{
+                                const target = e.target as HTMLButtonElement;
+                                try {
+                                    const tagId = tagToRemove.id;
+                                    target.disabled = true;
+                                    target.textContent = 'Removendo...'
+                                    if(mostrarMaisTags) await handleMostrarTodasTags();
+                                    await axiosWe.delete(`/tags/${tagId}`);
+                                    setCustomPerfil(prev=>{
+                                        return {...prev, tags: prev.tags.filter(tag=>tag.id!==tagId), tags_count: prev.tags_count-1};
+                                    })
+                                } catch (erro) {
+                                    console.error(erro);
+                                } finally {
+                                    setTagToRemove({nome:'', id: ''});
+                                    setMostrarModalRmvTag(false);
+                                    target.disabled = false;
+                                    target.textContent = 'Confirmar';
+                                }
+                                
+                            }}
+                                className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700 cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* <!-- * Modais de Idiomas --> */}
             <div id="modalInputIdioma"
@@ -614,7 +736,7 @@ export default function PerfilCandidato() {
                         className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 mb-4">
 
                         {/* <!-- Opção padrão --> */}
-                        <option value="" disabled selected className="text-professional-subtitle">Adicione o Nível do Idioma
+                        <option defaultValue="" disabled className="text-professional-subtitle">Adicione o Nível do Idioma
                         </option>
 
                         <option value="A1" className="bg-professional-dark">Iniciante(A1)</option>
@@ -650,7 +772,8 @@ export default function PerfilCandidato() {
                 </div>
             </div>
             {/* <!-- * Fim modais idiomas --> */}
-
+            </>
+            )}
         </div>
     )
 }
