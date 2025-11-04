@@ -15,7 +15,7 @@ export default function PerfilCandidato() {
     if(!usuario) {
         setTimeout(()=>{
             navigate('/')
-        }, 3000)
+        }, 3000);
     };
 
     const handleMostrarTodasTags = async()=>{
@@ -38,8 +38,8 @@ export default function PerfilCandidato() {
     const handleMostrarTodosIdiomas = async()=>{
         try {
             if(customPerfil.idiomas_count<=3) {
-                setMostrarMaisIdiomas(true);
-                setMostrarMaisIdiomasExib(true);
+                setMostrarMaisIdiomas(false);
+                setMostrarMaisIdiomasExib(false);
                 return;
             };
             setMostrarMaisIdiomas(false);
@@ -76,6 +76,7 @@ export default function PerfilCandidato() {
     useEffect(()=>{
         console.log('opa');
         async function loadCand(){
+            if(!usuario) return;
             try {
                 const response = await axiosWe('/custom/perfil-candidato') as {data: {usua: Usua, custom: Custom}};
                 const data = response.data;
@@ -109,7 +110,7 @@ export default function PerfilCandidato() {
     return (
         <>
         <HeaderProfiles />
-        <div id="main" className="container mx-auto px-4 pt-28 pb-10">
+        <div id="main" className="container mx-auto px-4 pt-10 pb-10">
             {candPerfil && (
             <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -322,7 +323,7 @@ export default function PerfilCandidato() {
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
                                 {customPerfil.tags_count>0 && customPerfil.tags.map(tag=>{
                                     return (
-                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                             key={tag.id} title={`Tag: ${tag.nome}`} onClick={()=>{
                                                 setTagToRemove({nome: tag.nome, id: tag.id});
                                                 setMostrarModalRmvTag(true);
@@ -333,7 +334,7 @@ export default function PerfilCandidato() {
                                 })}
                                 {(mostrarMaisTagsExib&&customPerfil.tags_count>6) && (
                                     <button id="maisTags"
-                                        className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-accent text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                        className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-accent text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                         title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async()=>{
                                             await handleMostrarTodasTags();
                                         }}>
@@ -361,24 +362,24 @@ export default function PerfilCandidato() {
                             Métricas Profissionais</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div
-                                className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
+                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
                                 <div id="experienciasCount" className="text-[2rem] font-bold text-professional-accent mb-1">
                                     {customPerfil.experiencias_count}</div>
                                 <div className="text-sm text-professional-subtitle">Experiências</div>
                             </div>
                             <div
-                                className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
+                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
                                 <div className="text-[2rem] font-bold text-professional-accent mb-1">15</div>
                                 <div className="text-sm text-professional-subtitle">Certificações</div>
                             </div>
                             <div
-                                className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
+                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
                                 <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">{customPerfil.projetos_count}
                                 </div>
                                 <div className="text-sm text-professional-subtitle">Projetos</div>
                             </div>
                             <div
-                                className="bg-gradient-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
+                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
                                 <div className="text-[2rem] font-bold text-professional-accent mb-1">4</div>
                                 <div className="text-sm text-professional-subtitle">Formações</div>
                             </div>
@@ -397,7 +398,7 @@ export default function PerfilCandidato() {
                             <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                             Adicionar Idioma
                         </button>
-                        {customPerfil.tags_count>0 && customPerfil.idiomas.map(idio=>{
+                        {customPerfil.idiomas_count>0 && customPerfil.idiomas.map(idio=>{
                             return (
                                 <div key={idio.id} title={`Idioma: ${idio.nome}`} className="mb-2 mt-1">
                                     <div className="flex justify-between mb-1 mt-1">
@@ -417,7 +418,7 @@ export default function PerfilCandidato() {
                         {(mostrarMaisIdiomasExib&&customPerfil.idiomas_count>3) && (
                             <div id="divIdiomasExib" className="space-y-3">
                                 <button id="maisIdiomas" ref={mostrarMaisIdiomasRef} onClick={async()=>await handleMostrarTodosIdiomas()}
-                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer mt-2">
+                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer mt-2">
                                     <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
                                 </button>
                             </div>
@@ -521,6 +522,33 @@ export default function PerfilCandidato() {
                                         profissional</p>
                                 </a>
                             </div>
+                            {customPerfil.experiencias_count>0 && customPerfil.experiencias.map(expe=>(
+                                <div key={expe.id}
+                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent cursor-pointer">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-white">{expe.titulo}</h3>
+                                            <p className="text-professional-accent font-medium">{expe.nome}</p>
+                                        </div>
+                                        {expe.periodo.split(' - ')[1] === 'Presente' && (
+                                            <span className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
+                                        )}
+                                    </div>
+                                    <p className="text-professional-subtitle mb-4">{expe.periodo}</p>
+                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.descricao}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {expe.tags_experiencias[0] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[0].nome}</span>
+                                        )}
+                                        {expe.tags_experiencias[1] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[1].nome}</span>
+                                        )}
+                                        {expe.tags_experiencias[2] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[2].nome}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
 
                             {/* <!-- Experiências adicionadas aparecerão aqui --> */}
                             
@@ -595,6 +623,62 @@ export default function PerfilCandidato() {
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novos projetos</p>
                                 </a>
                             </div>
+                            {customPerfil.projetos_count>0 && customPerfil.projetos_cand.map(proj=>(
+                                <div key={proj.id}
+                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
+
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-white">{proj.titulo}</h3>
+                                            <p className="text-professional-accent font-medium">{proj.nome}</p>
+                                        </div>
+                                        <span
+                                            className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
+                                            {proj.status}
+                                        </span>
+                                    </div>
+
+                                    <p className="text-professional-subtitle mb-2">{proj.periodo}</p>
+
+                                    <div className="relative mb-4">
+                                        <img src="${proj.imagem}" alt="Imagem do projeto"
+                                            className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
+
+                                        {proj.link && (
+                                            <a href={proj.link} target="_blank" rel="noopener noreferrer"
+                                                className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
+                                                title="Visitar site">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1" stroke="currentColor" className="w-5 h-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
+                                                </svg>
+                                            </a>
+                                        )}
+                                    </div>
+
+                                    {/* <!-- Descrição --> */}
+                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
+                                        {proj.descricao}
+                                    </p>
+
+                                    {/* <!-- Tags --> */}
+                                    <div className="flex flex-wrap gap-2">
+                                        {proj.tags_projetos_cand[0] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                            {proj.tags_projetos_cand[0].nome}</span>
+                                        )}
+                                        {proj.tags_projetos_cand[1] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                            {proj.tags_projetos_cand[1].nome}</span>
+                                        )}
+                                        {proj.tags_projetos_cand[2] && (
+                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                            {proj.tags_projetos_cand[2].nome}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                     )}

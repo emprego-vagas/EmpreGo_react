@@ -7,6 +7,7 @@ import ConfirmEmail from './pages/ConfirmEmail'
 import Teste from './pages/teste'
 import Chats from './pages/Chats'
 import PerfilCandidato from './pages/PerfilCandidato'
+import CriarExperiencias from './pages/CriarExperiencias'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path='/teste' element={<Teste/>} />
         <Route path='/chats' element={<Chats/>} />
         <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
+        <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
       </Routes>
     </BrowserRouter>
   )
