@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom"
 import { DadosUsuario, fileDownload, mostrarErroTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faHandshake, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faHandshake, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import genPfp from '../assets/imgs/genPfp.png';
-import type { Custom, Tags, Usua } from "../ts/perfilCandidatoFunctions";
+import { carregarPorcentagemPeloNivel, carregarTextoDoNivel, type Custom, type Idiomas, type Tags, type Usua } from "../ts/perfilCandidatoFunctions";
+import HeaderProfiles from "../components/HeaderProfiles";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -26,14 +27,30 @@ export default function PerfilCandidato() {
             };
             setMostrarMaisTags(false);
             const response = await axiosWe(`/tags?limit=9999999&offset=6`) as {data: Tags[]};
-            setCustomPerfil(prev=>({...customPerfil, tags: [...prev.tags, ...response.data]}));
+            setCustomPerfil(prev=>({...prev, tags: [...prev.tags, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
             setMostrarMaisTags(true);
             setMostrarMaisTagsExib(true);
-            console.error('Erro ao mostrar todas as tags:',erro)
+            console.error('Erro ao mostrar todas as tags:',erro);
         }
-        
+    }
+    const handleMostrarTodosIdiomas = async()=>{
+        try {
+            if(customPerfil.idiomas_count<=3) {
+                setMostrarMaisIdiomas(true);
+                setMostrarMaisIdiomasExib(true);
+                return;
+            };
+            setMostrarMaisIdiomas(false);
+            const response = await axiosWe('/idioma?limit=9999999&offset=3') as {data: Idiomas[]};
+            setCustomPerfil(prev=>({...prev, idiomas: [...prev.idiomas, ...response.data]}));
+            setMostrarMaisIdiomasExib(false);
+        } catch (erro) {
+            setMostrarMaisIdiomas(true);
+            setMostrarMaisIdiomasExib(true);
+            console.error('Erro ao mostrar todos os idiomas:',erro);
+        }
     }
 
     const [candPerfil, setCandPerfil] = useState<Usua | null>(null);
@@ -45,6 +62,16 @@ export default function PerfilCandidato() {
     const [tagToAdd, setTagToAdd] = useState('');
     const [mostrarModalRmvTag, setMostrarModalRmvTag] = useState(false);
     const [tagToRemove, setTagToRemove] = useState({nome: '', id: ''});
+
+    const [mostrarMaisIdiomas, setMostrarMaisIdiomas] = useState(true);
+    const [mostrarMaisIdiomasExib, setMostrarMaisIdiomasExib] = useState(true);
+    const mostrarMaisIdiomasRef = useRef(null);
+    const [idiomaToRemove, setIdiomaToRemove] = useState({nome: '', id: ''});
+    const [mostrarModalRmvIdioma, setMostrarModalRmvIdioma] = useState(false);
+    const [idiomaToAdd, setIdiomaToAdd] = useState({nome: '', nivel: ''});
+    const [mostrarModalAddIdioma, setMostrarModalAddIdioma] = useState(false);
+
+    const [tabAtual, setTabAtual] = useState('experiencias');
 
     useEffect(()=>{
         console.log('opa');
@@ -71,8 +98,17 @@ export default function PerfilCandidato() {
             mostrarMaisTagsRef.current.textContent = 'Carregando...';
         };
     }, [mostrarMaisTags]);
+    useEffect(()=>{
+        if(!mostrarMaisIdiomas) {
+            if(!mostrarMaisIdiomasRef.current) return;
+            mostrarMaisIdiomasRef.current.disabled = true;
+            mostrarMaisIdiomasRef.current.textContent = 'Carregando...';
+        }
+    }, [mostrarMaisIdiomas])
 
     return (
+        <>
+        <HeaderProfiles />
         <div id="main" className="container mx-auto px-4 pt-28 pb-10">
             {candPerfil && (
             <>
@@ -279,7 +315,7 @@ export default function PerfilCandidato() {
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                            {`Habilidades & Competências ${customPerfil.tags_count>0?`(${customPerfil.tags_count})`:''}`}</h1>
+                            {`Habilidades & Competências${customPerfil.tags_count>0?` (${customPerfil.tags_count})`:''}`}</h1>
                         <div id="boxTags"
                             className="bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
@@ -355,18 +391,38 @@ export default function PerfilCandidato() {
                         <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                            {`Idiomas (${customPerfil.idiomas_count})`}</h2>
-                        <button id="btnAddIdiomas"
-                            className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors">
+                            {`Idiomas${customPerfil.idiomas_count>0?` (${customPerfil.idiomas_count})`:''}`}</h2>
+                        <button id="btnAddIdiomas" onClick={()=>setMostrarModalAddIdioma(true)}
+                            className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer">
                             <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                             Adicionar Idioma
                         </button>
-                        <div id="divIdiomasExib" className="space-y-3">
-                            <button id="maisIdiomas"
-                                className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5">
-                                <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
-                            </button>
-                        </div>
+                        {customPerfil.tags_count>0 && customPerfil.idiomas.map(idio=>{
+                            return (
+                                <div key={idio.id} title={`Idioma: ${idio.nome}`} className="mb-2 mt-1">
+                                    <div className="flex justify-between mb-1 mt-1">
+                                        <span className="text-white">{idio.nome}</span>
+                                        <span className="text-professional-subtitle text-sm">{carregarTextoDoNivel(idio.nivel)}</span>
+                                        <FontAwesomeIcon icon={faXmark} className="removerIdiomaIcone cursor-pointer" onClick={()=>{
+                                            setIdiomaToRemove({nome: idio.nome, id: idio.id});
+                                            setMostrarModalRmvIdioma(true);
+                                        }}/>
+                                    </div>
+                                    <div className="w-full bg-professional-gray rounded-full h-2">
+                                        <div className={`bg-professional-accent h-2 rounded-full`} style={{width: `${carregarPorcentagemPeloNivel(idio.nivel)}%`}}></div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        {(mostrarMaisIdiomasExib&&customPerfil.idiomas_count>3) && (
+                            <div id="divIdiomasExib" className="space-y-3">
+                                <button id="maisIdiomas" ref={mostrarMaisIdiomasRef} onClick={async()=>await handleMostrarTodosIdiomas()}
+                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-gradient-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer mt-2">
+                                    <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
+                                </button>
+                            </div>
+                        )}
+                        
                     </div>
                 </div>
             </div>
@@ -377,64 +433,71 @@ export default function PerfilCandidato() {
                 <div className="border-b border-professional-card mb-6">
                     <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="dashboard-tabs">
                         <li className="mr-2">
-                            <button id="experienciasTelinha" className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button id="experienciasTelinha" className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="experiencias">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="experiencias" style={tabAtual==='experiencias'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('experiencias')}>
                                 <FontAwesomeIcon icon={faBriefcase} className="mr-2" />Experiências
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="certificacoes">
+                            after:transition-all after:duration-300 after:ease-out hover:text-professional-accent" data-tab="certificacoes" style={tabAtual==='certificacoes'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('certificacoes')}>
                                 <FontAwesomeIcon icon={faCertificate} className="mr-2" />Certificações
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="projetos">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="projetos" style={tabAtual==='projetos'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('projetos')}>
                                 <FontAwesomeIcon icon={faProjectDiagram} className="mr-2" />Projetos
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="formacoes">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="formacoes" style={tabAtual==='formacoes'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('formacoes')}>
                                 <div className="relative">
                                     <FontAwesomeIcon icon={faBook} className="mr-2" />Formações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="solicitacoes">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="solicitacoes" style={tabAtual==='solicitacoes'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('solicitacoes')}>
                                 <div className="relative">
                                     <FontAwesomeIcon icon={faHandshake} className="mr-2" />Solicitações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="notificacoes">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="notificacoes" style={tabAtual==='notificacoes'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('notificacoes')}>
                                 <div className="relative">
                                     <FontAwesomeIcon icon={faBell} className="mr-2" />Notificações
                                 </div>
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
+                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="recomendacoes">
+                            after:transition-all after:duration-300 after:ease-out" data-tab="recomendacoes" style={tabAtual==='recomendacoes'?{color: '#7c3aed'}:{}}
+                            onClick={()=>setTabAtual('recomendacoes')}>
                                 <div className="relative">
                                     <FontAwesomeIcon icon={faStar} className="mr-2" />Favoritos
                                 </div>
@@ -446,6 +509,7 @@ export default function PerfilCandidato() {
                 {/* <!-- Conteúdo das abas --> */}
                 <div id="tab-content">
                     {/* <!-- Aba Experiências --> */}
+                    {tabAtual==='experiencias' && (
                     <div id="experiencias" className="tab-pane active">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bodyBottom">
                             <div id="boxCriar"
@@ -462,9 +526,11 @@ export default function PerfilCandidato() {
                             
                         </div>
                     </div>
+                    )}
 
                     {/* <!-- Aba Certificações --> */}
-                    <div id="certificacoes" className="tab-pane hidden">
+                    {tabAtual==='certificacoes' && (
+                    <div id="certificacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
@@ -515,9 +581,11 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
                     </div>
+                    )}
 
                     {/* <!-- Aba Projetos --> */}
-                    <div id="projetos" className="tab-pane hidden">
+                    {tabAtual==='projetos' && (
+                    <div id="projetos" className="tab-pane">
                         <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
@@ -529,9 +597,11 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
                     </div>
+                    )}
 
                     {/* <!-- Aba formações --> */}
-                    <div id="formacoes" className="tab-pane hidden">
+                    {tabAtual==='formacoes' && (
+                    <div id="formacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
@@ -586,9 +656,11 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
                     </div>
+                    )}
 
                     {/* <!-- Aba Recomendações --> */}
-                    <div id="recomendacoes" className="tab-pane hidden">
+                    {tabAtual==='recomendacoes' && (
+                    <div id="recomendacoes" className="tab-pane">
                         <div
                             className="bg-professional-card rounded-xl border border-professional-card overflow-hidden transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                             <div className="border-b border-professional-card px-6 py-4">
@@ -597,7 +669,7 @@ export default function PerfilCandidato() {
                             <div className="divide-y divide-professional-card">
                                 <div className="p-6">
                                     <div className="flex items-start">
-                                        <img src="/assets/imgs/genPfp.png" alt="User"
+                                        <img src={genPfp} alt="User"
                                             className="w-12 h-12 rounded-full mr-4"/>
                                         <div>
                                             <h4 className="font-medium text-white">Maria Silva</h4>
@@ -621,7 +693,7 @@ export default function PerfilCandidato() {
 
                                 <div className="p-6">
                                     <div className="flex items-start">
-                                        <img src="/assets/imgs/genPfp.png" alt="User"
+                                        <img src={genPfp} alt="User"
                                             className="w-12 h-12 rounded-full mr-4"/>
                                         <div>
                                             <h4 className="font-medium text-white">João Santos</h4>
@@ -645,6 +717,7 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
 
@@ -670,10 +743,13 @@ export default function PerfilCandidato() {
                                     setTagToAdd('');
                                     setMostrarModalAddTag(false);
                                     if(mostrarMaisTags) await handleMostrarTodasTags();
+                                    const tagsExistentes = customPerfil.tags.map(tag=>tag.nome.toLowerCase());
+                                    if(tagsExistentes.includes(tagNome.toLowerCase())) return mostrarErroTopo('Você não pode ter tags repetidas.');
                                     const response = await axiosWe.post('/tags', { nome: tagNome }) as {data: {id:string}};
-                                    setCustomPerfil(prev=>({...customPerfil, tags:[{nome: tagNome, id: response.data.id}, ...prev.tags], tags_count: prev.tags_count+1}));
+                                    setCustomPerfil(prev=>({...prev, tags:[{nome: tagNome, id: response.data.id}, ...prev.tags], tags_count: prev.tags_count+1}));
                                 } catch (erro) {
                                     console.error(erro);
+                                    if(erro.status===409) mostrarErroTopo(erro.message);
                                 }
                                 
                             }}
@@ -689,7 +765,7 @@ export default function PerfilCandidato() {
                         className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
                         <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
                         <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover esta
-                            habilidade? (${tagToRemove.nome})`}
+                            habilidade? `}<strong>{`(${tagToRemove.nome})`}</strong>
                         </p>
                         <div className="flex justify-center space-x-3">
                             <button id="btnCancelarDel" onClick={()=>{setMostrarModalRmvTag(false);setTagToRemove({nome:'',id:''});}}
@@ -722,58 +798,102 @@ export default function PerfilCandidato() {
             )}
 
             {/* <!-- * Modais de Idiomas --> */}
-            <div id="modalInputIdioma"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalInputIdioma-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4">Adicionar Idioma</h3>
-                    <input type="text" id="inputIdioma" placeholder="Digite o Idioma"
-                        className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent"/>
-                    <label htmlFor="selectNivelIdioma" className="block text-professional-subtitle mb-2 font-medium">
-                        Nível do Idioma
-                    </label>
-                    <select id="selectNivelIdioma"
-                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 mb-4">
+            {mostrarModalAddIdioma && (
+                <div id="modalInputIdioma"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalInputIdioma-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4">Adicionar Idioma</h3>
+                        <input type="text" id="inputIdioma" placeholder="Digite o Idioma" value={idiomaToAdd.nome} onChange={(e)=>setIdiomaToAdd({...idiomaToAdd, nome: e.target.value})}
+                            className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent"/>
+                        <label htmlFor="selectNivelIdioma" className="block text-professional-subtitle mb-2 font-medium">
+                            Nível do Idioma
+                        </label>
+                        <select id="selectNivelIdioma"  value={idiomaToAdd.nivel} onChange={(e)=>setIdiomaToAdd({...idiomaToAdd, nivel: e.target.value})}
+                            className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 mb-4">
 
-                        {/* <!-- Opção padrão --> */}
-                        <option defaultValue="" disabled className="text-professional-subtitle">Adicione o Nível do Idioma
-                        </option>
+                            {/* <!-- Opção padrão --> */}
+                            <option value="" disabled className="text-professional-subtitle">Adicione o Nível do Idioma
+                            </option>
 
-                        <option value="A1" className="bg-professional-dark">Iniciante(A1)</option>
-                        <option value="A2" className="bg-professional-dark">Básico(A2)</option>
-                        <option value="B1" className="bg-professional-dark">Intermediário(B1)</option>
-                        <option value="B2" className="bg-professional-dark">Intermediário Avançado(B2)</option>
-                        <option value="C1" className="bg-professional-dark">Avançado(C1)</option>
-                        <option value="C2" className="bg-professional-dark">Fluente(C2)</option>
-                    </select>
-                    <div className="flex justify-end space-x-3">
-                        <button id="btnCancelarIdioma"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmarIdioma"
-                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent">Confirmar</button>
+                            <option value="A1" className="bg-professional-dark">Iniciante(A1)</option>
+                            <option value="A2" className="bg-professional-dark">Básico(A2)</option>
+                            <option value="B1" className="bg-professional-dark">Intermediário(B1)</option>
+                            <option value="B2" className="bg-professional-dark">Intermediário Avançado(B2)</option>
+                            <option value="C1" className="bg-professional-dark">Avançado(C1)</option>
+                            <option value="C2" className="bg-professional-dark">Fluente(C2)</option>
+                        </select>
+                        <div className="flex justify-end space-x-3">
+                            <button id="btnCancelarIdioma" onClick={()=>{
+                                setIdiomaToAdd({nome: '', nivel: ''});
+                                setMostrarModalAddIdioma(false);
+                            }}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmarIdioma" onClick={async()=>{
+                                try {
+                                    const idiomaNome = idiomaToAdd.nome;
+                                    const idiomaNivel = idiomaToAdd.nivel;
+                                    if(!idiomaNome) return mostrarErroTopo('O nome do idioma não pode ser vazio.');
+                                    if(!idiomaNivel) return mostrarErroTopo('Selecione o nível do idioma.');
+                                    setIdiomaToAdd({nome:'', nivel:''});
+                                    setMostrarModalAddIdioma(false);
+                                    if(mostrarMaisIdiomas) await handleMostrarTodosIdiomas();
+                                    const idiomasExistentes = customPerfil.idiomas.map(idi=>idi.nome.toLowerCase());
+                                    if(idiomasExistentes.includes(idiomaNome.toLowerCase())) return mostrarErroTopo('Você não pode adicionar idiomas repetidos.');
+                                    const response = await axiosWe.post('/idioma', {nome: idiomaNome, nivel: idiomaNivel}) as {data: {id:string}};
+                                    setCustomPerfil(prev=>({...prev, idiomas:[{nome: idiomaNome, nivel: idiomaNivel, id: response.data.id}, ...prev.idiomas], idiomas_count: prev.idiomas_count+1}));
+                                } catch (erro) {
+                                    console.error(erro);
+                                    if(erro.status===409) mostrarErroTopo(erro.message);
+                                }
+                            }}
+                                className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div id="modalDeleteIdioma"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalDeleteIdioma-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
-                    <p className="text-professional-subtitle text-center mb-6">Tem certeza que deseja remover este
-                        idioma?
-                    </p>
-                    <div className="flex justify-center space-x-3">
-                        <button id="btnCancelarDelIdioma"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmarDelIdioma"
-                            className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700">Confirmar</button>
+            )}
+            
+            {mostrarModalRmvIdioma && (
+                <div id="modalDeleteIdioma"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalDeleteIdioma-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
+                        <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover este
+                            idioma? `}<strong>{`(${idiomaToRemove.nome})`}</strong>
+                        </p>
+                        <div className="flex justify-center space-x-3">
+                            <button id="btnCancelarDelIdioma" onClick={()=>{setMostrarModalRmvIdioma(false);setIdiomaToRemove({nome: '', id:''});}}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmarDelIdioma" onClick={async(e)=>{
+                                const target = e.target as HTMLButtonElement;
+                                try {
+                                    const idiomaId = idiomaToRemove.id;
+                                    target.disabled = true;
+                                    target.textContent = 'Removendo...';
+                                    if(mostrarMaisIdiomas) await handleMostrarTodosIdiomas();
+                                    await axiosWe.delete(`/idioma/${idiomaId}`);
+                                    setCustomPerfil(prev=>{
+                                        return {...prev, idiomas: prev.idiomas.filter(idi=>idi.id!==idiomaId), idiomas_count: prev.idiomas_count-1};
+                                    })
+                                } catch (erro) {
+                                    console.error(erro);
+                                } finally {
+                                    setIdiomaToRemove({nome: '', id: ''});
+                                    setMostrarModalRmvIdioma(false);
+                                    target.disabled = false;
+                                    target.textContent = 'Confirmar';
+                                }
+                            }}
+                                className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700 cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
             {/* <!-- * Fim modais idiomas --> */}
             </>
             )}
         </div>
+        </>
     )
 }
