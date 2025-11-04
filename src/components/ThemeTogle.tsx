@@ -1,5 +1,6 @@
 import 'boxicons/css/boxicons.min.css';
 import { useEffect, useState } from 'react';
+import '../App.css';
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
@@ -20,9 +21,9 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button
+    <button 
       id="theme-toggle"
-      className="fixed top-24 right-8 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-light-300 dark:bg-dark-700 shadow-md hover:shadow-lg transition-all duration-300"
+      className="fixed top-24 right-8 z-20 w-12 h-12 flex items-center justify-center rounded-full  dark: shadow-md hover:shadow-lg transition-all duration-300"
       onClick={toggleTheme}
     >
       {isDark ? (

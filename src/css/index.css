@@ -1,8 +1,13 @@
 body {
-    background-color: #000;
-    color: #E5E7EB;
+    background-color: #F9FAFB;
+    color: #111827;
     overflow-x: hidden;
     user-select: none;
+}
+
+.dark body {
+    background-color: #000000;
+    color: #ffffff;
 }
 
 .text-gradient {

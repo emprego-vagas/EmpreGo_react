@@ -6,6 +6,7 @@ import { animate } from 'animejs';
 import '../ts/indexFunctions'
 import '../App.css'
 import '../css/index.css'
+import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
 
 
@@ -108,6 +109,7 @@ export default function Index(){
     
         profilesObserver.observe(document.querySelector("#testperfis"));
       }, []); 
+
     return (
         <>
             <Header1 />
@@ -125,10 +127,10 @@ export default function Index(){
             <div className="container mx-auto px-6 py-20">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="lg:w-11/2 mb-12 lg:mb-0 opacity-0" id="hero-content">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-gray-900 dark:text-white" id="hero-title">
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 " id="hero-title">
                             Encontre seu <span className="text-gradient">emprego</span> dos sonhos
                         </h1>
-                        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8" id="hero-subtitle">
+                        <p className="text-xl md:text-2xl  mb-8" id="hero-subtitle">
                             A plataforma mais inovadora para conectar talentos a oportunidades incríveis no mercado de
                             trabalho brasileiro.
                         </p>
@@ -424,7 +426,7 @@ export default function Index(){
                 </div>
             </div>
         </section>
-            <ThemeTogle />    
+            <ThemeTogle />   
         </>
     )
 }
