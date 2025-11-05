@@ -8,6 +8,7 @@ import Teste from './pages/teste'
 import Chats from './pages/Chats'
 import PerfilCandidato from './pages/PerfilCandidato'
 import CriarExperiencias from './pages/CriarExperiencias'
+import CriarProjetos from './pages/CriarProjetos'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path='/chats' element={<Chats/>} />
         <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
         <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
+        <Route path='/projetos/criar'element={<CriarProjetos/>} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ======= DEFINIÇÃO DE TOKENS E TEMAS GLOBAIS ======= */
-:root {
+@theme {
   /* === Cores principais === */
   --color-professional-dark: #0A0A0B;
   --color-professional-gray: #1A1A1D;
@@ -90,11 +90,11 @@
 /* ======= CLASSES CUSTOMIZADAS ======= */
 @layer components {
   .btn-primary {
-    @apply text-white font-semibold px-4 py-2 rounded-lg transition ;
+    @apply bg-primary-600 text-white font-semibold px-4 py-2 rounded-lg transition hover:bg-primary-700;
   }
 
   .card {
-    @apply p-4 rounded-xl shadow-md;
+    @apply bg-professional-card text-professional-text p-4 rounded-xl shadow-md;
   }
 
   .fade-in {

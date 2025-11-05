@@ -7,7 +7,7 @@ import { cadastrarExperiencia } from "../ts/criarExperienciasFunctions";
 import { useNavigate } from "react-router-dom";
 
 export default function CriarExperiencias() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const anoAtual = new Date().getFullYear();
     const anoMinimo = anoAtual - 100;
@@ -71,7 +71,7 @@ export default function CriarExperiencias() {
                 <div className="mb-6">
                     <label htmlFor="inputTitulo" className="block text-professional-subtitle mb-2 font-medium">Título Profissional
                         *</label>
-                    <input id="inputTitulo" type="text" maxLength={30} placeholder="Ex: Gerente de Projetos" value={titulo} onChange={(e)=>setTitulo(e.target.value)}
+                    <input id="inputTitulo" type="text" maxLength={50} placeholder="Ex: Gerente de Projetos" value={titulo} onChange={(e)=>setTitulo(e.target.value)}
                         className="w-full px-6 py-4 bg-professional-dark border border-professional-card rounded-xl text-professional-text text-xl font-semibold transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText "/>
                 </div>
 

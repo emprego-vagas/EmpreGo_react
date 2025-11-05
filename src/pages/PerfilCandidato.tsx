@@ -8,6 +8,7 @@ import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-
 import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel, type Custom, type Idiomas, type Tags, type Usua } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
+import ThemeTogle from '../components/ThemeTogle'
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -90,7 +91,7 @@ export default function PerfilCandidato() {
             }
         };
         loadCand();
-    },[]);
+    },[usuario]);
 
     useEffect(()=>{
         if(!mostrarMaisTags) {
@@ -975,6 +976,7 @@ export default function PerfilCandidato() {
                 </div>
             )}
             {/* <!-- * Fim modais idiomas --> */}
+             <ThemeTogle />   
             </>
             )}
         </div>
