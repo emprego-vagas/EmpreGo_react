@@ -159,7 +159,7 @@ export default function CriarExperiencias() {
                             setTimeout(()=>{navigate('/perfil/candidato')}, 3000);
                         }
                     }}>
-                    <i className='bx bx-save'></i> Salvar Experiência
+                    <i className='bx bx-save'></i> {cadastrando? 'Cadastrando...' : 'Salvar Experiência'}
                 </button>
                 <a href="/perfil/candidato">
                     <button

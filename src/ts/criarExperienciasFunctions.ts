@@ -12,18 +12,17 @@ export async function cadastrarExperiencia(titulo: string, nome: string, dataIni
     }
 
     const experiencia = {titulo, nome, periodo: `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`, descricao, tags};
-    console.log(experiencia)
 
     try {
         await axiosWe.post('/experiencias', experiencia);
-        return true; 
+        return true;
     } catch (erro) {
         console.error('Erro ao cadastrar experiência:',erro);
         return false;
     }
 }
 
-function formatarData(dataString: string): string {
+export function formatarData(dataString: string): string {
     if (!dataString) return '';
 
     const [ano, mes] = dataString.split('-');
@@ -31,7 +30,7 @@ function formatarData(dataString: string): string {
     return `${meses[parseInt(mes, 10) - 1]} ${ano}`;
 }
 
-function validarData(data: string): boolean {
+export function validarData(data: string): boolean {
     const anoAtual = new Date().getFullYear();
 
     const [ano] = data.split('-').map(Number);

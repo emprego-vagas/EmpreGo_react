@@ -642,7 +642,7 @@ export default function PerfilCandidato() {
                                     <p className="text-professional-subtitle mb-2">{proj.periodo}</p>
 
                                     <div className="relative mb-4">
-                                        <img src="${proj.imagem}" alt="Imagem do projeto"
+                                        <img src={proj.imagem} alt="Imagem do projeto"
                                             className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
 
                                         {proj.link && (

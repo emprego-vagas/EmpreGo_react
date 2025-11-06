@@ -23,7 +23,7 @@ export default function ThemeToggle() {
   return (
     <button 
       id="theme-toggle"
-      className="fixed top-24 right-8 z-20 w-12 h-12 flex items-center justify-center rounded-full  dark: shadow-md hover:shadow-lg transition-all duration-300"
+      className="fixed top-24 right-8 z-20 w-12 h-12 flex items-center justify-center rounded-full dark: shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
       onClick={toggleTheme}
     >
       {isDark ? (

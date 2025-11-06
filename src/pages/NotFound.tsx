@@ -4,7 +4,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-black via-gray-900 to-purple-950 text-white text-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-black via-gray-900 to-purple-950 text-white text-center px-6 relative overflow-hidden">
       {/* Glows de fundo */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-[500px] h-[500px] bg-purple-700/20 rounded-full blur-3xl animate-pulse top-[-150px] left-[-150px]" />
@@ -13,7 +13,7 @@ export default function NotFound() {
 
       {/* Conteúdo principal */}
       <div className="relative z-10">
-        <h1 className="text-[8rem] font-extrabold tracking-tight bg-gradient-to-r from-purple-400 via-fuchsia-500 to-purple-600 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+        <h1 className="text-[8rem] font-extrabold tracking-tight bg-linear-to-r from-purple-400 via-fuchsia-500 to-purple-600 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
           404
         </h1>
         <p className="text-2xl mt-4 text-gray-300">Página não encontrada</p>
@@ -21,7 +21,7 @@ export default function NotFound() {
 
         <button
           onClick={() => navigate("/")}
-          className="mt-8 px-8 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-fuchsia-600 hover:to-purple-600 transition-all rounded-xl font-medium text-white shadow-lg shadow-purple-600/40 hover:shadow-fuchsia-500/40"
+          className="mt-8 px-8 py-3 bg-linear-to-r from-purple-600 to-fuchsia-600 hover:from-fuchsia-600 hover:to-purple-600 transition-all rounded-xl font-medium text-white shadow-lg shadow-purple-600/40 hover:shadow-fuchsia-500/40 cursor-pointer"
         >
           Voltar à página inicial
         </button>

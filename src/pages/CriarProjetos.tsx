@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import HeaderProfiles from "../components/HeaderProfiles";
-import { useRef, useState } from "react";
-import { mostrarErroTopo } from "../utils/globalFunctions";
+import { useEffect, useRef, useState } from "react";
+import { mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { cadastrarProjeto } from "../ts/criarProjetosFunctions";
 
 export default function CriarProjetos() {
     const navigate = useNavigate();
@@ -36,6 +39,8 @@ export default function CriarProjetos() {
     const [dataInicio, setDataInicio] = useState('');
     const [dataFim, setDataFim] = useState('');
     const [tags, setTags] = useState<string[]>([]);
+    const [status, setStatus] = useState('');
+    const [linkProjeto, setLinkProjeto] = useState('');
 
     const [cadastrando, setCadastrando] = useState(false);
 
@@ -50,7 +55,65 @@ export default function CriarProjetos() {
             }
             e.target.value = '';
         }
-    }
+    };
+
+    const [imagem, setImagem] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [dragOver, setDragOver] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Gera e limpa o preview
+    useEffect(() => {
+        if (!imagem) return;
+
+        const objectUrl = URL.createObjectURL(imagem);
+        setPreview(objectUrl);
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [imagem]);
+
+    const handleFile = (file: File) => {
+        if (!file.type.startsWith("image/")) {
+        alert("Por favor, selecione uma imagem.");
+        return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+        alert("O arquivo deve ter no máximo 5MB.");
+        return;
+        }
+        setImagem(file);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) handleFile(file);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setDragOver(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file) handleFile(file);
+    };
+
+    const handleRemove = () => {
+        setImagem(null);
+        setPreview(null);
+        if (inputRef.current) inputRef.current.value = "";
+    };
+
+    useEffect(()=>{
+        const checkBox = checkAtualRef.current as HTMLInputElement;
+        if (status==='Concluído'){
+            setCheckAtual(false);
+            checkBox.disabled = true;
+            if(dataFimRef.current.disabled) {
+                setDataFimContainerOpacity('opacity-100');
+                dataFimRef.current.disabled = false;
+            }
+        } else {
+            checkBox.disabled = false;
+        }
+    }, [status])
 
     return (
         <>
@@ -76,7 +139,7 @@ export default function CriarProjetos() {
                     <div className="mb-6">
                         <label htmlFor="inputEmpresa" className="block text-professional-subtitle mb-2 font-medium">Empresa/Cliente
                             *</label>
-                        <input id="inputEmpresa" type="text" maxLength={50} placeholder="Ex: Tech Solutions Ltda"
+                        <input id="inputEmpresa" type="text" maxLength={50} placeholder="Ex: Tech Solutions Ltda" value={nome} onChange={(e)=>setNome(e.target.value)}
                             className="w-full px-6 py-4 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"/>
                     </div>
 
@@ -85,7 +148,7 @@ export default function CriarProjetos() {
                         <label htmlFor="selectStatus" className="block text-professional-subtitle mb-2 font-medium">
                             Status do Projeto *
                         </label>
-                        <select id="selectStatus"
+                        <select id="selectStatus" value={status} onChange={(e)=>setStatus(e.target.value)}
                             className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
 
                             {/* <!-- Opção padrão --> */}
@@ -120,7 +183,7 @@ export default function CriarProjetos() {
                         <div className="flex items-end">
                             <div className="flex items-center">
                                 <input id="checkAtual" type="checkbox" ref={checkAtualRef} checked={checkAtual} onChange={(e)=>{handleCheckAtual();setCheckAtual(e.target.checked)}}
-                                    className="w-5 h-5 appearance-none rounded-full border-1 border-professional-card bg-professional-dark checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
+                                    className="w-5 h-5 appearance-none rounded-full border border-professional-card bg-professional-dark checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
                                 <label htmlFor="checkAtual"
                                     className="ml-2 text-professional-subtitle font-medium select-none transform -translate-y-4">Sem data de conclusão</label>
                             </div>
@@ -145,8 +208,17 @@ export default function CriarProjetos() {
                             Utilizadas (Opcional)</label>
                         <div
                             className="flex flex-wrap items-center bg-professional-dark border border-professional-card rounded-xl px-4 py-3 transition-all focus-within:border-professional-accent focus-within:ring-3 focus-within:ring-professional-accent/20">
-                            <div id="tagsContainer" className="flex flex-wrap items-center"></div>
-                            <input id="inputHabilidades" type="text" placeholder="Digite uma tecnologia e pressione Enter"
+                            <div id="tagsContainer" className="flex flex-wrap items-center">
+                                {tags.length>0 && tags.map((tag, index)=>(
+                                    <div className="tag inline-flex items-center bg-professional-gray text-slate-300 px-3 py-1 rounded-md text-xs mr-2 mb-2" key={tag}>
+                                        {tag} 
+                                        <span className="tag-remove ml-2 cursor-pointer text-slate-300 hover:text-slate-50" onClick={()=>setTags((prev)=>prev.filter((_, i)=>i!==index))}>
+                                            <FontAwesomeIcon icon={faXmark} />
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                            <input id="inputHabilidades" type="text" placeholder="Digite uma tecnologia e pressione Enter" onKeyDown={(e)=>handleKeyDownTag(e)}
                                 className="flex-1 bg-transparent border-0 outline-0 text-professional-text placeholder-professional-subtitleText" />
                         </div>
                         <p className="text-professional-subtitle text-xs mt-2">Pressione Enter ou vírgula para adicionar uma
@@ -157,63 +229,123 @@ export default function CriarProjetos() {
                     <div className="mb-6">
                         <label htmlFor="inputLink" className="block text-professional-subtitle mb-2 font-medium">Link do Projeto
                             (Opcional)</label>
-                        <input id="inputLink" type="url" placeholder="https://meuprojeto.com"
+                        <input id="inputLink" type="url" placeholder="https://meuprojeto.com" value={linkProjeto} onChange={(e)=>setLinkProjeto(e.target.value)}
                             className="w-full px-6 py-4 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText" />
                     </div>
 
                     {/* <!-- Imagem --> */}
                     <div className="mb-6">
-                        <label className="block text-professional-subtitle mb-2 font-medium">Imagem do Projeto (Opcional)</label>
-                        <div className="image-upload-container relative border-2 border-dashed border-professional-card rounded-xl p-8 text-center transition-all bg-professional-dark/50 cursor-pointer min-h-[200px] flex flex-col justify-center items-center hover:border-professional-accent hover:bg-professional-accent/5"
-                            id="uploadArea">
-                            <div className="upload-content flex flex-col items-center" id="uploadContent">
-                                <i className='bx bx-cloud-upload text-5xl text-professional-accent mb-4'></i>
-                                <div className="upload-text text-professional-subtitle mb-4">
-                                    <h3 className="text-xl font-medium mb-2">Adicionar Imagem</h3>
-                                    <p className="text-sm">Arraste uma imagem ou clique para selecionar</p>
-                                    <p className="text-sm">Formatos: JPG, PNG, GIF (Máx. 5MB)</p>
-                                </div>
-                                <button type="button"
-                                    className="browse-button bg-professional-accent hover:bg-professional-lightaccent text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-                                    id="browseButton">Procurar Arquivos</button>
-                            </div>
+                        <label className="block text-professional-subtitle mb-2 font-medium">
+                            Imagem do Projeto (Opcional)
+                        </label>
 
-                            <div className="image-preview hidden w-full h-full rounded-xl overflow-hidden relative"
-                                id="imagePreview">
-                                <img id="previewImage" src="" alt="Pré-visualização" className="w-full h-full object-cover" />
-                                <div
-                                    className="preview-actions absolute bottom-0 left-0 right-0 gradient-overlay p-4 flex justify-center gap-2">
-                                    <button type="button"
-                                        className="preview-btn bg-white/20 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors hover:bg-white/30 backdrop-blur-custom"
-                                        id="changeImage">Alterar</button>
-                                    <button type="button"
-                                        className="preview-btn delete bg-red-500/70 hover:bg-red-500/90 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors backdrop-blur-custom z-10"
-                                        id="removeImage">Remover</button>
+                        {/* Área de Upload */}
+                        <div
+                            onClick={() => inputRef.current?.click()}
+                            onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragOver(true);
+                            }}
+                            onDragLeave={() => setDragOver(false)}
+                            onDrop={handleDrop}
+                            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer min-h-[200px] flex flex-col justify-center items-center
+                            ${preview
+                                ? "border-professional-accent bg-professional-accent/5"
+                                : dragOver
+                                ? "border-professional-accent bg-professional-accent/10"
+                                : "border-professional-card bg-professional-dark/50 hover:border-professional-accent hover:bg-professional-accent/5"
+                            }`}
+                        >
+                            {!preview ? (
+                            <div className="flex flex-col items-center pointer-events-none">
+                                <i className="bx bx-cloud-upload text-5xl text-professional-accent mb-4"></i>
+                                <div className="text-professional-subtitle mb-4">
+                                <h3 className="text-xl font-medium mb-2">Adicionar Imagem</h3>
+                                <p className="text-sm">Arraste uma imagem ou clique para selecionar</p>
+                                <p className="text-sm">Formatos: JPG, PNG, GIF (Máx. 5MB)</p>
+                                </div>
+                                <button
+                                type="button"
+                                className="bg-professional-accent hover:bg-professional-lightaccent text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                                >
+                                Procurar Arquivos
+                                </button>
+                            </div>
+                            ) : (
+                            <div className="relative w-full h-full rounded-xl overflow-hidden">
+                                <img
+                                src={preview}
+                                alt="Pré-visualização"
+                                className="w-full h-full object-cover"
+                                />
+                                <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center gap-2 bg-black/40 backdrop-blur-md">
+                                <button
+                                    type="button"
+                                    className="bg-white/20 text-white px-4 py-2 rounded-md text-sm hover:bg-white/30 cursor-pointer"
+                                    onClick={(e) => {
+                                    e.stopPropagation();
+                                    inputRef.current?.click();
+                                    }}
+                                >
+                                    Alterar
+                                </button>
+                                <button
+                                    type="button"
+                                    className="bg-red-500/70 hover:bg-red-500/90 text-white px-4 py-2 rounded-md text-sm cursor-pointer"
+                                    onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemove();
+                                    }}
+                                >
+                                    Remover
+                                </button>
                                 </div>
                             </div>
+                            )}
 
-                            <input id="imgPlaceholder" type="file" accept="image/*"
-                                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" />
+                            <input
+                            ref={inputRef}
+                            id="imgPlaceholder"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileChange}
+                            />
                         </div>
 
-                        <div className="file-info hidden items-center gap-2 mt-4 p-3 bg-professional-accent/10 rounded-lg border-l-4 border-professional-accent"
-                            id="fileInfo">
-                            <i className='bx bx-file text-professional-accent'></i>
-                            <div className="file-name flex-1 text-sm text-professional-subtitle" id="fileName">Nome do arquivo</div>
-                            <div className="file-size text-xs text-professional-subtitle" id="fileSize">0 KB</div>
-                        </div>
+                        {/* Infos do arquivo */}
+                        {imagem && (
+                            <div className="flex items-center gap-2 mt-4 p-3 bg-professional-accent/10 rounded-lg border-l-4 border-professional-accent">
+                            <i className="bx bx-file text-professional-accent"></i>
+                            <div className="flex-1 text-sm text-professional-subtitle truncate">
+                                {imagem.name}
+                            </div>
+                            <div className="text-xs text-professional-subtitle">
+                                {(imagem.size / 1024).toFixed(1)} KB
+                            </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 <div id="btns" className="flex justify-center gap-6 mt-8">
-                    <button
-                        className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-gradient-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40"
-                        id="btnSalvar">
-                        <i className='bx bx-save'></i> Salvar Projeto
+                    <button disabled={cadastrando}
+                        className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer"
+                        id="btnSalvar" onClick={async()=>{
+                            setCadastrando(true);
+                            const cadastrou = await cadastrarProjeto(titulo, nome, dataInicio, dataFim, checkAtual, descricao, tags, linkProjeto, status, imagem);
+                            if(!cadastrou){
+                                setCadastrando(false);
+                            } else {
+                                mostrarSucessoTopo('Projeto cadastrado com sucesso!')
+                                setTimeout(()=>{navigate('/perfil/candidato')}, 3000);
+                            }
+                        }}>
+                        <i className='bx bx-save'></i> {cadastrando? 'Cadastrando...' : 'Salvar Projeto'}
                     </button>
                     <a href="/perfil/candidato">
                         <button
-                            className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-professional-card text-professional-subtitle hover:bg-professional-card/80 hover:-translate-y-1"
+                            className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-professional-card text-professional-subtitle hover:bg-professional-card/80 hover:-translate-y-1 cursor-pointer"
                             id="btnVoltar">
                             <i className='bx bx-arrow-back'></i> Retornar ao Perfil
                         </button>
