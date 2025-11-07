@@ -1,13 +1,14 @@
 import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faBriefcase, faBuilding, faCamera, faCity, faEdit, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
 import type { Usua } from "../ts/perfilCandidatoFunctions";
 import { DadosUsuario } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import HeaderProfiles from "../components/HeaderProfiles";
 import type { FileEditCandFace } from "../ts/editarPerfilCandidatoFunctions";
+import genPfp from '../assets/imgs/genPfp.png';
 
 export default function EditarPerfilCandidato () {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function EditarPerfilCandidato () {
         }, 3000);
     };
 
-    const [candEdit, setCandEdit] = useState<Usua | null>(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     useEffect(()=>{
         async function loadCand(){
             if(!usuario) return;
@@ -27,7 +28,35 @@ export default function EditarPerfilCandidato () {
                 const usua = response.data.usua;
                 DadosUsuario.setarFoto(usua.foto);
                 DadosUsuario.setarNome(usua.nome);
-                setCandEdit(usua);
+                const { 
+                    nome, foto, descricao, cpf, estado, cidade, instagram, github,
+                    twitter, pronomes, site_pessoal, curriculo, cargo_atual,
+                    portifolio, empresa_atual, curriculo_file
+                } = usua;
+                setNomeInfo({cached: nome, value: nome, disabled: true});
+                if(cpf) setCpfInfo({cached: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), value: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), disabled: true});
+                if(pronomes) {
+                    const pronomesDoSelect = ["Ela/Dela", "Ele/Dele", "Elu/Delu", "Prefiro não informar"];
+                    if(!pronomesDoSelect.includes(pronomes)){
+                        setPronomesInfo({cached: 'Outro', value: 'Outro', disabled: true});
+                        setPronomesPersonalizadosInfo({cached: pronomes, value: pronomes, disabled: true});
+                    } else setPronomesInfo({cached: pronomes, value: pronomes, disabled: true})
+                };
+                if(portifolio) setPortfolioInfo({cached: portifolio, value: portifolio, disabled: true});
+                if(curriculo) setCurriculoInfo({cached: curriculo, value: curriculo, disabled: true});
+                if(site_pessoal) setSite_pessoalInfo({cached: site_pessoal, value: site_pessoal, disabled: true});
+                if(github) setGithubInfo({cached: github, value: github, disabled: true});
+                if(instagram) setInstagramInfo({cached: instagram, value: instagram, disabled: true});
+                if(twitter) setTwitterInfo({cached: twitter, value: twitter, disabled: true});
+                if(cidade) setCidadeInfo({cached: cidade, value: cidade, disabled: true});
+                if(estado) setEstadoInfo({cached: estado, value: estado, disabled: true});
+                if(foto) setFotoInfo({cached: foto, value: null, disabled: true, truncate: false});
+                if(cargo_atual) setCargo_atualInfo({cached: cargo_atual, value: cargo_atual, disabled: true});
+                if(empresa_atual) setEmpresa_atualInfo({cached: empresa_atual, value: empresa_atual, disabled: true});
+                if(descricao) setDescricaoInfo({cached: descricao, value: descricao, disabled: true});
+                if(curriculo_file) setCurriculo_fileInfo({cached: curriculo_file, value: null, disabled: true, truncate: false});
+
+                setDataLoaded(true);
             } catch (erro) {
                 console.error('Erro ao carregar dados do usuário:',erro)
             }
@@ -35,28 +64,49 @@ export default function EditarPerfilCandidato () {
         loadCand();
     }, [usuario]);
 
-    const [nome, setNome] = useState({cached: '', value: '', disabled: false});
-    const [cpf, setCpf] = useState({cached: '', value: '', disabled: false});
-    const [pronomes, setPronomes] = useState({cached: '', value: '', disabled: false});
-    const [portfolio, setPortfolio] = useState({cached: '', value: '', disabled: false});
-    const [github, setGithub] = useState({cached: '', value: '', disabled: false});
-    const [curriculo, setCurriculo] = useState({cached: '', value: '', disabled: false});
-    const [instagram, setInstagram] = useState({cached: '', value: '', disabled: false});
-    const [site_pessoal, setSite_pessoal] = useState({cached: '', value: '', disabled: false});
-    const [twitter, setTwitter] = useState({cached: '', value: '', disabled: false});
-    const [cidade, setCidade] = useState({cached: '', value: '', disabled: false});
-    const [estado, setEstado] = useState({cached: '', value: '', disabled: false});
-    const [cargo_atual, setCargo_atual] = useState({cached: '', value: '', disabled: false});
-    const [empresa_atual, setEmpresa_atual] = useState({cached: '', value: '', disabled: false});
-    const [descricao, setDescricao] = useState({cached: '', value: '', disabled: false});
-    const [foto, setFoto] = useState<FileEditCandFace>({cached: '', value: null, disabled: false});
-    const [curriculo_file, setCurriculo_file] = useState<FileEditCandFace>({cached: '', value: null, disabled: false});
+    const [nomeInfo, setNomeInfo] = useState({cached: '', value: '', disabled: false});
+    const [cpfInfo, setCpfInfo] = useState({cached: '', value: '', disabled: false});
+    const [pronomesInfo, setPronomesInfo] = useState({cached: '', value: '', disabled: false});
+    const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState({cached: '', value: '', disabled: false});
+    const [portfolioInfo, setPortfolioInfo] = useState({cached: '', value: '', disabled: false});
+    const [githubInfo, setGithubInfo] = useState({cached: '', value: '', disabled: false});
+    const [curriculoInfo, setCurriculoInfo] = useState({cached: '', value: '', disabled: false});
+    const [instagramInfo, setInstagramInfo] = useState({cached: '', value: '', disabled: false});
+    const [site_pessoalInfo, setSite_pessoalInfo] = useState({cached: '', value: '', disabled: false});
+    const [twitterInfo, setTwitterInfo] = useState({cached: '', value: '', disabled: false});
+    const [cidadeInfo, setCidadeInfo] = useState({cached: '', value: '', disabled: false});
+    const [estadoInfo, setEstadoInfo] = useState({cached: '', value: '', disabled: false});
+    const [cargo_atualInfo, setCargo_atualInfo] = useState({cached: '', value: '', disabled: false});
+    const [empresa_atualInfo, setEmpresa_atualInfo] = useState({cached: '', value: '', disabled: false});
+    const [descricaoInfo, setDescricaoInfo] = useState({cached: '', value: '', disabled: false});
+    const descricaoLength = descricaoInfo.value.length;
+    const [fotoInfo, setFotoInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
+    const [curriculo_fileInfo, setCurriculo_fileInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
+
+    const [previewSrcFoto, setPreviewSrcFoto] = useState(genPfp);
+    const inputFotoPerfilOcultRef = useRef(null);
+    useEffect(() => {
+        if(fotoInfo.truncate) {
+            setPreviewSrcFoto(genPfp);
+        }
+        else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
+            setPreviewSrcFoto(fotoInfo.cached);
+        }
+        else if (fotoInfo.value as File) {
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewSrcFoto(e.target.result as string);
+            reader.readAsDataURL(fotoInfo.value);
+        }
+        else {
+            setPreviewSrcFoto(genPfp);
+        }
+    }, [fotoInfo]);
 
     return (
         <>
         <HeaderProfiles />
         <div className="container mx-auto px-4 pt-20 pb-10">
-            {candEdit && (
+            {dataLoaded && (
             <>
             <div className="page-header text-center mb-10">
                 <h1 className="text-4xl font-bold gradient-text mb-2">Editar Perfil</h1>
@@ -81,8 +131,14 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="nomeCompleto"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faSignature} className="text-professional-accent mr-2" />Nome Completo
+                                    {nomeInfo.cached && (nomeInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="text" id="nomeCompleto"
+                                
+                                <input type="text" id="nomeCompleto" value={nomeInfo.value} onChange={(e)=>setNomeInfo(prev=>({...prev, value: e.target.value}))} disabled={nomeInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: João Silva Santos" />
                             </div>
@@ -92,8 +148,20 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="cpf"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />CPF
+                                    {cpfInfo.cached && (cpfInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="text" id="cpf"
+                                <input type="text" id="cpf" value={cpfInfo.value} onChange={(e)=>{
+                                    let value = e.target.value.replace(/\D/g, "");
+                                    if (value.length > 11) value = value.slice(0, 11);
+                                    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+                                    value = value.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+                                    value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
+                                    setCpfInfo(prev=>({...prev, value}));
+                                }} disabled={cpfInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: 000.000.000-00" />
                             </div>
@@ -104,8 +172,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="pronomes"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faUserTag} className="text-professional-accent mr-2" />Pronomes
+                                    {pronomesInfo.cached && (pronomesInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <select id="pronomes"
+                                <select id="pronomes" value={pronomesInfo.value} onChange={(e)=>setPronomesInfo(prev=>({...prev, value: e.target.value}))} disabled={pronomesInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
                                     <option value="" disabled selected className="text-professional-subtitle">Selecione seus
                                         pronomes</option>
@@ -118,15 +191,22 @@ export default function EditarPerfilCandidato () {
                                 </select>
                             </div>
 
-                            <div id="pronomePersonalizadoContainer" className="hidden">
-                                <label htmlFor="pronomePersonalizado"
-                                    className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                    <FontAwesomeIcon icon={faEdit} className="text-professional-accent mr-2" />Especifique seus pronomes
-                                </label>
-                                <input type="text" id="pronomePersonalizado"
-                                    className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                    placeholder="Ex: Ela/Dela, Elu/Delu" />
-                            </div>
+                            {pronomesInfo.value==='Outro' && (
+                                <div id="pronomePersonalizadoContainer">
+                                    <label htmlFor="pronomePersonalizado"
+                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent mr-2" />Especifique seus pronomes
+                                        {pronomesPersonalizadosInfo.cached && (pronomesPersonalizadosInfo.disabled ? (
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, disabled: false}))} />
+                                        ):(
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        ))}
+                                    </label>
+                                    <input type="text" id="pronomePersonalizado" value={pronomesPersonalizadosInfo.value} onChange={(e)=>setPronomesPersonalizadosInfo(prev=>({...prev, value: e.target.value}))} disabled={pronomesPersonalizadosInfo.disabled}
+                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                        placeholder="Ex: Ela/Dela, Elu/Delu" />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -144,8 +224,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="portfolio"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faMagic} className="text-professional-accent mr-2" /> Portfólio
+                                    {portfolioInfo.cached && (portfolioInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPortfolioInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPortfolioInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="portfolio"
+                                <input type="url" id="portfolio" value={portfolioInfo.value} onChange={(e)=>setPortfolioInfo(prev=>({...prev, value: e.target.value}))} disabled={portfolioInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: https://seuportfolio.com" />
                             </div>
@@ -154,8 +239,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="github"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faGithub} className="text-professional-accent mr-2" /> GitHub
+                                    {githubInfo.cached && (githubInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setGithubInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setGithubInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="github"
+                                <input type="url" id="github" value={githubInfo.value} onChange={(e)=>setGithubInfo(prev=>({...prev, value: e.target.value}))} disabled={githubInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: https://github.com/seuusuario" />
                             </div>
@@ -164,8 +254,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="curriculo"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faFileInvoice} className="text-professional-accent mr-2" /> Currículo
+                                    {curriculoInfo.cached && (curriculoInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCurriculoInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCurriculoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="curriculo"
+                                <input type="url" id="curriculo" value={curriculoInfo.value} onChange={(e)=>setCurriculoInfo(prev=>({...prev, value: e.target.value}))} disabled={curriculoInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: Link para seu currículo" />
                             </div>
@@ -174,8 +269,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="instagram"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faInstagram} className="text-professional-accent mr-2" /> Instagram
+                                    {instagramInfo.cached && (instagramInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setInstagramInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setInstagramInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="instagram"
+                                <input type="url" id="instagram" value={instagramInfo.value} onChange={(e)=>setInstagramInfo(prev=>({...prev, value: e.target.value}))} disabled={instagramInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: https://instagram.com/seuusuario" />
                             </div>
@@ -184,8 +284,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="sitePessoal"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faGlobe} className="text-professional-accent mr-2" /> Site Pessoal
+                                    {site_pessoalInfo.cached && (site_pessoalInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setSite_pessoalInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setSite_pessoalInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="sitePessoal"
+                                <input type="url" id="sitePessoal" value={site_pessoalInfo.value} onChange={(e)=>setSite_pessoalInfo(prev=>({...prev, value: e.target.value}))} disabled={site_pessoalInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: https://seusite.com" />
                             </div>
@@ -194,8 +299,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="twitter"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faXTwitter} className="text-professional-accent mr-2" /> Twitter/X
+                                    {twitterInfo.cached && (twitterInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setTwitterInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setTwitterInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="url" id="twitter"
+                                <input type="url" id="twitter" value={twitterInfo.value} onChange={(e)=>setTwitterInfo(prev=>({...prev, value: e.target.value}))} disabled={twitterInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: https://twitter.com/seuusuario" />
                             </div>
@@ -215,8 +325,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="cidade"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faCity} className="text-professional-accent mr-2" />Cidade
+                                    {cidadeInfo.cached && (cidadeInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCidadeInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCidadeInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="text" id="cidade"
+                                <input type="text" id="cidade" value={cidadeInfo.value} onChange={(e)=>setCidadeInfo(prev=>({...prev, value: e.target.value}))} disabled={cidadeInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: São Paulo" />
                             </div>
@@ -225,8 +340,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="estado"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faFlag} className="text-professional-accent mr-2" />Estado
+                                    {estadoInfo.cached && (estadoInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setEstadoInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setEstadoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <select id="estado"
+                                <select id="estado" value={estadoInfo.value} onChange={(e)=>setEstadoInfo(prev=>({...prev, value: e.target.value}))} disabled={estadoInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
                                     <option value="" className="bg-professional-dark" selected>Selecione seu estado</option>
                                     <option value="AC" className="bg-professional-dark">Acre (AC)</option>
@@ -275,28 +395,37 @@ export default function EditarPerfilCandidato () {
 
                         <div className="flex flex-col items-center">
                             <div className="relative mb-4">
-                                <img id="previewFoto" src="/assets/imgs/genPfp.png" alt="Foto de perfil"
+                                <img id="previewFoto" src={previewSrcFoto}
+                                    alt="Foto de perfil"
                                     className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover shadow-lg" />
 
-                                <input type="file" id="inputFotoPerfil" accept="image/*" className="hidden" />
+                                <input type="file" id="inputFotoPerfil" accept="image/*" className="hidden" ref={inputFotoPerfilOcultRef} onChange={(e)=>{
+                                    const file = e.target.files[0];
+                                    if(!file) return;
+                                    setFotoInfo(prev=>({...prev, value: file, truncate: false}));
+                                }}/>
 
-                                <button id="btnAlterarFoto"
+                                <button id="btnAlterarFoto" onClick={()=>inputFotoPerfilOcultRef.current.click()}
                                     title="Adicionar Foto"
-                                    className="absolute bottom-2 right-2 bg-professional-accent text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-professional-lightaccent transition-all duration-200 transform hover:scale-110">
+                                    className="absolute bottom-2 right-2 bg-professional-accent text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-professional-lightaccent transition-all duration-200 transform hover:scale-110 cursor-pointer">
                                     <FontAwesomeIcon icon={faCamera} />
                                 </button>
 
-                                <button id="btnRemoverFoto"
-                                    title="Remover Foto"
-                                    className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 hidden">
-                                    <FontAwesomeIcon icon={faTrashAlt} />
-                                </button>
+                                {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached!=='/assets/imgs/genPfp.png')) && (
+                                    <button id="btnRemoverFoto" onClick={()=>setFotoInfo(prev=>({...prev, value: null, truncate: true}))}
+                                        title="Remover Foto"
+                                        className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">
+                                        <FontAwesomeIcon icon={faTrashAlt} />
+                                    </button>
+                                )}
 
-                                <button id="btnVoltarFoto" 
-                                    title="Cancelar Edição"
-                                    className="absolute top-2 left-2 bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-600 transition-all duration-200 transform hover:scale-110 hidden">
-                                    <FontAwesomeIcon icon={faUndo} />
-                                </button>
+                                {(fotoInfo.truncate || fotoInfo.value) && (
+                                    <button id="btnVoltarFoto" onClick={()=>setFotoInfo(prev=>({...prev, value: null, truncate: false}))}
+                                        title="Cancelar Edição"
+                                        className="absolute top-2 left-2 bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">
+                                        <FontAwesomeIcon icon={faUndo} />
+                                    </button>
+                                )}
 
                             </div>
 
@@ -320,8 +449,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="cargoAtual"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faUserTie} className="text-professional-accent mr-2" />Cargo Atual
+                                    {cargo_atualInfo.cached && (cargo_atualInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCargo_atualInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCargo_atualInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="text" id="cargoAtual"
+                                <input type="text" id="cargoAtual" value={cargo_atualInfo.value} onChange={(e)=>setCargo_atualInfo(prev=>({...prev, value: e.target.value}))} disabled={cargo_atualInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: Desenvolvedor Full Stack" />
                             </div>
@@ -330,8 +464,13 @@ export default function EditarPerfilCandidato () {
                                 <label htmlFor="empresaAtual"
                                     className="block text-professional-subtitle mb-2 font-medium flex items-center">
                                     <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />Empresa Atual
+                                    {empresa_atualInfo.cached && (empresa_atualInfo.disabled ? (
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setEmpresa_atualInfo(prev=>({...prev, disabled: false}))} />
+                                    ):(
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setEmpresa_atualInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                    ))}
                                 </label>
-                                <input type="text" id="empresaAtual"
+                                <input type="text" id="empresaAtual" value={empresa_atualInfo.value} onChange={(e)=>setEmpresa_atualInfo(prev=>({...prev, value: e.target.value}))} disabled={empresa_atualInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: Tech Solutions Ltda" />
                             </div>
@@ -400,13 +539,20 @@ export default function EditarPerfilCandidato () {
                 </h2>
 
                 <div>
-                    <label htmlFor="resumoProfissional" className="block text-professional-subtitle mb-2 font-medium">Resumo</label>
-                    <textarea id="resumoProfissional" rows={6} maxLength={500}
+                    <label htmlFor="resumoProfissional" className="block text-professional-subtitle mb-2 font-medium">
+                        Resumo
+                        {descricaoInfo.cached && (descricaoInfo.disabled ? (
+                            <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setDescricaoInfo(prev=>({...prev, disabled: false}))} />
+                        ):(
+                            <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setDescricaoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                        ))}
+                    </label>
+                    <textarea id="resumoProfissional" rows={6} maxLength={500} value={descricaoInfo.value} onChange={(e)=>setDescricaoInfo(prev=>({...prev, value: e.target.value}))} disabled={descricaoInfo.disabled}
                         className="w-full h-48 p-6 bg-professional-dark border border-professional-card rounded-xl text-professional-text resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                         placeholder="Descreva sua experiência profissional, habilidades e objetivos de carreira. Seja específico e use métricas quando possível."></textarea>
                     <div className="flex justify-between mt-2">
                         <span className="text-xs text-professional-subtitle">Máximo de 500 caracteres</span>
-                        <span id="contadorCaracteres" className="text-xs text-professional-subtitle">0/500</span>
+                        <span id="contadorCaracteres" className="text-xs text-professional-subtitle">{`${descricaoLength}/500`}</span>
                     </div>
                 </div>
             </div>
