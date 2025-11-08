@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DadosUsuario, logout } from "../utils/globalFunctions";
 
 import genPfp from '../assets/imgs/genPfp.png';
@@ -39,21 +39,21 @@ export default function HeaderProfiles(){
         className=" top-0 left-0 right-0 bg-professional-gray shadow-md z-50 border-b border-professional-card">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
             <div id="logo" className="flex items-center">
-            <a href="/" target="_self" className="flex items-center">
+            <Link to="/" target="_self" className="flex items-center">
                 <img src={BIGSlogo} alt="Logo" id="logoimg" className="h-10 mr-2"/>
                 <span id="nomedosite" className="text-xl font-bold text-white">
                 Empre<span className="text-professional-accent">Go</span>
                 </span>
-            </a>
+            </Link>
             </div>
             <nav className="links flex items-center space-x-6">
-            <a href="/" className="text-professional-subtitle hover:text-white transition-colors">Início</a>
-            <a className="headerlink text-professional-subtitle hover:text-white transition-colors" href="/chats"
-                target="_self">Chat Geral</a>
-            <a className="headerlink text-professional-subtitle hover:text-white transition-colors" href="#"
-                target="_self">Fórum</a>
-            <a className="headerlink text-professional-subtitle hover:text-white transition-colors" href="#"
-                target="_self">Favoritos</a>
+            <Link to="/" className="text-professional-subtitle hover:text-white transition-colors">Início</Link>
+            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="/chats"
+                target="_self">Chat Geral</Link>
+            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
+                target="_self">Fórum</Link>
+            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
+                target="_self">Favoritos</Link>
 
             <div className="header-profile flex items-center gap-3 bg-transparent px-1 py-1 rounded-full cursor-pointer transition-colors hover:bg-gray-700"
                 id="profile-toggle" ref={profileToggleRef}>
@@ -68,11 +68,11 @@ export default function HeaderProfiles(){
                         id="profile-dropdown" ref={profileDropdownRef}>
                         <div className="profile-info p-3">
                             <p className="profile-name font-bold m-0">{usuario.nome}</p>
-                            <a href="/perfil/candidato" className="text-twitch-purple text-sm no-underline">Acessar perfil</a>
+                            <Link to={`/perfil/${usuario.tipo}`} className="text-twitch-purple text-sm no-underline">Acessar perfil</Link>
                         </div>
                         <hr className="border-t border-gray-700 my-1"/>
                         <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
-                            onClick={()=>navigate('/perfil/candidato/editar')}>Editar perfil</button>
+                            onClick={()=>navigate(`/perfil/${usuario.tipo}/editar`)}>Editar perfil</button>
                         <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
                             onClick={()=>logout()} id="logoutButton">Sair</button>
                         <hr className="border-t border-gray-700 my-1"/>

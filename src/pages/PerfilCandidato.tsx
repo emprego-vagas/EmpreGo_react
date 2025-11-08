@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { DadosUsuario, fileDownload, mostrarErroTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,6 +9,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel, type Custom, type Idiomas, type Tags, type Usua } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import ThemeTogle from '../components/ThemeTogle'
+import Loader from "../components/Loader";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -51,6 +52,13 @@ export default function PerfilCandidato() {
             setMostrarMaisIdiomas(true);
             setMostrarMaisIdiomasExib(true);
             console.error('Erro ao mostrar todos os idiomas:',erro);
+        }
+    }
+    const adicionarTagRef = useRef(null);
+    const handleKeyDownInputTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            adicionarTagRef.current?.click();
         }
     }
 
@@ -108,8 +116,10 @@ export default function PerfilCandidato() {
         }
     }, [mostrarMaisIdiomas])
 
+    if (!candPerfil) return (<Loader />);
+
     return (
-        <>
+        <div className="font-inter min-h-screen">
         <HeaderProfiles />
         <div id="main" className="container mx-auto px-4 pt-10 pb-10">
             {candPerfil && (
@@ -517,11 +527,11 @@ export default function PerfilCandidato() {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>{navigate('/experiencias/criar')}}>
-                                <a href="/experiencias/criar" className="flex flex-col items-center text-center">
+                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-accent mb-3 text-4xl" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar nova experiência
                                         profissional</p>
-                                </a>
+                                </Link>
                             </div>
                             {customPerfil.experiencias_count>0 && customPerfil.experiencias.map(expe=>(
                                 <div key={expe.id}
@@ -563,11 +573,11 @@ export default function PerfilCandidato() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
-                                <a href="/experiencias/criar" className="flex flex-col items-center text-center">
+                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novas Certificações
                                     </p>
-                                </a>
+                                </Link>
                             </div>
                             <div
                                 className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
@@ -619,10 +629,10 @@ export default function PerfilCandidato() {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>{navigate('/projetos/criar')}}>
-                                <a href="/projetos/criar" className="flex flex-col items-center text-center">
+                                <Link to="/projetos/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novos projetos</p>
-                                </a>
+                                </Link>
                             </div>
                             {customPerfil.projetos_count>0 && customPerfil.projetos_cand.map(proj=>(
                                 <div key={proj.id}
@@ -646,7 +656,7 @@ export default function PerfilCandidato() {
                                             className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
 
                                         {proj.link && (
-                                            <a href={proj.link} target="_blank" rel="noopener noreferrer"
+                                            <Link to={proj.link} target="_blank" rel="noopener noreferrer"
                                                 className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
                                                 title="Visitar site">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -654,7 +664,7 @@ export default function PerfilCandidato() {
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
                                                 </svg>
-                                            </a>
+                                            </Link>
                                         )}
                                     </div>
 
@@ -690,10 +700,10 @@ export default function PerfilCandidato() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
-                                <a href="/experiencias/criar" className="flex flex-col items-center text-center">
+                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar uma nova formação</p>
-                                </a>
+                                </Link>
                             </div>
                             <div
                                 className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
@@ -813,7 +823,7 @@ export default function PerfilCandidato() {
                     <div id="modalInput-content"
                         className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
                         <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
-                        <input type="text" id="inputTag" placeholder="Digite a habilidade" onChange={(e)=>setTagToAdd(e.target.value)}
+                        <input type="text" id="inputTag" placeholder="Digite a habilidade" onChange={(e)=>setTagToAdd(e.target.value)} autoFocus onKeyDown={(e)=>handleKeyDownInputTag(e)}
                             className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" value={tagToAdd}/>
                         <div className="flex justify-end space-x-3">
                             <button id="btnCancelar" onClick={()=>{
@@ -838,7 +848,7 @@ export default function PerfilCandidato() {
                                 }
                                 
                             }}
-                                className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">Confirmar</button>
+                               ref={adicionarTagRef} className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">Confirmar</button>
                         </div>
                     </div>
                 </div>
@@ -850,7 +860,7 @@ export default function PerfilCandidato() {
                         className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
                         <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
                         <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover esta
-                            habilidade? `}<strong>{`(${tagToRemove.nome})`}</strong>
+                            habilidade? `}<br/><strong>{`(${tagToRemove.nome})`}</strong>
                         </p>
                         <div className="flex justify-center space-x-3">
                             <button id="btnCancelarDel" onClick={()=>{setMostrarModalRmvTag(false);setTagToRemove({nome:'',id:''});}}
@@ -889,7 +899,7 @@ export default function PerfilCandidato() {
                     <div id="modalInputIdioma-content"
                         className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
                         <h3 className="text-lg font-semibold mb-4">Adicionar Idioma</h3>
-                        <input type="text" id="inputIdioma" placeholder="Digite o Idioma" value={idiomaToAdd.nome} onChange={(e)=>setIdiomaToAdd({...idiomaToAdd, nome: e.target.value})}
+                        <input type="text" id="inputIdioma" placeholder="Digite o Idioma" value={idiomaToAdd.nome} onChange={(e)=>setIdiomaToAdd({...idiomaToAdd, nome: e.target.value})} autoFocus
                             className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent"/>
                         <label htmlFor="selectNivelIdioma" className="block text-professional-subtitle mb-2 font-medium">
                             Nível do Idioma
@@ -976,10 +986,10 @@ export default function PerfilCandidato() {
                 </div>
             )}
             {/* <!-- * Fim modais idiomas --> */}
-             <ThemeTogle />   
+            <ThemeTogle />   
             </>
             )}
         </div>
-        </>
+        </div>
     )
 }

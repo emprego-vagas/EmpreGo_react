@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
 import { cadastrarExperiencia } from "../ts/criarExperienciasFunctions";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CriarExperiencias() {
     const navigate = useNavigate();
@@ -54,6 +54,10 @@ export default function CriarExperiencias() {
             e.target.value = '';
         }
     }
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <>
@@ -161,13 +165,13 @@ export default function CriarExperiencias() {
                     }}>
                     <i className='bx bx-save'></i> {cadastrando ? 'Cadastrando...' : 'Salvar Experiência'}
                 </button>
-                <a href="/perfil/candidato">
+                <Link to="/perfil/candidato">
                     <button
                         className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-professional-card text-professional-subtitle hover:bg-professional-card/80 hover:-translate-y-1 cursor-pointer"
                         id="btnVoltar">
                         <i className='bx bx-arrow-back'></i> Retornar ao Perfil
                     </button>
-                </a>
+                </Link>
             </div>
         </div>
         </>

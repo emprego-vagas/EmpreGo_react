@@ -27,6 +27,7 @@ export async function cadastrarProjeto(titulo: string, nome: string, dataInicio:
     formData.append('descricao', descricao);
     formData.append('tags', JSON.stringify(tags));
     formData.append('link', linkProjeto);
+    formData.append('status', status);
     if(imagem) formData.append('imagem', imagem);
 
     try {

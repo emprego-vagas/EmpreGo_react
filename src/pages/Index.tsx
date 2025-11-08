@@ -1,4 +1,4 @@
-import Header1 from '../components/HeaderInit'
+import HeaderInit from '../components/HeaderInit'
 import ThemeTogle from '../components/ThemeTogle'
 import teste from '../assets/imgs/BIGSlogo.png'
 import { useEffect } from "react";
@@ -8,8 +8,7 @@ import '../App.css'
 import '../css/index.css'
 import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
-
-
+import { Link } from 'react-router-dom';
 
 export default function Index(){
     interacaoUI();
@@ -112,7 +111,7 @@ export default function Index(){
 
     return (
         <>
-            <Header1 />
+            <HeaderInit />
             <section id="home" className="min-h-screen flex items-center pt-20 bg-grid-pattern-light dark:bg-grid-pattern relative overflow-hidden bg-light-200 dark:bg-dark-900 transition-colors duration-300">
 
             {/* <!-- particulas de fundo --> */}
@@ -136,14 +135,14 @@ export default function Index(){
                         </p>
 
                         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                            <a href="/login"
+                            <Link to="/login"
                                className="flex items-center justify-center px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-lg font-semibold transition-colors duration-300 transform hover:scale-105 shadow-lg hover:shadow-primary-500/30">
                                 <i className='bx bx-rocket mr-2'></i> Começar Agora
-                            </a>
-                            <a href="/sobre"
+                            </Link>
+                            <Link to="/sobre"
                                className="flex items-center justify-center px-8 py-4 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-xl text-lg font-semibold transition-colors duration-300 transform hover:scale-105">
                                 <i className='bx bx-info-circle mr-2'></i> Saiba Mais
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="mt-12">
@@ -419,10 +418,10 @@ export default function Index(){
                         Conheça mais sobre nossa equipe e veja como podemos ajudar sua empresa a encontrar os melhores
                         talentos.
                     </p>
-                    <a href="/sobre"
+                    <Link to="/sobre"
                         className="mt-4 inline-block px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
                         Saiba Mais Sobre Nós
-                    </a>
+                    </Link>
                 </div>
             </div>
         </section>

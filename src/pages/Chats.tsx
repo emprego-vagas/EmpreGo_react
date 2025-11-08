@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo } from '../utils/globalFunctions';
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
@@ -10,9 +10,10 @@ import genPfp from '../assets/imgs/genPfp.png';
 import PDFpng from '../assets/imgs/PDF.png';
 import DOCXICONROXO from '../assets/imgs/DOCXICONROXO.png'
 import TXTAZUL from '../assets/imgs/TXTAZUL.png'
-import { carregarConversasBack, enviarMensagem, modalActions, transformarLinksEmAnchors, validarSeEhArquivo } from '../ts/chatsFunctions';
+import { carregarConversasBack, enviarMensagem, modalActions, validarSeEhArquivo } from '../ts/chatsFunctions';
 import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
+import Loader from '../components/Loader';
 
 export default function Chats(){
     const navigate = useNavigate();
@@ -22,6 +23,8 @@ export default function Chats(){
             navigate('/')
         }, 3000)
     };
+    const [carregando, setCarregando] = useState(false);
+
     const [mostrarAttachmentMenu, setMostrarAttachmentMenu] = useState(false);
     const [mostrarMenu, setMostrarMenu] = useState(false);
     const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
@@ -32,8 +35,8 @@ export default function Chats(){
         setMostrarAttachmentMenu(false);
         const target = e.target;
         const arquivo = target.files[0];
-        if (arquivo && arquivo.size > 2 * 1024 * 1024) {
-            mostrarErroTopo("O arquivo deve ter no máximo 2MB.");
+        if (arquivo && arquivo.size > 5 * 1024 * 1024) {
+            mostrarErroTopo("O arquivo deve ter no máximo 5MB.");
             target.value = "";
             return;
         }
@@ -68,11 +71,12 @@ export default function Chats(){
                 setDadosConversas(conversasInit.conversas);
                 setEstadoConversas({...estadoConversas, conversaAtualId: conversasInit.conversaAtual, contadorFavoritos: (() => {
                     return conversasInit.conversas.reduce((acc, dado) => {
-                        if (dado.favoritada) acc++;
-                        return acc;
-                    }, 0)
-                })()
+                            if (dado.favoritada) acc++;
+                            return acc;
+                        }, 0)
+                    })()
                 });
+                setCarregando(true);
                 // setConversasFavoritadas(conversasInit.conversas.filter(con=>con.favoritada));
                 // setConversasNaoFavoritadas(conversasInit.conversas.filter(con=>!con.favoritada));
             } catch (erro) {
@@ -198,42 +202,91 @@ export default function Chats(){
         }));
     }, [estadoConversas.conversaAtualId, dadosConversas]);
 
+    function transformarLinksEmAnchors(mensagem: string): JSX.Element {
+        // Regex para identificar links com protocolo e domínios sem protocolo
+        const regex = /(https?:\/\/[^\s]+)|(\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?\b)/g;
+        const partes = mensagem.split(regex);
+
+        return (
+            <>
+            {partes.map((parte, i) => {
+                if (!parte) return null;
+                
+                // Verifica se é um link com protocolo
+                if (/^https?:\/\/[^\s]+$/.test(parte)) {
+                    return (
+                        <a
+                            key={i}
+                            href={parte}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 underline hover:text-blue-600"
+                        >
+                            {parte}
+                        </a>
+                    );
+                }
+                // Verifica se é um domínio sem protocolo
+                else if (/^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?$/.test(parte)) {
+                    return (
+                        <a
+                            key={i}
+                            href={`https://${parte}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 underline hover:text-blue-600"
+                        >
+                            {parte}
+                        </a>
+                    );
+                }
+                // Texto normal
+                else {
+                    return parte;
+                }
+            })}
+            </>
+        );
+    }
+
+    if(!carregando) return (<Loader />);
+
     return (
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
             <aside className="w-16 bg-dark-800 border-r border-gray-800 flex flex-col h-full items-center py-4">
                 {/* <!-- Foto de perfil do usuário --> */}
-                <a href="/perfil/candidato" className="relative mb-8">
+                <Link to="/perfil/candidato" className="relative mb-8">
                     <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
                         className="w-8 h-8 object-cover rounded-full cursor-pointer" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark-800"
                         id="bolaSemMexer"></div>
-                </a>
+                </Link>
 
                 {/* <!-- Ícones de navegação --> */}
                 <nav className="flex-1 flex flex-col space-y-8 items-center">
-                    <a href="/" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    <Link to="/" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faHouse} className='text-xl' />
-                    </a>
-                    <a href="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    </Link>
+                    <Link to="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faUsers} className='text-xl' />
-                    </a>
-                    <a href="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    </Link>
+                    <Link to="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faBell} className='text-xl' />
                         <span className="notification-badge">3</span>
-                    </a>
-                    <a href="/perfil/candidato" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    </Link>
+                    <Link to="/perfil/candidato" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faStar} className='text-xl' />
-                    </a>
+                    </Link>
                 </nav>
 
                 {/* <!-- Configurações e voltar --> */}
                 <div className="mt-auto flex flex-col space-y-6 items-center">
-                    <a href="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    <Link to="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faGear} className='text-xl' />
-                    </a>
-                    <a href="/" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    </Link>
+                    <Link to="/" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faReply} className='text-xl' />
-                    </a>
+                    </Link>
                 </div>
             </aside>
 
@@ -647,7 +700,8 @@ export default function Chats(){
                                                 setMostrarModalConfirmacao(false);
                                             }}
                                                 className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer">Cancelar</button>
-                                            <button id="btnConfirmarEnvio" onClick={async()=>{
+                                            <button id="btnConfirmarEnvio" onClick={async(e)=>{
+                                                e.currentTarget.disabled = true;
                                                 const fileDataTipo = fileData.tipo;
                                                 const arquivoSelecionado = fileDataTipo === 'documento' ? inputDocRef.current.files[0] : fileDataTipo === 'foto' ? inputImgRef.current.files[0] : inputCamRef.current.files[0];
                                                 const formData = new FormData();
@@ -665,6 +719,7 @@ export default function Chats(){
                                                 }
                                                 setFileData({name: '', size: '', tipo: ''});
                                                 setMostrarModalConfirmacao(false);
+                                                e.currentTarget.disabled = false;
                                             }}
                                                 className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer">Confirmar</button>
                                         </div>

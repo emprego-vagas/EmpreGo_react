@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useRef, useState } from "react";
 import { mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
@@ -114,6 +114,10 @@ export default function CriarProjetos() {
             checkBox.disabled = false;
         }
     }, [status])
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <>
@@ -343,13 +347,13 @@ export default function CriarProjetos() {
                         }}>
                         <i className='bx bx-save'></i> {cadastrando? 'Cadastrando...' : 'Salvar Projeto'}
                     </button>
-                    <a href="/perfil/candidato">
+                    <Link to="/perfil/candidato">
                         <button
                             className="btn flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-professional-card text-professional-subtitle hover:bg-professional-card/80 hover:-translate-y-1 cursor-pointer"
                             id="btnVoltar">
                             <i className='bx bx-arrow-back'></i> Retornar ao Perfil
                         </button>
-                    </a>
+                    </Link>
                 </div>
             </div>
         </>

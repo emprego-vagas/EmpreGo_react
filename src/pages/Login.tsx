@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // * Funções
 import {candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, formatarTelefone, validarCep} from '../ts/loginFunctions'
@@ -84,7 +84,7 @@ export default function Login(){
                 </form>
 
                 <div className="form-footer">
-                    <a href="#" id="showSignInCand" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("user-register")}}>Não tem uma conta? Cadastre-se</a>
+                    <Link to="#" id="showSignInCand" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("user-register")}}>Não tem uma conta? Cadastre-se</Link>
                 </div>
                 </div>
             )}
@@ -215,7 +215,7 @@ export default function Login(){
                 </form>
 
                 <div className="form-footer">
-                    <a href="#" id="showLogInCand" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("user-login")}}>Já tem uma conta? Faça login</a>
+                    <Link to="#" id="showLogInCand" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("user-login")}}>Já tem uma conta? Faça login</Link>
                 </div>
                 </div>
             )}
@@ -250,7 +250,7 @@ export default function Login(){
                 </form>
 
                 <div className="form-footer">
-                    <a href="#" id="showSignInEnte" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("company-register")}}>Não tem uma conta? Cadastre-se</a>
+                    <Link to="#" id="showSignInEnte" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("company-register")}}>Não tem uma conta? Cadastre-se</Link>
                 </div>
                 </div>
             )}
@@ -434,7 +434,7 @@ export default function Login(){
                 </form>
 
                 <div className="form-footer">
-                    <a href="#" id="showLogInEnte" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("company-login")}}>Já tem uma conta? Faça login</a>
+                    <Link to="#" id="showLogInEnte" className="form-link" onClick={(e) => {e.preventDefault(); switchTab("company-login")}}>Já tem uma conta? Faça login</Link>
                 </div>
                 </div>
             )}

@@ -1,5 +1,5 @@
 import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFile, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
@@ -15,6 +15,7 @@ import pdfIconFile from '../assets/imgs/PDF.png';
 import docxIconFile from '../assets/imgs/DOCXINCON.png';
 import jpgIconFile from '../assets/imgs/jpg.png';
 import pngIconFile from '../assets/imgs/png.png';
+import Loader from "../components/Loader";
 
 export default function EditarPerfilCandidato () {
     const navigate = useNavigate();
@@ -144,8 +145,10 @@ export default function EditarPerfilCandidato () {
         }
     }, [curriculo_fileInfo])
 
+    if(!dataLoaded) return (<Loader />);
+
     return (
-        <>
+        <div className="font-inter min-h-screen">
         <HeaderProfiles />
         <div className="container mx-auto px-4 pt-20 pb-10">
             {dataLoaded && (
@@ -349,7 +352,7 @@ export default function EditarPerfilCandidato () {
                                 </label>
                                 <input type="url" id="twitter" value={twitterInfo.value} onChange={(e)=>setTwitterInfo(prev=>({...prev, value: e.target.value}))} disabled={twitterInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                    placeholder="Ex: https://twitter.com/seuusuario" />
+                                    placeholder="Ex: https://x.com/seuusuario" />
                             </div>
                         </div>
                     </div>
@@ -521,9 +524,8 @@ export default function EditarPerfilCandidato () {
 
                     {/* <!-- Imagem --> */}
                     <div
-                        className="gradient-bg rounded-2xl p-3 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in h-56">
-                        <label className="block text-professional-subtitle h-10 font-medium">Arquivo do Currículo
-                            (Opcional)
+                        className="gradient-bg rounded-2xl p-3 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in h-min">
+                        <label className="block text-professional-subtitle h-10 font-medium"><FontAwesomeIcon icon={faFile} className="text-professional-accent mr-2" />Arquivo do Currículo
                             {((curriculo_fileInfo.truncate || curriculo_fileInfo.value) && curriculo_fileInfo.cached) && (
                                 <button id="btnVoltarArquivo" onClick={()=>setCurriculo_fileInfo(prev=>({...prev, value: null, truncate: false}))}
                                     title="Cancelar Edição"
@@ -536,8 +538,8 @@ export default function EditarPerfilCandidato () {
                         {((curriculo_fileInfo.cached && curriculo_fileInfo.truncate) || (!curriculo_fileInfo.value && !curriculo_fileInfo.cached)) && (
                             <div className="image-upload-container relative border-2 border-dashed border-professional-card rounded-xl p-1 text-center transition-all bg-professional-dark/50 cursor-pointer min-h-[150px] flex flex-col justify-center items-center hover:border-professional-accent hover:bg-professional-accent/5"
                                 id="uploadArea">
-                                <div className="upload-content flex flex-col items-center -mt-4" id="uploadContent" onClick={()=>inputCurriculoFileOcultRef.current.click()}>
-                                    <i className='bx bx-cloud-upload text-5xl text-professional-accent mb-4'></i>
+                                <div className="upload-content flex flex-col items-center -mt-4 h-max" id="uploadContent" onClick={()=>inputCurriculoFileOcultRef.current.click()}>
+                                    <i className='bx bx-cloud-upload text-5xl text-professional-accent mb-0.5 mt-2'></i>
                                     <div className="upload-text text-professional-subtitle mb-4">
                                         <h3 className="text-xl font-medium mb-2">Adicionar Arquivo</h3>
                                         <p className="text-sm">Arraste um arquivo ou clique para selecionar</p>
@@ -647,6 +649,6 @@ export default function EditarPerfilCandidato () {
             </>
             )}
         </div>
-        </>
+        </div>
     )
 }

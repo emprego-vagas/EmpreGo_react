@@ -47,6 +47,8 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
         } else formData.append('pronomes', pronSelect);
     }
     if(!portfolioInfo.disabled && (portfolioInfo.value || portfolioInfo.cached) && portfolioInfo.value!==portfolioInfo.cached) {
+        // * Se passar pela validação do if (campo não está desabilitado, ou seja foi ou pode ter sido editado, foi editado ou foi removido mas tinha no cached e o valor é diferente do cached) tenta usar o 
+        // * valor do input, se não funcionar manda como 'null' para resetar o campo (pois significa que o usuário tinha mas quis tirar)
         const valor = portfolioInfo.value?.trim() || 'null';
         if (valor !== 'null' && !validarLink(valor)) return false;
         formData.append('portifolio', valor);
@@ -106,7 +108,7 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     if(curriculo_fileInfo.value || (curriculo_fileInfo.cached && curriculo_fileInfo.truncate)) {
         formData.append('curriculo_file', curriculo_fileInfo.value || 'null');
     };
-    if (formData.entries().next().done) return true;
+    if (formData.entries().next().done) return true; // * Valida se nada foi editado
 
     try {
         await axiosWe.post('/perfil/candidato', formData);

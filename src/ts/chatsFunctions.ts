@@ -1,7 +1,6 @@
 import axiosWe from "../utils/axiosInstance";
 import socket from "../utils/socketsConnection";
 
-// === Tipos auxiliares ===
 interface Mensagem {
     id: string;
     texto: string;
@@ -24,7 +23,6 @@ interface Conversa {
     mensagens: Mensagem[];
 }
 
-// === Interface final de retorno ===
 interface CarregarConversasBackResponse {
     conversas: Conversa[];
     conversaAtual: string;

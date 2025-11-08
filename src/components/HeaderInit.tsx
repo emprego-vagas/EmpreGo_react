@@ -3,9 +3,10 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { logout, DadosUsuario } from '../utils/globalFunctions';
 import '../css/headerTW.css';
 import { interacaoUI } from "../ts/indexFunctions";
+import { Link } from "react-router-dom";
 
-export default function Header1(){
-        interacaoUI();
+export default function HeaderInit(){
+    interacaoUI();
     const User = DadosUsuario.getUsuario();
     return (
         <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-20 transition-colors duration-300">
@@ -14,44 +15,44 @@ export default function Header1(){
                 <div className="flex items-center justify-between">
                     {/* Efeito de glitch */}
                     <div className="flex items-center space-x-3">
-                        <a href="/" className="flex items-center group" id="logo-container">
+                        <Link to="/" className="flex items-center group" id="logo-container">
                             <img src={logoEmpreGo} alt="Logo EmpreGo"
                                 className="h-10 w-10 transition-transform group-hover:scale-110" />
                             <span className="ml-2 text-2xl font-bold group-hover:animate-text-glitch text-gray-900 dark:text-white">
                                 Empre<span className="text-primary-500">Go</span>
                             </span>
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Navegação */}
                     <nav className="links hidden md:flex items-center space-x-8">
-                        <a href="#home"
-                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Início</a>
-                        <a href="#servicos"
-                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Serviços</a>
-                        <a href="#testperfis"
-                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Biografias</a>
-                        <a href="/sobre"
-                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Sobre</a>
-                        <a href="/suporte"
-                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Suporte</a>
+                        <Link to="#home"
+                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Início</Link>
+                        <Link to="#servicos"
+                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Serviços</Link>
+                        <Link to="#testperfis"
+                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Biografias</Link>
+                        <Link to="/sobre"
+                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Sobre</Link>
+                        <Link to="/suporte"
+                            className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Suporte</Link>
 
                         {/* Login / Cadastrar */}
-                        <a href="/login"
+                        <Link to="/login"
                             className={User?"hidden":"px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center animate-pulse-glow"}
                             id="loginOuCadas">
                             <i className='bx bx-log-in mr-2'></i> Login / Cadastrar
-                        </a>
+                        </Link>
 
                         {/* Foto de Perfil (inicialmente oculta) */}
-                        <a href={`/perfil/${User?User.tipo:'candidato'}`} className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
+                        <Link to={`/perfil/${User?User.tipo:'candidato'}`} className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
                             id="fotoPerfil">
                             <img src={User ? User.foto!=="/assets/imgs/genPfp.png" ? User.foto : genPfp : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
                                 className="w-full h-full object-cover rounded-full" />
-                        </a>
+                        </Link>
 
                         {/* Botão de Logout (inicialmente oculto) */}
-                        <a href="#" className={User?"text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors":"hidden"} id="logout" onClick={()=>logout()}>Sair</a>
+                        <Link to="#" className={User?"text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors":"hidden"} id="logout" onClick={()=>logout()}>Sair</Link>
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -62,31 +63,31 @@ export default function Header1(){
 
                 {/* Mobile Menu */}
                 <div id="mobile-menu" className="hidden md:hidden mt-4 space-y-4 pb-4">
-                    <a href="#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</a>
-                    <a href="#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</a>
-                    <a href="#testperfis"
-                        className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Biografias</a>
-                    <a href="/sobre" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Sobre</a>
-                    <a href="/suporte" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Suporte</a>
+                    <Link to="#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
+                    <Link to="#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</Link>
+                    <Link to="#testperfis"
+                        className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Biografias</Link>
+                    <Link to="/sobre" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Sobre</Link>
+                    <Link to="/suporte" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Suporte</Link>
 
                     {/* Login / Cadastrar */}
-                    <a href="/login"
+                    <Link to="/login"
                         className="block px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-center animate-pulse-glow"
                         id="mobileLoginOuCadas">
                         Login / Cadastrar
-                    </a>
+                    </Link>
                     
                     {/* Foto de Perfil (inicialmente oculta) */}
-                    <a href={`/perfil${User?User.tipo:'candidato'}`}
+                    <Link to={`/perfil${User?User.tipo:'candidato'}`}
                         className="block w-12 h-12 mx-auto rounded-full overflow-hidden border-2 border-primary-500 hidden"
                         id="mobileFotoPerfil">
                         <img src="/assets/imgs/genPfp.png" alt="Foto de perfil do usuário" id="mobileFotoPerfilImg"
                             className="w-full h-full rounded-full object-cover" />
-                    </a>
+                    </Link>
 
                     {/* Botão de Logout (inicialmente oculto) */}
-                    <a href="#" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 text-center transition-colors" onClick={()=>logout()}
-                        id="mobileLogout">Sair</a>
+                    <Link to="#" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 text-center transition-colors" onClick={()=>logout()}
+                        id="mobileLogout">Sair</Link>
                 </div>
             </div>
         </header>
