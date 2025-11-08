@@ -4,11 +4,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
 import type { Usua } from "../ts/perfilCandidatoFunctions";
-import { DadosUsuario } from "../utils/globalFunctions";
+import { DadosUsuario, mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import HeaderProfiles from "../components/HeaderProfiles";
-import type { FileEditCandFace } from "../ts/editarPerfilCandidatoFunctions";
+import { salvarEdicaoCandidato, type CampoEditCandFace, type FileEditCandFace } from "../ts/editarPerfilCandidatoFunctions";
 import genPfp from '../assets/imgs/genPfp.png';
+
+import defaultIconFile from '../assets/imgs/arquivo-de-link.png';
+import pdfIconFile from '../assets/imgs/PDF.png';
+import docxIconFile from '../assets/imgs/DOCXINCON.png';
+import jpgIconFile from '../assets/imgs/jpg.png';
+import pngIconFile from '../assets/imgs/png.png';
 
 export default function EditarPerfilCandidato () {
     const navigate = useNavigate();
@@ -18,6 +24,8 @@ export default function EditarPerfilCandidato () {
             navigate('/')
         }, 3000);
     };
+
+    const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
     const [dataLoaded, setDataLoaded] = useState(false);
     useEffect(()=>{
@@ -64,21 +72,21 @@ export default function EditarPerfilCandidato () {
         loadCand();
     }, [usuario]);
 
-    const [nomeInfo, setNomeInfo] = useState({cached: '', value: '', disabled: false});
-    const [cpfInfo, setCpfInfo] = useState({cached: '', value: '', disabled: false});
-    const [pronomesInfo, setPronomesInfo] = useState({cached: '', value: '', disabled: false});
-    const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState({cached: '', value: '', disabled: false});
-    const [portfolioInfo, setPortfolioInfo] = useState({cached: '', value: '', disabled: false});
-    const [githubInfo, setGithubInfo] = useState({cached: '', value: '', disabled: false});
-    const [curriculoInfo, setCurriculoInfo] = useState({cached: '', value: '', disabled: false});
-    const [instagramInfo, setInstagramInfo] = useState({cached: '', value: '', disabled: false});
-    const [site_pessoalInfo, setSite_pessoalInfo] = useState({cached: '', value: '', disabled: false});
-    const [twitterInfo, setTwitterInfo] = useState({cached: '', value: '', disabled: false});
-    const [cidadeInfo, setCidadeInfo] = useState({cached: '', value: '', disabled: false});
-    const [estadoInfo, setEstadoInfo] = useState({cached: '', value: '', disabled: false});
-    const [cargo_atualInfo, setCargo_atualInfo] = useState({cached: '', value: '', disabled: false});
-    const [empresa_atualInfo, setEmpresa_atualInfo] = useState({cached: '', value: '', disabled: false});
-    const [descricaoInfo, setDescricaoInfo] = useState({cached: '', value: '', disabled: false});
+    const [nomeInfo, setNomeInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [cpfInfo, setCpfInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [pronomesInfo, setPronomesInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [portfolioInfo, setPortfolioInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [githubInfo, setGithubInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [curriculoInfo, setCurriculoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [instagramInfo, setInstagramInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [site_pessoalInfo, setSite_pessoalInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [twitterInfo, setTwitterInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [cidadeInfo, setCidadeInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [estadoInfo, setEstadoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [cargo_atualInfo, setCargo_atualInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [empresa_atualInfo, setEmpresa_atualInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const [descricaoInfo, setDescricaoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
     const descricaoLength = descricaoInfo.value.length;
     const [fotoInfo, setFotoInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
     const [curriculo_fileInfo, setCurriculo_fileInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
@@ -101,6 +109,40 @@ export default function EditarPerfilCandidato () {
             setPreviewSrcFoto(genPfp);
         }
     }, [fotoInfo]);
+
+    const [previewCurriculoFile, setPreviewCurriculoFile] = useState({name: '', size: '', src: defaultIconFile});
+    const inputCurriculoFileOcultRef = useRef(null);
+    useEffect(() => {
+        const icones = {
+            pdf: pdfIconFile,
+            docx: docxIconFile,
+            jpg: jpgIconFile,
+            png: pngIconFile,
+            default: defaultIconFile
+        };
+        if(curriculo_fileInfo.truncate) {
+            setPreviewCurriculoFile({name: '', size: '', src: icones.default});
+        } else if (!curriculo_fileInfo.value && curriculo_fileInfo.cached){
+            const curriculo_fileSplited = curriculo_fileInfo.cached.split('|');
+            const fileExt = curriculo_fileSplited[2].split('.').pop().toLowerCase();
+            const iconSrc = icones[fileExt] || icones.default;
+            setPreviewCurriculoFile({name: curriculo_fileSplited[2], size: curriculo_fileSplited[1], src: iconSrc});
+        } else if (curriculo_fileInfo.value as File) {
+            const file = curriculo_fileInfo.value;
+            if (file.size > 5 * 1024 * 1024) {
+                mostrarErroTopo('O arquivo deve ter no máximo 5MB.');
+                setCurriculo_fileInfo(prev=>({...prev, value: null, truncate: false}));
+                return;
+            }
+            const fileName = file.name;
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            const iconSrc = icones[fileExt] || icones.default;
+            const fileSize = `${(file.size / 1024).toFixed(2)} KB`;
+            setPreviewCurriculoFile({name: fileName, size: fileSize, src: iconSrc});
+        } else {
+            setPreviewCurriculoFile({name: '', size: '', src: icones.default});
+        }
+    }, [curriculo_fileInfo])
 
     return (
         <>
@@ -481,48 +523,70 @@ export default function EditarPerfilCandidato () {
                     <div
                         className="gradient-bg rounded-2xl p-3 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in h-56">
                         <label className="block text-professional-subtitle h-10 font-medium">Arquivo do Currículo
-                            (Opcional)<button id="btnVoltarArquivo" 
+                            (Opcional)
+                            {((curriculo_fileInfo.truncate || curriculo_fileInfo.value) && curriculo_fileInfo.cached) && (
+                                <button id="btnVoltarArquivo" onClick={()=>setCurriculo_fileInfo(prev=>({...prev, value: null, truncate: false}))}
                                     title="Cancelar Edição"
-                                    className="bg-professional-accent rounded-full w-6 h-6 ml-2 justify-center items-center hidden">
+                                    className="bg-professional-accent rounded-full w-6 h-6 ml-2 justify-center items-center cursor-pointer">
                                     <FontAwesomeIcon icon={faUndo} />
-                                </button></label>
-                        <div className="image-upload-container relative border-2 border-dashed border-professional-card rounded-xl p-1 text-center transition-all bg-professional-dark/50 cursor-pointer min-h-[150px] flex flex-col justify-center items-center hover:border-professional-accent hover:bg-professional-accent/5"
-                            id="uploadArea">
-                            <div className="upload-content flex flex-col items-center -mt-4" id="uploadContent">
-                                <i className='bx bx-cloud-upload text-5xl text-professional-accent mb-4'></i>
-                                <div className="upload-text text-professional-subtitle mb-4">
-                                    <h3 className="text-xl font-medium mb-2">Adicionar Arquivo</h3>
-                                    <p className="text-sm">Arraste um arquivo ou clique para selecionar</p>
-                                    <p className="text-sm">Formatos: JPG, JPEG, PNG, WEBP, PDF, DOC, DOCX, TXT, RTF, ODT (Máx. 5MB)</p>
+                                </button>
+                            )}
+                        </label>
+
+                        {((curriculo_fileInfo.cached && curriculo_fileInfo.truncate) || (!curriculo_fileInfo.value && !curriculo_fileInfo.cached)) && (
+                            <div className="image-upload-container relative border-2 border-dashed border-professional-card rounded-xl p-1 text-center transition-all bg-professional-dark/50 cursor-pointer min-h-[150px] flex flex-col justify-center items-center hover:border-professional-accent hover:bg-professional-accent/5"
+                                id="uploadArea">
+                                <div className="upload-content flex flex-col items-center -mt-4" id="uploadContent" onClick={()=>inputCurriculoFileOcultRef.current.click()}>
+                                    <i className='bx bx-cloud-upload text-5xl text-professional-accent mb-4'></i>
+                                    <div className="upload-text text-professional-subtitle mb-4">
+                                        <h3 className="text-xl font-medium mb-2">Adicionar Arquivo</h3>
+                                        <p className="text-sm">Arraste um arquivo ou clique para selecionar</p>
+                                        <p className="text-sm">Formatos: JPG, JPEG, PNG, WEBP, PDF, DOC, DOCX, TXT, RTF, ODT (Máx. 5MB)</p>
+                                    </div>
+
                                 </div>
 
-                            </div>
+                                {/* <div className="image-preview hidden w-full h-full rounded-xl overflow-hidden relative"
+                                    id="imagePreview">
+                                    <img id="previewImage" src="" alt="Pré-visualização" className="w-full h-full object-cover" />
+                                    <div
+                                        className="preview-actions absolute bottom-0 left-0 right-0 gradient-overlay p-4 flex justify-center gap-2">
+                                        <button type="button"
+                                            className="preview-btn bg-white/20 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors hover:bg-white/30 backdrop-blur-custom"
+                                            id="changeImage">Alterar</button>
+                                        <button type="button"
+                                            className="preview-btn delete bg-red-500/70 hover:bg-red-500/90 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors backdrop-blur-custom z-10"
+                                            id="removeImage">Remover</button>
+                                    </div>
+                                </div> */}
 
-                            <div className="image-preview hidden w-full h-full rounded-xl overflow-hidden relative"
-                                id="imagePreview">
-                                <img id="previewImage" src="" alt="Pré-visualização" className="w-full h-full object-cover" />
-                                <div
-                                    className="preview-actions absolute bottom-0 left-0 right-0 gradient-overlay p-4 flex justify-center gap-2">
-                                    <button type="button"
-                                        className="preview-btn bg-white/20 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors hover:bg-white/30 backdrop-blur-custom"
-                                        id="changeImage">Alterar</button>
-                                    <button type="button"
-                                        className="preview-btn delete bg-red-500/70 hover:bg-red-500/90 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors backdrop-blur-custom z-10"
-                                        id="removeImage">Remover</button>
+                                
+                            </div>
+                        )}
+                        <input id="imgPlaceholder" type="file" accept="image/*,.pdf,.doc,.docx,.txt,.rtf,.odt" ref={inputCurriculoFileOcultRef}
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer hidden" onChange={(e)=>{
+                                const file = e.target.files[0];
+                                if(!file) return;
+                                setCurriculo_fileInfo(prev=>({...prev, value: file, truncate: false}));
+                            }}/>
+                        
+                        {((curriculo_fileInfo.cached && !curriculo_fileInfo.truncate) || curriculo_fileInfo.value) && (
+                            <div className="mensagem-arquivo bg-professional-dark rounded-xl p-3 flex flex-col w-auto shadow-md my-2">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <img src={previewCurriculoFile.src} alt="icone" className="w-6 h-6"/>
+                                    <p className="text-white font-semibold text-sm truncate">{previewCurriculoFile.name}</p>
+                                </div>
+                                <p className="text-gray-400 text-xs mb-3">Arquivo • {previewCurriculoFile.size}</p>
+                                <div className="flex gap-2">
+                                    <button className="flex-1 bg-dark-700 hover:bg-gray-700 text-white text-sm py-2 rounded-lg cursor-pointer" onClick={()=>inputCurriculoFileOcultRef.current.click()}>Alterar</button> 
+                                    <button className="flex-1 bg-dark-700 hover:bg-gray-700 text-white text-sm py-2 rounded-lg remover-arquivo cursor-pointer"
+                                        onClick={()=>setCurriculo_fileInfo(prev=>({...prev, value: null, truncate: true}))}>
+                                        Remover
+                                    </button> 
                                 </div>
                             </div>
-
-                            <input id="imgPlaceholder" type="file" accept="image/*,.pdf,.doc,.docx,.txt,.rtf,.odt"
-                                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" />
-                        </div>
-
-                        <div className="file-info hidden items-center gap-2 mt-4 p-3 bg-professional-accent/10 rounded-lg border-l-4 border-professional-accent"
-                            id="fileInfo">
-                            <i className='bx bx-file text-professional-accent'></i>
-                            <div className="file-name flex-1 text-sm text-professional-subtitle" id="fileName">Nome do arquivo
-                            </div>
-                            <div className="file-size text-xs text-professional-subtitle" id="fileSize">0 KB</div>
-                        </div>
+                        )}
+                        
                     </div>
 
 
@@ -559,9 +623,18 @@ export default function EditarPerfilCandidato () {
 
             {/* <!-- Botões de Ação --> */}
             <div className="mt-10 flex justify-center space-x-4">
-                <button id="btnSalvar"
-                    className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer">
-                    <FontAwesomeIcon icon={faSave} />Salvar Alterações
+                <button id="btnSalvar" disabled={salvandoEdicao}
+                    className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer"
+                    onClick={async()=>{
+                        setSalvandoEdicao(true);
+                        const editou = await salvarEdicaoCandidato(nomeInfo, cpfInfo, pronomesInfo, pronomesPersonalizadosInfo, portfolioInfo, githubInfo, curriculoInfo, instagramInfo, site_pessoalInfo, twitterInfo, cidadeInfo, estadoInfo, cargo_atualInfo, empresa_atualInfo, descricaoInfo, fotoInfo, curriculo_fileInfo);
+                        if(!editou) setSalvandoEdicao(false);
+                        else {
+                            mostrarSucessoTopo('Perfil editado com sucesso!');
+                            setTimeout(()=>{navigate('/perfil/candidato')}, 3000);
+                        }
+                    }}>
+                    <FontAwesomeIcon icon={faSave} />{salvandoEdicao ? 'Salvando...' : 'Salvar Alterações'}
                 </button>
                 <button id="btnCancelar" onClick={()=>navigate('/perfil/candidato')}
                     className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-professional-card text-professional-subtitle hover:bg-professional-card/80 hover:-translate-y-1 cursor-pointer">
