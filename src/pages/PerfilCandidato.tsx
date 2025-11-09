@@ -6,10 +6,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faHandshake, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import genPfp from '../assets/imgs/genPfp.png';
-import { carregarPorcentagemPeloNivel, carregarTextoDoNivel, type Custom, type Idiomas, type Tags, type Usua } from "../ts/perfilCandidatoFunctions";
+import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import ThemeTogle from '../components/ThemeTogle'
 import Loader from "../components/Loader";
+import type { Candidato, CustomCand, Idioma, Tag } from "../utils/utilsInterfaces";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -28,7 +29,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tags?limit=9999999&offset=6`) as {data: Tags[]};
+            const response = await axiosWe(`/tags?limit=9999999&offset=6`) as {data: Tag[]};
             setCustomPerfil(prev=>({...prev, tags: [...prev.tags, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
@@ -45,7 +46,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisIdiomas(false);
-            const response = await axiosWe('/idioma?limit=9999999&offset=3') as {data: Idiomas[]};
+            const response = await axiosWe('/idioma?limit=9999999&offset=3') as {data: Idioma[]};
             setCustomPerfil(prev=>({...prev, idiomas: [...prev.idiomas, ...response.data]}));
             setMostrarMaisIdiomasExib(false);
         } catch (erro) {
@@ -62,8 +63,8 @@ export default function PerfilCandidato() {
         }
     }
 
-    const [candPerfil, setCandPerfil] = useState<Usua | null>(null);
-    const [customPerfil, setCustomPerfil] = useState<Custom | null>(null);
+    const [candPerfil, setCandPerfil] = useState<Candidato | null>(null);
+    const [customPerfil, setCustomPerfil] = useState<CustomCand | null>(null);
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
     const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
     const mostrarMaisTagsRef = useRef(null);
@@ -87,9 +88,9 @@ export default function PerfilCandidato() {
         async function loadCand(){
             if(!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-candidato') as {data: {usua: Usua, custom: Custom}};
+                const response = await axiosWe('/custom/perfil-candidato') as {data: {usua: Candidato, custom: CustomCand}};
                 const data = response.data;
-                const {usua, custom} = data;
+                const { usua, custom } = data;
                 DadosUsuario.setarFoto(usua.foto);
                 DadosUsuario.setarNome(usua.nome);
                 setCandPerfil(usua);

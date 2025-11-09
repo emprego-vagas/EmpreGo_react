@@ -1,79 +1,161 @@
 import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faAward, faBell, faBriefcase, faBuilding, faCalendarAlt, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEdit, faEnvelope, faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import HeaderProfiles from "../components/HeaderProfiles";
 import ThemeToggle from "../components/ThemeTogle";
-import { DadosUsuario } from "../utils/globalFunctions";
-import { useState } from "react";
+import { DadosUsuario, mostrarErroTopo } from "../utils/globalFunctions";
+import { useEffect, useRef, useState } from "react";
+import axiosWe from "../utils/axiosInstance";
+import type { CustomEmp, Empresa, Tag } from "../utils/utilsInterfaces";
+import Loader from "../components/Loader";
+import genPfp from '../assets/imgs/genPfp.png';
 
 export default function PerfilEmpresa () {
     const navigate = useNavigate();
     const [usuario] = useState(DadosUsuario.getUsuario(true, 'empresa'));
     if(!usuario) {
         setTimeout(()=>{
-            navigate('/')
+            navigate('/');
         }, 3000);
     };
+
+    const [empPerfil, setEmpPerfil] = useState<Empresa | null>(null);
+    const [customPerfil, setCustomPerfil] = useState<CustomEmp | null>(null);
+
+    // * Tags session
+    const [mostrarModalRmvTag, setMostrarModalRmvTag] = useState(false);
+    const [tagToRemove, setTagToRemove] = useState({nome: '', id: ''});
+    const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
+    const mostrarMaisTagsRef = useRef(null);
+    const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
+    const [mostrarModalAddTag, setMostrarModalAddTag] = useState(false);
+    const [tagToAdd, setTagToAdd] = useState('');
+    const handleMostrarTodasTags = async()=>{
+        try {
+            if(customPerfil.tags_count<=6) {
+                setMostrarMaisTags(false);
+                setMostrarMaisTagsExib(false);
+                return;
+            };
+            setMostrarMaisTags(false);
+            const response = await axiosWe(`/tags/empresas?limit=9999999&offset=6`) as {data: Tag[]};
+            setCustomPerfil(prev=>({...prev, tags_empresas: [...prev.tags_empresas, ...response.data]}));
+            setMostrarMaisTagsExib(false);
+        } catch (erro) {
+            setMostrarMaisTags(true);
+            setMostrarMaisTagsExib(true);
+            console.error('Erro ao mostrar todas as tags:',erro);
+        }
+    }
+    const adicionarTagRef = useRef(null);
+    const handleKeyDownInputTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            adicionarTagRef.current?.click();
+        }
+    }
+    // * End tag session
+
+    useEffect(()=>{
+        async function loadEmp(){
+            if(!usuario) return;
+            try {
+                const response = await axiosWe('/custom/perfil-empresa') as {data: {usua: Empresa, custom: CustomEmp}};
+                const data = response.data;
+                const { usua, custom } = data;
+                DadosUsuario.setarFoto(usua.foto);
+                DadosUsuario.setarNome(usua.nome_fant);
+                setEmpPerfil(usua);
+                setCustomPerfil(custom);
+                console.log(data);
+            } catch (erro) {
+                console.error("Erro ao carregar perfil da empresa:", erro);
+            };
+        };
+        loadEmp();
+    }, [usuario]);
+
+    if(!empPerfil) return (<Loader />)
 
     return (
         <>
         <HeaderProfiles />
-        <div id="main" className="container mx-auto px-4 pt-28 pb-10">
+        <div id="main" className="container mx-auto px-4 pt-10 pb-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* <!--* Coluna esquerda - Informações principais --> */}
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     {/* <!--* Informações importantes --> */}
                     <div id="impInfo"
                         className="bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <img id="fotoUsuario" src="../assets/imgs/genPfp.png" alt="Foto de perfil"
+                        <img id="fotoUsuario" src={empPerfil.foto==='/assets/imgs/genPfp.png'?genPfp:empPerfil.foto} alt="Foto de perfil"
                             className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover mb-4"
                             title="Foto de Perfil" />
                         <div className="w-full space-y-2 mb-6">
                             <div className="bg-professional-gray rounded-lg p-3" title="CNPJ">
                                 <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />
-                                <a href="https://www.receitafederal.gov.br/servicos/cnpj" id="cnpjEmpresa"
-                                    target="_blank">xx.xxx.xxx/xxxx-xx</a>
+                                <span id="cnpjEmpresa" className="text-sm">{empPerfil.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")}</span>
                             </div>
-                            <div className="bg-professional-gray rounded-lg p-3" title="Data de abertura">
-                                <FontAwesomeIcon icon={faCalendarAlt} className="text-professional-accent mr-2" />
-                                <span id="aberturaEmpresa" className="text-sm">XX/XX/XXXX</span>
-                            </div>
+                            {empPerfil.data_fund && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Data de abertura">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-professional-accent mr-2" />
+                                    {(()=>{
+                                        const dataISO = empPerfil.data_fund.split('T')[0];
+                                        const [anoNasc, mesNasc, diaNasc] = String(dataISO).split('-');
+                                        return (<span id="aberturaEmpresa" className="text-sm">{`${diaNasc}/${mesNasc}/${anoNasc}`}</span>)
+                                    })()}
+                                </div>
+                            )}
 
+                            {/*
+                                //? Azevedo: O que vai definir essa situação cadastral?
+                            */}
                             <div className="bg-professional-gray rounded-lg p-3" title="Situação cadastral">
                                 <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-2" />
                                 <span id="setuacaoEmpresa" className="text-sm">Ativo</span>
                             </div>
 
-                            <div className="bg-professional-gray rounded-lg p-3" title="Setor de Atuação">
-                                <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
-                                <span id="setorEmpresa" className="text-sm">Setor de Atuação</span>
-                            </div>
+                            {empPerfil.setor && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Setor de Atuação">
+                                    <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
+                                    <span id="setorEmpresa" className="text-sm">{empPerfil.setor}</span>
+                                </div>
+                            )}
+                            
+                            {/*
+                                //? Azevedo: Esse vai ser pela API de CNPJ?
+                            */}
                             <div className="bg-professional-gray rounded-lg p-3" title="Natureza jurídica">
                                 <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />
                                 <span id="naturezaEmpresa" className="text-sm">Natureza jurídica</span>
                             </div>
 
-                            <div className="bg-professional-gray rounded-lg p-3" title="Porte da empresa">
-                                <FontAwesomeIcon icon={faIndustry} className="text-professional-accent mr-2" />
-                                <span id="porteEmpresa" className="text-sm">Porte da empresa</span>
-                            </div>
+                            {empPerfil.porte && (
+                                <div className="bg-professional-gray rounded-lg p-3" title="Porte da empresa">
+                                    <FontAwesomeIcon icon={faIndustry} className="text-professional-accent mr-2" />
+                                    <span id="porteEmpresa" className="text-sm">{empPerfil.porte}</span>
+                                </div>
+                            )}
+
                             <div id="divLocalizacaoSede" className="bg-professional-gray rounded-lg p-3" title="Localização Sede">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
-                                <span id="localizacaoSedeEmpresa" className="text-sm">Endereço da sede</span>
-                                <span id="estadoEmpresaSede" className="text-sm text-center">Estado: (XX)</span>
-                                <span id="cidadeEmpresaSede" className="text-sm text-center">Cidade: (Nenhuma)</span>
+                                <span id="localizacaoSedeEmpresa" className="text-sm">Endereço da Sede</span><br/>
+                                <span id="estadoEmpresaSede" className="text-sm text-center">Estado: ({empPerfil.estado})</span><br/>
+                                <span id="cidadeEmpresaSede" className="text-sm text-center">Cidade: {empPerfil.cidade}</span>
                             </div>
+                            
+                            {/* 
+                            // ? Acredito que não vai mais ter esse ngç de filiais, por isso comentei, mas qualquer bota dnv
                             <div id="divLocalizacaoFilial" className="bg-professional-gray rounded-lg p-3" title="Localização Filial">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
                                 <span id="localizacaoFilialEmpresa" className="text-sm">Endereço de Filiais</span>
                                 <span id="estadoEmpresaFilial" className="text-sm text-center">Estado: (XX)</span>
                                 <span id="cidadeEmpresaFilial" className="text-sm text-center">Cidade: (Nenhuma)</span>
-                            </div>
+                            </div> */}
 
                         </div>
                         <button id="btnEditarPerfil" onClick={()=>navigate('/perfil/empresa/editar')}
-                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-lightaccent"
+                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer"
                             title="Editar Perfil">
                                 <FontAwesomeIcon icon={faEdit} className="mr-2" />Editar Perfil
                         </button>
@@ -82,11 +164,11 @@ export default function PerfilEmpresa () {
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
                         className="bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left">Nome Completo</h1>
+                        <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left">{empPerfil.nome_fant}</h1>
                         <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
                             <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-2" />
                             <a id="emailUsuario"
-                                className="text-lg text-professional-subtitle">email.profissional@empresa.com</a>
+                                className="text-lg text-professional-subtitle">{empPerfil.email}</a>
                         </div>
 
                         <div className="bg-professional-gray rounded-lg p-4 mb-6">
@@ -97,10 +179,7 @@ export default function PerfilEmpresa () {
                             </h2>
 
                             <p id="descUsuario" className="text-professional-subtitle text-center">
-                                Empresa líder no setor de [área de atuação], com X anos de experiência no mercado.
-                                Especializada em [especialidades], contamos com uma equipe qualificada e comprometida
-                                com a excelência e inovação. Nossa missão é [missão da empresa] e nossa visão é [visão
-                                da empresa].
+                                {empPerfil.descricao}
                             </p>
                         </div>
 
@@ -117,48 +196,55 @@ export default function PerfilEmpresa () {
 
                             <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Site Oficial">
                                 <FontAwesomeIcon icon={faGlobe} className="text-professional-accent mr-3 text-xl" />
-                                <a id="siteEmpresa" href="#"
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
-                                    target="_blank">
-                                    Site Oficial
-                                </a>
+                                {empPerfil.site && (
+                                    <a id="siteEmpresa" href={empPerfil.site}
+                                        className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                        target="_blank">
+                                        Site Oficial
+                                    </a>
+                                )}
                             </div>
 
                             <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Telefone">
                                 <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-3 text-xl" />
-                                <a id="telefoneEmpresa" href="#"
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
-                                    target="_blank">
-                                    Telefone
-                                </a>  
+                                <span id="telefoneEmpresa"
+                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors">
+                                    {empPerfil.telefone.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4')}
+                                </span>  
                             </div>
 
                             <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Instagram">
                                 <FontAwesomeIcon icon={faInstagram} className="text-professional-accent mr-3 text-xl" />
-                                <a id="instEmpresa" href="#"
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
-                                    target="_blank">
-                                    Instagram
-                                </a>
+                                {empPerfil.instagram && (
+                                    <a id="instEmpresa" href={empPerfil.instagram}
+                                        className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                        target="_blank">
+                                        Instagram
+                                    </a>
+                                )}
                             </div>
 
                             <div className="flex items-center bg-professional-gray rounded-lg p-3" title="GitHub">
                                 <FontAwesomeIcon icon={faGithub} className="text-professional-accent mr-3 text-xl" />
-                                <a id="gitEmpresa" href="#"
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
-                                    target="_blank">
-                                    GitHub
-                                </a>
+                                {empPerfil.github && (
+                                    <a id="gitEmpresa" href={empPerfil.github}
+                                        className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                        target="_blank">
+                                        GitHub
+                                    </a>
+                                )}
                             </div>
 
 
                             <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Twitter/X">
                                 <FontAwesomeIcon icon={faXTwitter} className="text-professional-accent mr-3 text-xl" />
-                                <a id="twtUsuario" href="#"
-                                    className="twtUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
-                                    target="_blank">
-                                    Twitter/X
-                                </a>
+                                {empPerfil.twitter && (
+                                    <a id="twtUsuario" href={empPerfil.twitter}
+                                        className="twtUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
+                                        target="_blank">
+                                        Twitter/X
+                                    </a>
+                                )}
                             </div>
                         </div>
 
@@ -199,19 +285,36 @@ export default function PerfilEmpresa () {
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                            Áreas de Especialização</h1>
+                            {`Áreas de Especialização${customPerfil.tags_count>0 ? ` (${customPerfil.tags_count})` : ''}`}</h1>
                         <div id="boxTags"
                             className="bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
-                                <button id="maisTags"
-                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5"
-                                    title="Carregar mais Habilidades">
-                                    <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
-                                </button>
+                                {customPerfil.tags_count>0 && customPerfil.tags_empresas.map(tag=>{
+                                    return (
+                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                            key={tag.id} title={`Tag: ${tag.nome}`} onClick={()=>{
+                                                setTagToRemove({nome: tag.nome, id: tag.id});
+                                                setMostrarModalRmvTag(true);
+                                            }}>
+                                            <span>{tag.nome}</span>
+                                        </div>
+                                    )
+                                })}
+                                {(mostrarMaisTagsExib&&customPerfil.tags_count>6) && (
+                                    <button id="maisTags"
+                                        className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                        title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async()=>{
+                                            await handleMostrarTodasTags();
+                                        }}>
+                                        <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
+                                    </button>
+                                )}
                             </div>
                             <button id="btnAddTags"
-                                className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors"
-                                title="Adicionar Habilidade">
+                                className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer"
+                                title="Adicionar Habilidade" onClick={()=>{
+                                    setMostrarModalAddTag(true);
+                                }}>
                                 <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                                 Adicionar habilidade
                             </button>
@@ -377,11 +480,11 @@ export default function PerfilEmpresa () {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>navigate('/vagas/criar')}>
-                                <a href="/vagas/criar" className="flex flex-col items-center text-center">
+                                <Link to="/vagas/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar nova experiência
                                         profissional</p>
-                                </a>
+                                </Link>
                             </div>
 
                             {/* <!-- Experiências adicionadas aparecerão aqui --> */}
@@ -438,11 +541,11 @@ export default function PerfilEmpresa () {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
-                                <a href="/Candidatos/criar" className="flex flex-col items-center text-center">
+                                <Link to="/Candidatos/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novas Certificações
                                     </p>
-                                </a>
+                                </Link>
                             </div>
                             <div
                                 className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
@@ -492,10 +595,10 @@ export default function PerfilEmpresa () {
                             <div id="boxCriar"
                                 className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                 onClick={()=>navigate('/projetos/criar')}>
-                                <a href="/projetos/criar" className="flex flex-col items-center text-center">
+                                <Link to="/projetos/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-subtitle">Adicionar novos projetos</p>
-                                </a>
+                                </Link>
                             </div>
                             {/* <!-- <div
                                 className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
@@ -716,38 +819,82 @@ export default function PerfilEmpresa () {
             </div>
 
             {/* <!--* Modais tags --> */}
-            <div id="modalInput"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalInput-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
-                    <input type="text" id="inputTag" placeholder="Digite a habilidade"
-                        className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" />
-                    <div className="flex justify-end space-x-3">
-                        <button id="btnCancelar"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmar"
-                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent">Confirmar</button>
+            {mostrarModalAddTag && (
+                <div id="modalInput"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalInput-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
+                        <input type="text" id="inputTag" placeholder="Digite a habilidade" onChange={(e)=>setTagToAdd(e.target.value)} autoFocus onKeyDown={(e)=>handleKeyDownInputTag(e)}
+                            className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" value={tagToAdd} />
+                        <div className="flex justify-end space-x-3">
+                            <button id="btnCancelar" onClick={()=>{
+                                setTagToAdd('');
+                                setMostrarModalAddTag(false);
+                            }}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmar" onClick={async()=>{
+                                try {
+                                    const tagNome = tagToAdd;
+                                    if(!tagNome) return mostrarErroTopo('A tag não pode ser vazia.');
+                                    setTagToAdd('');
+                                    setMostrarModalAddTag(false);
+                                    if(mostrarMaisTags) await handleMostrarTodasTags();
+                                    const tagsExistentes = customPerfil.tags_empresas.map(tag=>tag.nome.toLowerCase());
+                                    if(tagsExistentes.includes(tagNome.toLowerCase())) return mostrarErroTopo('A empresa não pode ter tags repetidas.');
+                                    const response = await axiosWe.post('/tags/empresas', { nome: tagNome }) as {data: {id:string}};
+                                    setCustomPerfil(prev=>({...prev, tags_empresas:[{nome: tagNome, id: response.data.id}, ...prev.tags_empresas], tags_count: prev.tags_count+1}));
+                                } catch (erro) {
+                                    console.error(erro);
+                                    if(erro.status===409) mostrarErroTopo(erro.message);
+                                }
+                                
+                            }}
+                            ref={adicionarTagRef} className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div id="modalDelete"
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-                <div id="modalDelete-content"
-                    className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                    <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
-                    <p className="text-professional-subtitle text-center mb-6">Tem certeza que deseja remover esta
-                        habilidade?
-                    </p>
-                    <div className="flex justify-center space-x-3">
-                        <button id="btnCancelarDel"
-                            className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray">Cancelar</button>
-                        <button id="btnConfirmarDel"
-                            className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700">Confirmar</button>
+            )}
+            
+            {mostrarModalRmvTag && (
+                <div id="modalDelete"
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+                    <div id="modalDelete-content"
+                        className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                        <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
+                        <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover esta
+                            habilidade? `}<br/><strong>{`(${tagToRemove.nome})`}</strong>
+                        </p>
+                        <div className="flex justify-center space-x-3">
+                            <button id="btnCancelarDel" onClick={()=>{setMostrarModalRmvTag(false);setTagToRemove({nome:'',id:''});}}
+                                className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                            <button id="btnConfirmarDel" onClick={async(e)=>{
+                                const target = e.target as HTMLButtonElement;
+                                try {
+                                    const tagId = tagToRemove.id;
+                                    target.disabled = true;
+                                    target.textContent = 'Removendo...'
+                                    if(mostrarMaisTags) await handleMostrarTodasTags();
+                                    await axiosWe.delete(`/tags/empresas/${tagId}`);
+                                    setCustomPerfil(prev=>{
+                                        return {...prev, tags_empresas: prev.tags_empresas.filter(tag=>tag.id!==tagId), tags_count: prev.tags_count-1};
+                                    })
+                                } catch (erro) {
+                                    console.error(erro);
+                                } finally {
+                                    setTagToRemove({nome:'', id: ''});
+                                    setMostrarModalRmvTag(false);
+                                    target.disabled = false;
+                                    target.textContent = 'Confirmar';
+                                }
+                                
+                            }}
+                                className="bg-red-600 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-red-700 cursor-pointer">Confirmar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
+            
             <ThemeToggle /> 
             {/* <!--* Modais tags fim --> */}
         </div>

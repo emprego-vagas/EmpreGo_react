@@ -15,6 +15,7 @@ import Loader from './components/Loader';
 import Sobre from './pages/Sobre';
 import PerfilEmpresa from './pages/PerfilEmpresa';
 import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
+import TimeOut from './pages/TimeOut';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
 
@@ -24,6 +25,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='*' element={<NotFound />} />
+        <Route path='/timeout' element={<TimeOut />} />
         {/* <Route path='/' element={usuario && usuario.tipo==='candidato' ? <ViewEmpresas /> : <Index />} /> */}
         <Route path='/' element={<Index />} />
         <Route path='/login' element={<Login />} />

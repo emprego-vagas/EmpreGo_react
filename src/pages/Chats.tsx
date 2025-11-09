@@ -255,7 +255,7 @@ export default function Chats(){
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
             <aside className="w-16 bg-dark-800 border-r border-gray-800 flex flex-col h-full items-center py-4">
                 {/* <!-- Foto de perfil do usuário --> */}
-                <Link to="/perfil/candidato" className="relative mb-8">
+                <Link to={`/perfil/${usuario.tipo}`} className="relative mb-8">
                     <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
                         className="w-8 h-8 object-cover rounded-full cursor-pointer" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark-800"
@@ -274,7 +274,7 @@ export default function Chats(){
                         <FontAwesomeIcon icon={faBell} className='text-xl' />
                         <span className="notification-badge">3</span>
                     </Link>
-                    <Link to="/perfil/candidato" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
+                    <Link to={`/perfil/${usuario.tipo}`} className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faStar} className='text-xl' />
                     </Link>
                 </nav>

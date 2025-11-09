@@ -3,7 +3,6 @@ import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFile, fa
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
-import type { Usua } from "../ts/perfilCandidatoFunctions";
 import { DadosUsuario, mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import HeaderProfiles from "../components/HeaderProfiles";
@@ -16,6 +15,7 @@ import docxIconFile from '../assets/imgs/DOCXINCON.png';
 import jpgIconFile from '../assets/imgs/jpg.png';
 import pngIconFile from '../assets/imgs/png.png';
 import Loader from "../components/Loader";
+import type { Candidato } from "../utils/utilsInterfaces";
 
 export default function EditarPerfilCandidato () {
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function EditarPerfilCandidato () {
         async function loadCand(){
             if(!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {usua: Usua}};
+                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {usua: Candidato}};
                 const usua = response.data.usua;
                 DadosUsuario.setarFoto(usua.foto);
                 DadosUsuario.setarNome(usua.nome);
@@ -150,7 +150,7 @@ export default function EditarPerfilCandidato () {
     return (
         <div className="font-inter min-h-screen">
         <HeaderProfiles />
-        <div className="container mx-auto px-4 pt-20 pb-10">
+        <div className="container mx-auto px-4 pt-10 pb-10">
             {dataLoaded && (
             <>
             <div className="page-header text-center mb-10">
