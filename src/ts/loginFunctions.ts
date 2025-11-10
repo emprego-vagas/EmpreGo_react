@@ -56,6 +56,14 @@ export async function candidatoRegister(e: MouseEvent<HTMLButtonElement>, candRe
     if(sobrenome.length < 3){
         return {success: false, inputError: {campo:"sobrenome", mensagem: "O sobrenome deve ter pelo menos 3 caracteres"}}
     }
+    
+    if(!email){
+        return {success: false, inputError: {campo:"email", mensagem:"Preencha o email."}};
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        return {success: false, inputError: {campo:"email", mensagem:"Digite um email válido."}};
+    }
+
     if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(senha)){
         return {success: false, inputError: {campo:"senha", mensagem:"Senha deve conter letra maiúscula, minúscula, número e símbolo."}}
     }
