@@ -11,7 +11,7 @@ export async function cadastrarProjeto(titulo: string, nome: string, dataInicio:
         mostrarErroTopo('Datas inválidas');
         return false;
     }
-    if(!isValidURL(linkProjeto)){
+    if(linkProjeto && !isValidURL(linkProjeto)){
         mostrarErroTopo('Por favor, insira uma URL válida');
         return false;
     }
@@ -25,9 +25,9 @@ export async function cadastrarProjeto(titulo: string, nome: string, dataInicio:
     formData.append('nome', nome);
     formData.append('periodo', `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`);
     formData.append('descricao', descricao);
-    formData.append('tags', JSON.stringify(tags));
-    formData.append('link', linkProjeto);
     formData.append('status', status);
+    if(tags.length>0) formData.append('tags', JSON.stringify(tags));
+    if(linkProjeto) formData.append('link', linkProjeto);
     if(imagem) formData.append('imagem', imagem);
 
     try {
