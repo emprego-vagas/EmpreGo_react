@@ -200,10 +200,10 @@ export default function Index(){
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 opacity-0" id="services-header">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
                         Nossos <span className="text-gradient">Serviços</span>
                     </h2>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    <p className="text-xl max-w-3xl mx-auto">
                         Oferecemos soluções completas para candidatos e empresas alcançarem seus objetivos profissionais.
                     </p>
                 </div>
@@ -218,7 +218,7 @@ export default function Index(){
                         <div className="mb-12 flex items-center justify-between">
                             <div className="w-5/12 pr-8 text-right opacity-0 timeline-item">
                                 <h3 className="text-2xl font-bold text-primary-500 dark:text-primary-400 mb-2 text-center" >Introdução Básica</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-center">
+                                <p className=" text-center">
                                     Este website é dedicado a garantir uma rápida e accessível maneira de se filtrar entre
                                     possiveis candidatos em busca de vagas de emprego.
                                 </p>
