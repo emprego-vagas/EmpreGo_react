@@ -15,7 +15,7 @@ export class ParticlesBackground {
   private animationId: number = 0;
   private mouse = { x: 0, y: 0, radius: 100 };
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement) { 
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.init();
