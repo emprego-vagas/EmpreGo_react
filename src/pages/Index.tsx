@@ -6,7 +6,7 @@ import { animate } from 'animejs';
 import '../ts/indexFunctions'
 import '../App.css'
 import '../css/index.css'
-import '../../index.css'
+// import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
 import { Link } from 'react-router-dom';
 
@@ -200,7 +200,7 @@ export default function Index(){
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 opacity-0" id="services-header">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-g   ray-900 dark:text-white">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
                         Nossos <span className="text-gradient">Serviços</span>
                     </h2>
                     <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">

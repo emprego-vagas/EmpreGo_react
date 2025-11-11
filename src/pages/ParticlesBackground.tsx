@@ -1,4 +1,3 @@
-// ParticlesBackground.tsx
 import React, { useEffect, useRef } from 'react';
 import { ParticlesBackground } from '../css/particles';
 
