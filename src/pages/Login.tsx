@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import ParticlesBackgroundComponent from './ParticlesBackground';
-import backgroundroxo from '../assets/imgs/purpleBG.png'
+// import backgroundroxo from '../assets/imgs/purpleBG.png'
 
 // * Funções
 import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, formatarTelefone, validarCep } from '../ts/loginFunctions'
@@ -43,7 +43,7 @@ export default function Login() {
                 {/* Abas de navegação */}
                 <div className="flex bg-black/30 border-b border-white/10">
                     <button
-                        className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 ${activeTab.includes("user")
+                        className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer ${activeTab.includes("user")
                                 ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
                                 : "text-white/60 hover:text-white/80 hover:bg-white/5"
                             }`}
@@ -52,7 +52,7 @@ export default function Login() {
                         <FontAwesomeIcon icon={faUser} /> Candidato
                     </button>
                     <button
-                        className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 ${activeTab.includes("company")
+                        className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer ${activeTab.includes("company")
                                 ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
                                 : "text-white/60 hover:text-white/80 hover:bg-white/5"
                             }`}
@@ -96,7 +96,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -120,7 +120,7 @@ export default function Login() {
 
                                 <button
                                     type="submit"
-                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4"
+                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await candidatoLogin(e, userLogin);
                                         if (logado) navigate('/');
@@ -219,7 +219,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -246,7 +246,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -326,7 +326,7 @@ export default function Login() {
 
                                 <button
                                     type="submit"
-                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4"
+                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const emailRedirect = userRegister.email;
                                         const registro = await candidatoRegister(e, userRegister);
@@ -386,7 +386,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -396,7 +396,7 @@ export default function Login() {
 
                                 <button
                                     type="submit"
-                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4"
+                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await empresaLogin(e, companyLogin);
                                         if (logado) navigate('/');
@@ -528,7 +528,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -555,7 +555,7 @@ export default function Login() {
                                         />
                                         <button
                                             type="button"
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                                             onClick={() => setShowPassword((p) => !p)}
                                         >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -684,7 +684,7 @@ export default function Login() {
 
                                 <button
                                     type="submit"
-                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4"
+                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const registro = await empresaRegister(e, companyRegister);
                                         if (!registro.success) {

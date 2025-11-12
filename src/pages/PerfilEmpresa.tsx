@@ -39,7 +39,7 @@ export default function PerfilEmpresa () {
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tags/empresas?limit=9999999&offset=6`) as {data: Tag[]};
+            const response = await axiosWe(`/tags/empresas?offset=6`) as {data: Tag[]};
             setCustomPerfil(prev=>({...prev, tags_empresas: [...prev.tags_empresas, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {

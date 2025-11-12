@@ -29,7 +29,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tags?limit=9999999&offset=6`) as {data: Tag[]};
+            const response = await axiosWe(`/tags?offset=6`) as {data: Tag[]};
             setCustomPerfil(prev=>({...prev, tags: [...prev.tags, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
@@ -46,7 +46,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisIdiomas(false);
-            const response = await axiosWe('/idioma?limit=9999999&offset=3') as {data: Idioma[]};
+            const response = await axiosWe('/idioma?offset=3') as {data: Idioma[]};
             setCustomPerfil(prev=>({...prev, idiomas: [...prev.idiomas, ...response.data]}));
             setMostrarMaisIdiomasExib(false);
         } catch (erro) {
