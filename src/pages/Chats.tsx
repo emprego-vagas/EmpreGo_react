@@ -14,8 +14,9 @@ import { carregarConversasBack, enviarMensagem, modalActions, validarSeEhArquivo
 import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
 import Loader from '../components/Loader';
+import type { Conversa, Mensagem, MessageSocket, UserStatusSocket } from "../ts/chatsFunctions";
 
-export default function Chats(){
+export default function Chats2() {
     const navigate = useNavigate();
     const [usuario] = useState(DadosUsuario.getUsuario(true));
     if(!usuario) {
@@ -24,41 +25,6 @@ export default function Chats(){
         }, 3000)
     };
     const [carregando, setCarregando] = useState(false);
-
-    const [mostrarAttachmentMenu, setMostrarAttachmentMenu] = useState(false);
-    const [mostrarMenu, setMostrarMenu] = useState(false);
-    const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
-    const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
-    const [fileData, setFileData] = useState({name: '', size: '', tipo: ''});
-
-    const handleFileInput = (e: ChangeEvent<HTMLInputElement>, tipo: string): void=>{
-        setMostrarAttachmentMenu(false);
-        const target = e.target;
-        const arquivo = target.files[0];
-        if (arquivo && arquivo.size > 5 * 1024 * 1024) {
-            mostrarErroTopo("O arquivo deve ter no máximo 5MB.");
-            target.value = "";
-            return;
-        }
-        setFileData({name: arquivo.name, size: `${(arquivo.size / 1024).toFixed(2)} KB`, tipo})
-        setMostrarModalConfirmacao(true);
-    }
-
-    const inputDocRef = useRef(null);
-    const inputImgRef = useRef(null);
-    const inputCamRef = useRef(null);
-
-    const [mensagemEnvio, setMensagemEnvio] = useState("");
-    const textareaRef = useRef(null);
-    const handleChangeMsg = (e)=>{
-        const target = e.target;
-        setMensagemEnvio(target.value);
-        target.style.height = 'auto';
-        target.style.height = `${target.scrollHeight}px`;
-    };
-
-    const [dadosConversas, setDadosConversas] = useState([]);
-    const [estadoConversas, setEstadoConversas] = useState({conversaAtualId: "0", conversas: [], contadorMensagens: 0, contadorFavoritos: 0, resultadosPesquisa: 0, indicePesquisaAtual: -1});
 
     useEffect(()=>{
         if(!usuario) return;
@@ -69,16 +35,14 @@ export default function Chats(){
             try {
                 const conversasInit = await carregarConversasBack(usuario, id);
                 setDadosConversas(conversasInit.conversas);
-                setEstadoConversas({...estadoConversas, conversaAtualId: conversasInit.conversaAtual, contadorFavoritos: (() => {
-                    return conversasInit.conversas.reduce((acc, dado) => {
-                            if (dado.favoritada) acc++;
-                            return acc;
-                        }, 0)
-                    })()
-                });
+                setConversaAtualId(conversasInit.conversaAtual);
+                setContadorFavoritos(conversasInit.conversas.reduce(
+                    (acc, dado) => {
+                        if (dado.favoritada) acc++;
+                        return acc;
+                    }, 0)
+                );
                 setCarregando(true);
-                // setConversasFavoritadas(conversasInit.conversas.filter(con=>con.favoritada));
-                // setConversasNaoFavoritadas(conversasInit.conversas.filter(con=>!con.favoritada));
             } catch (erro) {
                 console.error("Erro ao carregar conversas:", erro);
             }
@@ -87,22 +51,13 @@ export default function Chats(){
         const intervalId = setInterval(()=>{
             socket.emit('refreshStatus');
         }, 5000);
-        return () => clearInterval(intervalId);
-    }, [usuario]);
 
-    const estadoConversasRef = useRef(estadoConversas);
-    useEffect(() => {
-        estadoConversasRef.current = estadoConversas;
-    }, [estadoConversas]);
-    useEffect(()=>{
-        if (!usuario) return;
-
-        const receivedMessage = async(message)=>{
+        const receivedMessage = async(message: MessageSocket)=>{
             if (message.type === usuario.tipo) return;
 
             const agora = new Date();
             const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-            const messageFormat = { texto: message.message, remetente: 'eles', hora, id: message.idMsg };
+            const messageFormat: Mensagem = { texto: message.message, remetente: 'eles', hora, id: message.idMsg };
 
             setDadosConversas(prev => {
                 const conversaExiste = prev.some(c => c.id === message.room);
@@ -113,29 +68,28 @@ export default function Chats(){
                         ? {
                             ...conversa,
                             mensagens: [...conversa.mensagens, messageFormat],
+                            contadorMensagens: conversa.mensagens.length + 1,
+                            ultimaMensagem: message.message,
                             naoLidas:
-                                estadoConversasRef.current.conversaAtualId === message.room
+                                conversaAtualIdRef.current === message.room
                                     ? 0
                                     : conversa.naoLidas + 1,
                         }
                         : conversa
                 );
 
-                if (estadoConversasRef.current.conversaAtualId === message.room) {
-                    const conversa = novasConversas.find(
-                        c => c.id === message.room
-                    );
-                    setEstadoConversas(prev => ({
-                        ...prev,
-                        contadorMensagens: conversa.mensagens.length,
-                    }));
+                if (conversaAtualIdRef.current === message.room) {
+                    const container = messagesContainerRef.current;
+                    setTimeout(() => {
+                        container.scrollTop = container.scrollHeight;
+                    }, 50);
                     axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
                 }
 
                 return novasConversas;
             });
         }
-        const userStatus = (user)=>{
+        const userStatus = (user: UserStatusSocket)=>{
             if(user.socket===socket.id) return;
             
             setDadosConversas(prev => {
@@ -159,48 +113,76 @@ export default function Chats(){
         socket.on('userStatus', userStatus);
 
         return () => {
+            clearInterval(intervalId);
             socket.off('receivedMessage', receivedMessage);
             socket.off('userStatus', userStatus);
         };
-    }, [usuario])
+    }, [usuario]);
 
-    const messagesContainerRef = useRef(null);
+    const [contadorFavoritos, setContadorFavoritos] = useState(0);
+    const [conversaAtualId, setConversaAtualId] = useState('0');
+    const [dadosConversas, setDadosConversas] = useState<Conversa[]>([]);
+    const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+    const [mostrarAttachmentMenu, setMostrarAttachmentMenu] = useState(false);
+    const [mostrarMenu, setMostrarMenu] = useState(false);
+    const [modalAction, setModalAction] = useState({status: false, mensagem: '', action: '', valor: '', chatId: ''});
+    const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
+    const [fileData, setFileData] = useState({name: '', size: '', tipo: ''});
+    const inputDocRef = useRef<HTMLInputElement | null>(null);
+    const inputImgRef = useRef<HTMLInputElement | null>(null);
+    const inputCamRef = useRef<HTMLInputElement | null>(null);
+    const [mensagemEnvio, setMensagemEnvio] = useState("");
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const btnEnviarRef = useRef<HTMLButtonElement | null>(null);
+
+    const conversaAtualIdRef = useRef(conversaAtualId);
     useEffect(() => {
-        if (estadoConversas.conversaAtualId !== '0' && messagesContainerRef.current) {
+        conversaAtualIdRef.current = conversaAtualId;
+    }, [conversaAtualId]);
+
+    useEffect(() => {
+        if (conversaAtualId !== '0' && messagesContainerRef.current) {
             const container = messagesContainerRef.current;
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
-            }, 10);
+            }, 0);
             setDadosConversas(prev => {
-                const conversaExiste = prev.some(c => c.id === estadoConversas.conversaAtualId);
+                const conversaExiste = prev.some(c => c.id === conversaAtualId);
                 if (!conversaExiste) return prev;
 
-                return prev.map(conversa =>
-                    conversa.id === estadoConversas.conversaAtualId
-                        ? {
-                            ...conversa,
-                            naoLidas: 0
-                        }
-                        : conversa
-                );
+                return prev.map(conversa => {
+                    if(conversa.id === conversaAtualId) {
+                        if(conversa.naoLidas>0) axiosWe.patch(`/mensagens/vizualizar/${conversaAtualId}`).catch(console.error);
+                        return {...conversa, naoLidas: 0 };
+                    } else {
+                        return conversa;
+                    }
+                });
             });
             setMostrarMenu(false)
             setMostrarAttachmentMenu(false);
-            axiosWe.patch(`/mensagens/vizualizar/${estadoConversas.conversaAtualId}`).catch(console.error);
         }
-    }, [estadoConversas.conversaAtualId, estadoConversas.contadorMensagens]);
+    }, [conversaAtualId]);
 
-    useEffect(() => {
-        if (estadoConversas.conversaAtualId === '0') return;
+    const handleFileInput = (e: ChangeEvent<HTMLInputElement>, tipo: string): void=>{
+        setMostrarAttachmentMenu(false);
+        const target = e.target;
+        const arquivo = target.files[0];
+        if (arquivo && arquivo.size > 5 * 1024 * 1024) {
+            mostrarErroTopo("O arquivo deve ter no máximo 5MB.");
+            target.value = "";
+            return;
+        }
+        setFileData({name: arquivo.name, size: `${(arquivo.size / 1024).toFixed(2)} KB`, tipo})
+        setMostrarModalConfirmacao(true);
+    }
 
-        const conversa = dadosConversas.find(con => con.id === estadoConversas.conversaAtualId);
-        if (!conversa) return;
-
-        setEstadoConversas(prev => ({
-            ...prev,
-            contadorMensagens: conversa.mensagens.length
-        }));
-    }, [estadoConversas.conversaAtualId, dadosConversas]);
+    const handleChangeMsg = (e: ChangeEvent<HTMLTextAreaElement>)=>{
+        const target = e.target;
+        setMensagemEnvio(target.value);
+        target.style.height = 'auto';
+        target.style.height = `${target.scrollHeight}px`;
+    };
 
     function transformarLinksEmAnchors(mensagem: string): JSX.Element {
         // Regex para identificar links com protocolo e domínios sem protocolo
@@ -298,9 +280,9 @@ export default function Chats(){
 
                 {/* <!-- Lista das conversas --> */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
-                    {estadoConversas.contadorFavoritos>0 && <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Favoritadas: {estadoConversas.contadorFavoritos}</div>}
+                    {contadorFavoritos>0 && <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Favoritadas: {contadorFavoritos}</div>}
                     {dadosConversas.filter(con=>con.favoritada).length>0 && dadosConversas.filter(con=>con.favoritada).map(conversa=>(
-                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
+                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
 
                             <div className="flex items-center w-full">
                                 <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
@@ -333,28 +315,52 @@ export default function Chats(){
                                 <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
                                     data-id={conversa.id} onClick={async()=>{
                                         if(conversa.favoritada){
-                                            conversa.favoritada = false;
-                                            estadoConversas.contadorFavoritos--;
+                                            setDadosConversas(prev=>{
+                                                return prev.map(con=>
+                                                    con.id === conversa.id ?
+                                                    {...con, favoritada: false} 
+                                                    : con
+                                                )
+                                            })
+                                            setContadorFavoritos(e=>e-1);
                                             try {
                                                 await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
                                             } catch (erro) {
                                                 console.error(erro);
-                                                conversa.favoritada = true;
-                                                estadoConversas.contadorFavoritos++;
+                                                setDadosConversas(prev=>{
+                                                    return prev.map(con=>
+                                                        con.id === conversa.id ?
+                                                        {...con, favoritada: true} 
+                                                        : con
+                                                    )
+                                                })
+                                                setContadorFavoritos(e=>e+1);
                                             }
                                         } else {
-                                            if (estadoConversas.contadorFavoritos >= 3) {
+                                            if (contadorFavoritos >= 3) {
                                                 mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
                                                 return;
                                             }
-                                            conversa.favoritada = true;
-                                            estadoConversas.contadorFavoritos++;
+                                            setDadosConversas(prev=>{
+                                                return prev.map(con=>
+                                                    con.id === conversa.id ?
+                                                    {...con, favoritada: true} 
+                                                    : con
+                                                )
+                                            })
+                                            setContadorFavoritos(e=>e+1);
                                             try {
                                                 await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
                                             } catch (erro) {
                                                 console.error(erro);
-                                                conversa.favoritada = false;
-                                                estadoConversas.contadorFavoritos--;
+                                                setDadosConversas(prev=>{
+                                                    return prev.map(con=>
+                                                        con.id === conversa.id ?
+                                                        {...con, favoritada: false} 
+                                                        : con
+                                                    )
+                                                })
+                                                setContadorFavoritos(e=>e-1);
                                             }
                                         }
                                     }}>
@@ -367,7 +373,7 @@ export default function Chats(){
                     {/* <!-- As conversas serão inseridas aqui via JavaScript (O código todo está lá) --> */}
                     <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Conversas</div>
                     {dadosConversas.filter(con=>!con.favoritada).length>0 && dadosConversas.filter(con=>!con.favoritada).map(conversa=>(
-                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${estadoConversas.conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setEstadoConversas({...estadoConversas, conversaAtualId: conversa.id})}}>
+                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
 
                             <div className="flex items-center w-full">
                                 <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
@@ -400,28 +406,52 @@ export default function Chats(){
                                 <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
                                     data-id={conversa.id} onClick={async()=>{
                                         if(conversa.favoritada){
-                                            conversa.favoritada = false;
-                                            estadoConversas.contadorFavoritos--;
+                                            setDadosConversas(prev=>{
+                                                return prev.map(con=>
+                                                    con.id === conversa.id ?
+                                                    {...con, favoritada: false} 
+                                                    : con
+                                                )
+                                            })
+                                            setContadorFavoritos(e=>e-1);
                                             try {
                                                 await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
                                             } catch (erro) {
                                                 console.error(erro);
-                                                conversa.favoritada = true;
-                                                estadoConversas.contadorFavoritos++;
+                                                setDadosConversas(prev=>{
+                                                    return prev.map(con=>
+                                                        con.id === conversa.id ?
+                                                        {...con, favoritada: true} 
+                                                        : con
+                                                    )
+                                                })
+                                                setContadorFavoritos(e=>e+1);
                                             }
                                         } else {
-                                            if (estadoConversas.contadorFavoritos >= 3) {
+                                            if (contadorFavoritos >= 3) {
                                                 mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
                                                 return;
                                             }
-                                            conversa.favoritada = true;
-                                            estadoConversas.contadorFavoritos++;
+                                            setDadosConversas(prev=>{
+                                                return prev.map(con=>
+                                                    con.id === conversa.id ?
+                                                    {...con, favoritada: true} 
+                                                    : con
+                                                )
+                                            })
+                                            setContadorFavoritos(e=>e+1);
                                             try {
                                                 await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
                                             } catch (erro) {
                                                 console.error(erro);
-                                                conversa.favoritada = false;
-                                                estadoConversas.contadorFavoritos--;
+                                                setDadosConversas(prev=>{
+                                                    return prev.map(con=>
+                                                        con.id === conversa.id ?
+                                                        {...con, favoritada: false} 
+                                                        : con
+                                                    )
+                                                });
+                                                setContadorFavoritos(e=>e+1);
                                             }
                                         }
                                     }}>
@@ -434,11 +464,11 @@ export default function Chats(){
                 </div>
 
             </aside>
-
+        
             {/* // <!-- início do chat principal (1 pra 1)--> */}
             <main className="flex-1 flex flex-col h-full bg-dark-900 relative">
                 {/* <!-- Tela de boas-vindas --> */}
-                {(estadoConversas.conversaAtualId==='0') && (
+                {conversaAtualId==='0' && (
                     <div id="TelaBoasVindas"
                         className="absolute inset-0 flex flex-col items-center justify-center text-center bg-dark-900 z-10">
 
@@ -473,8 +503,8 @@ export default function Chats(){
                 
 
                 {/* <!-- estrutura do header da conversa (1 pra 1)--> */}
-                {(estadoConversas.conversaAtualId!=='0') && (()=>{
-                    const conversa = dadosConversas.find(con=>con.id===estadoConversas.conversaAtualId);
+                {(conversaAtualId!=='0') && (()=>{
+                    const conversa = dadosConversas.find(con=>con.id===conversaAtualId);
                     return (
                         <>
                             <header className="bg-dark-800 px-6 py-4 border-b border-gray-800 flex items-center justify-between">
@@ -516,7 +546,7 @@ export default function Chats(){
                                                         className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
                                                         onClick={()=>{
                                                             setMostrarMenu(false);
-                                                            setEstadoConversas({...estadoConversas, conversaAtualId: '0'});
+                                                            setConversaAtualId('0');
                                                         }} >
                                                         <FontAwesomeIcon icon={faXmark} className='text-gray-400'/>
                                                         <span>Fechar conversa</span>
@@ -709,24 +739,42 @@ export default function Chats(){
                                                 formData.append('autor', usuario.nome);
                                                 formData.append('chat', conversa.id);
                                                 formData.append('de', usuario.tipo);
-                                                const response = await axiosWe.post(`/mensagens/upload${fileData.tipo!=='documento'?'/image':''}`, formData);
-                                                const msge = await enviarMensagem(response.data.newFile, usuario, conversa.id, response.data.idFile);
-                                                if(msge.success){
-                                                    conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: response.data.idFile});
-                                                    conversa.ultimaMensagem = msge.texto;
-                                                    conversa.hora = msge.hora;
-                                                    setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
+                                                try {
+                                                    const response = await axiosWe.post(`/mensagens/upload${fileData.tipo!=='documento'?'/image':''}`, formData);
+                                                    const {newFile, idFile} = response.data;
+                                                    const agora = new Date();
+                                                    const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+
+                                                    socket.emit('sendMessage', {
+                                                        author: usuario.nome,
+                                                        message: newFile,
+                                                        room: conversaAtualId,
+                                                        type: usuario.tipo,
+                                                        idMsg: idFile
+                                                    });
+                                                    
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, mensagens: [...con.mensagens, {texto: newFile, remetente: 'usuario', hora: hora, id: idFile}],
+                                                            ultimaMensagem: newFile, hora: hora, contadorMensagens: con.contadorMensagens + 1}
+                                                            : con
+                                                        )
+                                                    });
+                                                } catch (erro) {
+                                                    console.error(erro);
+                                                } finally {
+                                                    setFileData({name: '', size: '', tipo: ''});
+                                                    setMostrarModalConfirmacao(false);
+                                                    e.currentTarget.disabled = false;
                                                 }
-                                                setFileData({name: '', size: '', tipo: ''});
-                                                setMostrarModalConfirmacao(false);
-                                                e.currentTarget.disabled = false;
                                             }}
                                                 className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer">Confirmar</button>
                                         </div>
                                     </div>
                                 </div>
                             )}
-                            
+
                             <div className="bg-dark-800 p-4 border-t border-gray-800">
                                 <div className="flex items-end space-x-3">
                                     <button id="attach-button" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors mb-2 cursor-pointer"
@@ -739,54 +787,47 @@ export default function Chats(){
                                         <textarea id="message-input"
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
                                             placeholder="Digite sua mensagem..." rows={1} maxLength={500} onClick={()=>{setMostrarAttachmentMenu(false);setMostrarMenu(false)}}
-                                            ref={textareaRef} value={mensagemEnvio} onChange={handleChangeMsg} onKeyDown={async(e)=>{
+                                            ref={textareaRef} value={mensagemEnvio} onChange={(e)=>handleChangeMsg(e)} onKeyDown={async(e)=>{
                                                 if (e.key === "Enter" && !e.shiftKey) {
                                                     e.preventDefault();
 
                                                     if (mensagemEnvio.trim() === "") return;
 
-                                                    if(conversa.bloqueadoStatus) {
-                                                        setMensagemEnvio("");
-                                                        textareaRef.current.style.height = "auto";
-                                                        mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
-                                                        return;
-                                                    }
-                                                    const msge = await enviarMensagem(mensagemEnvio, usuario, estadoConversas.conversaAtualId);
-                                                    setMensagemEnvio("");
-                                                    const el = textareaRef.current;
-                                                    if (el) el.style.height = "auto";
-                                                    if(msge.success){
-                                                        conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: msge.id});
-                                                        conversa.ultimaMensagem = msge.texto;
-                                                        conversa.hora = msge.hora;
-                                                        setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
-                                                    }
+                                                    btnEnviarRef.current.click();
                                                 }
                                             }}
                                         >
                                         </textarea>
                                     </div>
 
-                                    <button id="send-button"
+                                    <button id="send-button" ref={btnEnviarRef}
                                         className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2 cursor-pointer"
                                         aria-label="Enviar mensagem" onClick={async()=>{
                                             setMostrarAttachmentMenu(false);
                                             setMostrarMenu(false);
+                                            setMensagemEnvio("");
                                             if (mensagemEnvio.trim() !== "") {
                                                 if(conversa.bloqueadoStatus) {
-                                                    setMensagemEnvio("");
                                                     textareaRef.current.style.height = "auto";
                                                     mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
                                                     return;
                                                 }
-                                                const msge = await enviarMensagem(mensagemEnvio, usuario, estadoConversas.conversaAtualId);
-                                                setMensagemEnvio("");
-                                                textareaRef.current.style.height = "auto";
+                                                const msge = await enviarMensagem(mensagemEnvio, usuario, conversaAtualId);
+                                                const el = textareaRef.current;
+                                                if (el) el.style.height = "auto";
                                                 if(msge.success){
-                                                    conversa.mensagens.push({texto: msge.texto, remetente: msge.remetente, hora: msge.hora, id: msge.id});
-                                                    conversa.ultimaMensagem = msge.texto;
-                                                    conversa.hora = msge.hora;
-                                                    setEstadoConversas(prev => ({...prev, contadorMensagens: prev.contadorMensagens + 1}));
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, mensagens: [...con.mensagens, {texto: msge.texto, remetente: 'usuario', hora: msge.hora, id: msge.id}],
+                                                            ultimaMensagem: msge.texto, hora: msge.hora, contadorMensagens: con.contadorMensagens + 1}
+                                                            : con
+                                                        )
+                                                    });
+                                                    const container = messagesContainerRef.current;
+                                                    setTimeout(() => {
+                                                        container.scrollTop = container.scrollHeight;
+                                                    }, 50);
                                                 }
                                             }
                                         }}>
@@ -796,7 +837,7 @@ export default function Chats(){
 
                                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500 px-2">
                                     <span>Pressione Enter para enviar</span>
-                                    <span id="message-counter">{estadoConversas.contadorMensagens} mensagens nesta conversa</span>
+                                    <span id="message-counter">{conversa.contadorMensagens} mensagens nesta conversa</span>
                                 </div>
                             </div>
 
@@ -840,7 +881,7 @@ export default function Chats(){
                                                                     con.id !== chatId 
                                                                 )
                                                             });
-                                                            setEstadoConversas({...estadoConversas, conversaAtualId: '0'});
+                                                            setConversaAtualId('0');
                                                             socket.emit('leaveRoom', chatId);
                                                             break;
                                                         }                                      
@@ -858,6 +899,5 @@ export default function Chats(){
                 )()}
             </main>
         </div>
-
     )
-};
+}

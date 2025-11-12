@@ -1,14 +1,14 @@
 import axiosWe from "../utils/axiosInstance";
 import socket from "../utils/socketsConnection";
 
-interface Mensagem {
+export interface Mensagem {
     id: string;
     texto: string;
     remetente: 'usuario' | 'eles';
     hora: string;
 }
 
-interface Conversa {
+export interface Conversa {
     id: string;
     bloqueadoStatus: boolean;
     bloqueador: string | null;
@@ -21,7 +21,22 @@ interface Conversa {
     avatar: string | null;
     favoritada: boolean;
     mensagens: Mensagem[];
+    contadorMensagens: number;
 }
+
+export interface MessageSocket {
+    author: string;
+    message: string;
+    room: string;
+    type: string;
+    idMsg: string;
+}
+
+export interface UserStatusSocket {
+    status: string;
+    socket: string;
+    room: string;
+};
 
 interface CarregarConversasBackResponse {
     conversas: Conversa[];
@@ -73,7 +88,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                     })(),
                     id: msg.id
                 }
-            })
+            }),
+            contadorMensagens: chat.mensagens.length
         };
         return ct;
     })
@@ -131,7 +147,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                             })(),
                             id: msg.id
                         }
-                    })
+                    }),
+                    contadorMensagens: chat.mensagens.length
                 })
                 conversaAtual = chat.id;
             } catch (erro) {
@@ -150,26 +167,23 @@ interface EnviarMensagemResponse {
     hora?: string;
     id?: string;
 }
-export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string, arquivoId?:string): Promise<EnviarMensagemResponse> {
+export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string): Promise<EnviarMensagemResponse> {
     try {
-        let response;
-        if(!arquivoId){
-            response = await axiosWe.post('/mensagens', {
+        const response = await axiosWe.post('/mensagens', {
                 autor: usuario.nome,
                 mensagem,
                 chat: conversaAtualId,
                 de: usuario.tipo
             })
-        }
         const agora = new Date();
         const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response?.data?.idMsg || arquivoId};
+        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.idMsg };
         const messageObject = {
             author: usuario.nome,
             message: mensagem,
             room: conversaAtualId,
             type: usuario.tipo,
-            idMsg: response?.data?.idMsg || arquivoId
+            idMsg: response.data.idMsg
         };
         socket.emit('sendMessage', messageObject);
         return novaMensagem;

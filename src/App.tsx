@@ -16,6 +16,7 @@ import Sobre from './pages/Sobre';
 import PerfilEmpresa from './pages/PerfilEmpresa';
 import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
 import TimeOut from './pages/TimeOut';
+// import Chats2 from './pages/Chats2';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
 
@@ -35,6 +36,7 @@ function App() {
         <Route path='/teste' element={<Teste/>} />
         <Route path='/loader' element={<Loader/>} />
         <Route path='/chats' element={<Chats/>} />
+        {/* <Route path='/chats2' element={<Chats2/>} /> */}
         <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
         <Route path='/perfil/candidato/editar' element={<EditarPerfilCandidato/>} />
         <Route path='/perfil/empresa' element={<PerfilEmpresa />} />

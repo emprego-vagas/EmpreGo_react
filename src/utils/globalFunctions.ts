@@ -75,7 +75,7 @@ export function logout(){
 
 export class DadosUsuario {
     
-    static setarUsuario(id: string, nome: string, tipo: string, nivel: string, foto: string | null = null){
+    static setarUsuario(id: string, nome: string, tipo: string, nivel: string, foto: string){
         const userJson = {id, nome, tipo, nivel, foto};
         const userString = JSON.stringify(userJson);
         localStorage.setItem('dadosUsuario', userString);
