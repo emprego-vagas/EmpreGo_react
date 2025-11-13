@@ -1,7 +1,9 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ======= DEFINIÇÃO DE TOKENS E TEMAS GLOBAIS ======= */
-@theme {
+:root {
   /* === Cores principais === */
   --color-professional-dark: #0A0A0B;
   --color-professional-gray: #1A1A1D;

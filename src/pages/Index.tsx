@@ -6,7 +6,7 @@ import { animate } from 'animejs';
 import '../ts/indexFunctions'
 import '../App.css'
 import '../css/index.css'
-// import '../../index.css'
+import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
 import { Link } from 'react-router-dom';
 

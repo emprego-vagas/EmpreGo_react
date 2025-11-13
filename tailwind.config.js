@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   darkMode: 'class', // usa .dark para alternar tema
   content: [
     './index.html',
