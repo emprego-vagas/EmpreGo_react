@@ -143,9 +143,10 @@ export default function Chats2() {
     useEffect(() => {
         if (conversaAtualId !== '0' && messagesContainerRef.current) {
             const container = messagesContainerRef.current;
+            container.scrollTop = container.scrollHeight;
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
-            }, 0);
+            }, 50);
             setDadosConversas(prev => {
                 const conversaExiste = prev.some(c => c.id === conversaAtualId);
                 if (!conversaExiste) return prev;
