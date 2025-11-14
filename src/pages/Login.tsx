@@ -11,16 +11,27 @@ import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, forma
 
 // * CSS
 import '../css/login.css'
+// import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
 export default function Login() {
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
-    const [activeTab, setActiveTab] = useState<"user-login" | "user-register" | "company-login" | "company-register">("user-login");
+    const [activeTab, setActiveTab] = useState<"user-login" | "user-register" | "company-login" | "company-register" | "forgot-password">("user-login");
+
     const switchTab = (tabId: typeof activeTab) => {
         setActiveTab(tabId);
     };
     const [showOtherGender, setShowOtherGender] = useState(false);
+
+    const [sucessoInputCand, setSucessoInputCand] = useState({
+        campo: "",
+        mensagem: "",
+    });
+
+    function limparSucessoCand() {
+        setSucessoInputCand({ campo: "", mensagem: "" });
+    }
 
     const [errorInputCand, setErrorInputCand] = useState({ campo: "", mensagem: "" });
     function limparErroCand(): void {
@@ -35,6 +46,9 @@ export default function Login() {
     const [userRegister, setUserRegister] = useState({ nome: "", sobrenome: "", email: "", senha: "", senhaConfirm: "", data_nasc: "", genero: "", outroGenero: "" });
     const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "" });
     const [companyRegister, setCompanyRegister] = useState({ email: "", razao_soci: "", nome_fant: "", cnpj: "", telefone: "", senha: "", senhaConfirm: "", cep: "", rua: "", bairro: "", cidade: "", estado: "", numero: "", complemento: "" });
+    const [forgotEmail, setForgotEmail] = useState({email: ""});
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 flex justify-center items-center p-5">
@@ -44,8 +58,8 @@ export default function Login() {
                 <div className="flex bg-black/30 border-b border-white/10">
                     <button
                         className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer ${activeTab.includes("user")
-                                ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
-                                : "text-white/60 hover:text-white/80 hover:bg-white/5"
+                            ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
+                            : "text-white/60 hover:text-white/80 hover:bg-white/5"
                             }`}
                         onClick={() => switchTab("user-login")}
                     >
@@ -53,8 +67,8 @@ export default function Login() {
                     </button>
                     <button
                         className={`flex-1 px-4 py-4 flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer ${activeTab.includes("company")
-                                ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
-                                : "text-white/60 hover:text-white/80 hover:bg-white/5"
+                            ? "bg-gradient-to-br from-purple-600 to-purple-500 text-white"
+                            : "text-white/60 hover:text-white/80 hover:bg-white/5"
                             }`}
                         onClick={() => switchTab("company-login")}
                     >
@@ -129,16 +143,29 @@ export default function Login() {
                                     Entrar
                                 </button>
                             </form>
-
+                            
                             <div className="text-center">
                                 <Link
                                     to="#"
-                                    className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+                                    className="text-purple-600 hover:text-purple-300 text-sm transition-colors font-bold"
                                     onClick={(e) => { e.preventDefault(); switchTab("user-register") }}
                                 >
                                     Não tem uma conta? Cadastre-se
                                 </Link>
                             </div>
+
+                            <div className="text-center">
+                                <Link
+                                    to="#"
+                                    className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+                                    onClick={(e) => { e.preventDefault(); switchTab("forgot-password") }}
+                                >
+                                    Esqueceu a senha? Recupere aqui!
+                                </Link>
+                            </div>
+
+
+                            
                         </div>
                     )}
 
@@ -711,6 +738,68 @@ export default function Login() {
                                     Já tem uma conta? Faça login
                                 </Link>
                             </div>
+                        </div>
+                    )}
+
+                    {/* Esqueceu a Senha */}
+                    {activeTab === "forgot-password" && (
+                        <div className="animate-fade-in">
+                            <h2 className="text-2xl font-semibold text-white text-center mb-6">
+                                Recuperar senha
+                            </h2>
+
+                            <form id="forgotForm" action="#">
+                                <div className="mb-4">
+                                    <label htmlFor="forgotEmail" className="block text-white text-sm font-medium mb-2">
+                                        Digite seu email
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        id="forgotEmail"
+                                        className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
+                                        placeholder="seu@email.com"
+                                        required
+                                        value={forgotEmail.email}
+                                        onChange={(e) => setForgotEmail({ ...forgotEmail, email: e.target.value })}
+                                    />
+                                    {sucessoInputCand.campo === "forgotEmail" && (
+                                        <div className="flex items-center gap-2 text-green-400 text-sm mt-2 p-2 bg-green-400/10 rounded-lg animate-fade-in">
+                                            <FontAwesomeIcon icon={faExclamationCircle} />
+                                            {sucessoInputCand.mensagem}
+                                        </div>
+                                    )}
+
+                                    {errorInputCand.campo === "forgotEmail" && (
+                                        <div className="flex items-center gap-2 text-red-400 text-sm mt-2 p-2 bg-red-400/10 rounded-lg animate-fade-in">
+                                            <FontAwesomeIcon icon={faExclamationCircle} /> {errorInputCand.mensagem}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
+                                    onClick={() => {
+                                        if (!emailRegex.test(forgotEmail.email)) {
+                                            setErrorInputCand({
+                                                campo: "forgotEmail",
+                                                mensagem: "Digite um email válido.",
+                                            });
+                                            limparSucessoCand();
+                                            return;
+                                        }
+
+                                        setSucessoInputCand({
+                                            campo: "forgotEmail",
+                                            mensagem: `Verifique a caixa de span. Enviamos instruções para: ${forgotEmail.email}`,
+                                        });
+                                        setErrorInputCand({ campo: "", mensagem: "" });
+                                    }}
+                                >
+                                    Confirmar
+                                </button>
+                            </form>
                         </div>
                     )}
                 </div>

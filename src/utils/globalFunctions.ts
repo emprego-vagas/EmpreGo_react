@@ -10,7 +10,7 @@ export function mostrarErroTopo(mensagem: string) {
     const contrasteDiv = document.createElement('div');
     contrasteDiv.className = 'erro-mensagem-contraste2';
     contrasteDiv.innerHTML = `
-        <div class="fixed top-0 left-0 w-full flex justify-center z-9999">
+        <div class="fixed top-0 left-0 w-full flex justify-center z-[9999]">
             <div class="max-w-lg mx-auto">
             <div class="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 shadow-md rounded-b mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="16" height="16" fill="currentColor" viewBox="0 0 512 512">
@@ -43,7 +43,7 @@ export function mostrarSucessoTopo(mensagem: string) {
     const contrasteDiv = document.createElement('div');
     contrasteDiv.className = 'sucesso-mensagem-contraste';
     contrasteDiv.innerHTML = `
-        <div class="fixed top-0 left-0 w-full flex justify-center z-9999">
+        <div class="fixed top-0 left-0 w-full flex justify-center z-[9999]">
             <div class="max-w-lg mx-auto">
             <div class="flex items-center bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 shadow-md rounded-b mb-4">
                 <i class="fas fa-check-circle mr-3"></i>
