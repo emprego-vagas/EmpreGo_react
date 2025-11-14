@@ -1,7 +1,13 @@
+import { useEffect } from 'react';
 import Footer from '../components/Footer';
 import HeaderInit from '../components/HeaderInit';
+import ThemeToggle from '../components/ThemeTogle';
 
 export default function Suporte () {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <>
         <HeaderInit />
@@ -92,6 +98,7 @@ export default function Suporte () {
             </div>
         </main>
         <Footer />
+        <ThemeToggle />
         </>
     )
 }

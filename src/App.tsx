@@ -16,6 +16,7 @@ import Sobre from './pages/Sobre';
 import PerfilEmpresa from './pages/PerfilEmpresa';
 import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
 import TimeOut from './pages/TimeOut';
+import ScrollToHash from './components/ScrollToHash';
 // import Chats2 from './pages/Chats2';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
@@ -24,6 +25,7 @@ function App() {
   // const usuario = DadosUsuario.getUsuario();
   return (
     <BrowserRouter>
+      <ScrollToHash />
       <Routes>
         <Route path='*' element={<NotFound />} />
         <Route path='/timeout' element={<TimeOut />} />

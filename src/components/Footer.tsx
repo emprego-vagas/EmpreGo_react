@@ -39,11 +39,11 @@ export default function Footer () {
                     <div>
                         <h3 className="text-lg font--semibold text-white mb-4">Links Rápidos</h3>
                         <ul className="space-y-2">
-                            <li><Link to="#home" className="text-gray-400 hover:text-primary-400 transition-colors">Início</Link>
+                            <li><Link to="/#home" className="text-gray-400 hover:text-primary-400 transition-colors">Início</Link>
                             </li>
-                            <li><Link to="#servicos"
+                            <li><Link to="/#servicos"
                                 className="text-gray-400 hover:text-primary-400 transition-colors">Serviços</Link></li>
-                            <li><Link to="#testperfis"
+                            <li><Link to="/#biografias"
                                 className="text-gray-400 hover:text-primary-400 transition-colors">Biografias</Link></li>
                             <li><Link to="/sobre" className="text-gray-400 hover:text-primary-400 transition-colors">Sobre</Link>
                             </li>
@@ -68,7 +68,7 @@ export default function Footer () {
                     <div>
                         <h3 className="text-lg font-semibold text-white mb-4">Contato</h3>
                         <ul className="space-y-2">
-                            <li><a href="#emprego.contato22@gmail.com" className="text-gray-400 cursor: pointer;"><i
+                            <li><a href="mailto:emprego.contato22@gmail.com" className="text-gray-400 cursor-pointer"><i
                                 className='bx bx-envelope mr-2'></i> emprego.contato22@gmail.com</a></li>
                             <li className="text-gray-400"><i className='bx bx-phone mr-2'></i> (79) 91234-5678</li>
                             <li className="text-gray-400"><i className='bx bx-map mr-2'></i> Aracaju, Sergipe - Brasil</li>
