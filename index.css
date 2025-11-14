@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ======= DEFINIÇÃO DE TOKENS E TEMAS GLOBAIS ======= */
-:root {
-  /* === Cores principais === */
+
+/* :root {
+
   --color-professional-dark: #0A0A0B;
   --color-professional-gray: #1A1A1D;
   --color-professional-card: #242428;
@@ -20,7 +20,6 @@
   --color-twitch-lightpurple: #AF78FF;
   --color-twitch-text: #EFEFF1;
 
-  /* === Escalas de cores === */
   --color-primary-50: #faf5ff;
   --color-primary-100: #f3e8ff;
   --color-primary-200: #e9d5ff;
@@ -48,14 +47,11 @@
   --color-light-300: #F3F4F6;
   --color-light-400: #E5E7EB;
 
-  /* === Fontes === */
   --font-sans: "Inter", "Segoe UI", "Tahoma", "Geneva", "Verdana", sans-serif;
   --font-inter: "Inter", sans-serif;
 
-  /* === Tamanhos === */
   --text-2xl: 1.25rem;
 
-  /* === Dark mode via classe === */
   
 }
 
@@ -73,7 +69,6 @@
 }
 
 
-/* ======= KEYFRAMES ======= */
 @keyframes fade-in {
   0% { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -103,7 +98,6 @@
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* ======= CLASSES CUSTOMIZADAS ======= */
 @layer components {
   .btn-primary {
     @apply bg-primary-600 text-white font-semibold px-4 py-2 rounded-lg transition hover:bg-primary-700;
@@ -132,4 +126,4 @@
   .shake {
     animation: shake 0.5s ease infinite;
   }
-}
+} */

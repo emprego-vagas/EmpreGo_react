@@ -126,7 +126,7 @@ export default function Index(){
             <div className="container mx-auto px-6 py-20">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="lg:w-11/2 mb-12 lg:mb-0 opacity-0" id="hero-content">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 " id="hero-title">
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-dark-900 dark:text-primary-100 leading-tight mb-6 " id="hero-title">
                             Encontre seu <span className="text-gradient">emprego</span> dos sonhos
                         </h1>
                         <p className="text-xl md:text-2xl  mb-8" id="hero-subtitle">
@@ -200,7 +200,7 @@ export default function Index(){
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 opacity-0" id="services-header">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold text-dark-900 dark:text-primary-100 mb-4">
                         Nossos <span className="text-gradient">Serviços</span>
                     </h2>
                     <p className="text-xl max-w-3xl mx-auto">
@@ -218,7 +218,7 @@ export default function Index(){
                         <div className="mb-12 flex items-center justify-between">
                             <div className="w-5/12 pr-8 text-right opacity-0 timeline-item">
                                 <h3 className="text-2xl font-bold text-primary-500 dark:text-primary-400 mb-2 text-center" >Introdução Básica</h3>
-                                <p className=" text-center">
+                                <p className=" text-dark-900 dark:text-primary-100 text-center">
                                     Este website é dedicado a garantir uma rápida e accessível maneira de se filtrar entre
                                     possiveis candidatos em busca de vagas de emprego.
                                 </p>
@@ -243,7 +243,7 @@ export default function Index(){
                             </div>
                             <div className="w-5/12 pl-8 opacity-0 timeline-item">
                                 <h3 className="text-2xl font-bold text-primary-500 dark:text-primary-400 mb-2 text-center" >Quem Está Por Trás</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-center">
+                                <p className=" text-dark-900 dark:text-primary-100 text-center">
                                     O site foi desenvolvido por um grupo de 5 estudantes da escola técnica "SENAI", os quais
                                     participam da turma de "Desenvolvimento de Sistemas", no Terceiro Ano do curso.
                                 </p>
@@ -256,7 +256,7 @@ export default function Index(){
                                 <h3 className="text-2xl font-bold text-primary-500 dark:text-primary-400 mb-2 text-center" >Info Extra</h3>
                                 <a href="mailto:emprego.contato22@gmail.com?subject=Contato&body=Olá,%20gostaria%20de%20mais%20informações"
                                     className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
-                                    <p className="text-gray-600 dark:text-gray-400 text-center">
+                                    <p className=" text-dark-900 dark:text-primary-100 text-center">
                                         Caso ocorra algum problema ou seja encontrado um erro, não hesite em enviar um
                                         e-mail para "emprego.contato22@gmail.com",
                                         seu feedback é de extrema importância para nós! Cheque
