@@ -26,11 +26,11 @@ export default function HeaderInit(){
 
                     {/* Navegação */}
                     <nav className="links hidden md:flex items-center space-x-8">
-                        <Link to="#home"
+                        <Link to="/#home"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Início</Link>
-                        <Link to="#servicos"
+                        <Link to="/#servicos"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Serviços</Link>
-                        <Link to="#testperfis"
+                        <Link to="/#biografias"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Biografias</Link>
                         <Link to="/sobre"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Sobre</Link>
@@ -65,7 +65,7 @@ export default function HeaderInit(){
                 <div id="mobile-menu" className="hidden md:hidden mt-4 space-y-4 pb-4">
                     <Link to="#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
                     <Link to="#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</Link>
-                    <Link to="#testperfis"
+                    <Link to="#biografias"
                         className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Biografias</Link>
                     <Link to="/sobre" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Sobre</Link>
                     <Link to="/suporte" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Suporte</Link>

@@ -12,15 +12,15 @@ export function mostrarErroTopo(mensagem: string) {
     contrasteDiv.innerHTML = `
         <div class="fixed top-0 left-0 w-full flex justify-center z-9999">
             <div class="max-w-lg mx-auto">
-            <div class="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 shadow-md rounded-b mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="16" height="16" fill="currentColor" viewBox="0 0 512 512">
-                    <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 110c23.6 0 42.7 19.1 42.7 42.7s-19.1 42.7-42.7 42.7-42.7-19.1-42.7-42.7S232.4 118 256 118zm56 270c0 6.6-5.4 12-12 12h-88c-6.6 0-12-5.4-12-12v-24c0-6.6 5.4-12 12-12h12v-88h-12c-6.6 0-12-5.4-12-12v-24c0-6.6 5.4-12 12-12h88c6.6 0 12 5.4 12 12v124h12c6.6 0 12 5.4 12 12v24z"/>
-                </svg>
-                <div>
-                <strong class="font-bold">Erro: </strong>
-                <span class="block sm:inline">${mensagem}</span>
+                <div class="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 shadow-md rounded-b mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="16" height="16" fill="currentColor" viewBox="0 0 512 512">
+                        <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 110c23.6 0 42.7 19.1 42.7 42.7s-19.1 42.7-42.7 42.7-42.7-19.1-42.7-42.7S232.4 118 256 118zm56 270c0 6.6-5.4 12-12 12h-88c-6.6 0-12-5.4-12-12v-24c0-6.6 5.4-12 12-12h12v-88h-12c-6.6 0-12-5.4-12-12v-24c0-6.6 5.4-12 12-12h88c6.6 0 12 5.4 12 12v124h12c6.6 0 12 5.4 12 12v24z"/>
+                    </svg>
+                    <div>
+                        <strong class="font-bold">Erro: </strong>
+                        <span class="block sm:inline">${mensagem}</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     `;
@@ -45,13 +45,13 @@ export function mostrarSucessoTopo(mensagem: string) {
     contrasteDiv.innerHTML = `
         <div class="fixed top-0 left-0 w-full flex justify-center z-9999">
             <div class="max-w-lg mx-auto">
-            <div class="flex items-center bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 shadow-md rounded-b mb-4">
-                <i class="fas fa-check-circle mr-3"></i>
-                <div>
-                <strong class="font-bold">Sucesso: </strong>
-                <span class="block sm:inline">${mensagem}</span>
+                <div class="flex items-center bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 shadow-md rounded-b mb-4">
+                    <i class="fas fa-check-circle mr-3"></i>
+                    <div>
+                        <strong class="font-bold">Sucesso: </strong>
+                        <span class="block sm:inline">${mensagem}</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     `;

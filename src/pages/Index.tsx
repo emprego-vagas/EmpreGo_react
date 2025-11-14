@@ -1,6 +1,7 @@
 import HeaderInit from '../components/HeaderInit'
 import ThemeTogle from '../components/ThemeTogle'
 import teste from '../assets/imgs/BIGSlogo.png'
+import JoaoAzevedo2 from '../assets/imgs/JoaoAzevedo2.png'
 import { useEffect } from "react";
 import { animate } from 'animejs';
 import '../ts/indexFunctions'
@@ -9,6 +10,7 @@ import '../css/index.css'
 import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer';
 
 export default function Index(){
     interacaoUI();
@@ -106,7 +108,7 @@ export default function Index(){
           { threshold: 0.1 }
         );
     
-        profilesObserver.observe(document.querySelector("#testperfis"));
+        profilesObserver.observe(document.querySelector("#biografias"));
       }, []); 
 
     return (
@@ -148,19 +150,19 @@ export default function Index(){
                         <div className="mt-12">
                             <p className="text-gray-500 dark:text-gray-500 mb-4">Conecte-se conosco</p>
                             <div className="flex space-x-4">
-                                <a href="https://x.com/Oficial_EmpreGo"
+                                <a href="https://x.com/Oficial_EmpreGo" target='_blank'
                                     className="w-8 h-8 rounded-full bg-light-300 hover:bg-light-400 dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center justify-center transition-colors duration-300 transform hover:scale-110">
                                     <i className='bx bxl-twitter text-xl text-primary-500 dark:text-primary-400'></i>
                                 </a>
-                                <a href="https://www.tiktok.com/@oficial_emprego?lang=pt-BR"
+                                <a href="https://www.tiktok.com/@oficial_emprego" target='_blank'
                                     className="w-8 h-8 rounded-full bg-light-300 hover:bg-light-400 dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center justify-center transition-colors duration-300 transform hover:scale-110">
                                     <i className='bx bxl-tiktok text-xl text-primary-500 dark:text-primary-400'></i>
                                 </a>
-                                <a href="https://www.instagram.com/oficial_emprego/"
+                                <a href="https://www.instagram.com/oficial_emprego" target='_blank'
                                     className="w-8 h-8 rounded-full bg-light-300 hover:bg-light-400 dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center justify-center transition-colors duration-300 transform hover:scale-110">
                                     <i className='bx bxl-instagram text-xl text-primary-500 dark:text-primary-400'></i>
                                 </a>
-                                <a href="https://www.youtube.com/channel/UCp_SRaBRFFBsBe7e-X_ExWA"
+                                <a href="https://www.youtube.com/@Oficial_EmpreGo" target='_blank'
                                     className="w-8 h-8 rounded-full bg-light-300 hover:bg-light-400 dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center justify-center transition-colors duration-300 transform hover:scale-110">
                                     <i className='bx bxl-youtube text-xl text-primary-500 dark:text-primary-400'></i>
                                 </a>
@@ -186,7 +188,7 @@ export default function Index(){
         </section>
 
         {/* <!-- Serviços --> */}
-        <section id="servicos" className="min-h-screen flex items-center justify-center bg-light-200 dark:bg-dark-900 relative overflow-hidden transition-colors duration-300">
+        <section id="servicos" className="scroll-mt-24 min-h-screen flex items-center justify-center bg-light-200 dark:bg-dark-900 relative overflow-hidden transition-colors duration-300">
 
             <div className="absolute top-0 left-0 w-full h-full opacity-5 bg-grid-pattern-light dark:bg-grid-pattern"></div>
 
@@ -278,7 +280,7 @@ export default function Index(){
         </section>
 
         {/* <!-- Perfis --> */}
-        <section id="testperfis" className="py-20 bg-light-200 dark:bg-dark-900 relative overflow-hidden transition-colors duration-300">
+        <section id="biografias" className="py-20 bg-light-200 dark:bg-dark-900 relative overflow-hidden transition-colors duration-300">
             <div className="absolute top-0 left-0 w-full h-full opacity-5 bg-grid-pattern-light dark:bg-grid-pattern"></div>
 
             <div className="container mx-auto px-6 relative z-10">
@@ -316,7 +318,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="100">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={JoaoAzevedo2} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">
@@ -425,7 +427,8 @@ export default function Index(){
                 </div>
             </div>
         </section>
-            <ThemeTogle />   
+            <Footer />
+            <ThemeTogle />
         </>
     )
 }
