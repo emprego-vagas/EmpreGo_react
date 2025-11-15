@@ -59,6 +59,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
             statusRemetente: 'Offline',
             nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
             ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
+            ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
+            data_criacao: chat.data_criacao,
             hora: (() => {
                 const msg = chat.mensagens.toReversed()[0]?.data_criacao
                 if(!msg) return '';
@@ -86,6 +88,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                         const txtData = hojeOntem(horario);
                         return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
                     })(),
+                    datetime: new Date(msg.data_criacao),
                     id: msg.id
                 }
             }),
@@ -118,6 +121,8 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                     statusRemetente: 'Offline',
                     nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
                     ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
+                    ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
+                    data_criacao: chat.data_criacao,
                     hora: (() => {
                         const msg = chat.mensagens.toReversed()[0]?.data_criacao
                         if(!msg) return '';
@@ -145,6 +150,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                                 const txtData = hojeOntem(horario);
                                 return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
                             })(),
+                            datetime: new Date(msg.data_criacao),
                             id: msg.id
                         }
                     }),
@@ -157,7 +163,29 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
         } else conversaAtual = atual;
     }
     console.log(conversas, conversaAtual)
-    return {conversas, conversaAtual};
+    const conversasSorted = [...conversas].sort((a, b) => {
+        // Encontra as últimas mensagens com verificação de segurança
+        const ultimaMensagemA = a.mensagens.find((msg) => msg.id === a.ultimaMensagemId);
+        const ultimaMensagemB = b.mensagens.find((msg) => msg.id === b.ultimaMensagemId);
+        
+        let dataA: number;
+        let dataB: number;
+        
+        if (ultimaMensagemA) {
+            dataA = new Date(ultimaMensagemA.datetime).getTime();
+        } else {
+            dataA = new Date(a.data_criacao).getTime();
+        }
+        
+        if (ultimaMensagemB) {
+            dataB = new Date(ultimaMensagemB.datetime).getTime();
+        } else {
+            dataB = new Date(b.data_criacao).getTime();
+        }
+        
+        return dataB - dataA;
+    });
+    return {conversas: conversasSorted, conversaAtual};
 }
 
 interface EnviarMensagemResponse {

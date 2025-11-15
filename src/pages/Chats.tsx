@@ -78,6 +78,10 @@ export default function Chats2() {
                         : conversa
                 );
 
+                const conversaMensagem = novasConversas.find(con=>con.id===message.room);
+                const outrasConversas = novasConversas.filter(con=>con.id!==message.room);
+                const novasConversasSorted = [conversaMensagem, ...outrasConversas];
+
                 if (conversaAtualIdRef.current === message.room) {
                     const container = messagesContainerRef.current;
                     setTimeout(() => {
@@ -86,7 +90,7 @@ export default function Chats2() {
                     axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
                 }
 
-                return novasConversas;
+                return novasConversasSorted;
             });
         }
         const userStatus = (user: UserStatusSocket)=>{
@@ -718,9 +722,16 @@ export default function Chats2() {
                                     className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                                     <div className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
                                         <h3 className="text-lg font-semibold mb-4 text-center"><strong>Enviar arquivo?</strong></h3>
-                                        <div className="bg-dark-700 rounded-xl p-3 mb-4 flex items-center">
-                                            <span id="modal-file-name" className="text-white font-semibold">{fileData.name}</span>
-                                            <span id="modal-file-size" className="text-gray-400 ml-2">{fileData.size}</span>
+                                        <div className="bg-dark-700 rounded-xl p-3 mb-4 flex items-start">
+                                            <span 
+                                                id="modal-file-name" 
+                                                className="text-white font-semibold break-words flex-1 line-clamp-2"
+                                            >
+                                                {fileData.name}
+                                            </span>
+                                            <span id="modal-file-size" className="text-gray-400 ml-2 flex-shrink-0">
+                                                {fileData.size}
+                                            </span>
                                         </div>
                                         <div className="flex justify-center space-x-3">
                                             <button id="btnCancelarEnvio" onClick={()=>{
@@ -755,12 +766,16 @@ export default function Chats2() {
                                                     });
                                                     
                                                     setDadosConversas(prev=>{
-                                                        return prev.map(con=>
+                                                        const conversasAtualizadas = prev.map(con=>
                                                             con.id === conversa.id ?
-                                                            {...con, mensagens: [...con.mensagens, {texto: newFile, remetente: 'usuario', hora: hora, id: idFile}],
+                                                            {...con, mensagens: [...con.mensagens, {texto: newFile, remetente: 'usuario', hora: hora, id: idFile} as Mensagem],
                                                             ultimaMensagem: newFile, hora: hora, contadorMensagens: con.contadorMensagens + 1}
                                                             : con
-                                                        )
+                                                        );
+                                                        const conversaAtual = conversasAtualizadas.find(con=>con.id === conversa.id);
+                                                        const outrasConversas = conversasAtualizadas.filter(con => con.id !== conversa.id);
+
+                                                        return [conversaAtual, ...outrasConversas]
                                                     });
                                                 } catch (erro) {
                                                     console.error(erro);
@@ -818,12 +833,16 @@ export default function Chats2() {
                                                 if (el) el.style.height = "auto";
                                                 if(msge.success){
                                                     setDadosConversas(prev=>{
-                                                        return prev.map(con=>
+                                                        const conversasAtualizadas = prev.map(con=>
                                                             con.id === conversa.id ?
-                                                            {...con, mensagens: [...con.mensagens, {texto: msge.texto, remetente: 'usuario', hora: msge.hora, id: msge.id}],
+                                                            {...con, mensagens: [...con.mensagens, {texto: msge.texto, remetente: 'usuario', hora: msge.hora, id: msge.id} as Mensagem],
                                                             ultimaMensagem: msge.texto, hora: msge.hora, contadorMensagens: con.contadorMensagens + 1}
                                                             : con
-                                                        )
+                                                        );
+                                                        const conversaAtual = conversasAtualizadas.find(con=>con.id === conversa.id);
+                                                        const outrasConversas = conversasAtualizadas.filter(con => con.id !== conversa.id);
+
+                                                        return [conversaAtual, ...outrasConversas]
                                                     });
                                                     const container = messagesContainerRef.current;
                                                     setTimeout(() => {

@@ -65,7 +65,7 @@ export async function candidatoRegister(e: MouseEvent<HTMLButtonElement>, candRe
     }
 
     if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(senha)){
-        return {success: false, inputError: {campo:"senha", mensagem:"Senha deve conter letra maiúscula, minúscula, número e símbolo."}}
+        return {success: false, inputError: {campo:"senha", mensagem:"A senha deve conter 8 caracteres, letra maiúscula, minúscula, número e símbolo."}}
     }
     if(senha !== senhaConfirm){
         return {success: false, inputError: {campo:"senhaConfirm", mensagem:"As senhas não coincidem."}}

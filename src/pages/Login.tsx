@@ -11,6 +11,8 @@ import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, forma
 
 // * CSS
 import '../css/login.css'
+import axiosWe from '../utils/axiosInstance';
+import { mostrarErroTopo } from '../utils/globalFunctions';
 // import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
 export default function Login() {
@@ -48,6 +50,8 @@ export default function Login() {
     const [companyRegister, setCompanyRegister] = useState({ email: "", razao_soci: "", nome_fant: "", cnpj: "", telefone: "", senha: "", senhaConfirm: "", cep: "", rua: "", bairro: "", cidade: "", estado: "", numero: "", complemento: "" });
     const [forgotEmail, setForgotEmail] = useState({email: ""});
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const [enviandoEmailTroca, setEnviandoEmailTroca] = useState(false);
    
 
     return (
@@ -748,7 +752,7 @@ export default function Login() {
                                 Recuperar senha
                             </h2>
 
-                            <form id="forgotForm" action="#">
+                            <div id="forgotForm">
                                 <div className="mb-4">
                                     <label htmlFor="forgotEmail" className="block text-white text-sm font-medium mb-2">
                                         Digite seu email
@@ -761,7 +765,7 @@ export default function Login() {
                                         placeholder="seu@email.com"
                                         required
                                         value={forgotEmail.email}
-                                        onChange={(e) => setForgotEmail({ ...forgotEmail, email: e.target.value })}
+                                        onChange={(e) => {limparErroCand();setForgotEmail({ ...forgotEmail, email: e.target.value })}}
                                     />
                                     {sucessoInputCand.campo === "forgotEmail" && (
                                         <div className="flex items-center gap-2 text-green-400 text-sm mt-2 p-2 bg-green-400/10 rounded-lg animate-fade-in">
@@ -780,7 +784,7 @@ export default function Login() {
                                 <button
                                     type="button"
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
-                                    onClick={() => {
+                                    onClick={async() => {
                                         if (!emailRegex.test(forgotEmail.email)) {
                                             setErrorInputCand({
                                                 campo: "forgotEmail",
@@ -790,16 +794,29 @@ export default function Login() {
                                             return;
                                         }
 
-                                        setSucessoInputCand({
-                                            campo: "forgotEmail",
-                                            mensagem: `Verifique a caixa de span. Enviamos instruções para: ${forgotEmail.email}`,
-                                        });
-                                        setErrorInputCand({ campo: "", mensagem: "" });
+                                        try {
+                                            setEnviandoEmailTroca(true);
+                                            await axiosWe.post('/candidatos/senha/solicitar', {email: forgotEmail.email});
+                                            setSucessoInputCand({
+                                                campo: "forgotEmail",
+                                                mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,
+                                            });
+                                        } catch (erro) {
+                                            if(erro.status && erro.status===409){
+                                                mostrarErroTopo("Já existe uma solicitação de troca em andamento para este email.");
+                                            }
+                                            console.error(erro);
+                                            limparSucessoCand();
+                                        } finally {
+                                            setEnviandoEmailTroca(false);
+                                            setErrorInputCand({ campo: "", mensagem: "" });
+                                            setForgotEmail({email:""})
+                                        }
                                     }}
                                 >
-                                    Confirmar
+                                    {enviandoEmailTroca?'Enviando...':'Confirmar'}
                                 </button>
-                            </form>
+                            </div>
                         </div>
                     )}
                 </div>

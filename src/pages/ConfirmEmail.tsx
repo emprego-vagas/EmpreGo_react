@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { reenviarCodigo, validarCodigo } from "../ts/confirmEmailFunctions";
 
 export default function ConfirmEmail(){
@@ -9,8 +9,8 @@ export default function ConfirmEmail(){
     const [msgReenvio, setMsgReenvio] = useState("");
     const [codigo, setCodigo] = useState("");
 
-    const params = new URLSearchParams(window.location.search);
-    const email = params.get('email');
+    const [searchParams] = useSearchParams();
+    const email = searchParams.get('email');
 
     useEffect(() => {
         if (!email) {

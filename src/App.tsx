@@ -17,6 +17,7 @@ import PerfilEmpresa from './pages/PerfilEmpresa';
 import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
 import TimeOut from './pages/TimeOut';
 import ScrollToHash from './components/ScrollToHash';
+import TrocarSenha from './pages/TrocarSenha';
 // import Chats2 from './pages/Chats2';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
@@ -35,6 +36,7 @@ function App() {
         <Route path='/suporte' element={<Suporte />} />
         <Route path='/sobre' element={<Sobre />} />
         <Route path='/confirmar' element={<ConfirmEmail/>} />
+        <Route path='/trocarsenha' element={<TrocarSenha />} />
         <Route path='/teste' element={<Teste/>} />
         <Route path='/loader' element={<Loader/>} />
         <Route path='/chats' element={<Chats/>} />
