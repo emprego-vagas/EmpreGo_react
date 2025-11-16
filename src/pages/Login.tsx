@@ -18,7 +18,13 @@ import { mostrarErroTopo } from '../utils/globalFunctions';
 export default function Login() {
     const navigate = useNavigate();
 
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordLoginCand, setShowPasswordLoginCand] = useState(false);
+    const [showPasswordCadasCand, setShowPasswordCadasCand] = useState(false);
+    const [showPasswordConfirmCadasCand, setshowPasswordConfirmCadasCand] = useState(false);
+    const [showPasswordLoginEmp, setShowPasswordLoginEmp] = useState(false);
+    const [showPasswordCadasEmp, setShowPasswordCadasEmp] = useState(false);
+    const [showPasswordConfirmCadasEmp, setShowPasswordConfirmCadasEmp] = useState(false);
+
     const [activeTab, setActiveTab] = useState<"user-login" | "user-register" | "company-login" | "company-register" | "forgot-password">("user-login");
 
     const switchTab = (tabId: typeof activeTab) => {
@@ -104,7 +110,7 @@ export default function Login() {
                                     <label htmlFor="password" className="block text-white text-sm font-medium mb-2">Senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordLoginCand ? "text" : "password"}
                                             id="password"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Digite sua senha"
@@ -115,9 +121,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setShowPasswordLoginCand((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordLoginCand ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                 </div>
@@ -240,7 +246,7 @@ export default function Login() {
                                     <label htmlFor="registerPassword" className="block text-white text-sm font-medium mb-2">Senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordCadasCand ? "text" : "password"}
                                             id="registerPassword"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Crie uma senha forte"
@@ -251,9 +257,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setShowPasswordCadasCand((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordCadasCand ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                     {errorInputCand.campo === "senha" && (
@@ -267,7 +273,7 @@ export default function Login() {
                                     <label htmlFor="confirmPassword" className="block text-white text-sm font-medium mb-2">Confirmar senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordConfirmCadasCand ? "text" : "password"}
                                             id="confirmPassword"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Confirme sua senha"
@@ -278,9 +284,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setshowPasswordConfirmCadasCand((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordConfirmCadasCand ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                     {errorInputCand.campo === "senhaConfirm" && (
@@ -407,7 +413,7 @@ export default function Login() {
                                     <label htmlFor="empresaSenha" className="block text-white text-sm font-medium mb-2">Senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordLoginEmp ? "text" : "password"}
                                             id="empresaSenha"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Digite sua senha"
@@ -418,9 +424,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setShowPasswordLoginEmp((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordLoginEmp ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                 </div>
@@ -549,7 +555,7 @@ export default function Login() {
                                     <label htmlFor="empresaRegisterPassword" className="block text-white text-sm font-medium mb-2">Senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordCadasEmp ? "text" : "password"}
                                             id="empresaRegisterPassword"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Crie uma senha forte"
@@ -560,9 +566,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setShowPasswordCadasEmp((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordCadasEmp ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                     {erroInputEmp.campo === "senha" && (
@@ -576,7 +582,7 @@ export default function Login() {
                                     <label htmlFor="empresaConfirmPassword" className="block text-white text-sm font-medium mb-2">Confirmar senha</label>
                                     <div className="relative">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPasswordConfirmCadasEmp ? "text" : "password"}
                                             id="empresaConfirmPassword"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Confirme sua senha"
@@ -587,9 +593,9 @@ export default function Login() {
                                         <button
                                             type="button"
                                             className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/30 rounded-full p-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-                                            onClick={() => setShowPassword((p) => !p)}
+                                            onClick={() => setShowPasswordConfirmCadasEmp((p) => !p)}
                                         >
-                                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                            <FontAwesomeIcon icon={showPasswordConfirmCadasEmp ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
                                     {erroInputEmp.campo === "senhaConfirm" && (
