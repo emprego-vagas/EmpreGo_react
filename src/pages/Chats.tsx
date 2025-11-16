@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, fileDownload, mostrarErroTopo } from '../utils/globalFunctions';
+import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -138,6 +138,9 @@ export default function Chats2() {
     const [mensagemEnvio, setMensagemEnvio] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const btnEnviarRef = useRef<HTMLButtonElement | null>(null);
+    const receberEmailRef = useRef<HTMLInputElement | null>(null);
+    const [receberEmail, setReceberEmail] = useState(true);
+    const [quantidadeReceber, setQuantidadeReceber] = useState(100);
 
     const conversaAtualIdRef = useRef(conversaAtualId);
     useEffect(() => {
@@ -319,6 +322,7 @@ export default function Chats2() {
                                 )}
                                 <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
                                     data-id={conversa.id} onClick={async()=>{
+                                        console.log("Favoritar clicado");
                                         if(conversa.favoritada){
                                             setDadosConversas(prev=>{
                                                 return prev.map(con=>
@@ -327,7 +331,8 @@ export default function Chats2() {
                                                     : con
                                                 )
                                             })
-                                            setContadorFavoritos(e=>e-1);
+                                            const valorAtual = contadorFavoritos;
+                                            setContadorFavoritos(valorAtual - 1);
                                             try {
                                                 await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
                                             } catch (erro) {
@@ -339,7 +344,7 @@ export default function Chats2() {
                                                         : con
                                                     )
                                                 })
-                                                setContadorFavoritos(e=>e+1);
+                                                setContadorFavoritos(valorAtual);
                                             }
                                         } else {
                                             if (contadorFavoritos >= 3) {
@@ -353,7 +358,8 @@ export default function Chats2() {
                                                     : con
                                                 )
                                             })
-                                            setContadorFavoritos(e=>e+1);
+                                            const valorAtual = contadorFavoritos;
+                                            setContadorFavoritos(valorAtual + 1);
                                             try {
                                                 await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
                                             } catch (erro) {
@@ -365,7 +371,7 @@ export default function Chats2() {
                                                         : con
                                                     )
                                                 })
-                                                setContadorFavoritos(e=>e-1);
+                                                setContadorFavoritos(valorAtual);
                                             }
                                         }
                                     }}>
@@ -418,7 +424,8 @@ export default function Chats2() {
                                                     : con
                                                 )
                                             })
-                                            setContadorFavoritos(e=>e-1);
+                                            const valorAtual = contadorFavoritos;
+                                            setContadorFavoritos(valorAtual - 1);
                                             try {
                                                 await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
                                             } catch (erro) {
@@ -430,7 +437,7 @@ export default function Chats2() {
                                                         : con
                                                     )
                                                 })
-                                                setContadorFavoritos(e=>e+1);
+                                                setContadorFavoritos(valorAtual);
                                             }
                                         } else {
                                             if (contadorFavoritos >= 3) {
@@ -444,7 +451,8 @@ export default function Chats2() {
                                                     : con
                                                 )
                                             })
-                                            setContadorFavoritos(e=>e+1);
+                                            const valorAtual = contadorFavoritos;
+                                            setContadorFavoritos(valorAtual + 1);
                                             try {
                                                 await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
                                             } catch (erro) {
@@ -456,7 +464,7 @@ export default function Chats2() {
                                                         : con
                                                     )
                                                 });
-                                                setContadorFavoritos(e=>e+1);
+                                                setContadorFavoritos(valorAtual);
                                             }
                                         }
                                     }}>
@@ -865,12 +873,69 @@ export default function Chats2() {
                                 <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                                     <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
                                         <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
+                                        {modalAction.action === 'remove' && (
+                                            <div className="space-y-4 mb-6">
+                                                {/* Checkbox para receber email */}
+                                                <div className="flex items-center space-x-3 p-3 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
+                                                    <input 
+                                                        id='receberEmail'
+                                                        type="checkbox" 
+                                                        ref={receberEmailRef}
+                                                        checked={receberEmail} 
+                                                        onChange={(e) => setReceberEmail(e.target.checked)}
+                                                        className="w-4 h-4 text-blue-600 bg-dark-600 border-dark-500 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                                    />
+                                                    <label 
+                                                        htmlFor="receberEmail" 
+                                                        className="text-gray-300 cursor-pointer select-none"
+                                                    >
+                                                        Receber uma cópia do chat por email?
+                                                    </label>
+                                                </div>
+
+                                                {/* Input para quantidade de mensagens */}
+                                                {receberEmail && (
+                                                    <div className="p-3 bg-dark-700 rounded-lg space-y-2 animate-fadeIn">
+                                                        <label 
+                                                            htmlFor="quantidadeReceber" 
+                                                            className="block text-sm font-medium text-gray-300"
+                                                        >
+                                                            Quantidade máxima de mensagens para receber
+                                                        </label>
+                                                        <input 
+                                                            id='quantidadeReceber'
+                                                            type="number" 
+                                                            value={quantidadeReceber} 
+                                                            onChange={(e) => {
+                                                                const val = e.target.valueAsNumber;
+
+                                                                if (val < 1) return setQuantidadeReceber(1);
+                                                                if (val > 1000) return setQuantidadeReceber(1000);
+
+                                                                setQuantidadeReceber(val);
+                                                            }}
+                                                            min={1}
+                                                            max={1000}
+                                                            className="w-full px-3 py-2 bg-dark-600 border border-dark-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                            placeholder="Ex: 50"
+                                                        />
+                                                        <p className="text-xs text-gray-400">
+                                                            Digite quantas mensagens você deseja receber por email
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="flex justify-center space-x-3">
-                                            <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})}>Cancelar</button>
+                                            <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>{
+                                                setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''});
+                                                setQuantidadeReceber(100);
+                                                setReceberEmail(true);
+                                            }}>Cancelar</button>
                                             <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={async()=>{
                                                 const {action, valor, chatId} = modalAction;
                                                 setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})
-                                                const actionRes = await modalActions(action, chatId, valor);
+                                                const actionRes = await modalActions(action, chatId, valor, {receberEmail, quantidadeReceber});
                                                 if(actionRes.success) {
                                                     switch (action) {
                                                         case 'block': {
@@ -889,13 +954,15 @@ export default function Chats2() {
                                                             setDadosConversas(prev=> {
                                                                 return prev.map((con)=>
                                                                     con.id === chatId ?
-                                                                    {...con, mensagens: [], ultimaMensagem: ''}
+                                                                    {...con, mensagens: [], ultimaMensagem: '', hora: ''}
                                                                     : con
                                                                 )
                                                             });
                                                             break;
                                                         }
                                                         case 'remove': {
+                                                            if(receberEmail) mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
+                                                            if(conversa.favoritada) setContadorFavoritos(e=>e-1);
                                                             setDadosConversas(prev=> {
                                                                 return prev.filter((con)=>
                                                                     con.id !== chatId 

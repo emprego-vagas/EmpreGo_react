@@ -221,10 +221,14 @@ export async function enviarMensagem(mensagem: string, usuario:{id: string, nome
     }
 }
 
+interface RemoveOptions {
+    receberEmail: boolean;
+    quantidadeReceber?: number;
+}
 interface ModalActionsResponse {
     success: boolean;
 }
-export async function modalActions(action: string, id: string, valor?: string): Promise<ModalActionsResponse> {
+export async function modalActions(action: string, id: string, valor?: string, removeOptions?: RemoveOptions): Promise<ModalActionsResponse> {
     switch (action) {
         case 'block': {
             try {
@@ -247,7 +251,12 @@ export async function modalActions(action: string, id: string, valor?: string): 
         }
         case 'remove': {
             try {
-                await axiosWe.delete(`/chats/${id}`);
+                await axiosWe.delete(`/chats/${id}`, {
+                    data: {
+                        receberMensagens: removeOptions.receberEmail,
+                        quantidadeReceber: removeOptions.quantidadeReceber
+                    }
+                });
                 return {success: true};
             } catch (erro) {
                 console.error(erro);
