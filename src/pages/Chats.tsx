@@ -24,7 +24,7 @@ export default function Chats2() {
             navigate('/')
         }, 3000)
     };
-    const [carregando, setCarregando] = useState(false);
+    const [carregando, setCarregando] = useState(true);
 
     useEffect(()=>{
         if(!usuario) return;
@@ -42,7 +42,13 @@ export default function Chats2() {
                         return acc;
                     }, 0)
                 );
-                setCarregando(true);
+                socket.emit('joinChats', (res)=>{
+                    if (res.status==='error'){
+                        mostrarErroTopo(res.message)
+                    } else {
+                        setCarregando(false);
+                    }
+                })
             } catch (erro) {
                 console.error("Erro ao carregar conversas:", erro);
             }
@@ -105,8 +111,8 @@ export default function Chats2() {
                         ? {
                             ...conversa,
                             statusRemetente: user.status,
-                            bloqueadoStatus: false,
-                            bloqueador: null
+                            bloqueadoStatus: user.status === 'Online' ? false : conversa.bloqueadoStatus,
+                            bloqueador: user.status === 'Online' ? null : conversa.bloqueador
                         }
                         : conversa
                 );
@@ -239,7 +245,7 @@ export default function Chats2() {
         );
     }
 
-    if(!carregando) return (<Loader />);
+    if(carregando) return (<Loader />);
 
     return (
         <div className="bg-dark-900 text-white h-screen flex overflow-hidden">
@@ -942,12 +948,16 @@ export default function Chats2() {
                                                             setDadosConversas(prev=> {
                                                                 return prev.map((con)=>
                                                                     con.id === chatId ?
-                                                                    {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador}
+                                                                    {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador, statusRemetente: valor==='true'?'Offline':con.statusRemetente}
                                                                     : con
                                                                 )
                                                             });
                                                             if(valor==='true') socket.emit('leaveRoom', chatId);
-                                                            else socket.emit('joinRoom', chatId);
+                                                            else socket.emit('joinChat', chatId, callback=>{
+                                                                if(callback.status==='error') {
+                                                                    mostrarErroTopo(callback.message);
+                                                                }
+                                                            });
                                                             break;
                                                         }
                                                         case 'clean': {

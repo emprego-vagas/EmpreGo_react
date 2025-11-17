@@ -50,7 +50,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
     const data = response.data;
 
     const conversas = data.map(chat=>{
-        if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
+        // if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
         const ct = conversaConstructor(usuarioTipo, chat);
         return ct;
     })
@@ -66,7 +66,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                 const response = await axiosWe.post('/chats', obj);
                 const chat = response.data;
                 
-                if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
+                // if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
                 const newChat = conversaConstructor(usuarioTipo, chat);
                 conversas.push(newChat);
                 conversaAtual = chat.id;
