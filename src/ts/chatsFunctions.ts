@@ -51,49 +51,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
 
     const conversas = data.map(chat=>{
         if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
-        const ct = {
-            id: chat.id,
-            bloqueadoStatus: chat.bloqueado,
-            bloqueador: chat.bloqueador_tipo,
-            remetente: usuarioTipo === 'candidato' ? chat.empresas.id : String(chat.candidatos.id),
-            statusRemetente: 'Offline',
-            nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
-            ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
-            ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
-            data_criacao: chat.data_criacao,
-            hora: (() => {
-                const msg = chat.mensagens.toReversed()[0]?.data_criacao
-                if(!msg) return '';
-                const horario = new Date(msg);
-                const txtData = hojeOntem(horario);
-                return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
-            })(),
-            naoLidas: (()=>{
-                const naoLidas = chat.mensagens.reduce((ac, msg)=>{
-                    if(msg.de !== usuarioTipo && !msg.status){
-                        ac++
-                    }
-                    return ac;
-                }, 0);
-                return naoLidas;
-            })(),
-            avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
-            favoritada: (usuarioTipo === 'candidato' ? chat.favoritos_chats_cand[0] : chat.favoritos_chats_emp[0]) ? true : false,
-            mensagens: chat.mensagens.map(msg=>{
-                return {
-                    texto: msg.mensagem,
-                    remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
-                    hora: (()=>{
-                        const horario = new Date(msg.data_criacao);
-                        const txtData = hojeOntem(horario);
-                        return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
-                    })(),
-                    datetime: new Date(msg.data_criacao),
-                    id: msg.id
-                }
-            }),
-            contadorMensagens: chat.mensagens.length
-        };
+        const ct = conversaConstructor(usuarioTipo, chat);
         return ct;
     })
     let conversaAtual = '0';
@@ -105,57 +63,12 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
                     empresa: usuarioTipo === 'candidato' ? idAtual : usuarioId,
                     candidato: usuarioTipo === 'candidato' ? usuarioId : idAtual
                 }
-                const response = await axiosWe.post('/chats', obj).catch((err)=>{
-                    console.error(err);
-                    return {data:''}
-                });
-                if(response.data==='') return;
+                const response = await axiosWe.post('/chats', obj);
                 const chat = response.data;
                 
                 if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
-                conversas.push({
-                    id: chat.id,
-                    bloqueadoStatus: chat.bloqueado,
-                    bloqueador: chat.bloqueador_tipo,
-                    remetente: usuarioTipo === 'candidato' ? chat.empresas.id : String(chat.candidatos.id),
-                    statusRemetente: 'Offline',
-                    nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
-                    ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
-                    ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
-                    data_criacao: chat.data_criacao,
-                    hora: (() => {
-                        const msg = chat.mensagens.toReversed()[0]?.data_criacao
-                        if(!msg) return '';
-                        const horario = new Date(msg);
-                        const txtData = hojeOntem(horario);
-                        return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
-                    })(),
-                    naoLidas: (()=>{
-                        const naoLidas = chat.mensagens.reduce((ac, msg)=>{
-                            if(msg.de !== usuarioTipo && !msg.status){
-                                ac++
-                            }
-                            return ac;
-                        }, 0);
-                        return naoLidas;
-                    })(),
-                    avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
-                    favoritada: (usuarioTipo === 'candidato' ? chat.favoritos_chats_cand[0] : chat.favoritos_chats_emp[0]) ? true : false,
-                    mensagens: chat.mensagens.map(msg=>{
-                        return {
-                            texto: msg.mensagem,
-                            remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
-                            hora: (()=>{
-                                const horario = new Date(msg.data_criacao);
-                                const txtData = hojeOntem(horario);
-                                return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
-                            })(),
-                            datetime: new Date(msg.data_criacao),
-                            id: msg.id
-                        }
-                    }),
-                    contadorMensagens: chat.mensagens.length
-                })
+                const newChat = conversaConstructor(usuarioTipo, chat);
+                conversas.push(newChat);
                 conversaAtual = chat.id;
             } catch (erro) {
                 console.error(erro)
@@ -186,6 +99,52 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
         return dataB - dataA;
     });
     return {conversas: conversasSorted, conversaAtual};
+}
+
+function conversaConstructor(usuarioTipo: string, chat) {
+    return {
+        id: chat.id,
+        bloqueadoStatus: chat.bloqueado,
+        bloqueador: chat.bloqueador_tipo,
+        remetente: usuarioTipo === 'candidato' ? chat.empresas.id : String(chat.candidatos.id),
+        statusRemetente: 'Offline',
+        nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
+        ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
+        ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
+        data_criacao: chat.data_criacao,
+        hora: (() => {
+            const msg = chat.mensagens.toReversed()[0]?.data_criacao
+            if(!msg) return '';
+            const horario = new Date(msg);
+            const txtData = hojeOntem(horario);
+            return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
+        })(),
+        naoLidas: (()=>{
+            const naoLidas = chat.mensagens.reduce((ac, msg)=>{
+                if(msg.de !== usuarioTipo && !msg.status){
+                    ac++
+                }
+                return ac;
+            }, 0);
+            return naoLidas;
+        })(),
+        avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
+        favoritada: (usuarioTipo === 'candidato' ? chat.favoritos_chats_cand[0] : chat.favoritos_chats_emp[0]) ? true : false,
+        mensagens: chat.mensagens.map(msg=>{
+            return {
+                texto: msg.mensagem,
+                remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
+                hora: (()=>{
+                    const horario = new Date(msg.data_criacao);
+                    const txtData = hojeOntem(horario);
+                    return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
+                })(),
+                datetime: new Date(msg.data_criacao),
+                id: msg.id
+            }
+        }),
+        contadorMensagens: chat.mensagens.length
+    }
 }
 
 interface EnviarMensagemResponse {

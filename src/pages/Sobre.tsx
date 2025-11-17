@@ -76,7 +76,7 @@ export default function Sobre() {
                                 <p className="text-dark-900 dark:text-dark-50 mb-4">Desenvolvedor Back-end</p>
                                 <div className="flex items-center text-dark-900 dark:text-dark-50">
                                     <i className='bx bx-server mr-2'></i>
-                                    <span>Node.js, Axios, PostegreSQL, Prisma, Tailwind, HTML, JavaScript</span>
+                                    <span>Node.js, Axios, PostegreSQL, Prisma, Tailwind, React, JavaScript, TypeScript</span>
                                 </div>
                             </div>
 
