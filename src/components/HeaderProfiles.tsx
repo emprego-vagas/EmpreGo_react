@@ -4,6 +4,7 @@ import { DadosUsuario, logout } from "../utils/globalFunctions";
 import genPfp from '../assets/imgs/genPfp.png';
 import BIGSlogo from '../assets/imgs/BIGSlogo.png';
 import { useEffect, useRef, useState } from "react";
+import SinoNotificacoes from "./SinoNotificacoes";
 
 export default function HeaderProfiles(){
     const navigate = useNavigate();
@@ -54,6 +55,8 @@ export default function HeaderProfiles(){
                 target="_self">Fórum</Link>
             <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
                 target="_self">Favoritos</Link>
+
+            <SinoNotificacoes />
 
             <div className="header-profile flex items-center gap-3 bg-transparent px-1 py-1 rounded-full cursor-pointer transition-colors hover:bg-gray-700"
                 id="profile-toggle" ref={profileToggleRef}>

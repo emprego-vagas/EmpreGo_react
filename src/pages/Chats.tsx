@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faUsers, faBell, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
 
 import '../css/chat.css';
@@ -15,6 +15,7 @@ import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
 import Loader from '../components/Loader';
 import type { Conversa, Mensagem, MessageSocket, UserStatusSocket } from "../ts/chatsFunctions";
+import SinoNotificacoes from '../components/SinoNotificacoes';
 
 export default function Chats2() {
     const navigate = useNavigate();
@@ -266,10 +267,7 @@ export default function Chats2() {
                     <Link to="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faUsers} className='text-xl' />
                     </Link>
-                    <Link to="#" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
-                        <FontAwesomeIcon icon={faBell} className='text-xl' />
-                        <span className="notification-badge">3</span>
-                    </Link>
+                    <SinoNotificacoes />
                     <Link to={`/perfil/${usuario.tipo}`} className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faStar} className='text-xl' />
                     </Link>
