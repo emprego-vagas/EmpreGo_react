@@ -69,6 +69,8 @@ export function logout(){
   .then(()=>{
     // ? alert('Você foi desconectado.'); Se achar necessario bota um alert pro logout
     DadosUsuario.clearUsuario();
+    localStorage.removeItem('NotificacoesEmpreGo');
+    sessionStorage.clear();
     window.location.href = '/';
   })
 }

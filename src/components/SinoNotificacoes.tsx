@@ -1,70 +1,54 @@
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
+import { carregarNotificacoes, lerNotificacao, lerTodasNotificacoes, type NotificationEG } from "../ts/sinoNotificacoesFunctions";
+import genPfp from '../assets/imgs/genPfp.png';
+import { useNavigate } from "react-router-dom";
+import { DadosUsuario } from "../utils/globalFunctions";
 
 export default function SinoNotificacoes() {
+    const navigate = useNavigate();
+    const [usuario] = useState(DadosUsuario.getUsuario(true));
+    if(!usuario) {
+        setTimeout(()=>{
+            navigate('/')
+        }, 3000)
+    };
+
+    useEffect(()=>{
+        if(!usuario) return;
+        async function carregarAsNotificacoes(){
+            try {
+                const notificacoes = await carregarNotificacoes();
+                
+                setNotifications(notificacoes);
+            } catch (erro) {
+                console.error("Erro ao carregar as notificações:", erro);
+            }
+        }
+        carregarAsNotificacoes();
+    }, [usuario])
+
     const [open, setOpen] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState('left-0');
     const buttonRef = useRef(null);
     const dropdownRef = useRef(null);
-
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            titulo: "Bem-vindo ao sistema!",
-            tipo: "Sistema",
-            texto: "Sua conta foi criada com sucesso. Explore as funcionalidades disponíveis.",
-            lida: false
-        },
-        {
-            id: 2,
-            titulo: "Novo seguidor",
-            tipo: "Novo seguidor",
-            texto: "Maria Silva começou a seguir seu perfil.",
-            lida: false
-        },
-        {
-            id: 3,
-            titulo: "Solicitação de conversa",
-            tipo: "Solicitação de Conversa",
-            texto: "João Santos quer iniciar uma conversa com você.",
-            lida: true
-        },
-        {
-            id: 4,
-            titulo: "Atualização do sistema",
-            tipo: "Sistema",
-            texto: "Nova versão 2.1 disponível com melhorias de performance.",
-            lida: false
-        },
-        {
-            id: 5,
-            titulo: "Novo seguidor",
-            tipo: "Novo seguidor",
-            texto: "Ana Costa começou a seguir seu perfil.",
-            lida: true
-        },
-        {
-            id: 6,
-            titulo: "Lembrete importante",
-            tipo: "Sistema",
-            texto: "Complete seu perfil para melhorar sua experiência.",
-            lida: false
-        }
-    ]);
+    const [notifications, setNotifications] = useState<NotificationEG[]|null>(null);
     
-    const unreadCount = notifications.filter((n) => !n.lida).length;
+    const unreadCount = notifications?.filter((n) => !n.lida).length;
 
-    const marcarComoLida = (id) => {
-        setNotifications(notifications.map(notificacao => 
+    const marcarComoLida = async(id) => {
+        setNotifications(notifications?.map(notificacao => 
             notificacao.id === id ? { ...notificacao, lida: true } : notificacao
         ));
+        await lerNotificacao(id);
     };
 
-    const marcarTodasComoLidas = () => {
-        setNotifications(notifications.map(notificacao => 
+    const marcarTodasComoLidas = async() => {
+        setNotifications(notifications?.map(notificacao => 
             ({ ...notificacao, lida: true })
         ));
+        await lerTodasNotificacoes();
     };
 
     // Calcular posição do dropdown
@@ -74,7 +58,7 @@ export default function SinoNotificacoes() {
             const spaceOnRight = window.innerWidth - buttonRect.right;
             const spaceOnLeft = buttonRect.left;
             
-            if (spaceOnRight >= 350 || spaceOnRight > spaceOnLeft) { // Ajustado para 350px
+            if (spaceOnRight >= 350 || spaceOnRight > spaceOnLeft) {
                 setDropdownPosition('left-0');
             } else {
                 setDropdownPosition('right-0');
@@ -98,7 +82,7 @@ export default function SinoNotificacoes() {
     }, []);
 
     return (
-        <div className="relative inline-block" ref={dropdownRef}>
+        <div className="relative inline-block" ref={dropdownRef} title="Notificações">
             <button
                 ref={buttonRef}
                 onClick={() => setOpen(!open)}
@@ -128,7 +112,7 @@ export default function SinoNotificacoes() {
                         )}
                     </div>
 
-                    {notifications.length === 0 ? (
+                    {notifications && notifications.length === 0 ? (
                         <p className="text-gray-400 text-sm">Nenhuma notificação</p>
                     ) : (
                         <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
@@ -141,30 +125,52 @@ export default function SinoNotificacoes() {
                                     : "border-blue-600 bg-blue-600/10"
                                 }`}
                             >
-                                {/* Botão para marcar como lida - agora dentro dos limites */}
-                                {!n.lida && (
-                                    <button
-                                        onClick={() => marcarComoLida(n.id)}
-                                        className="absolute top-2 right-2 bg-green-600 hover:bg-green-500 text-white w-6 h-6 flex items-center justify-center rounded-full transition-all opacity-100 group-hover:opacity-100 shadow-lg"
-                                        title="Marcar como lida"
-                                    >
-                                        <FontAwesomeIcon icon={faCheck} className="text-xs w-3 h-3" />
-                                    </button>
-                                )}
-                                
-                                <h5 className="text-white font-medium pr-10 break-words">{n.titulo}</h5>
-                                <p className="text-gray-300 text-sm mt-1 break-words">{n.texto}</p>
-                                <div className="flex justify-between items-center mt-2">
-                                    <span className="text-xs text-gray-400">{n.tipo}</span>
-                                    <div className="flex items-center gap-2">
-                                        {n.lida ? (
-                                            <span className="text-xs text-green-400 flex items-center gap-1">
-                                                <FontAwesomeIcon icon={faCheck} className="text-xs" />
-                                                Lida
-                                            </span>
-                                        ) : (
-                                            <span className="text-xs text-blue-400">Não lida</span>
-                                        )}
+                                <div className="flex gap-3">
+                                    {/* Container da imagem */}
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-700 flex items-center justify-center">
+                                        <img 
+                                            src={n.imagem||genPfp} 
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                // Fallback para ícone se a imagem não carregar
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                    
+                                    {/* Conteúdo da notificação */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start">
+                                            <h5 className="text-white font-medium break-words pr-8">{n.titulo}</h5>
+                                            
+                                            {/* Botão para marcar como lida */}
+                                            {!n.lida && (
+                                                <button
+                                                    onClick={() => marcarComoLida(n.id)}
+                                                    className="flex-shrink-0 bg-green-600 hover:bg-green-500 text-white w-6 h-6 flex items-center justify-center rounded-full transition-all opacity-100 group-hover:opacity-100 shadow-lg ml-2"
+                                                    title="Marcar como lida"
+                                                >
+                                                    <FontAwesomeIcon icon={faCheck} className="text-xs w-3 h-3" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        <p className="text-gray-300 text-sm mt-1 break-words">{n.texto}</p>
+                                        
+                                        <div className="flex justify-between items-center mt-2">
+                                            <span className="text-xs text-gray-400">{n.tipo}</span>
+                                            <div className="flex items-center gap-2">
+                                                {n.lida ? (
+                                                    <span className="text-xs text-green-400 flex items-center gap-1">
+                                                        <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                                                        Lida
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-blue-400">Não lida</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
