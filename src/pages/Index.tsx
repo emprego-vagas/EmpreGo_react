@@ -131,7 +131,7 @@ export default function Index(){
                         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-dark-900 dark:text-primary-100 leading-tight mb-6 " id="hero-title">
                             Encontre seu <span className="text-gradient">emprego</span> dos sonhos
                         </h1>
-                        <p className="text-xl md:text-2xl  mb-8" id="hero-subtitle">
+                        <p className="text-xl md:text-2xl text-dark-900 dark:text-primary-100 mb-8" id="hero-subtitle">
                             A plataforma mais inovadora para conectar talentos a oportunidades incríveis no mercado de
                             trabalho brasileiro.
                         </p>
@@ -205,7 +205,7 @@ export default function Index(){
                     <h2 className="text-4xl md:text-5xl font-bold text-dark-900 dark:text-primary-100 mb-4">
                         Nossos <span className="text-gradient">Serviços</span>
                     </h2>
-                    <p className="text-xl max-w-3xl mx-auto">
+                    <p className="text-xl max-w-3xl text-dark-900 dark:text-primary-100 mx-auto">
                         Oferecemos soluções completas para candidatos e empresas alcançarem seus objetivos profissionais.
                     </p>
                 </div>
@@ -288,7 +288,7 @@ export default function Index(){
                     <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
                         Nossos <span className="text-gradient">Talentos</span>
                     </h2>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    <p className="text-xl text-dark-900 dark:text-primary-100 max-w-3xl mx-auto">
                         Equipe de desenvolvedores
                     </p>
                 </div>

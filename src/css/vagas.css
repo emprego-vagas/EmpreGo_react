@@ -1,0 +1,535 @@
+/* Cores da Twitch */
+    body {
+      background-color: #0E0E10;
+      color: #EFEFF1;
+    }
+
+    #tipoEmpresas {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #18181B;
+  border: 2px solid #9146FF;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.25rem;
+  border-radius: 9999px;
+  padding-right: 3rem;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 8L10 13L15 8' stroke='%239146FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#tipoEmpresas:hover, #tipoEmpresas:focus {
+  border-color: #AF78FF;
+  box-shadow: 0 0 0 2px #AF78FF55;
+  background-color: #232329;
+}
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #18181B;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #9146FF;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #AF78FF;
+    }
+
+    /* Estilos do slider (mantidos conforme solicitado) */
+    .recomendacoes-swiper {
+      width: 100%;
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      position: relative;
+      border-radius: 18px;
+    }
+
+    .swiper-slide {
+      background-color: #18181B;
+      color: #EFEFF1;
+      padding: 3rem 2rem;
+      box-sizing: border-box;
+      height: auto;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .swiper-slide-active {
+      opacity: 1;
+    }
+
+    .slide-content {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .slide-empresa {
+      display: block;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-titulo {
+      font-size: 2rem;
+      margin: 0 0 1.5rem;
+      color: #EFEFF1;
+      line-height: 1.2;
+    }
+
+    .slide-texto {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 0 0 2rem;
+      padding: 0;
+      font-style: italic;
+      position: relative;
+    }
+
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .swiper-button-next {
+      position: absolute;
+      transform: translate(50%, -50%);
+      z-index: 10;
+    }
+
+    .swiper-button-prev {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .swiper-button-next:hover {
+      position: absolute;
+      width: 250px;
+      height: 750px;
+      background-color: rgba(255, 255, 255, 0);
+      box-shadow: inset -120px 0 100px rgba(255, 255, 255, 0.8);
+    }
+
+    .swiper-button-prev:hover {
+      position: absolute;
+      width: 250px;
+      height: 750px;
+      background-color: rgba(255, 255, 255, 0);
+      box-shadow: inset 120px 0 100px rgba(255, 255, 255, 0.8);
+    }
+
+    .swiper-button-prev::after,
+    .swiper-button-next::after {
+      position: absolute;
+      width: 250px;
+      height: 750px;
+    }
+
+    .swiper-pagination-bullet {
+      width: 12px;
+      height: 12px;
+      background: red;
+      border: 2px solid white;
+      opacity: 1;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .swiper-pagination-bullet-active {
+      transform: scale(1.2);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+
+    .swiper-pagination-bullet::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: rgb(255, 255, 255);
+      border-radius: 50%;
+    }
+
+    @media (max-width: 768px) {
+      .slide-titulo {
+        font-size: 1.5rem;
+      }
+
+      .slide-texto {
+        font-size: 1rem;
+      }
+
+      .swiper-button-prev,
+      .swiper-button-next {
+        width: 40px;
+        height: 40px;
+      }
+
+      .swiper-button-prev::after,
+      .swiper-button-next::after {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .swiper-slide {
+        padding: 2rem 1.5rem;
+      }
+
+      .slide-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .swiper-button-prev,
+      .swiper-button-next {
+        width: 35px;
+        height: 35px;
+      }
+
+      .swiper-button-prev::after,
+      .swiper-button-next::after {
+        font-size: 1rem;
+      }
+    }
+
+    /* Estilos de animação para os filtros */
+    .filter-chips-container {
+      display: none;
+    }
+
+    .filter-chips-container.open {
+      display: block;
+      animation: dropdown-fade-in 0.18s;
+    }
+
+    @keyframes dropdown-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .profile-dropdown {
+      display: none;
+      animation: dropdown-fade-in 0.18s;
+    }
+
+    .profile-dropdown.show {
+      display: flex;
+    }
+
+    /* Ajustes específicos para melhorar a acessibilidade visual */
+    .filter-chip:focus,
+    .favorite-btn:focus,
+    .ver-mais-btn:focus,
+    .ver-todas-btn:focus {
+      outline: 2px solid #9146FF;
+      outline-offset: 2px;
+    }
+
+    /* Melhorar contraste para acessibilidade */
+    .text-dark-400 {
+      color: #94a3b8;
+    }
+
+    /* Efeito de pulso para os chips quando clicados */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .tag-chip.clicked {
+      animation: pulse 0.3s ease;
+    }
+
+    /* Classe para sidebar aberta */
+    .sidebar-open {
+      transform: translateX(0) !important;
+    }
+
+    /* Estilo para estrela ativa */
+    .favorite-btn.active {
+      color: #fbbf24 !important;
+    }
+
+    /* Estilos para botões roxos com animação */
+    .btn-primary {
+      background-color: #9146FF;
+      /* Roxo da Twitch */
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #AF78FF;
+      /* Roxo claro da Twitch */
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-primary {
+      background-color: transparent;
+      border: 2px solid #9146FF;
+      color: #9146FF;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: #9146FF;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Novos estilos para os filtros categorizados */
+    .filter-category {
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      cursor: pointer;
+      background-color: #18181B;
+      border-radius: 0.25rem;
+      transition: background-color 0.2s;
+    }
+
+    .filter-category-header:hover {
+      background-color: #252529;
+    }
+
+    .filter-category-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .filter-category-content.open {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .filter-category-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.5rem;
+    }
+
+    /* Container de filtros com tamanho fixo e scroll */
+    .filter-chips-container {
+      max-height: 400px;
+      overflow-y: auto;
+      width: 350px;
+    }
+
+    /* NOVOS ESTILOS PARA OS CHIPS - CINZA ESCURO E ROXO AO CLICAR */
+    .filter-chip,
+    .tag-chip {
+      background-color: #2D2D2D !important;
+      /* Cinza escuro */
+      color: #EFEFF1 !important;
+      transition: all 0.3s ease;
+    }
+
+    .filter-chip.selected,
+    .tag-chip.selected,
+    .filter-chip[aria-pressed="true"],
+    .tag-chip[aria-pressed="true"] {
+      background-color: #9146FF !important;
+      /* Roxo quando selecionado */
+    }
+
+    .filter-chip:hover,
+    .tag-chip:hover {
+      background-color: #3D3D3D !important;
+      /* Cinza um pouco mais claro no hover */
+    }
+
+    .filter-chip.selected:hover,
+    .tag-chip.selected:hover,
+    .filter-chip[aria-pressed="true"]:hover,
+    .tag-chip[aria-pressed="true"]:hover {
+      background-color: #AF78FF !important;
+      /* Roxo claro no hover quando selecionado */
+    }
+
+    /* NOVOS ESTILOS PARA FAVORITOS NA SIDEBAR */
+    .favoritos-container {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      max-height: 300px;
+      /* Altura máxima antes de aparecer o scroll */
+      overflow-y: auto;
+    }
+
+    .favoritos-container.scrollable {
+      overflow-y: scroll;
+    }
+
+    /* Estilizar a scrollbar para combinar com o tema */
+    .favoritos-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .favoritos-container::-webkit-scrollbar-track {
+      background: #1a1a1a;
+      border-radius: 3px;
+    }
+
+    .favoritos-container::-webkit-scrollbar-thumb {
+      background: #9146FF;
+      border-radius: 3px;
+    }
+
+    .favoritos-container::-webkit-scrollbar-thumb:hover {
+      background: #AF78FF;
+    }
+
+    .favorito-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.25rem;
+      transition: background-color 0.2s;
+    }
+
+    .favorito-item:hover {
+      background-color: #252529;
+    }
+
+    .favorito-info {
+      flex-grow: 1;
+      margin-left: 0.5rem;
+      overflow: hidden;
+    }
+
+    .favorito-nome {
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .favorito-categoria {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .favorito-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .chat-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #9146FF;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chat-btn:hover {
+      background-color: #AF78FF;
+      transform: scale(1.1);
+    }
+
+    .favorito-star {
+      color: #fbbf24;
+      margin-right: 0.25rem;
+    }
+
+    .ver-mais-favoritos {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      background-color: #252529;
+      border-radius: 0.25rem;
+      color: #EFEFF1;
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: background-color 0.2s;
+    }
+
+    .ver-mais-favoritos:hover {
+      background-color: #9146FF;
+    }
+
+    .favoritos-select {
+      width: 100%;
+      background-color: #18181B;
+      color: #EFEFF1;
+      border: 1px solid #3D3D3D;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .favoritos-select:focus {
+      outline: none;
+      border-color: #9146FF;
+    }
+
+    .favoritos-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .favoritos-container::-webkit-scrollbar-thumb {
+      background-color: #9147ff;
+      border-radius: 3px;
+    }
+
+    .favoritos-container::-webkit-scrollbar-track {
+      background-color: #1f1f1f;
+    }
+
+    .empresas-container {
+      grid-template-columns: repeat(3, 1fr);
+    }
