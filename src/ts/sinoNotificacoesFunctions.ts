@@ -77,3 +77,14 @@ export async function lerTodasNotificacoes(): Promise<void> {
         console.error('Erro ao ler notificações:',erro);
     }
 }
+
+export function novaNotificacaoLocalStorage(newNotif: NotificationEG){
+    const notifCachedString = localStorage.getItem('NotificacoesEmpreGo');
+    if(notifCachedString){
+        const notifCachedJson: {updatedAt: number, ownerId: string, notifs: NotificationEG[]} = JSON.parse(notifCachedString);
+        notifCachedJson.notifs = [newNotif, ...notifCachedJson.notifs];
+        notifCachedJson.updatedAt = new Date(newNotif.data_criacao).getTime();
+        const newNotifString = JSON.stringify(notifCachedJson);
+        localStorage.setItem('NotificacoesEmpreGo', newNotifString);
+    }
+}

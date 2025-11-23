@@ -18,12 +18,27 @@ import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
 import TimeOut from './pages/TimeOut';
 import ScrollToHash from './components/ScrollToHash';
 import TrocarSenha from './pages/TrocarSenha';
+import socket from './utils/socketsConnection';
+import { novaNotificacaoLocalStorage, type NotificationEG } from './ts/sinoNotificacoesFunctions';
+import { useEffect } from 'react';
 // import Chats2 from './pages/Chats2';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
 
 function App() {
   // const usuario = DadosUsuario.getUsuario();
+  useEffect(()=>{
+    function receivedNotification(newNotification: NotificationEG){
+      novaNotificacaoLocalStorage(newNotification);
+    }
+
+    socket.on('receivedNotification', receivedNotification);
+
+    return () => {
+      socket.off('receivedNotification', receivedNotification);
+    };
+  }, [])
+  
   return (
     <BrowserRouter>
       <ScrollToHash />

@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload, faClock, faCheck } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
 
 import '../css/chat.css';
@@ -10,7 +10,8 @@ import genPfp from '../assets/imgs/genPfp.png';
 import PDFpng from '../assets/imgs/PDF.png';
 import DOCXICONROXO from '../assets/imgs/DOCXICONROXO.png'
 import TXTAZUL from '../assets/imgs/TXTAZUL.png'
-import { carregarConversasBack, enviarMensagem, modalActions, validarSeEhArquivo } from '../ts/chatsFunctions';
+import { carregarConversasBack, conversaConstructor, enviarMensagem, enviarSolicitacaoConversa, modalActions, validarSeEhArquivo } from '../ts/chatsFunctions';
+import type { NovaSolicitacaoConversa, SolicitacaoConversa } from '../ts/chatsFunctions';
 import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
 import Loader from '../components/Loader';
@@ -36,16 +37,32 @@ export default function Chats2() {
             try {
                 const conversasInit = await carregarConversasBack(usuario, id);
                 setDadosConversas(conversasInit.conversas);
-                setConversaAtualId(conversasInit.conversaAtual);
+                setNovaSolicitacao(conversasInit.novaSolicitacao||null);
+                setSolicitacoes(conversasInit.solicitacoes);
                 setContadorFavoritos(conversasInit.conversas.reduce(
                     (acc, dado) => {
                         if (dado.favoritada) acc++;
                         return acc;
                     }, 0)
                 );
+
+                if (conversasInit.conversaAtual && conversasInit.conversaAtual !== '0') {
+                    setTimeout(() => {
+                        setConversaAtualId(conversasInit.conversaAtual);
+                    }, 300);
+                } else {
+                    setConversaAtualId('0');
+                }
+
                 socket.emit('joinChats', (res)=>{
                     if (res.status==='error'){
-                        mostrarErroTopo(res.message)
+                        socket.emit('joinChats', (res)=>{
+                            if (res.status==='error'){
+                                mostrarErroTopo('Erro ao entrar nas conversas, tente recarregar a página.')
+                            } else {
+                                setCarregando(false);
+                            }
+                        })
                     } else {
                         setCarregando(false);
                     }
@@ -142,12 +159,14 @@ export default function Chats2() {
     const inputDocRef = useRef<HTMLInputElement | null>(null);
     const inputImgRef = useRef<HTMLInputElement | null>(null);
     const inputCamRef = useRef<HTMLInputElement | null>(null);
-    const [mensagemEnvio, setMensagemEnvio] = useState("");
+    const [mensagemEnvio, setMensagemEnvio] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const btnEnviarRef = useRef<HTMLButtonElement | null>(null);
     const receberEmailRef = useRef<HTMLInputElement | null>(null);
     const [receberEmail, setReceberEmail] = useState(true);
     const [quantidadeReceber, setQuantidadeReceber] = useState(100);
+    const [novaSolicitacao, setNovaSolicitacao] = useState<NovaSolicitacaoConversa|null>(null);
+    const [enviandoSolicitacao, setEnviandoSolicitacao] = useState(false);
 
     const conversaAtualIdRef = useRef(conversaAtualId);
     useEffect(() => {
@@ -246,6 +265,133 @@ export default function Chats2() {
         );
     }
 
+    const [mostrarSolicitacoes, setMostrarSolicitacoes] = useState(false);
+  
+    // Dados de exemplo
+    const [solicitacoes, setSolicitacoes] = useState<SolicitacaoConversa[]>([
+        {
+            id: '1',
+            usuario_id: 'emp-123',
+            usuario_nome: 'Tech Solutions LTDA',
+            usuario_foto: '/images/empresa1.jpg',
+            tipo: 'recebida',
+            status: 'pendente'
+        },
+        {
+            id: '2',
+            usuario_id: 'cand-456',
+            usuario_nome: 'João Silva',
+            usuario_foto: '/images/candidato1.jpg',
+            tipo: 'enviada',
+            status: 'pendente'
+        },
+        {
+            id: '3',
+            usuario_id: 'emp-789',
+            usuario_nome: 'Startup Inovação',
+            usuario_foto: '/images/empresa2.jpg',
+            tipo: 'recebida',
+            status: 'pendente'
+        },
+        {
+            id: '4',
+            usuario_id: 'cand-101',
+            usuario_nome: 'Maria Santos',
+            usuario_foto: '/images/candidato2.jpg',
+            tipo: 'enviada',
+            status: 'pendente'
+        }
+    ]);
+
+    const aceitarSolicitacao = async(id: string, destinatarioid: string) => {
+        setSolicitacoes(prev => prev.map(sol => 
+        sol.id === id ? { ...sol, status: 'aceita' } : sol
+        ));
+        try {
+            const response = await axiosWe.post('/chats', {solicitacaoId: id});
+            const novaConversa: Conversa = conversaConstructor(usuario.tipo, response.data);
+            setDadosConversas([novaConversa, ...dadosConversas]);
+            socket.emit('joinChat', novaConversa.id, callback=>{
+                if(callback.status==='error') {
+                    mostrarErroTopo(callback.message);
+                }
+            });
+            socket.emit('sendNotification',{
+                remetente: {
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    tipo: usuario.tipo,
+                    foto: usuario.foto
+                },
+                destinatario: {
+                    id: destinatarioid,
+                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+                },
+                solicitacao_conversa: {
+                    action: 'aceitar'
+                }
+            });
+        } catch (erro) {
+            console.error('Erro ao aceitar solicitação:',erro)
+        }
+    };
+
+    const recusarSolicitacao = async(id: string, destinatarioid: string) => {
+        setSolicitacoes(prev => prev.map(sol => 
+        sol.id === id ? { ...sol, status: 'recusada' } : sol
+        ));
+        try {
+            if(usuario.tipo==='candidato') await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
+            else await axiosWe.delete(`/empresas/conversa/remover/${id}`);
+            socket.emit('sendNotification',{
+                remetente: {
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    tipo: usuario.tipo,
+                    foto: usuario.foto
+                },
+                destinatario: {
+                    id: destinatarioid,
+                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+                },
+                solicitacao_conversa: {
+                    action: 'recusar'
+                }
+            });
+        } catch (erro) {
+            console.error('Erro ao recusar solicitação:',erro)
+        }
+    };
+
+    const cancelarSolicitacao = async(id: string, destinatarioid: string) => {
+        setSolicitacoes(prev => prev.filter(sol => sol.id !== id));
+        try {
+            if(usuario.tipo==='candidato') await axiosWe.delete(`/empresas/conversa/remover/${id}`);
+            else await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
+            socket.emit('sendNotification',{
+                remetente: {
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    tipo: usuario.tipo,
+                    foto: usuario.foto
+                },
+                destinatario: {
+                    id: destinatarioid,
+                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+                },
+                solicitacao_conversa: {
+                    action: 'cancelar'
+                }
+            });
+        } catch (erro) {
+            console.error('Erro ao cancelar solicitação:',erro)
+        }
+    };
+
+    // Filtrar solicitações
+    const solicitacoesRecebidas = solicitacoes.filter(sol => sol.tipo === 'recebida' && sol.status === 'pendente');
+    const solicitacoesEnviadas = solicitacoes.filter(sol => sol.tipo === 'enviada' && sol.status === 'pendente');
+
     if(carregando) return (<Loader />);
 
     return (
@@ -264,8 +410,137 @@ export default function Chats2() {
                     <Link to="/" className="sidebar-icon text-gray-400 hover:text-white transition-colors">
                         <FontAwesomeIcon icon={faHouse} className='text-xl' />
                     </Link>
-                    <div className="sidebar-icon text-gray-400 hover:text-white transition-colors cursor-pointer" title='Solicitações de Conversa'>
+                    <div className="relative">
+                    {/* Ícone para abrir/fechar */}
+                    <div 
+                        className="sidebar-icon text-gray-400 hover:text-white transition-colors cursor-pointer" 
+                        title='Solicitações de Conversa'
+                        onClick={() => setMostrarSolicitacoes(!mostrarSolicitacoes)}
+                    >
                         <FontAwesomeIcon icon={faUsers} className='text-xl' />
+                        
+                        {/* Badge de notificação */}
+                        {solicitacoesRecebidas.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {solicitacoesRecebidas.length}
+                        </span>
+                        )}
+                    </div>
+
+                    {/* Modal de Solicitações - CORRIGIDO PARA ABRIR À DIREITA */}
+                    {mostrarSolicitacoes && (
+                        <div className="absolute left-full top-0 ml-2 w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                        <div className="p-4 border-b border-gray-700">
+                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                            <FontAwesomeIcon icon={faUsers} />
+                            Solicitações de Conversa
+                            </h3>
+                        </div>
+
+                        {/* Solicitações Recebidas */}
+                        {solicitacoesRecebidas.length > 0 && (
+                            <div className="p-4 border-b border-gray-700">
+                            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                                <FontAwesomeIcon icon={faClock} className="text-blue-400" />
+                                Recebidas ({solicitacoesRecebidas.length})
+                            </h4>
+                            
+                            <div className="space-y-3">
+                                {solicitacoesRecebidas.map(solicitacao => (
+                                <div key={solicitacao.id} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                    <img 
+                                        src={solicitacao.usuario_foto === '/assets/imgs/genPfp.png' ? genPfp : solicitacao.usuario_foto} 
+                                        alt={solicitacao.usuario_nome}
+                                        className="w-10 h-10 rounded-full object-cover"
+                                        onError={(e) => {
+                                        (e.target as HTMLImageElement).src = genPfp;
+                                        }}
+                                    />
+                                    <div>
+                                        <p className="text-white text-sm font-medium">{solicitacao.usuario_nome}</p>
+                                        <p className="text-gray-400 text-xs">Quer conversar com você</p>
+                                    </div>
+                                    </div>
+                                    
+                                    <div className="flex gap-1">
+                                    <button
+                                        onClick={() => aceitarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                        className="p-2 text-green-400 hover:bg-green-400 hover:text-white rounded transition-colors"
+                                        title="Aceitar"
+                                    >
+                                        <FontAwesomeIcon icon={faCheck} />
+                                    </button>
+                                    <button
+                                        onClick={() => recusarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                        className="p-2 text-red-400 hover:bg-red-400 hover:text-white rounded transition-colors"
+                                        title="Recusar"
+                                    >
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
+                                    </div>
+                                </div>
+                                ))}
+                            </div>
+                            </div>
+                        )}
+
+                        {/* Solicitações Enviadas */}
+                        {solicitacoesEnviadas.length > 0 && (
+                            <div className="p-4">
+                            <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                                <FontAwesomeIcon icon={faClock} className="text-yellow-400" />
+                                Enviadas ({solicitacoesEnviadas.length})
+                            </h4>
+                            
+                            <div className="space-y-3">
+                                {solicitacoesEnviadas.map(solicitacao => (
+                                <div key={solicitacao.id} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                    <img 
+                                        src={solicitacao.usuario_foto === '/assets/imgs/genPfp.png' ? genPfp : solicitacao.usuario_foto} 
+                                        alt={solicitacao.usuario_nome}
+                                        className="w-10 h-10 rounded-full object-cover"
+                                        onError={(e) => {
+                                        (e.target as HTMLImageElement).src = genPfp;
+                                        }}
+                                    />
+                                    <div>
+                                        <p className="text-white text-sm font-medium">{solicitacao.usuario_nome}</p>
+                                        <p className="text-gray-400 text-xs">Aguardando resposta</p>
+                                    </div>
+                                    </div>
+                                    
+                                    <button
+                                    onClick={() => cancelarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                    className="p-2 text-red-400 hover:bg-red-400 hover:text-white rounded transition-colors"
+                                    title="Cancelar solicitação"
+                                    >
+                                    <FontAwesomeIcon icon={faTimes} />
+                                    </button>
+                                </div>
+                                ))}
+                            </div>
+                            </div>
+                        )}
+
+                        {/* Mensagem quando não há solicitações */}
+                        {solicitacoesRecebidas.length === 0 && solicitacoesEnviadas.length === 0 && (
+                            <div className="p-8 text-center">
+                            <FontAwesomeIcon icon={faUsers} className="text-gray-500 text-3xl mb-2" />
+                            <p className="text-gray-400 text-sm">Nenhuma solicitação de conversa</p>
+                            </div>
+                        )}
+                        </div>
+                    )}
+
+                    {/* Overlay para fechar ao clicar fora - POSICIONAMENTO CORRETO */}
+                    {mostrarSolicitacoes && (
+                        <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setMostrarSolicitacoes(false)}
+                        />
+                    )}
                     </div>
                     <SinoNotificacoes />
                     <Link to={`/perfil/${usuario.tipo}`} className="sidebar-icon text-gray-400 hover:text-white transition-colors">
@@ -640,13 +915,17 @@ export default function Chats2() {
                                                 {(()=>{
                                                     if(!ehArquivo.eh){
                                                         return (
-                                                            <div className={`max-w-md px-3 py-2 text-sm shadow-md flex items-end gap-2
+                                                            <div className={`max-w-md px-3 py-2 text-sm shadow-md
                                                                 ${ehUsuario
-                                                                        ? 'bg-purple-900 text-white rounded-2xl rounded-br-sm'
-                                                                        : 'bg-gray-700 text-gray-100 rounded-2xl rounded-bl-sm'}`}>
+                                                                    ? 'bg-purple-900 text-white rounded-2xl rounded-br-sm'
+                                                                    : 'bg-gray-700 text-gray-100 rounded-2xl rounded-bl-sm'}`}>
                                                                 
-                                                                <p className="whitespace-pre-wrap wrap-break-word">{transformarLinksEmAnchors(msg.texto)}</p>
-                                                                <span className="text-[10px] opacity-80">{msg.hora}</span>
+                                                                <div className="flex justify-between items-start gap-3">
+                                                                    <p className="whitespace-pre-wrap break-words flex-1 min-w-0">
+                                                                        {transformarLinksEmAnchors(msg.texto)}
+                                                                    </p>
+                                                                    <span className="text-[10px] opacity-80 flex-shrink-0 mt-0.5">{msg.hora}</span>
+                                                                </div>
                                                             </div>
                                                         )
                                                     } else if(ehArquivo.tipo==='raw'){                                                        
@@ -992,6 +1271,87 @@ export default function Chats2() {
                         </>
                     )}
                 )()}
+                {novaSolicitacao && (
+                    <div id="modalSolicitacaoConversa"
+                        className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                        <div className="bg-dark-800 rounded-xl p-6 w-full max-w-md mx-4">
+                            <h3 className="text-lg font-semibold mb-4 text-center">
+                                <strong>Solicitar conversa?</strong>
+                            </h3>
+                            
+                            {/* Informações da empresa */}
+                            <div className="bg-dark-700 rounded-xl p-4 mb-4 flex items-center">
+                                <img 
+                                    src={novaSolicitacao.imagem === '/assets/imgs/genPfp.png' ? genPfp : novaSolicitacao.imagem} 
+                                    alt={novaSolicitacao.nome}
+                                    className="w-12 h-12 rounded-full object-cover mr-4"
+                                    onError={(e) => {
+                                        e.currentTarget.src = genPfp;
+                                    }}
+                                />
+                                <div className="flex-1">
+                                    <span className="text-white font-semibold block">
+                                        {novaSolicitacao.nome}
+                                    </span>
+                                    <span className="text-gray-400 text-sm block">
+                                        {novaSolicitacao.tipo}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-300 text-center mb-6 text-sm">
+                                Deseja enviar uma solicitação de conversa para {novaSolicitacao.tipo==='Empresa'?'esta empresa':'este candidato'}?
+                            </p>
+
+                            <div className="flex justify-center space-x-3">
+                                <button 
+                                    id="btnCancelarSolicitacao"
+                                    className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer"
+                                    onClick={() => setNovaSolicitacao(null)}
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    id="btnConfirmarSolicitacao" disabled={enviandoSolicitacao}
+                                    className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer"
+                                    onClick={async() => {
+                                        setEnviandoSolicitacao(true);
+                                        const enviou = await enviarSolicitacaoConversa(usuario.tipo, novaSolicitacao.id);
+                                        if(enviou.foi) {
+                                            mostrarSucessoTopo('Solicitação de conversa enviada com sucesso!');
+                                            socket.emit('sendNotification',{
+                                                remetente: {
+                                                    id: usuario.id,
+                                                    nome: usuario.nome,
+                                                    tipo: usuario.tipo,
+                                                    foto: usuario.foto
+                                                },
+                                                destinatario: {
+                                                    id: novaSolicitacao.id,
+                                                    tipo: novaSolicitacao.tipo.toLowerCase()
+                                                },
+                                                solicitacao_conversa: {
+                                                    action: 'criar'
+                                                }
+                                            })
+                                            setSolicitacoes([{
+                                                id: enviou.solicitacaoId!,
+                                                usuario_id: novaSolicitacao.id,
+                                                usuario_nome: novaSolicitacao.nome,
+                                                usuario_foto: novaSolicitacao.imagem,
+                                                tipo: 'enviada',
+                                                status: 'pendente'
+                                            }, ...solicitacoes]);
+                                        };
+                                        setNovaSolicitacao(null);
+                                    }}
+                                >
+                                    {enviandoSolicitacao?'Enviando...':'Confirmar'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     )

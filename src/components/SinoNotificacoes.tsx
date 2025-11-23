@@ -5,6 +5,7 @@ import { carregarNotificacoes, lerNotificacao, lerTodasNotificacoes, type Notifi
 import genPfp from '../assets/imgs/genPfp.png';
 import { useNavigate } from "react-router-dom";
 import { DadosUsuario } from "../utils/globalFunctions";
+import socket from "../utils/socketsConnection";
 
 export default function SinoNotificacoes() {
     const navigate = useNavigate();
@@ -22,11 +23,24 @@ export default function SinoNotificacoes() {
                 const notificacoes = await carregarNotificacoes();
                 
                 setNotifications(notificacoes);
+
+                socket.emit('joinNotifications', usuario);
             } catch (erro) {
                 console.error("Erro ao carregar as notificações:", erro);
             }
         }
         carregarAsNotificacoes();
+
+        function receivedNotification(newNotification: NotificationEG){
+            console.log('Recebi Notificação Componente')
+            setNotifications(prev=>[newNotification, ...prev]);
+        }
+
+        socket.on('receivedNotification', receivedNotification);
+
+        return ()=> {
+            socket.off('receivedNotification', receivedNotification);
+        }
     }, [usuario])
 
     const [open, setOpen] = useState(false);
@@ -129,7 +143,7 @@ export default function SinoNotificacoes() {
                                     {/* Container da imagem */}
                                     <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-700 flex items-center justify-center">
                                         <img 
-                                            src={n.imagem||genPfp} 
+                                            src={n.imagem==='/assets/imgs/genPfp.png'?genPfp:n.imagem} 
                                             alt=""
                                             className="w-full h-full object-cover"
                                             onError={(e) => {

@@ -1,4 +1,5 @@
 import axiosWe from "../utils/axiosInstance";
+import { mostrarAvisoTopo } from "../utils/globalFunctions";
 import socket from "../utils/socketsConnection";
 
 export interface Mensagem {
@@ -38,16 +39,52 @@ export interface UserStatusSocket {
     room: string;
 };
 
+export interface NovaSolicitacaoConversa {
+    imagem: string;
+    nome: string;
+    id: string;
+    tipo: string;
+}
+
+export interface SolicitacaoConversa {
+  id: string;
+  usuario_id: string;
+  usuario_nome: string;
+  usuario_foto: string;
+  tipo: 'enviada' | 'recebida';
+  status: 'pendente' | 'aceita' | 'recusada';
+};
+
 interface CarregarConversasBackResponse {
     conversas: Conversa[];
     conversaAtual: string;
+    novaSolicitacao?: NovaSolicitacaoConversa;
+    solicitacoes: SolicitacaoConversa[];
 }
 export async function carregarConversasBack(usuario: {tipo: string, nome: string, id: string}, idAtual: string): Promise<CarregarConversasBackResponse>{
     const usuarioTipo = usuario.tipo;
-    const usuarioId = usuario.id;
 
-    const response = usuarioTipo === 'candidato' ? await axiosWe('/chats/candidato'): await axiosWe('/chats/empresa');
-    const data = response.data;
+    const response = usuarioTipo === 'candidato' ? await axiosWe('/custom/chats-candidatos'): await axiosWe('/custom/chats-empresas');
+    const data = response.data.chats;
+    const { solicitacoes_chat_p_candidatos, solicitacoes_chat_p_empresas } = response.data;
+
+    const ehCandidato = usuarioTipo === 'candidato';
+    let solicitacoes: SolicitacaoConversa[] = solicitacoes_chat_p_candidatos.map(sol=>({
+        id: sol.id,
+        usuario_id: ehCandidato ? sol.empresas.id : sol.candidatos.id,
+        usuario_nome: ehCandidato ? sol.empresas.nome_fant : sol.candidatos.nome,
+        usuario_foto: ehCandidato ? sol.empresas.foto : sol.candidatos.foto,
+        tipo: ehCandidato ? 'recebida': 'enviada',
+        status: 'pendente'
+    }));
+    solicitacoes = [...solicitacoes, ...(solicitacoes_chat_p_empresas.map(sol=>({
+        id: sol.id,
+        usuario_id: ehCandidato ? sol.empresas.id : sol.candidatos.id,
+        usuario_nome: ehCandidato ? sol.empresas.nome_fant : sol.candidatos.nome,
+        usuario_foto: ehCandidato ? sol.empresas.foto : sol.candidatos.foto,
+        tipo: ehCandidato ? 'enviada': 'recebida',
+        status: 'pendente'
+    })))];
 
     const conversas = data.map(chat=>{
         // if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
@@ -55,21 +92,27 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
         return ct;
     })
     let conversaAtual = '0';
+    let novaSolicitacao: NovaSolicitacaoConversa;
+
     if(idAtual) {
         const atual = conversas.find(cvs => cvs.remetente === idAtual)?.id;
         if(!atual){
             try {
-                const obj = {
-                    empresa: usuarioTipo === 'candidato' ? idAtual : usuarioId,
-                    candidato: usuarioTipo === 'candidato' ? usuarioId : idAtual
+                const empOuCand =  usuarioTipo === 'candidato' ? 'empresas' : 'candidatos';
+                const response = await axiosWe(`/${empOuCand}/single/${idAtual}?use_myid=true`);
+                const solicitacao = response.data;
+                console.log(solicitacao);
+
+                if(solicitacao.solicitacoes_chat_p_empresas?.length > 0 || solicitacao.solicitacoes_chat_p_candidatos?.length > 0){
+                    mostrarAvisoTopo(`Você já possui uma solicitação de conversa para ${solicitacao.nome || solicitacao.nome_fant}.`)
+                } else {
+                    novaSolicitacao = {
+                        imagem: solicitacao.foto,
+                        nome: usuarioTipo === 'candidato' ? solicitacao.nome_fant : solicitacao.nome,
+                        id: idAtual,
+                        tipo: usuarioTipo === 'candidato' ? 'Empresa' : 'Candidato'
+                    };
                 }
-                const response = await axiosWe.post('/chats', obj);
-                const chat = response.data;
-                
-                // if(!chat.bloqueado) socket.emit('joinRoom', chat.id);
-                const newChat = conversaConstructor(usuarioTipo, chat);
-                conversas.push(newChat);
-                conversaAtual = chat.id;
             } catch (erro) {
                 console.error(erro)
             }
@@ -98,10 +141,10 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
         
         return dataB - dataA;
     });
-    return {conversas: conversasSorted, conversaAtual};
+    return {conversas: conversasSorted, conversaAtual, novaSolicitacao, solicitacoes};
 }
 
-function conversaConstructor(usuarioTipo: string, chat) {
+export function conversaConstructor(usuarioTipo: string, chat) {
     return {
         id: chat.id,
         bloqueadoStatus: chat.bloqueado,
@@ -275,4 +318,15 @@ export function validarSeEhArquivo(texto: string): ValidarSeEhArquivoResponse{
 export function transformarLinksEmAnchors(mensagem: string): string{
     const regex = /(https?:\/\/[^\s]+)/g;
     return mensagem.replace(regex, '<a href="$1" target="_blank" class="text-blue-400 underline hover:text-blue-600">$1</a>');
+}
+
+export async function enviarSolicitacaoConversa(userTipo: 'candidato'|'empresa', paraId: string): Promise<{foi: boolean, solicitacaoId?: string}> {
+    try {
+        const response = userTipo === 'candidato' ? await axiosWe.post(`empresas/conversa/solicitar`, {idEmp: paraId}) : await axiosWe.post(`candidatos/conversa/solicitar`, {idCand: paraId});
+        console.log(response.data);
+        return {foi: true, solicitacaoId: response.data.solicitacaoId};
+    } catch (erro) {
+        console.error('Erro ao enviar solicitação de conversa:', erro);
+        return {foi: false};
+    }
 }
