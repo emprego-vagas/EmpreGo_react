@@ -50,7 +50,7 @@ export default function HeaderProfiles(){
             <nav className="links flex items-center space-x-6">
             <Link to="/" className="text-professional-subtitle hover:text-white transition-colors">Início</Link>
             <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="/chats"
-                target="_self">Chat Geral</Link>
+                target="_self">Chat</Link>
             <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
                 target="_self">Fórum</Link>
             <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"

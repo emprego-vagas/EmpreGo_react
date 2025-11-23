@@ -8,7 +8,6 @@ import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-
 import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
-import ThemeTogle from '../components/ThemeTogle'
 import Loader from "../components/Loader";
 import type { Candidato, CustomCand, Idioma, Tag } from "../utils/utilsInterfaces";
 
@@ -987,7 +986,6 @@ export default function PerfilCandidato() {
                 </div>
             )}
             {/* <!-- * Fim modais idiomas --> */}
-            <ThemeTogle />   
             </>
             )}
         </div>
