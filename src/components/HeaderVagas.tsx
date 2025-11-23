@@ -4,6 +4,7 @@ import ThemeTogleConfig from "./ThemeTogleConfig";
 import Filters from "./Filtragem";
 import logo from './../assets/imgs/BIGSlogo.png'
 import lupa from './../assets/imgs/lupa.png'
+import filtro from './../assets/imgs/filtro.png'
 
 type Props = {
     isSidebarOpen: boolean;
@@ -121,7 +122,7 @@ export default function HeaderVagas({ isSidebarOpen, setIsSidebarOpen }: Props) 
                             <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white"/>
 
                             <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
-                                <img src="/assets/imgs/filtro.png" className="w-5 h-5 filter brightness-0 invert" />
+                                <img src={filtro} className="w-6 h-6 filter brightness-0 invert" />
                             </button>
 
                             <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition">
@@ -133,13 +134,13 @@ export default function HeaderVagas({ isSidebarOpen, setIsSidebarOpen }: Props) 
                     </div>
 
                     {/* Profile */}
-                    <div className="relative" ref={profileRef}>
-                        <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-2 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                            <img src="/algo" alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
+                    <div className="relative " ref={profileRef}>
+                        <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
+                            <img src={logo} alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
                         </div>
 
                         {isProfileOpen && (
-                            <div className="absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col">
+                            <div className="absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999]">
                                 <div className="p-3">
                                     <p className="font-bold">nome VISIVEL</p>
                                     <a href="/perfil/candidato" className="text-twitch-purple text-sm">
