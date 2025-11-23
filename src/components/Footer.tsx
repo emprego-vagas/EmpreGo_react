@@ -37,7 +37,7 @@ export default function Footer () {
 
                     {/* <!-- coluna 2 --> */}
                     <div>
-                        <h3 className="text-lg font--semibold text-gray-700 dark:text-gray-400 mb-4">Links Rápidos</h3>
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-400 mb-4">Links Rápidos</h3>
                         <ul className="space-y-2">
                             <li><Link to="/#home" className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Início</Link>
                             </li>
