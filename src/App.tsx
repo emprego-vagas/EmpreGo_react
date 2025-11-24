@@ -18,13 +18,10 @@ import EditarPerfilEmpresa from './pages/EditarPerfilEmpresa';
 import TimeOut from './pages/TimeOut';
 import ScrollToHash from './components/ScrollToHash';
 import TrocarSenha from './pages/TrocarSenha';
-<<<<<<< HEAD
 import socket from './utils/socketsConnection';
 import { novaNotificacaoLocalStorage, type NotificationEG } from './ts/sinoNotificacoesFunctions';
 import { useEffect } from 'react';
-=======
 import CandVagas from './pages/CandVagas';
->>>>>>> e61f8bdfaaf8f8c33e59e9c2eceb94902fae7958
 // import Chats2 from './pages/Chats2';
 // import { DadosUsuario } from './utils/globalFunctions'
 // import ViewEmpresas from './pages/ViewEmpresas'
@@ -66,7 +63,7 @@ function App() {
         <Route path='/perfil/empresa/editar' element={<EditarPerfilEmpresa/>} />
         <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
         <Route path='/projetos/criar'element={<CriarProjetos/>} />
-        <Route path='/candidato/vagas' element={<CandVagas />} />
+        <Route path='/empresas' element={<CandVagas />} />
       </Routes>
     </BrowserRouter>
   )

@@ -3,6 +3,10 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import HeaderVagas from '../components/HeaderVagas';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
+import { useNavigate } from 'react-router-dom';
+import { DadosUsuario } from '../utils/globalFunctions';
+import axiosWe from '../utils/axiosInstance';
+import genPfp from '../assets/imgs/genPfp.png';
 
 interface Slide {
     empresa: string;
@@ -21,6 +25,25 @@ interface EmpresaCardProps {
     tags: string[];
     onClickFavorito?: () => void;
     onClickVerMais?: () => void;
+}
+
+interface Empresa {
+    id: string;
+    logo: string;
+    nome: string;
+    descricao: string;
+    tags: string[];
+}
+
+interface EmpresasPorCategoria {
+    [key: string]: {
+        pagina: number;
+        chegouNoLimite: boolean;
+        recolher: boolean;
+        semRecolher?: boolean;
+        empresasRecolhidas: () => Empresa[];
+        empresas: Empresa[];
+    }
 }
 
 const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais }) => {
@@ -63,6 +86,56 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
 };
 
 const Main: React.FC = () => {
+    const navigate = useNavigate();
+    const [usuario] = useState(DadosUsuario.getUsuario(true, 'candidato'));
+    if(!usuario) {
+        setTimeout(()=>{
+            navigate('/')
+        }, 3000)
+    };
+
+    useEffect(()=>{
+        if(!usuario) return;
+        async function carregarDados(){
+            const response = await axiosWe('/custom/vizualizar-empresas');
+            const data = response.data;
+            console.log(data)
+            setEmpresasPorCategoria({
+                ["Empresas Recentes"]: {
+                    pagina: 1,
+                    chegouNoLimite: false,
+                    recolher: true,
+                    empresasRecolhidas(){
+                        return this.empresas.slice(0,3)
+                    },
+                    empresas: data.empresasRecentes.map(emp=>({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: [emp.setor, emp.porte, emp.estado]
+                    }))
+                    },
+                ["Empresas Principais"]: {
+                    pagina: 1,
+                    chegouNoLimite: false,
+                    recolher: true,
+                    empresasRecolhidas(){
+                        return this.empresas.slice(0,3)
+                    },
+                    empresas: data.empresasPrincipais.map(emp=>({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: [emp.setor, emp.porte, emp.estado]
+                    }))
+                }
+            })
+        }
+        carregarDados();
+    }, [usuario])
+
     const [currentSlide, setCurrentSlide] = useState(0);
     const [direction, setDirection] = useState<'left' | 'right'>('right');
     const prevIndexRef = useRef<number>(0);
@@ -74,6 +147,7 @@ const Main: React.FC = () => {
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const mouseRef = useRef({ x: 0, y: 0 });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // const dateTimeNow = Date.now();
 
     const slides: Slide[] = [
         {
@@ -113,152 +187,7 @@ const Main: React.FC = () => {
 
 
 
-    const empresasPorCategoria = {
-        "Empresas Recentes": [
-            {
-                logo: JoaoAzevedo,
-                nome: 'TechSolutions Inc.',
-                descricao: 'Empresa especializada em soluções digitais, design e desenvolvimento full-stack.',
-                tags: ['TI', 'Pleno', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Global Innovations',
-                descricao: 'Agência de inovação com foco em transformação digital e consultoria estratégica.',
-                tags: ['Consultoria', 'Sênior']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Digital Ventures',
-                descricao: 'Startup de tecnologia orientada a dados e crescimento exponencial.',
-                tags: ['Startup', 'Júnior', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Future Labs',
-                descricao: 'Laboratório de inovação com foco em tecnologias emergentes e pesquisa.',
-                tags: ['P&D', 'Sênior', 'Presencial']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Code Masters',
-                descricao: 'Especialistas em desenvolvimento de software e arquitetura de sistemas.',
-                tags: ['TI', 'Pleno', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Data Insights',
-                descricao: 'Análise de dados e business intelligence para tomada de decisão.',
-                tags: ['Dados', 'Sênior', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Cloud Systems',
-                descricao: 'Soluções em nuvem e infraestrutura escalável para empresas.',
-                tags: ['Cloud', 'Pleno', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Mobile First',
-                descricao: 'Desenvolvimento de aplicativos móveis com foco em experiência do usuário.',
-                tags: ['Mobile', 'Júnior', 'Remoto']
-            }
-        ],
-        "Empresas Principais": [
-            {
-                logo: JoaoAzevedo,
-                nome: 'Enterprise Solutions',
-                descricao: 'Líder em soluções corporativas para grandes empresas.',
-                tags: ['Corporate', 'Sênior', 'Presencial']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Tech Giants',
-                descricao: 'Uma das maiores empresas de tecnologia do mundo.',
-                tags: ['Multinacional', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Digital Factory',
-                descricao: 'Fábrica de software com metodologias ágeis.',
-                tags: ['Agile', 'Pleno', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Innovation Hub',
-                descricao: 'Centro de inovação e aceleração de startups.',
-                tags: ['Startup', 'Júnior', 'Presencial']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Tech Partners',
-                descricao: 'Parceira estratégica para transformação digital.',
-                tags: ['Consultoria', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Digital Systems',
-                descricao: 'Sistemas integrados e plataformas digitais.',
-                tags: ['TI', 'Pleno', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Business Tech',
-                descricao: 'Tecnologia para otimização de processos empresariais.',
-                tags: ['B2B', 'Sênior', 'Presencial']
-            }
-        ],
-        "Empresas Recomendadas": [
-            {
-                logo: JoaoAzevedo,
-                nome: 'Startup Valley',
-                descricao: 'Ecossistema de startups em crescimento acelerado.',
-                tags: ['Startup', 'Júnior', 'Presencial']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Future Tech',
-                descricao: 'Tecnologias do futuro e inovação disruptiva.',
-                tags: ['Inovação', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Code Factory',
-                descricao: 'Produção em massa de soluções de software.',
-                tags: ['TI', 'Pleno', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Data Pro',
-                descricao: 'Especialistas em ciência de dados e analytics.',
-                tags: ['Dados', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Cloud Masters',
-                descricao: 'Especialistas em arquitetura cloud e DevOps.',
-                tags: ['Cloud', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'AI Solutions',
-                descricao: 'Inteligência artificial e machine learning aplicado.',
-                tags: ['IA', 'Sênior', 'Híbrido']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Cyber Security',
-                descricao: 'Proteção e segurança digital para empresas.',
-                tags: ['Segurança', 'Sênior', 'Remoto']
-            },
-            {
-                logo: JoaoAzevedo,
-                nome: 'Web Innovators',
-                descricao: 'Desenvolvimento web moderno e inovador.',
-                tags: ['Web', 'Pleno', 'Remoto']
-            }
-        ]
-    };
+    const [empresasPorCategoria, setEmpresasPorCategoria] = useState<EmpresasPorCategoria>({})
 
 
     const empresasSemLabel = [
@@ -318,16 +247,16 @@ const Main: React.FC = () => {
         }
     ];
 
-    const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
+    // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
     const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
-    const toggleExpandir = (categoria: string) => {
-        setEmpresasExpandidas(prev => ({
-            ...prev,
-            [categoria]: !prev[categoria]
-        }));
-    };
+    // const toggleExpandir = (categoria: string) => {
+    //     setEmpresasExpandidas(prev => ({
+    //         ...prev,
+    //         [categoria]: !prev[categoria]
+    //     }));
+    // };
 
     const carregarMaisEmpresas = () => {
         setCarregando(true);
@@ -452,7 +381,7 @@ const Main: React.FC = () => {
             try {
                 const elems = (incomingEl as Element).querySelectorAll('.slide-content > *');
                 if (elems && elems.length) {
-                    gsap.fromTo(elems as any, { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out' });
+                    gsap.fromTo(elems, { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out' });
                 }
             } catch (e) {
                 console.error('Erro ao animar elementos internos do slide:', e);
@@ -558,10 +487,10 @@ const Main: React.FC = () => {
                     </section>
 
                     <section className="empresas-section w-full px-5 py-6 mt-2">
-                        {Object.entries(empresasPorCategoria).map(([categoria, empresas]) => {
-                            const mostrarTodas = empresasExpandidas[categoria];
-                            const empresasParaMostrar = mostrarTodas ? empresas : empresas.slice(0, 6);
-                            const temMaisEmpresas = empresas.length > 6;
+                        {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
+                            // const mostrarTodas = empresasExpandidas[categoria];
+                            const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
+                            const recolher = obj.recolher;
 
                             return (
                                 <div key={categoria} className="categoria-empresas mb-12">
@@ -570,9 +499,9 @@ const Main: React.FC = () => {
                                     </h2>
 
                                     <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                                        {empresasParaMostrar.map((empresa, idx) => (
+                                        {empresasParaMostrar.map(empresa => (
                                             <EmpresaCard
-                                                key={`${categoria}-${idx}`}
+                                                key={empresa.id}
                                                 logo={empresa.logo}
                                                 nome={empresa.nome}
                                                 descricao={empresa.descricao}
@@ -583,14 +512,25 @@ const Main: React.FC = () => {
                                         ))}
                                     </div>
 
-                                    {temMaisEmpresas && (
-                                        <div className="ver-mais-container flex justify-center mt-6">
-                                            <button onClick={() => toggleExpandir(categoria)} className="ver-mais-btn flex items-center gap-2 text-twitch-purple hover:text-twitch-lightpurple transition-colors font-medium py-2 px-4 rounded-lg border border-twitch-purple hover:border-twitch-lightpurple">
-                                                {mostrarTodas ? 'Mostrar menos' : 'Mostrar mais'}
-                                                <i className={`bx bx-chevron-${mostrarTodas ? 'up' : 'down'} text-xl`} />
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="flex justify-center gap-4 mt-6">
+
+                                        <button
+                                            onClick={() => {
+                                                setEmpresasPorCategoria({
+                                                    ...empresasPorCategoria,
+                                                    [categoria]: {
+                                                        ...empresasPorCategoria[categoria],
+                                                        recolher: !recolher,
+                                                    },
+                                                });
+                                            }}
+                                            className="ver-mais-btn flex items-center gap-2 text-twitch-purple hover:text-twitch-lightpurple transition-colors font-medium py-2 px-4 rounded-lg border border-twitch-purple hover:border-twitch-lightpurple"
+                                        >
+                                            {recolher ? "Exibir" : "Recolher"}
+                                            <i className={`bx bx-chevron-${recolher ? "down" : "up"} text-xl`} />
+                                        </button>
+
+                                    </div>
                                 </div>
                             );
                         })}
