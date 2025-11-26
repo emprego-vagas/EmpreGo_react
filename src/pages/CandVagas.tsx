@@ -22,6 +22,7 @@ interface EmpresaCardProps {
     logo: string;
     nome: string;
     descricao: string;
+    favoritada: boolean;
     tags: string[];
     onClickFavorito?: () => void;
     onClickVerMais?: () => void;
@@ -32,6 +33,7 @@ interface Empresa {
     logo: string;
     nome: string;
     descricao: string;
+    setor: string;
     tags: string[];
 }
 
@@ -40,14 +42,22 @@ interface EmpresasPorCategoria {
         pagina: number;
         chegouNoLimite: boolean;
         recolher: boolean;
+        favoritada: boolean;
         semRecolher?: boolean;
         empresasRecolhidas: () => Empresa[];
         empresas: Empresa[];
     }
 }
 
-const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais }) => {
-    const [favorito, setFavorito] = useState(false);
+interface EmpresaFavoritada {
+    id: string;
+    nome_fant: string;
+    setor: string | null;
+    foto: string | null;
+}
+
+const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais, favoritada }) => {
+    const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
         setFavorito((s) => !s);
@@ -101,6 +111,7 @@ const Main: React.FC = () => {
             const data = response.data;
             console.log(data)
             console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
+            setEmpresasFavoritadas(data.empresasFavoritadas);
             setEmpresasPorCategoria({
                 ["Empresas Recomendadas"]: {
                     pagina: 1,
@@ -109,12 +120,14 @@ const Main: React.FC = () => {
                     empresasRecolhidas(){
                         return this.empresas.slice(0,3)
                     },
+                    favoritada: false,
                     empresas: data.empresasRecomendadas.map(emp=>({
                         id: emp.id,
                         logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                         nome: emp.nome_fant,
                         descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome)
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor
                     }))
                     },
                 ["Empresas Recentes"]: {
@@ -124,12 +137,14 @@ const Main: React.FC = () => {
                     empresasRecolhidas(){
                         return this.empresas.slice(0,3)
                     },
+                    favoritada: false,
                     empresas: data.empresasRecentes.map(emp=>({
                         id: emp.id,
                         logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                         nome: emp.nome_fant,
                         descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome)
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor
                     }))
                     },
                 ["Empresas Principais"]: {
@@ -139,12 +154,14 @@ const Main: React.FC = () => {
                     empresasRecolhidas(){
                         return this.empresas.slice(0,3)
                     },
+                    favoritada: false,
                     empresas: data.empresasPrincipais.map(emp=>({
                         id: emp.id,
                         logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                         nome: emp.nome_fant,
                         descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome)
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor
                     }))
                 }
             })
@@ -153,6 +170,8 @@ const Main: React.FC = () => {
                 logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                 nome: emp.nome_fant,
                 descricao: emp.descricao,
+                favoritada: false,
+                setor: emp.setor,
                 tags: emp.tags_empresas.map(t=>t.nome)
             })));
         }
@@ -211,14 +230,14 @@ const Main: React.FC = () => {
 
 
     const [empresasPorCategoria, setEmpresasPorCategoria] = useState<EmpresasPorCategoria>({})
-
-
     const [empresasSemLabel, setEmpresasSemLabel] = useState([
         {
             id: '1',
             logo: JoaoAzevedo,
             nome: 'Alpha Tech',
             descricao: 'Soluções inovadoras em tecnologia e consultoria digital.',
+            favoritada: false,
+            setor: '',
             tags: ['Tecnologia', 'Inovação', 'Remoto']
         },
         {
@@ -226,58 +245,17 @@ const Main: React.FC = () => {
             logo: JoaoAzevedo,
             nome: 'Beta Systems',
             descricao: 'Desenvolvimento de sistemas corporativos personalizados.',
+            favoritada: false,
+            setor: '',
             tags: ['Sistemas', 'Corporate', 'Híbrido']
         },
-        {
-            id: '3',
-            logo: JoaoAzevedo,
-            nome: 'Gamma Labs',
-            descricao: 'Pesquisa e desenvolvimento em inteligência artificial.',
-            tags: ['IA', 'P&D', 'Presencial']
-        },
-        {
-            id: '4',
-            logo: JoaoAzevedo,
-            nome: 'Delta Solutions',
-            descricao: 'Consultoria em transformação digital para PMEs.',
-            tags: ['Consultoria', 'PME', 'Remoto']
-        },
-        {
-            id: '5',
-            logo: JoaoAzevedo,
-            nome: 'Epsilon Ventures',
-            descricao: 'Investimento e aceleração de startups tecnológicas.',
-            tags: ['VC', 'Startup', 'Híbrido']
-        },
-        {
-            id: '6',
-            logo: JoaoAzevedo,
-            nome: 'Zeta Networks',
-            descricao: 'Infraestrutura de rede e soluções de conectividade.',
-            tags: ['Rede', 'Infraestrutura', 'Presencial']
-        },
-        {
-            id: '7',
-            logo: JoaoAzevedo,
-            nome: 'Eta Innovations',
-            descricao: 'Desenvolvimento de produtos digitais disruptivos.',
-            tags: ['Produto', 'Inovação', 'Remoto']
-        },
-        {
-            id: '8',
-            logo: JoaoAzevedo,
-            nome: 'Theta Systems',
-            descricao: 'Soluções em cloud computing e armazenamento.',
-            tags: ['Cloud', 'Armazenamento', 'Híbrido']
-        },
-        {
-            id: '9',
-            logo: JoaoAzevedo,
-            nome: 'Iota Tech',
-            descricao: 'Especialistas em cybersecurity e proteção de dados.',
-            tags: ['Security', 'Dados', 'Remoto']
-        }
     ]);
+    const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
+
+    const handleAlterarStatusFavorito = (favoritada: boolean, empresa: EmpresaFavoritada)=>{
+        if (favoritada) setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
+        else setEmpresasFavoritadas([empresa, ...empresasFavoritadas]);
+    } //TODO Configurar dps
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
     const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);
@@ -531,17 +509,21 @@ const Main: React.FC = () => {
                                     </h2>
 
                                     <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                                        {empresasParaMostrar.map(empresa => (
-                                            <EmpresaCard
-                                                key={empresa.id}
-                                                logo={empresa.logo}
-                                                nome={empresa.nome}
-                                                descricao={empresa.descricao}
-                                                tags={empresa.tags}
-                                                onClickFavorito={() => console.log('Favorito toggled', empresa.id)}
-                                                onClickVerMais={() => console.log('Ver mais', empresa.nome)}
-                                            />
-                                        ))}
+                                        {empresasParaMostrar.map(empresa => {
+                                            const favoritada = empresasFavoritadas.map(e=>e.id).includes(empresa.id);
+                                            return(
+                                                <EmpresaCard
+                                                    key={empresa.id}
+                                                    logo={empresa.logo}
+                                                    nome={empresa.nome}
+                                                    descricao={empresa.descricao}
+                                                    tags={empresa.tags}
+                                                    favoritada={favoritada}
+                                                    onClickFavorito={() => handleAlterarStatusFavorito(favoritada, {id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor})}
+                                                    onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                />
+                                            )
+                                        })}
                                     </div>
 
                                     <div className="flex justify-center gap-4 mt-6">
@@ -576,6 +558,7 @@ const Main: React.FC = () => {
                                         logo={empresa.logo}
                                         nome={empresa.nome}
                                         descricao={empresa.descricao}
+                                        favoritada={empresasFavoritadas.map(e=>e.id).includes(empresa.id)}
                                         tags={empresa.tags}
                                         onClickFavorito={() => console.log('Favorito toggled', empresa.id)}
                                         onClickVerMais={() => console.log('Ver mais', empresa.nome)}
@@ -594,6 +577,7 @@ const Main: React.FC = () => {
                                                 logo={empresa.logo}
                                                 nome={`${empresa.nome} ${idx + 1}`}
                                                 descricao={`${empresa.descricao} - Nova leva de empresas carregadas.`}
+                                                favoritada={empresasFavoritadas.map(e=>e.id).includes(empresa.id)}
                                                 tags={[...empresa.tags, 'Nova']}
                                                 onClickFavorito={() => console.log('Favorito toggled', empresa.id)}
                                                 onClickVerMais={() => console.log('Ver mais', empresa.nome)}
