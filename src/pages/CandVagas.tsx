@@ -60,9 +60,12 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
     const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
-        setFavorito((s) => !s);
         if (onClickFavorito) onClickFavorito();
     };
+
+    useEffect(() => {
+        setFavorito(favoritada);
+    }, [favoritada]);
 
     return (
         <article
@@ -257,21 +260,46 @@ const Main: React.FC = () => {
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
     const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
+        console.log('atualizar')
+        let atualizarTodos = true;
         if (favoritada) {
-            setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
+            setEmpresasFavoritadas(prev=>prev.filter(e=>e.id!==empresa.id));
         }
         else {
-            if(empresasFavoritadas.length>10) mostrarErroTopo("Você só pode favoritar até 10 empresas");
-            else {
-                setEmpresasFavoritadas([empresa, ...empresasFavoritadas]);
-                try {
-                    await axiosWe.post()
-                } catch (erro) {
-                    console.error("Erro ao favoritar empresa:", erro)
+            setEmpresasFavoritadas(prev => {
+                if (prev.length >= 10) {
+                    mostrarErroTopo("Você só pode favoritar até 10 empresas");
+                    atualizarTodos = false;
+                    return prev;
                 }
-            }
+
+                return [empresa, ...prev];
+            });
         };
-    } //TODO Configurar dps
+        if (atualizarTodos){
+            setEmpresasSemLabel(empresasSemLabel.map(emp=>{
+                if (emp.id===empresa.id){
+                    return {...emp, favoritada: !favoritada}
+                } else return emp
+            }));
+            setEmpresasPorCategoria(prev => {
+                const novo = { ...prev };
+
+                for (const categoria in novo) {
+                    novo[categoria] = {
+                        ...novo[categoria],
+                        empresas: novo[categoria].empresas.map(emp =>
+                            emp.id === empresa.id
+                                ? { ...emp, favoritada: !favoritada }
+                                : emp
+                        )
+                    };
+                }
+
+                return novo;
+            });
+        }
+    }
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
     const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);
