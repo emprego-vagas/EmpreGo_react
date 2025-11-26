@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
+import Loader from '../components/Loader';
 
 interface Slide {
     empresa: string;
@@ -107,80 +108,88 @@ const Main: React.FC = () => {
         }, 3000)
     };
 
-    const isFavoritada = (id: string) => {
-        return empresasFavoritadas.some(e => e.id === id);
-    };
+    const [carregandoDados, setCarregandoDados] = useState(true);
 
     useEffect(()=>{
         if(!usuario) return;
         async function carregarDados(){
-            const response = await axiosWe('/custom/vizualizar-empresas');
-            const data = response.data;
-            console.log(data)
-            console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
-            setEmpresasFavoritadas(data.empresasFavoritadas);
-            setEmpresasPorCategoria({
-                ["Empresas Recomendadas"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasRecomendadas.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                    },
-                ["Empresas Recentes"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasRecentes.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                    },
-                ["Empresas Principais"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasPrincipais.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                }
-            })
-            setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
-                id: emp.id,
-                logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                nome: emp.nome_fant,
-                descricao: emp.descricao,
-                setor: emp.setor,
-                favoritada: isFavoritada(emp.id),
-                tags: emp.tags_empresas.map(t=>t.nome)
-            })));
+            try {
+                const response = await axiosWe('/custom/vizualizar-empresas');
+                const data = response.data;
+                console.log(data)
+                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
+                setEmpresasFavoritadas(data.empresasFavoritadas.map(e=>e.empresas));
+
+                const isFavoritada = (id: string) => {
+                    return data.empresasFavoritadas.some((e) => e.empresas.id === id);
+                };
+                setEmpresasPorCategoria({
+                    ["Empresas Recomendadas"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasRecomendadas.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                        },
+                    ["Empresas Recentes"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasRecentes.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                        },
+                    ["Empresas Principais"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasPrincipais.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                    }
+                })
+                setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
+                    id: emp.id,
+                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    nome: emp.nome_fant,
+                    descricao: emp.descricao,
+                    setor: emp.setor,
+                    favoritada: isFavoritada(emp.id),
+                    tags: emp.tags_empresas.map(t=>t.nome)
+                })));
+                setCarregandoDados(false);
+            } catch (erro) {
+                console.error("Erro ao carregar empresas:",erro)
+            }
+            
         }
         carregarDados();
     }, [])
@@ -264,6 +273,11 @@ const Main: React.FC = () => {
         let atualizarTodos = true;
         if (favoritada) {
             setEmpresasFavoritadas(prev=>prev.filter(e=>e.id!==empresa.id));
+            try {
+                await axiosWe.delete(`/favoritos/empresa/${empresa.id}`)                 
+            } catch (erro) {
+                console.error("Erro ao remover empresa dos favoritos: ", erro)
+            }
         }
         else {
             setEmpresasFavoritadas(prev => {
@@ -273,8 +287,16 @@ const Main: React.FC = () => {
                     return prev;
                 }
 
+                
                 return [empresa, ...prev];
             });
+            try {
+                await axiosWe.post(`/favoritos/empresa`, {
+                    id: empresa.id,
+                })
+            } catch (erro) {
+                console.error("Erro ao favoritar empresa:", erro)
+            }
         };
         if (atualizarTodos){
             setEmpresasSemLabel(empresasSemLabel.map(emp=>{
@@ -472,6 +494,8 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
+    if(carregandoDados) return (<Loader/>)
+
     return (
         <>
             <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-dark-600`}>
@@ -541,11 +565,6 @@ const Main: React.FC = () => {
                     </section>
 
                     <section className="empresas-section w-full px-5 py-6 mt-2">
-                        {empresasFavoritadas && empresasFavoritadas.map(emp=>{
-                            return (
-                                <p>{emp.id}</p>
-                            )
-                        })}
                         {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
                             // const mostrarTodas = empresasExpandidas[categoria];
                             const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
