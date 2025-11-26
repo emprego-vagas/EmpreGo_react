@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import HeaderVagas from '../components/HeaderVagas';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
@@ -257,15 +257,22 @@ const Main: React.FC = () => {
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
     const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
-        if (favoritada) {
-            setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
+        if (favoritada) { 
+             setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
+            try {
+            await axiosWe.delete(`/favoritos/empresa/${empresa.id}`)                 
+            } catch (erro) {
+                console.error("Erro ao remover empresa dos favoritos: ", erro)
+            }
         }
         else {
-            if(empresasFavoritadas.length>10) mostrarErroTopo("Você só pode favoritar até 10 empresas");
+            if(empresasFavoritadas.length >= 10) mostrarErroTopo("Você só pode favoritar até 10 empresas");
             else {
                 setEmpresasFavoritadas([empresa, ...empresasFavoritadas]);
                 try {
-                    await axiosWe.post()
+                    await axiosWe.post(`/favoritos/empresa`, {
+                        id: empresa.id,
+                    })
                 } catch (erro) {
                     console.error("Erro ao favoritar empresa:", erro)
                 }
