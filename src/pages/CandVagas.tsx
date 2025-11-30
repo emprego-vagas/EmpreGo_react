@@ -123,8 +123,8 @@ const Main: React.FC = () => {
             try {
                 const response = await axiosWe('/custom/vizualizar-empresas');
                 const data = response.data;
-                console.log(data)
-                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
+                console.log(data);
+                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor));
 
                 console.log(data.palavrasPraBusca)
                 setPalavrasBusca(data.palavrasPraBusca);

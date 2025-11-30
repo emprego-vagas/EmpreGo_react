@@ -2,7 +2,6 @@ body {
     background-color: #F9FAFB;
     color: #111827;
     overflow-x: hidden;
-    user-select: none;
 }
 
 .dark body {
