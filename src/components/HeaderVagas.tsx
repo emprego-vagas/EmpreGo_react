@@ -78,29 +78,29 @@ export default function HeaderVagas({ isSidebarOpen, setIsSidebarOpen }: Props) 
 
     return (
         <>
-            <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
+            <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:bg-dark-900 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                 <nav className="sidebar-itens flex flex-col gap-3 px-3">
                     <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
-                        <i className="bx bx-home text-2xl text-gray-200"></i>
-                        <span className="text-gray-200 text-sm font-medium">Início</span>
+                        <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
+                        <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
                     </a>
 
                     <a href="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
-                        <i className="bx bx-message-rounded text-2xl text-gray-200"></i>
-                        <span className="text-gray-200 text-sm font-medium whitespace-nowrap">
+                        <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
+                        <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
                             Chat Geral
                         </span>
                     </a>
 
                     <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
-                        <i className="bx bx-group text-2xl text-gray-200"></i>
-                        <span className="text-gray-200 text-sm font-medium">Fórum</span>
+                        <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
+                        <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                     </a>
 
                     <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
-                        <i className="bx bx-star text-2xl text-gray-200"></i>
-                        <span className="text-gray-200 text-sm font-medium">Favoritos</span>
+                        <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
+                        <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
                     </a>
                 </nav>
             </aside>

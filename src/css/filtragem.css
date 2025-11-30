@@ -27,22 +27,6 @@
     animation: slideUp 0.3s ease forwards;
 }
 
-
-
-.filter-chip:focus,
-.favorite-btn:focus,
-.ver-mais-btn:focus,
-.ver-todas-btn:focus {
-    outline: 2px solid #9146FF;
-    outline-offset: 2px;
-}
-
-
-
-.tag-chip.clicked {
-    animation: pulse 0.3s ease;
-}
-
 .btn-primary {
     color: white;
     transition: all 0.3s ease;
@@ -75,13 +59,8 @@
     align-items: center;
     padding: 0.5rem;
     cursor: pointer;
-    background-color: #18181B;
     border-radius: 0.25rem;
     transition: background-color 0.2s;
-}
-
-.filter-category-header:hover {
-    background-color: #252529;
 }
 
 .filter-category-content {

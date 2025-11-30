@@ -3,11 +3,10 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import HeaderVagas from '../components/HeaderVagas';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
-import { useNavigate } from 'react-router-dom';
-import { DadosUsuario, mostrarAvisoTopo } from '../utils/globalFunctions';
+import { data, useNavigate } from 'react-router-dom';
+import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
-import Loader from '../components/Loader';
 
 interface Slide {
     empresa: string;
@@ -61,16 +60,13 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
     const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
+        setFavorito((s) => !s);
         if (onClickFavorito) onClickFavorito();
     };
 
-    useEffect(() => {
-        setFavorito(favoritada);
-    }, [favoritada]);
-
     return (
         <article
-            className={"empresa-card bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[380px]"}>
+            className={"empresa-card bg-gray-200 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[380px]"}>
             <div className="card-header relative h-40 bg-gray-800 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
                 <img src={logo} alt={nome} className="empresa-logo w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md z-10 transition-transform" />
 
@@ -80,8 +76,8 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
             </div>
 
             <div className="card-body p-6 flex-1">
-                <h3 className="empresa-nome text-xl font-semibold mb-3 text-white">{nome}</h3>
-                <p className="empresa-descricao text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">{descricao}</p>
+                <h3 className="empresa-nome text-xl font-semibold mb-3 dark:text-gray-200 text-twitch-gray">{nome}</h3>
+                <p className="empresa-descricao dark:text-gray-400 text-twitch-gray text-sm mb-4 line-clamp-3 leading-relaxed ">{descricao}</p>
             </div>
 
             <div className="card-footer flex justify-between items-center p-5 border-t border-gray-700 bg-black/10 flex-wrap gap-2">
@@ -108,99 +104,80 @@ const Main: React.FC = () => {
         }, 3000)
     };
 
-    const [carregandoDados, setCarregandoDados] = useState(true);
-    const [palavrasBusca, setPalavrasBusca] = useState<string[]>([]);
-
-    const palavrasBuscaRef = useRef<string[]>([]);
-
-    useEffect(() => {
-        palavrasBuscaRef.current = palavrasBusca;
-    }, [palavrasBusca]);
+    const isFavoritada = (id: string) => {
+        return empresasFavoritadas.some(e => e.id === id);
+    };
 
     useEffect(()=>{
         if(!usuario) return;
         async function carregarDados(){
-            try {
-                const response = await axiosWe('/custom/vizualizar-empresas');
-                const data = response.data;
-                console.log(data)
-                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
-
-                console.log(data.palavrasPraBusca)
-                setPalavrasBusca(data.palavrasPraBusca);
-                palavrasBuscaRef.current = data.palavrasPraBusca;
-                setEmpresasFavoritadas(data.empresasFavoritadas.map(e=>e.empresas));
-
-                const isFavoritada = (id: string) => {
-                    return data.empresasFavoritadas.some((e) => e.empresas.id === id);
-                };
-                setEmpresasPorCategoria({
-                    ["Empresas Recomendadas"]: {
-                        pagina: 1,
-                        chegouNoLimite: false,
-                        recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
-                        },
-                        empresas: data.empresasRecomendadas.map(emp=>({
-                            id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
-                            setor: emp.setor,
-                            favoritada: isFavoritada(emp.id),
-                        }))
-                        },
-                    ["Empresas Recentes"]: {
-                        pagina: 1,
-                        chegouNoLimite: false,
-                        recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
-                        },
-                        empresas: data.empresasRecentes.map(emp=>({
-                            id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
-                            setor: emp.setor,
-                            favoritada: isFavoritada(emp.id),
-                        }))
-                        },
-                    ["Empresas Principais"]: {
-                        pagina: 1,
-                        chegouNoLimite: false,
-                        recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
-                        },
-                        empresas: data.empresasPrincipais.map(emp=>({
-                            id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
-                            setor: emp.setor,
-                            favoritada: isFavoritada(emp.id),
-                        }))
-                    }
-                })
-                setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
-                    id: emp.id,
-                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                    nome: emp.nome_fant,
-                    descricao: emp.descricao,
-                    setor: emp.setor,
-                    favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t=>t.nome)
-                })));
-                setCarregandoDados(false);
-            } catch (erro) {
-                console.error("Erro ao carregar empresas:",erro)
-            }
-            
+            const response = await axiosWe('/custom/vizualizar-empresas');
+            const data = response.data;
+            console.log(data)
+            console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
+            setEmpresasFavoritadas(data.empresasFavoritadas);
+            setEmpresasPorCategoria({
+                ["Empresas Recomendadas"]: {
+                    pagina: 1,
+                    chegouNoLimite: false,
+                    recolher: true,
+                    empresasRecolhidas(){
+                        return this.empresas.slice(0,3)
+                    },
+                    empresas: data.empresasRecomendadas.map(emp=>({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor,
+                        favoritada: isFavoritada(emp.id),
+                    }))
+                    },
+                ["Empresas Recentes"]: {
+                    pagina: 1,
+                    chegouNoLimite: false,
+                    recolher: true,
+                    empresasRecolhidas(){
+                        return this.empresas.slice(0,3)
+                    },
+                    empresas: data.empresasRecentes.map(emp=>({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor,
+                        favoritada: isFavoritada(emp.id),
+                    }))
+                    },
+                ["Empresas Principais"]: {
+                    pagina: 1,
+                    chegouNoLimite: false,
+                    recolher: true,
+                    empresasRecolhidas(){
+                        return this.empresas.slice(0,3)
+                    },
+                    empresas: data.empresasPrincipais.map(emp=>({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: emp.tags_empresas.map(t=>t.nome),
+                        setor: emp.setor,
+                        favoritada: isFavoritada(emp.id),
+                    }))
+                }
+            })
+            setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
+                id: emp.id,
+                logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                nome: emp.nome_fant,
+                descricao: emp.descricao,
+                setor: emp.setor,
+                favoritada: isFavoritada(emp.id),
+                tags: emp.tags_empresas.map(t=>t.nome)
+            })));
         }
         carregarDados();
     }, [])
@@ -257,9 +234,6 @@ const Main: React.FC = () => {
 
 
     const [empresasPorCategoria, setEmpresasPorCategoria] = useState<EmpresasPorCategoria>({})
-    const [semLabelPage, setSemLabelPage] = useState(1);
-
-    
     const [empresasSemLabel, setEmpresasSemLabel] = useState([
         {
             id: '1',
@@ -280,79 +254,35 @@ const Main: React.FC = () => {
             tags: ['Sistemas', 'Corporate', 'Híbrido']
         },
     ]);
-    const empresasSemLabelRef = useRef(null);
-    useEffect(() => {
-        empresasSemLabelRef.current = empresasSemLabel;
-    }, [empresasSemLabel]);
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
     const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
-        console.log('atualizar')
-        function atualizarStatus(){
-            setEmpresasSemLabel(empresasSemLabel.map(emp=>{
-                if (emp.id===empresa.id){
-                    return {...emp, favoritada: !favoritada}
-                } else return emp
-            }));
-            setEmpresasPorCategoria(prev => {
-                const novo = { ...prev };
-
-                for (const categoria in novo) {
-                    novo[categoria] = {
-                        ...novo[categoria],
-                        empresas: novo[categoria].empresas.map(emp =>
-                            emp.id === empresa.id
-                                ? { ...emp, favoritada: !favoritada }
-                                : emp
-                        )
-                    };
-                }
-
-                return novo;
-            });
-        }
-        if (favoritada) {
-            setEmpresasFavoritadas(prev=>prev.filter(e=>e.id!==empresa.id));
-            atualizarStatus();
+        if (favoritada) { 
+             setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
             try {
-                await axiosWe.delete(`/favoritos/empresa/${empresa.id}`);
+            await axiosWe.delete(`/favoritos/empresa/${empresa.id}`)                 
             } catch (erro) {
-                console.error("Erro ao remover empresa dos favoritos: ", erro);
-            };
+                console.error("Erro ao remover empresa dos favoritos: ", erro)
+            }
         }
         else {
-            if(empresasFavoritadas.length >= 20){
-                mostrarAvisoTopo("Você só pode favoritar até 20 empresas");
-            } else {
-                setEmpresasFavoritadas(prev => {
-                    if (prev.length >= 20) {
-                        mostrarAvisoTopo("Você só pode favoritar até 20 empresas");
-                        return prev;
-                    }
-
-                    
-                    return [empresa, ...prev];
-                });
-                atualizarStatus();
+            if(empresasFavoritadas.length >= 10) mostrarErroTopo("Você só pode favoritar até 10 empresas");
+            else {
+                setEmpresasFavoritadas([empresa, ...empresasFavoritadas]);
                 try {
                     await axiosWe.post(`/favoritos/empresa`, {
                         id: empresa.id,
-                    });
+                    })
                 } catch (erro) {
-                    console.error("Erro ao favoritar empresa:", erro);
-                };
+                    console.error("Erro ao favoritar empresa:", erro)
+                }
             }
         };
-    }
+    } //TODO Configurar dps
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
-    //! const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);  FORA DE USO
+    const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);
     const [carregando, setCarregando] = useState(false);
-    const carregandoRef = useRef(false);
-
-    useEffect(()=>{
-        carregandoRef.current = carregando
-    }, [carregando])
 
     // const toggleExpandir = (categoria: string) => {
     //     setEmpresasExpandidas(prev => ({
@@ -361,38 +291,12 @@ const Main: React.FC = () => {
     //     }));
     // };
 
-    const carregarMaisEmpresas = async() => {
-        console.log(empresasSemLabel.length)
-        if(empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current){
-            return;
-        }
+    const carregarMaisEmpresas = () => {
         setCarregando(true);
-        try {
-            const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage+1}`, { palavras: palavrasBuscaRef.current });
-            setSemLabelPage(prev=>prev+1);
-            const novasEmpresas = response.data;
-            const isFavoritada = (id: string) => {
-                return empresasFavoritadas.some((e) => e.id === id);
-            };
-            setEmpresasSemLabel(prev=>
-                [...prev, ...novasEmpresas.map(emp=>({
-                    id: emp.id,
-                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                    nome: emp.nome_fant,
-                    descricao: emp.descricao,
-                    setor: emp.setor,
-                    favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t=>t.nome)
-                }))]
-            );
+        setTimeout(() => {
+            setEmpresasSemLabelExpandidas(true);
             setCarregando(false);
-        } catch (erro) {
-            console.error("Erro ao carregar mais empresas:",erro)
-        }
-        // setTimeout(() => {
-        //     setEmpresasSemLabelExpandidas(true);
-        //     setCarregando(false);
-        // }, 1500);
+        }, 1500);
     };
 
     useEffect(() => {
@@ -547,11 +451,9 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
-    if(carregandoDados) return (<Loader/>)
-
-    return (
+    return (    
         <>
-            <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-dark-600`}>
+            <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-white dark:bg-dark-600`}>
                 <HeaderVagas isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
                     <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
@@ -618,6 +520,11 @@ const Main: React.FC = () => {
                     </section>
 
                     <section className="empresas-section w-full px-5 py-6 mt-2">
+                        {empresasFavoritadas && empresasFavoritadas.map(emp=>{
+                            return (
+                                <p>{emp.id}</p>
+                            )
+                        })}
                         {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
                             // const mostrarTodas = empresasExpandidas[categoria];
                             const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
@@ -625,7 +532,7 @@ const Main: React.FC = () => {
 
                             return (
                                 <div key={categoria} className="categoria-empresas mb-12">
-                                    <h2 className="categoria-label text-2xl font-bold mb-6 text-white border-b border-gray-600 pb-2">
+                                    <h2 className="categoria-label text-2xl font-bold mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
                                         {categoria}
                                     </h2>
 
@@ -658,7 +565,7 @@ const Main: React.FC = () => {
                                                     },
                                                 });
                                             }}
-                                            className="ver-mais-btn flex items-center gap-2 text-twitch-purple hover:text-twitch-lightpurple transition-colors font-medium py-2 px-4 rounded-lg border border-twitch-purple hover:border-twitch-lightpurple"
+                                            className="ver-mais-btn flex items-center gap-2 hover:bg-dark-600 text-dark-900 dark:text-twitch-purple hover:text-white dark:hover:text-white transition-colors font-medium py-2 px-4 rounded-lg border border-dark-900 hover:border-dark-500 dark:border-twitch-purple dark:hover:border-twitch-lightpurple dark:hover:bg-twitch-purple"
                                         >
                                             {recolher ? "Exibir" : "Recolher"}
                                             <i className={`bx bx-chevron-${recolher ? "down" : "up"} text-xl`} />
@@ -671,7 +578,7 @@ const Main: React.FC = () => {
 
                         {/* empresas recomendadas*/}
                         <div className="categoria-empresas mb-12">
-                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
                                 {empresasSemLabel.map((empresa) => {
                                     return (
                                     <EmpresaCard
@@ -687,19 +594,10 @@ const Main: React.FC = () => {
                                 )
                                 })}
                             </div>
-                            {/* carregar empresas */}
-                            {carregando && (
-                                <div className="carregando-empresas flex justify-center items-center py-12">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
-                                        <p className="text-gray-400">Carregando mais empresas...</p>
-                                    </div>
-                                </div>
-                            )}
 
 
                             {/* so para testar */}
-                            {/* {empresasSemLabelExpandidas && (
+                            {empresasSemLabelExpandidas && (
                                 <>
                                     <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-8">
                                         {empresasSemLabel.map((empresa, idx) => {
@@ -717,6 +615,7 @@ const Main: React.FC = () => {
                                         )})}
                                     </div>
 
+                                    {/* carregar empresas */}
                                     {carregando && (
                                         <div className="carregando-empresas flex justify-center items-center py-12">
                                             <div className="flex flex-col items-center gap-4">
@@ -726,7 +625,7 @@ const Main: React.FC = () => {
                                         </div>
                                     )}
                                 </>
-                            )} */}
+                            )}
                         </div>
                     </section>
                 </main>

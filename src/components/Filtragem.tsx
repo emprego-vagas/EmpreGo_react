@@ -65,14 +65,14 @@ export default function Filters({ isFilterOpen, setIsFilterOpen, onApply }) {
                     className={`filter-container absolute top-14 right-64 bg-white dark:bg-twitch-gray p-4 rounded-xl shadow-xl border border-gray-300 dark:border-gray-700 w-72 z-50 ${isFilterOpen ? "open" : "closed"}`}>
                     {/* SETOR */}
                     <div className="filter-category">
-                        <button className="filter-category-header flex justify-between w-full mb-1"
+                        <button className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
                         onClick={() => setOpenCategory(openCategory === "setor" ? null : "setor")}>
-                            <span className="text-dark-300 text-sm font-medium">Setor</span>
-                            <i className="bx bx-chevron-down"></i>
-                        </button>
+                            <span className="text-twitch-gray dark:text-dark-300 text-sm font-medium ">Setor</span>
+                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
+                        </button>   
 
                         {openCategory === "setor" && (
-                            <div className=" flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar">
+                            <div className=" flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar text-twitch-gray dark:text-dark-300">
                                 {setores.map(s => (
                                     <button
                                         key={s}
@@ -92,10 +92,10 @@ export default function Filters({ isFilterOpen, setIsFilterOpen, onApply }) {
                     {/* ESTADO */}
                     <div className="filter-category">
                         <button
-                            className="filter-category-header flex justify-between w-full mb-1  "
+                            className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
                             onClick={() => setOpenCategory(openCategory === "estado" ? null : "estado")}>
-                            <span className="text-dark-300 text-sm font-medium">Estado</span>
-                            <i className="bx bx-chevron-down"></i>
+                            <span className="text-sm font-medium text-twitch-gray dark:text-dark-300">Estado</span>
+                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
                         </button>
 
                         {openCategory === "estado" && (
@@ -121,11 +121,11 @@ export default function Filters({ isFilterOpen, setIsFilterOpen, onApply }) {
                     {/* PORTE */}
                     <div className="filter-category">
                         <button
-                            className="filter-category-header flex justify-between w-full mb-1"
+                            className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
                             onClick={() => setOpenCategory(openCategory === "porte" ? null : "porte")}
                         >
-                            <span className="text-dark-300 text-sm font-medium">Porte</span>
-                            <i className="bx bx-chevron-down"></i>
+                            <span className="text-twitch-gray dark:text-dark-300 text-sm font-medium">Porte</span>
+                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
                         </button>
 
                         {openCategory === "porte" && (
@@ -151,7 +151,7 @@ export default function Filters({ isFilterOpen, setIsFilterOpen, onApply }) {
                     <div className="filter-actions flex justify-between gap-2 mt-3">
                         <button
                             onClick={confirmFilters}
-                            className="bg-twitch-purple text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-twitch-lightpurple flex-1">
+                            className="bg-dark-900 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-dark-500 flex-1">
                             Confirmar filtros
                         </button>
 
