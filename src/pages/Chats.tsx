@@ -18,7 +18,7 @@ import Loader from '../components/Loader';
 import type { Conversa, Mensagem, MessageSocket, UserStatusSocket } from "../ts/chatsFunctions";
 import SinoNotificacoes from '../components/SinoNotificacoes';
 
-export default function Chats2() {
+export default function Chats() {
     const navigate = useNavigate();
     const [usuario] = useState(DadosUsuario.getUsuario(true));
     if(!usuario) {

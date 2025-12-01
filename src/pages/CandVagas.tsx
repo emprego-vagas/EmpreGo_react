@@ -111,73 +111,87 @@ const Main: React.FC = () => {
     useEffect(()=>{
         if(!usuario) return;
         async function carregarDados(){
-            const response = await axiosWe('/custom/vizualizar-empresas');
-            const data = response.data;
-            console.log(data)
-            console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor))
-            setEmpresasFavoritadas(data.empresasFavoritadas);
-            setEmpresasPorCategoria({
-                ["Empresas Recomendadas"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasRecomendadas.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                    },
-                ["Empresas Recentes"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasRecentes.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                    },
-                ["Empresas Principais"]: {
-                    pagina: 1,
-                    chegouNoLimite: false,
-                    recolher: true,
-                    empresasRecolhidas(){
-                        return this.empresas.slice(0,3)
-                    },
-                    empresas: data.empresasPrincipais.map(emp=>({
-                        id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t=>t.nome),
-                        setor: emp.setor,
-                        favoritada: isFavoritada(emp.id),
-                    }))
-                }
-            })
-            setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
-                id: emp.id,
-                logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
-                nome: emp.nome_fant,
-                descricao: emp.descricao,
-                setor: emp.setor,
-                favoritada: isFavoritada(emp.id),
-                tags: emp.tags_empresas.map(t=>t.nome)
-            })));
+            try {
+                const response = await axiosWe('/custom/vizualizar-empresas');
+                const data = response.data;
+                console.log(data);
+                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor));
+
+                console.log(data.palavrasPraBusca)
+                setPalavrasBusca(data.palavrasPraBusca);
+                palavrasBuscaRef.current = data.palavrasPraBusca;
+                setEmpresasFavoritadas(data.empresasFavoritadas.map(e=>e.empresas));
+
+                const isFavoritada = (id: string) => {
+                    return data.empresasFavoritadas.some((e) => e.empresas.id === id);
+                };
+                setEmpresasPorCategoria({
+                    ["Empresas Recomendadas"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasRecomendadas.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                        },
+                    ["Empresas Recentes"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasRecentes.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                        },
+                    ["Empresas Principais"]: {
+                        pagina: 1,
+                        chegouNoLimite: false,
+                        recolher: true,
+                        empresasRecolhidas(){
+                            return this.empresas.slice(0,3)
+                        },
+                        empresas: data.empresasPrincipais.map(emp=>({
+                            id: emp.id,
+                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            nome: emp.nome_fant,
+                            descricao: emp.descricao,
+                            tags: emp.tags_empresas.map(t=>t.nome),
+                            setor: emp.setor,
+                            favoritada: isFavoritada(emp.id),
+                        }))
+                    }
+                })
+                setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
+                    id: emp.id,
+                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    nome: emp.nome_fant,
+                    descricao: emp.descricao,
+                    setor: emp.setor,
+                    favoritada: isFavoritada(emp.id),
+                    tags: emp.tags_empresas.map(t=>t.nome)
+                })));
+                setCarregandoDados(false);
+            } catch (erro) {
+                console.error("Erro ao carregar empresas:",erro)
+            }
+            
         }
         carregarDados();
     }, [])
