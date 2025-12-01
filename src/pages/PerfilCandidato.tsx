@@ -119,7 +119,7 @@ export default function PerfilCandidato() {
     if (!candPerfil) return (<Loader />);
 
     return (
-        <div className="font-inter min-h-screen">
+        <div className="font-inter min-h-screen bg-white">
         <HeaderProfiles />
         <div id="main" className="container mx-auto px-4 pt-10 pb-10">
             {candPerfil && (
@@ -129,20 +129,20 @@ export default function PerfilCandidato() {
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     {/* <!-- Informações importantes --> */}
                     <div id="impInfo"
-                        className="bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className=" bg-gray-200 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <img id="fotoUsuario" src={candPerfil.foto==='/assets/imgs/genPfp.png'?genPfp:candPerfil.foto} alt="Foto de perfil"
-                            className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover mb-4"
+                            className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
-                                <div className="bg-professional-gray rounded-lg p-3" title="CPF">
-                                    <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />
+                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="CPF">
+                                    <FontAwesomeIcon icon={faIdCard} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cpfUsuario" className="text-sm">{candPerfil.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")}</span>
                                 </div>
                             )}
                             {candPerfil.data_nasc && (
-                                <div className="bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
-                                    <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-accent mr-2" />
+                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
+                                    <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-card dark:text-professional-accent mr-2" />
                                     {(()=>{
                                         const dataISO = candPerfil.data_nasc.split('T')[0];
                                         const [anoNasc, mesNasc, diaNasc] = String(dataISO).split('-');
@@ -151,26 +151,26 @@ export default function PerfilCandidato() {
                                 </div>
                             )}
                             {candPerfil.pronomes && (
-                                <div className="bg-professional-gray rounded-lg p-3" title="Pronomes">
-                                    <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-2" />
+                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
+                                    <FontAwesomeIcon icon={faUser} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="pronUsuario" className="text-sm">{candPerfil.pronomes}</span>
                                 </div>
                             )}
                             {candPerfil.cargo_atual && (
-                                <div className="bg-professional-gray rounded-lg p-3" title="Cargo Atual">
-                                    <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
+                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
+                                    <FontAwesomeIcon icon={faBriefcase} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cargoUsuario" className="text-sm">{candPerfil.cargo_atual}</span>
                                 </div>
                             )}
                             {candPerfil.empresa_atual && (
-                                <div className="bg-professional-gray rounded-lg p-3" title="Empresa Atual">
-                                    <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />
+                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
+                                    <FontAwesomeIcon icon={faBuilding} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="empresaUsuario" className="text-sm">{candPerfil.empresa_atual}</span>
                                 </div>
                             )}
                             {candPerfil.estado && (
-                                <div id="divLocalizacao" className="bg-professional-gray rounded-lg p-3" title="Localização">
-                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
+                                <div id="divLocalizacao" className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Localização">
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
                                     <span id="estadoUsuario" className="text-sm">{`Estado: (${candPerfil.estado})`}</span><br/>
                                     <span id="cidadeUsuario" className="text-sm">{`Cidade: ${candPerfil.cidade||'Não informada'}`}</span>
@@ -178,7 +178,7 @@ export default function PerfilCandidato() {
                             )}
                         </div>
                         <button id="btnEditarPerfil" onClick={()=>{navigate('/perfil/candidato/editar')}}
-                            className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer"
+                            className="bg-professional-card dark:bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-dark dark:hover:bg-professional-lightaccent cursor-pointer"
                             title="Editar Perfil">
                             <FontAwesomeIcon icon={faEdit} className="mr-2" />Editar Perfil
                         </button>
@@ -186,55 +186,55 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
-                        className="bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.nome}</h1>
+                        className=" bg-gray-200 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        <h1 id="nomUsuario" className="text-professional-dark dark:text-gray-200 text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.nome}</h1>
                         <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
-                            <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-2" />
+                            <FontAwesomeIcon icon={faEnvelope} className="text-professional-card dark:text-professional-accent mr-2" />
                             <a id="emailUsuario"
-                                className="text-lg text-professional-subtitle">{candPerfil.email}</a>
+                                className="text-lg text-professional-card dark:text-professional-subtitle">{candPerfil.email}</a>
                         </div>
 
-                        <div className="bg-professional-gray rounded-lg p-4 mb-6">
-                            <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
+                        <div className="bg-white dark:bg-professional-gray rounded-lg p-4 mb-6">
+                            <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                            after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                                 Resumo Profissional
                             </h2>
 
-                            <p id="descUsuario" className="text-professional-subtitle text-center">
+                            <p id="descUsuario" className="text-professional-card dark:text-professional-subtitle text-center">
                                 {candPerfil.descricao}
                             </p>
                         </div>
 
 
                         <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Portfólio">
-                                <FontAwesomeIcon icon={faMagic} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Portfólio">
+                                <FontAwesomeIcon icon={faMagic} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.portifolio && (
                                 <a id="portUsuario" href={candPerfil.portifolio}
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="nomeRedeSoc  text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Portfólio
                                 </a>
                                 )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="GitHub">
-                                <FontAwesomeIcon icon={faGithub} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="GitHub">
+                                <FontAwesomeIcon icon={faGithub} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.github && (
                                 <a id="gitUsuario" href={candPerfil.github}
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="nomeRedeSoc  text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     GitHub
                                 </a>
                                 )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Currículo">
-                                <FontAwesomeIcon icon={faFileInvoice} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Currículo">
+                                <FontAwesomeIcon icon={faFileInvoice} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.curriculo && (
                                 <a id="curriculoUsuario" href={candPerfil.curriculo}
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="nomeRedeSoc  text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Currículo
                                 </a>
@@ -251,33 +251,33 @@ export default function PerfilCandidato() {
                                 })()}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Instagram">
-                                <FontAwesomeIcon icon={faInstagram} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Instagram">
+                                <FontAwesomeIcon icon={faInstagram} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.instagram && (
                                 <a id="instUsuario" href={candPerfil.instagram}
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="nomeRedeSoc  text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Instagram
                                 </a>
                                 )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Site Pessoal">
-                                <FontAwesomeIcon icon={faGlobe} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Site Pessoal">
+                                <FontAwesomeIcon icon={faGlobe} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.site_pessoal && (
                                 <a id="siteUsuario" href={candPerfil.site_pessoal}
-                                    className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="nomeRedeSoc text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Site Pessoal
                                 </a>
                                 )}
                             </div>
 
-                            <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Twitter/X">
-                                <FontAwesomeIcon icon={faXTwitter} className="text-professional-accent mr-3 text-xl" />
+                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Twitter/X">
+                                <FontAwesomeIcon icon={faXTwitter} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.twitter && (
                                 <a id="twtUsuario" href={candPerfil.twitter}
-                                    className="twtUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
+                                    className="twtUsuario text-professional-card hover:text-professional-dark hover:underline dark:text-professional-subtitle dark:hover:text-professional-accent transition-colors"
                                     target="_blank">
                                     Twitter/X
                                 </a>
@@ -285,32 +285,32 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
 
-                        <div id="formacaoInfo" className="bg-professional-gray rounded-lg p-4">
+                        <div id="formacaoInfo" className="dark:bg-professional-card bg-white rounded-lg p-4">
 
-                            <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
+                            <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                            after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded">
                                 Formação Acadêmica</h2>
 
                             <div className="space-y-3">
                                 <div>
-                                    <h3 className="font-medium text-white text-center">Bacharelado em [Área]</h3>
-                                    <p className="text-professional-subtitle text-sm text-center">Universidade [Nome] • [Ano
+                                    <h3 className="font-medium dark:text-professional-subtitle text-professional-card text-center">Bacharelado em [Área]</h3>
+                                    <p className=" dark:text-professional-subtitle text-professional-gray text-sm text-center">Universidade [Nome] • [Ano
                                         de
                                         Conclusão]
                                     </p>
                                 </div>
                                 <div>
-                                    <h3 className="font-medium text-white text-center">Pós-graduação em [Especialização]
+                                    <h3 className="font-medium  dark:text-professional-subtitle text-professional-card text-center">Pós-graduação em [Especialização]
                                     </h3>
-                                    <p className="text-professional-subtitle text-sm text-center">Instituição [Nome] • [Ano
+                                    <p className="dark:text-professional-subtitle text-professional-gray text-sm text-center">Instituição [Nome] • [Ano
                                         de
                                         Conclusão]
                                     </p>
                                 </div>
                                 <div>
-                                    <h3 className="font-medium text-white text-center">Tecnologo em [Especialização]</h3>
-                                    <p className="text-professional-subtitle text-sm text-center">Instituição [Nome] • [Ano
+                                    <h3 className="font-medium  dark:text-professional-subtitle text-professional-card text-center">Tecnologo em [Especialização]</h3>
+                                    <p className="dark:text-professional-subtitle text-professional-gray text-sm text-center">Instituição [Nome] • [Ano
                                         de
                                         Conclusão]
                                     </p>
@@ -323,13 +323,13 @@ export default function PerfilCandidato() {
                 {/* <!-- Coluna direita - Habilidades e Estatísticas --> */}
                 <div id="bodyTags" className="lg:col-span-4 space-y-6">
                     <div
-                        className="bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-200 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                            after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                             {`Habilidades & Competências${customPerfil.tags_count>0?` (${customPerfil.tags_count})`:''}`}</h1>
                         <div id="boxTags"
-                            className="bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
+                            className="bg-white border-gray-200 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
                                 {customPerfil.tags_count>0 && customPerfil.tags.map(tag=>{
