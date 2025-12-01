@@ -203,7 +203,7 @@ const Main: React.FC = () => {
             
         }
         carregarDados();
-    }, [])
+    }, [usuario])
 
     const [currentSlide, setCurrentSlide] = useState(0);
     const [direction, setDirection] = useState<'left' | 'right'>('right');
