@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-import HeaderVagas from '../components/HeaderVagas';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { DadosUsuario, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
 import Loader from '../components/Loader';
+import ThemeTogleConfig from '../components/ThemeTogleConfig';
+import logo from './../assets/imgs/BIGSlogo.png';
+import lupa from './../assets/imgs/lupa.png';
+import filtro from './../assets/imgs/filtro.png';
+import '../css/filtragem.css';
 
+// interfaces
 interface Slide {
     empresa: string;
     titulo: string;
@@ -57,6 +62,39 @@ interface EmpresaFavoritada {
     foto: string | null;
 }
 
+// Interfaces do Header
+interface FiltroRecomendado {
+    id: number;
+    nome: string;
+    categoria: string;
+}
+
+// Filtros recomendados
+const filtrosRecomendados: FiltroRecomendado[] = [
+    { id: 1, nome: "Programação de computadores", categoria: "Tecnologia" },
+    { id: 2, nome: "Música", categoria: "Entretenimento" },
+    { id: 3, nome: "Notícias", categoria: "Informação" },
+    { id: 4, nome: "Yu-Gi-Oh! Duel Monsters", categoria: "Games" },
+    { id: 5, nome: "Mixes", categoria: "Música" },
+    { id: 6, nome: "Jogos de cartas", categoria: "Games" },
+    { id: 7, nome: "Música medieval", categoria: "Música" },
+    { id: 8, nome: "Chefes", categoria: "Culinária" },
+    { id: 9, nome: "Música ao vivo", categoria: "Música" },
+    { id: 10, nome: "Lista", categoria: "Organização" },
+    { id: 11, nome: "Desenvolvimento Web", categoria: "Tecnologia" },
+    { id: 12, nome: "React", categoria: "Tecnologia" },
+    { id: 13, nome: "TypeScript", categoria: "Tecnologia" },
+    { id: 14, nome: "UI/UX Design", categoria: "Design" },
+];
+
+// Constantes do Filtro
+const setoresFilter = ["Alimentício", "Varejo", "Turismo", "Energia", "Agronegócio", "Saúde"];
+const portesFilter = ["Pequeno", "Médio", "Grande"];
+const estadosFilter = [
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
+    "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+];
+
 const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais, favoritada }) => {
     const [favorito, setFavorito] = useState(favoritada);
 
@@ -99,6 +137,7 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
     );
 };
 
+// main componentes
 const Main: React.FC = () => {
     const navigate = useNavigate();
     const [usuario] = useState(DadosUsuario.getUsuario(true, 'candidato'));
@@ -205,6 +244,7 @@ const Main: React.FC = () => {
         carregarDados();
     }, [usuario])
 
+    // slider states 
     const [currentSlide, setCurrentSlide] = useState(0);
     const [direction, setDirection] = useState<'left' | 'right'>('right');
     const prevIndexRef = useRef<number>(0);
@@ -216,8 +256,25 @@ const Main: React.FC = () => {
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const mouseRef = useRef({ x: 0, y: 0 });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // Estados do Filtro
+    const [filters, setFilters] = useState({
+        setor: [],
+        estado: [],
+        porte: [],
+    });
+    const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+    // Refs do Header
+    const headerRef = useRef<HTMLDivElement>(null);
+    const profileRef = useRef<HTMLDivElement>(null);
+    const filtrosContainerRef = useRef<HTMLDivElement>(null);
+    const filterRef = useRef<HTMLDivElement>(null);
     // const dateTimeNow = Date.now();
 
+    // informações
     const slides: Slide[] = [
         {
             empresa: "TechSolutions Inc.",
@@ -283,6 +340,7 @@ const Main: React.FC = () => {
     }, [empresasSemLabel]);
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
+    // favoritar ou desfavoritar empresa
     const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
         console.log('atualizar')
         function atualizarStatus(){
@@ -341,6 +399,8 @@ const Main: React.FC = () => {
             }
         };
     }
+
+    // infinite scroll empresas sem label
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
     //! const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);  FORA DE USO
@@ -405,7 +465,8 @@ const Main: React.FC = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [carregando]);
-
+    
+    // slider three js particles background
     useEffect(() => {
         if (!threeContainerRef.current) return;
 
@@ -466,7 +527,8 @@ const Main: React.FC = () => {
             renderer.dispose();
         };
     }, []);
-
+    
+    // mouse move for three js
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             mouseRef.current = {
@@ -542,12 +604,312 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
+    // ===== FUNÇÕES E ESTADOS DO HEADER =====
+
+    // useEffect para fechar menu de perfil ao clicar fora
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+                setIsProfileOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
+
+    // Função para lidar com clique em filtro recomendado
+    const handleFiltroClick = (f: FiltroRecomendado) => {
+        f.nome;
+    };
+
+    // Função para scroll dos filtros
+    const scrollFiltros = (direction: "left" | "right") => {
+        if (!filtrosContainerRef.current) return;
+
+        const container = filtrosContainerRef.current;
+        const scrollAmount = 300;
+        const target =
+            direction === "left"
+                ? container.scrollLeft - scrollAmount
+                : container.scrollLeft + scrollAmount;
+
+        gsap.to(container, {
+            scrollLeft: target,
+            duration: 0.5,
+            ease: "power2.out",
+        });
+    };
+
+    // ===== FUNÇÕES E ESTADOS DO FILTRO =====
+
+    // useEffect para fechar filtro ao clicar fora
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+                setIsFilterOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Função para alternar chip de filtro
+    const toggleChip = (category: keyof typeof filters, value: string) => {
+        setFilters(prev => {
+            const current = prev[category];
+            const exists = current.includes(value);
+
+            return {
+                ...prev,
+                [category]: exists
+                    ? current.filter(v => v !== value)
+                    : [...current, value]
+            };
+        });
+    };
+
+    // Função para limpar filtros
+    const clearFilters = () => {
+        setFilters({
+            setor: [],
+            estado: [],
+            porte: [],
+        });
+    };
+
+    // Função para confirmar filtros
+    const confirmFilters = () => {
+        // onApply(filters); // descomente quando implementar
+        setIsFilterOpen(false);
+    };
+
     if(carregandoDados) return (<Loader/>)
 
     return (
         <>
             <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-white dark:bg-dark-600`}>
-                <HeaderVagas isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+                {/* ===== HEADER SIDEBAR ===== */}
+                <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
+                    ${isSidebarOpen ? "open" : "closed"}`}>
+                    <nav className="sidebar-itens flex flex-col gap-3 px-3">
+                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                            <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
+                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
+                        </a>
+
+                        <a href="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                            <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
+                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
+                                Chat Geral
+                            </span>
+                        </a>
+
+                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                            <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
+                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
+                        </a>
+
+                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                            <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
+                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                {/* ===== HEADER PRINCIPAL ===== */}
+                <header ref={headerRef} className={`fixed top-0 left-0 right-0 bg-white dark:bg-dark-600 z-50 flex flex-col`}>
+                    <div className="w-full flex items-center justify-between px-4 h-14">
+                        <div className="flex items-center gap-4">
+                            <button className="bx bx-menu text-3xl text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 w-10 h-10 flex items-center justify-center rounded-full transition" onClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
+                            <a href="/" className="flex items-center gap-1">
+                                <img src={logo} alt="Logo" className="h-10 w-auto" />
+                                <span className="font-black text-xl text-gray-800 dark:text-white">
+                                    Empre<span className="text-twitch-purple">Go</span>
+                                </span>
+                            </a>
+                        </div>
+
+                        <div className="flex flex-1 justify-center px-4">
+                            <div className="search-bar flex items-center w-full max-w-2xl bg-white dark:bg-twitch-gray rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
+                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white"/>
+
+                                <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
+                                    <img src={filtro} className="w-6 h-6 filter brightness-0 invert" />
+                                </button>
+
+                                <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition">
+                                    <img src={lupa} className="w-5 h-5 filter brightness-0 invert" />
+                                </button>
+                            </div>
+
+                            {/* ===== FILTER DROPDOWN ===== */}
+                            {isFilterOpen && (
+                                <div
+                                    ref={filterRef}
+                                    className={`filter-container absolute top-14 right-64 bg-white dark:bg-twitch-gray p-4 rounded-xl shadow-xl border border-gray-300 dark:border-gray-700 w-72 z-50 ${isFilterOpen ? "open" : "closed"}`}>
+                                    
+                                    {/* SETOR */}
+                                    <div className="filter-category">
+                                        <button className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
+                                        onClick={() => setOpenCategory(openCategory === "setor" ? null : "setor")}>
+                                            <span className="text-twitch-gray dark:text-dark-300 text-sm font-medium ">Setor</span>
+                                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
+                                        </button>   
+
+                                        {openCategory === "setor" && (
+                                            <div className=" flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar text-twitch-gray dark:text-dark-300">
+                                                {setoresFilter.map(s => (
+                                                    <button
+                                                        key={s}
+                                                        onClick={() => toggleChip("setor", s)}
+                                                        className={`filter-chip text-white px-2.5 py-1 rounded-full text-xs cursor-pointer border-none transition-colors select-none
+                                                            ${filters.setor.includes(s)
+                                                                ? "bg-twitch-purple text-white"
+                                                                : "bg-dark-600 text-white/80"
+                                                            }`}>
+                                                        {s}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* ESTADO */}
+                                    <div className="filter-category">
+                                        <button
+                                            className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
+                                            onClick={() => setOpenCategory(openCategory === "estado" ? null : "estado")}>
+                                            <span className="text-sm font-medium text-twitch-gray dark:text-dark-300">Estado</span>
+                                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
+                                        </button>
+
+                                        {openCategory === "estado" && (
+                                            <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar">
+                                                {estadosFilter.map(uf => (
+                                                    <button
+                                                        key={uf}
+                                                        onClick={() => toggleChip("estado", uf)}
+                                                        className={`filter-chip text-white px-2.5 py-1 rounded-full text-xs cursor-pointer border-none transition-colors select-none 
+                                                            ${filters.estado.includes(uf)
+                                                                ? "bg-twitch-purple text-white"
+                                                                : "bg-dark-600 text-white/80"
+                                                            }
+                                                        `}>
+                                                        {uf}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* PORTE */}
+                                    <div className="filter-category">
+                                        <button
+                                            className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
+                                            onClick={() => setOpenCategory(openCategory === "porte" ? null : "porte")}
+                                        >
+                                            <span className="text-twitch-gray dark:text-dark-300 text-sm font-medium">Porte</span>
+                                            <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
+                                        </button>
+
+                                        {openCategory === "porte" && (
+                                            <div className=" flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar">
+                                                {portesFilter.map(p => (
+                                                    <button
+                                                        key={p}
+                                                        onClick={() => toggleChip("porte", p)}
+                                                        className={`filter-chip px-2.5 py-1 rounded-full text-xs 
+                                                            transition-colors select-none 
+                                                            ${filters.porte.includes(p)
+                                                                ? "bg-twitch-purple text-white"
+                                                                : "bg-dark-600 text-white/80"
+                                                            }`}>
+                                                        {p}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* AÇÕES */}
+                                    <div className="filter-actions flex justify-between gap-2 mt-3">
+                                        <button
+                                            onClick={confirmFilters}
+                                            className="bg-dark-900 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-dark-500 flex-1">
+                                            Confirmar filtros
+                                        </button>
+
+                                        <button
+                                            onClick={clearFilters}
+                                            className="bg-gray-600 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-gray-700 flex-1">
+                                            Limpar filtros
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Profile */}
+                        <div className="relative " ref={profileRef}>
+                            <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
+                                <img src={logo} alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
+                            </div>
+
+                            {isProfileOpen && (
+                                <div className="absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999]">
+                                    <div className="p-3">
+                                        <p className="font-bold">nome VISIVEL</p>
+                                        <a href="/perfil/candidato" className="text-twitch-purple text-sm">
+                                            Acessar perfil
+                                        </a>
+                                    </div>
+
+                                    <hr className="border-gray-300 dark:border-gray-700" />
+
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar perfil</button>
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Sair</button>
+
+                                    <hr className="border-gray-300 dark:border-gray-700" />
+
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button>
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Chats</button>
+
+                                    <hr className="border-gray-300 dark:border-gray-700" />
+
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Configurações</button>
+
+                                    <ThemeTogleConfig />
+
+                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ajuda</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div
+                        className={`recommended-filters-wrapper relative flex gap-6 overflow-x-auto scrollbar-hide pl-28 pr-6 py-2 transition-all duration-300
+                        ${isSidebarOpen ? "ml-[8rem]" : "ml-0"}`}>
+                        <button onClick={() => scrollFiltros("left")} className="absolute left-24 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                            <i className="bx bx-chevron-left text-xl"></i>
+                        </button>
+
+                        <div
+                            ref={filtrosContainerRef}
+                            className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
+                            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                            {filtrosRecomendados.map((f) => (
+                                <button key={f.id} onClick={() => handleFiltroClick(f)} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                    {f.nome}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button onClick={() => scrollFiltros("right")} className="absolute right-2 top-1/2 -translate-y-1/2 z-20  w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                            <i className="bx bx-chevron-right text-xl"></i>
+                        </button>
+                    </div>
+                </header>
+
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
                     <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
                         <div ref={threeContainerRef} className="absolute inset-0 -z-10" />
