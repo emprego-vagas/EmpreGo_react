@@ -3,10 +3,11 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import HeaderVagas from '../components/HeaderVagas';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
-import { data, useNavigate } from 'react-router-dom';
-import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
+import { useNavigate } from 'react-router-dom';
+import { DadosUsuario, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
+import Loader from '../components/Loader';
 
 interface Slide {
     empresa: string;
@@ -60,9 +61,12 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
     const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
-        setFavorito((s) => !s);
         if (onClickFavorito) onClickFavorito();
     };
+
+    useEffect(() => {
+        setFavorito(favoritada);
+    }, [favoritada]);
 
     return (
         <article
@@ -104,9 +108,14 @@ const Main: React.FC = () => {
         }, 3000)
     };
 
-    const isFavoritada = (id: string) => {
-        return empresasFavoritadas.some(e => e.id === id);
-    };
+    const [carregandoDados, setCarregandoDados] = useState(true);
+    const [palavrasBusca, setPalavrasBusca] = useState<string[]>([]);
+
+    const palavrasBuscaRef = useRef<string[]>([]);
+
+    useEffect(() => {
+        palavrasBuscaRef.current = palavrasBusca;
+    }, [palavrasBusca]);
 
     useEffect(()=>{
         if(!usuario) return;
@@ -245,9 +254,9 @@ const Main: React.FC = () => {
         }
     ];
 
-
-
     const [empresasPorCategoria, setEmpresasPorCategoria] = useState<EmpresasPorCategoria>({})
+    const [semLabelPage, setSemLabelPage] = useState(1);
+    
     const [empresasSemLabel, setEmpresasSemLabel] = useState([
         {
             id: '1',
@@ -268,35 +277,79 @@ const Main: React.FC = () => {
             tags: ['Sistemas', 'Corporate', 'Híbrido']
         },
     ]);
+    const empresasSemLabelRef = useRef(null);
+    useEffect(() => {
+        empresasSemLabelRef.current = empresasSemLabel;
+    }, [empresasSemLabel]);
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
     const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
-        if (favoritada) { 
-             setEmpresasFavoritadas([...empresasFavoritadas.filter(e=>e.id!==empresa.id)]);
+        console.log('atualizar')
+        function atualizarStatus(){
+            setEmpresasSemLabel(empresasSemLabel.map(emp=>{
+                if (emp.id===empresa.id){
+                    return {...emp, favoritada: !favoritada}
+                } else return emp
+            }));
+            setEmpresasPorCategoria(prev => {
+                const novo = { ...prev };
+
+                for (const categoria in novo) {
+                    novo[categoria] = {
+                        ...novo[categoria],
+                        empresas: novo[categoria].empresas.map(emp =>
+                            emp.id === empresa.id
+                                ? { ...emp, favoritada: !favoritada }
+                                : emp
+                        )
+                    };
+                }
+
+                return novo;
+            });
+        }
+        if (favoritada) {
+            setEmpresasFavoritadas(prev=>prev.filter(e=>e.id!==empresa.id));
+            atualizarStatus();
             try {
-            await axiosWe.delete(`/favoritos/empresa/${empresa.id}`)                 
+                await axiosWe.delete(`/favoritos/empresa/${empresa.id}`);
             } catch (erro) {
-                console.error("Erro ao remover empresa dos favoritos: ", erro)
-            }
+                console.error("Erro ao remover empresa dos favoritos: ", erro);
+            };
         }
         else {
-            if(empresasFavoritadas.length >= 10) mostrarErroTopo("Você só pode favoritar até 10 empresas");
-            else {
-                setEmpresasFavoritadas([empresa, ...empresasFavoritadas]);
+            if(empresasFavoritadas.length >= 20){
+                mostrarAvisoTopo("Você só pode favoritar até 20 empresas");
+            } else {
+                setEmpresasFavoritadas(prev => {
+                    if (prev.length >= 20) {
+                        mostrarAvisoTopo("Você só pode favoritar até 20 empresas");
+                        return prev;
+                    }
+
+                    
+                    return [empresa, ...prev];
+                });
+                atualizarStatus();
                 try {
                     await axiosWe.post(`/favoritos/empresa`, {
                         id: empresa.id,
-                    })
+                    });
                 } catch (erro) {
-                    console.error("Erro ao favoritar empresa:", erro)
-                }
+                    console.error("Erro ao favoritar empresa:", erro);
+                };
             }
         };
-    } //TODO Configurar dps
+    }
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
-    const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);
+    //! const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);  FORA DE USO
     const [carregando, setCarregando] = useState(false);
+    const carregandoRef = useRef(false);
+
+    useEffect(()=>{
+        carregandoRef.current = carregando
+    }, [carregando])
 
     // const toggleExpandir = (categoria: string) => {
     //     setEmpresasExpandidas(prev => ({
@@ -305,12 +358,38 @@ const Main: React.FC = () => {
     //     }));
     // };
 
-    const carregarMaisEmpresas = () => {
+    const carregarMaisEmpresas = async() => {
+        console.log(empresasSemLabel.length)
+        if(empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current){
+            return;
+        }
         setCarregando(true);
-        setTimeout(() => {
-            setEmpresasSemLabelExpandidas(true);
+        try {
+            const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage+1}`, { palavras: palavrasBuscaRef.current });
+            setSemLabelPage(prev=>prev+1);
+            const novasEmpresas = response.data;
+            const isFavoritada = (id: string) => {
+                return empresasFavoritadas.some((e) => e.id === id);
+            };
+            setEmpresasSemLabel(prev=>
+                [...prev, ...novasEmpresas.map(emp=>({
+                    id: emp.id,
+                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    nome: emp.nome_fant,
+                    descricao: emp.descricao,
+                    setor: emp.setor,
+                    favoritada: isFavoritada(emp.id),
+                    tags: emp.tags_empresas.map(t=>t.nome)
+                }))]
+            );
             setCarregando(false);
-        }, 1500);
+        } catch (erro) {
+            console.error("Erro ao carregar mais empresas:",erro)
+        }
+        // setTimeout(() => {
+        //     setEmpresasSemLabelExpandidas(true);
+        //     setCarregando(false);
+        // }, 1500);
     };
 
     useEffect(() => {
@@ -326,8 +405,6 @@ const Main: React.FC = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [carregando]);
-
-
 
     useEffect(() => {
         if (!threeContainerRef.current) return;
@@ -465,7 +542,9 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
-    return (    
+    if(carregandoDados) return (<Loader/>)
+
+    return (
         <>
             <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-white dark:bg-dark-600`}>
                 <HeaderVagas isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -534,11 +613,6 @@ const Main: React.FC = () => {
                     </section>
 
                     <section className="empresas-section w-full px-5 py-6 mt-2">
-                        {empresasFavoritadas && empresasFavoritadas.map(emp=>{
-                            return (
-                                <p>{emp.id}</p>
-                            )
-                        })}
                         {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
                             // const mostrarTodas = empresasExpandidas[categoria];
                             const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
@@ -608,10 +682,19 @@ const Main: React.FC = () => {
                                 )
                                 })}
                             </div>
+                            {/* carregar empresas */}
+                            {carregando && (
+                                <div className="carregando-empresas flex justify-center items-center py-12">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                        <p className="text-gray-400">Carregando mais empresas...</p>
+                                    </div>
+                                </div>
+                            )}
 
 
                             {/* so para testar */}
-                            {empresasSemLabelExpandidas && (
+                            {/* {empresasSemLabelExpandidas && (
                                 <>
                                     <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-8">
                                         {empresasSemLabel.map((empresa, idx) => {
@@ -629,7 +712,6 @@ const Main: React.FC = () => {
                                         )})}
                                     </div>
 
-                                    {/* carregar empresas */}
                                     {carregando && (
                                         <div className="carregando-empresas flex justify-center items-center py-12">
                                             <div className="flex flex-col items-center gap-4">
@@ -639,7 +721,7 @@ const Main: React.FC = () => {
                                         </div>
                                     )}
                                 </>
-                            )}
+                            )} */}
                         </div>
                     </section>
                 </main>
