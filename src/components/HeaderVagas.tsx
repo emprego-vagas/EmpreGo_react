@@ -78,7 +78,7 @@ export default function HeaderVagas({ isSidebarOpen, setIsSidebarOpen }: Props) 
 
     return (
         <>
-            <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:bg-dark-900 flex flex-col pt-6 transition-all duration-300 ease-in-out
+            <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                 <nav className="sidebar-itens flex flex-col gap-3 px-3">
                     <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
