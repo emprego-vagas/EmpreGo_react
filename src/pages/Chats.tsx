@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
+import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo, sendNotification } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload, faClock, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -316,21 +316,12 @@ export default function Chats() {
                     mostrarErroTopo(callback.message);
                 }
             });
-            socket.emit('sendNotification',{
-                remetente: {
-                    id: usuario.id,
-                    nome: usuario.nome,
-                    tipo: usuario.tipo,
-                    foto: usuario.foto
-                },
-                destinatario: {
-                    id: destinatarioid,
-                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-                },
+            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+            sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
                     action: 'aceitar'
                 }
-            });
+            })
         } catch (erro) {
             console.error('Erro ao aceitar solicitação:',erro)
         }
@@ -343,21 +334,12 @@ export default function Chats() {
         try {
             if(usuario.tipo==='candidato') await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
             else await axiosWe.delete(`/empresas/conversa/remover/${id}`);
-            socket.emit('sendNotification',{
-                remetente: {
-                    id: usuario.id,
-                    nome: usuario.nome,
-                    tipo: usuario.tipo,
-                    foto: usuario.foto
-                },
-                destinatario: {
-                    id: destinatarioid,
-                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-                },
+            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+            sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
                     action: 'recusar'
                 }
-            });
+            })
         } catch (erro) {
             console.error('Erro ao recusar solicitação:',erro)
         }
@@ -368,21 +350,12 @@ export default function Chats() {
         try {
             if(usuario.tipo==='candidato') await axiosWe.delete(`/empresas/conversa/remover/${id}`);
             else await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
-            socket.emit('sendNotification',{
-                remetente: {
-                    id: usuario.id,
-                    nome: usuario.nome,
-                    tipo: usuario.tipo,
-                    foto: usuario.foto
-                },
-                destinatario: {
-                    id: destinatarioid,
-                    tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-                },
+            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
+            sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
                     action: 'cancelar'
                 }
-            });
+            })
         } catch (erro) {
             console.error('Erro ao cancelar solicitação:',erro)
         }
@@ -1319,17 +1292,8 @@ export default function Chats() {
                                         const enviou = await enviarSolicitacaoConversa(usuario.tipo, novaSolicitacao.id);
                                         if(enviou.foi) {
                                             mostrarSucessoTopo('Solicitação de conversa enviada com sucesso!');
-                                            socket.emit('sendNotification',{
-                                                remetente: {
-                                                    id: usuario.id,
-                                                    nome: usuario.nome,
-                                                    tipo: usuario.tipo,
-                                                    foto: usuario.foto
-                                                },
-                                                destinatario: {
-                                                    id: novaSolicitacao.id,
-                                                    tipo: novaSolicitacao.tipo.toLowerCase()
-                                                },
+                                            const recipientType = novaSolicitacao.tipo.toLowerCase() as 'empresa'|'candidato';
+                                            sendNotification({id: novaSolicitacao.id, type: recipientType}, {
                                                 solicitacao_conversa: {
                                                     action: 'criar'
                                                 }

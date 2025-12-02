@@ -1,4 +1,5 @@
 import axiosWe from "./axiosInstance";
+import socket from "./socketsConnection";
 
 export function mostrarErroTopo(mensagem: string) {
     const old = document.querySelector('.erro-mensagem-geral2');
@@ -161,3 +162,33 @@ export async function fileDownload(url: string, tipo: string){
     link.click();   // * Clica no link temporário automaticamente para iniciar o download
     document.body.removeChild(link);   // * Remove o link temporário da Árvore DOM (OBS: fui eu q comentei isso tá? foi chat nn)
 };
+
+type NotificationContent =
+    | {
+        solicitacao_conversa: {
+        action: string;
+        };
+    }
+    | {
+        favoritado: {
+        action: string;
+        };
+    };
+
+export function sendNotification(recipient: {id: string, type: 'empresa' | 'candidato'}, content: NotificationContent){
+    const usuario = DadosUsuario.getUsuario(true);
+    if(!usuario) return;
+    socket.emit('sendNotification',{
+        remetente: {
+            id: usuario.id,
+            nome: usuario.nome,
+            tipo: usuario.tipo,
+            foto: usuario.foto
+        },
+        destinatario: {
+            id: recipient.id,
+            tipo: recipient.type
+        },
+        ...(content as NotificationContent)
+    });
+}
