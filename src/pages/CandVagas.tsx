@@ -10,11 +10,10 @@ import Loader from '../components/Loader';
 import ThemeTogleConfig from '../components/ThemeTogleConfig';
 import logo from './../assets/imgs/BIGSlogo.png';
 import lupa from './../assets/imgs/lupa.png';
-import filtro from './../assets/imgs/filtro.png';
 import '../css/filtragem.css';
 import SinoNotificacoes from '../components/SinoNotificacoes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight, faComment } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faComment, faSliders } from '@fortawesome/free-solid-svg-icons';
 
 // interfaces
 interface Slide {
@@ -761,7 +760,8 @@ const Main: React.FC = () => {
                                 <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e)=>setBuscaPesquisa(e.target.value)}/>
 
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
-                                    <img src={filtro} className="w-6 h-6 filter brightness-0 invert" />
+                                    {/* <img src={filtro} className="w-6 h-6 filter brightness-0 invert" /> */}
+                                    <FontAwesomeIcon icon={faSliders} className="w-5 h-5 text-gray-800 dark:text-white" />
                                 </button>
 
                                 <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition">
@@ -792,7 +792,7 @@ const Main: React.FC = () => {
                                                         className={`filter-chip text-white px-2.5 py-1 rounded-full text-xs cursor-pointer border-none transition-colors select-none
                                                             ${filters.setor.includes(s)
                                                                 ? "bg-twitch-purple text-white"
-                                                                : "bg-dark-600 text-white/80"
+                                                                : "bg-dark-500 text-white/80"
                                                             }`}>
                                                         {s}
                                                     </button>
@@ -819,7 +819,7 @@ const Main: React.FC = () => {
                                                         className={`filter-chip text-white px-2.5 py-1 rounded-full text-xs cursor-pointer border-none transition-colors select-none 
                                                             ${filters.estado.includes(uf)
                                                                 ? "bg-twitch-purple text-white"
-                                                                : "bg-dark-600 text-white/80"
+                                                                : "bg-dark-500 text-white/80"
                                                             }
                                                         `}>
                                                         {uf}
@@ -849,7 +849,7 @@ const Main: React.FC = () => {
                                                             transition-colors select-none 
                                                             ${filters.porte.includes(p)
                                                                 ? "bg-twitch-purple text-white"
-                                                                : "bg-dark-600 text-white/80"
+                                                                : "bg-dark-500 text-white/80"
                                                             }`}>
                                                         {p}
                                                     </button>
@@ -862,13 +862,13 @@ const Main: React.FC = () => {
                                     <div className="filter-actions flex justify-between gap-2 mt-3">
                                         <button
                                             onClick={confirmFilters}
-                                            className="bg-dark-900 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-dark-500 flex-1">
+                                            className="bg-dark-500  text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-primary-500 flex-1">
                                             Confirmar filtros
                                         </button>
 
                                         <button
                                             onClick={clearFilters}
-                                            className="bg-gray-600 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-gray-700 flex-1">
+                                            className="bg-gray-600 text-white btn-primary px-3 py-1.5 text-xs rounded hover:bg-gray-800 flex-1">
                                             Limpar filtros
                                         </button>
                                     </div>
@@ -960,8 +960,7 @@ const Main: React.FC = () => {
                                             ? { backgroundImage: `url(${slide.background})` }
                                             : undefined
                                     }
-                                    className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden
-                                    ${index === currentSlide ? 'opacity-100 pointer-events-auto' : 'opacity-50 pointer-events-none'}`}>
+                                    className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
                                     <div className="slide-content bg-zinc-900/80 backdrop-blur-sm p-8 rounded-xl h-full box-border flex flex-col justify-center overflow-hidden">
                                         <span className="slide-empresa text-sm uppercase tracking-[2px]  text-gray-400 mb-2 block">
                                             {slide.empresa}
