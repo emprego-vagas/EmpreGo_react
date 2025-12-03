@@ -119,7 +119,7 @@ export default function PerfilCandidato() {
     if (!candPerfil) return (<Loader />);
 
     return (
-        <div className="font-inter min-h-screen bg-white">
+        <div className="font-inter min-h-screen bg-white dark:bg-professional-dark">
         <HeaderProfiles />
         <div id="main" className="container mx-auto px-4 pt-10 pb-10">
             {candPerfil && (
@@ -129,19 +129,19 @@ export default function PerfilCandidato() {
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     {/* <!-- Informações importantes --> */}
                     <div id="impInfo"
-                        className=" bg-gray-200 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <img id="fotoUsuario" src={candPerfil.foto==='/assets/imgs/genPfp.png'?genPfp:candPerfil.foto} alt="Foto de perfil"
                             className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
-                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="CPF">
+                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
                                     <FontAwesomeIcon icon={faIdCard} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cpfUsuario" className="text-sm">{candPerfil.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")}</span>
                                 </div>
                             )}
                             {candPerfil.data_nasc && (
-                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
+                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
                                     <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-card dark:text-professional-accent mr-2" />
                                     {(()=>{
                                         const dataISO = candPerfil.data_nasc.split('T')[0];
@@ -151,25 +151,25 @@ export default function PerfilCandidato() {
                                 </div>
                             )}
                             {candPerfil.pronomes && (
-                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
+                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
                                     <FontAwesomeIcon icon={faUser} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="pronUsuario" className="text-sm">{candPerfil.pronomes}</span>
                                 </div>
                             )}
                             {candPerfil.cargo_atual && (
-                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
+                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
                                     <FontAwesomeIcon icon={faBriefcase} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cargoUsuario" className="text-sm">{candPerfil.cargo_atual}</span>
                                 </div>
                             )}
                             {candPerfil.empresa_atual && (
-                                <div className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
+                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
                                     <FontAwesomeIcon icon={faBuilding} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="empresaUsuario" className="text-sm">{candPerfil.empresa_atual}</span>
                                 </div>
                             )}
                             {candPerfil.estado && (
-                                <div id="divLocalizacao" className="bg-white text-professional-gray dark:text-gray-200 dark:bg-professional-gray rounded-lg p-3" title="Localização">
+                                <div id="divLocalizacao" className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Localização">
                                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
                                     <span id="estadoUsuario" className="text-sm">{`Estado: (${candPerfil.estado})`}</span><br/>
@@ -178,7 +178,7 @@ export default function PerfilCandidato() {
                             )}
                         </div>
                         <button id="btnEditarPerfil" onClick={()=>{navigate('/perfil/candidato/editar')}}
-                            className="bg-professional-card dark:bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-dark dark:hover:bg-professional-lightaccent cursor-pointer"
+                            className="hover:bg-gray-700 bg-professional-dark dark:bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out dark:hover:bg-professional-lightaccent cursor-pointer"
                             title="Editar Perfil">
                             <FontAwesomeIcon icon={faEdit} className="mr-2" />Editar Perfil
                         </button>
@@ -186,8 +186,8 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
-                        className=" bg-gray-200 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h1 id="nomUsuario" className="text-professional-dark dark:text-gray-200 text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.nome}</h1>
+                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        <h1 id="nomUsuario" className="text-professional-dark dark:text-gray-100 text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.nome}</h1>
                         <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
                             <FontAwesomeIcon icon={faEnvelope} className="text-professional-card dark:text-professional-accent mr-2" />
                             <a id="emailUsuario"
@@ -208,7 +208,7 @@ export default function PerfilCandidato() {
 
 
                         <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Portfólio">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Portfólio">
                                 <FontAwesomeIcon icon={faMagic} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.portifolio && (
                                 <a id="portUsuario" href={candPerfil.portifolio}
@@ -219,7 +219,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="GitHub">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="GitHub">
                                 <FontAwesomeIcon icon={faGithub} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.github && (
                                 <a id="gitUsuario" href={candPerfil.github}
@@ -230,7 +230,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Currículo">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Currículo">
                                 <FontAwesomeIcon icon={faFileInvoice} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.curriculo && (
                                 <a id="curriculoUsuario" href={candPerfil.curriculo}
@@ -251,7 +251,7 @@ export default function PerfilCandidato() {
                                 })()}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Instagram">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Instagram">
                                 <FontAwesomeIcon icon={faInstagram} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.instagram && (
                                 <a id="instUsuario" href={candPerfil.instagram}
@@ -262,7 +262,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Site Pessoal">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Site Pessoal">
                                 <FontAwesomeIcon icon={faGlobe} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.site_pessoal && (
                                 <a id="siteUsuario" href={candPerfil.site_pessoal}
@@ -273,7 +273,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Twitter/X">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Twitter/X">
                                 <FontAwesomeIcon icon={faXTwitter} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.twitter && (
                                 <a id="twtUsuario" href={candPerfil.twitter}
@@ -285,7 +285,7 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
 
-                        <div id="formacaoInfo" className="dark:bg-professional-card bg-white rounded-lg p-4">
+                        <div id="formacaoInfo" className="dark:bg-professional-gray bg-white rounded-lg p-4">
 
                             <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
@@ -323,18 +323,18 @@ export default function PerfilCandidato() {
                 {/* <!-- Coluna direita - Habilidades e Estatísticas --> */}
                 <div id="bodyTags" className="lg:col-span-4 space-y-6">
                     <div
-                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-200 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                             {`Habilidades & Competências${customPerfil.tags_count>0?` (${customPerfil.tags_count})`:''}`}</h1>
                         <div id="boxTags"
-                            className="bg-white border-gray-200 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
+                            className="bg-white border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
                                 {customPerfil.tags_count>0 && customPerfil.tags.map(tag=>{
                                     return (
-                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
+                                        <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-card dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out dark:hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                             key={tag.id} title={`Tag: ${tag.nome}`} onClick={()=>{
                                                 setTagToRemove({nome: tag.nome, id: tag.id});
                                                 setMostrarModalRmvTag(true);
@@ -354,7 +354,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
                             <button id="btnAddTags"
-                                className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer"
+                                className="mt-4 flex items-center hover:text-gray-700 text-professional-dark dark:text-professional-accent dark:hover:text-professional-lightaccent transition-colors cursor-pointer"
                                 title="Adicionar Habilidade" onClick={()=>{
                                     setMostrarModalAddTag(true);
                                 }}>
@@ -366,46 +366,46 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Estatísticas --> */}
                     <div
-                        className="bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        <h2 className="text-lg text-center font-semibold mb-2 dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                            after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded text-professional-dark">
                             Métricas Profissionais</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div
-                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
-                                <div id="experienciasCount" className="text-[2rem] font-bold text-professional-accent mb-1">
+                                className="bg-white  dark:bg-professional-gray  rounded-lg p-5 text-center border dark:border-professional-gray">
+                                <div id="experienciasCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">
                                     {customPerfil.experiencias_count}</div>
-                                <div className="text-sm text-professional-subtitle">Experiências</div>
+                                <div className="text-sm text-professional-card dark:text-professional-subtitle">Experiências</div>
                             </div>
                             <div
-                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
-                                <div className="text-[2rem] font-bold text-professional-accent mb-1">15</div>
-                                <div className="text-sm text-professional-subtitle">Certificações</div>
+                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                <div className="text-[2rem] font-bold  text-professional-dark dark:text-professional-accent mb-1">15</div>
+                                <div className="text-smtext-professional-card text-professional-card dark:text-professional-subtitle">Certificações</div>
                             </div>
                             <div
-                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
-                                <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">{customPerfil.projetos_count}
+                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                <div id="projetosCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">{customPerfil.projetos_count}
                                 </div>
-                                <div className="text-sm text-professional-subtitle">Projetos</div>
+                                <div className="text-sm text-professional-card dark:text-professional-subtitle">Projetos</div>
                             </div>
                             <div
-                                className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center border border-professional-card">
-                                <div className="text-[2rem] font-bold text-professional-accent mb-1">4</div>
-                                <div className="text-sm text-professional-subtitle">Formações</div>
+                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                <div className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">4</div>
+                                <div className="text-sm text-professional-card dark:text-professional-subtitle">Formações</div>
                             </div>
                         </div>
                     </div>
 
                     {/* <!-- Idiomas --> */}
                     <div
-                        className="bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
+                        className="bg-gray-100  dark:bg-professional-gray rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                            after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                             {`Idiomas${customPerfil.idiomas_count>0?` (${customPerfil.idiomas_count})`:''}`}</h2>
                         <button id="btnAddIdiomas" onClick={()=>setMostrarModalAddIdioma(true)}
-                            className="mt-4 flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer">
+                            className="mt-4 flex items-center hover:text-gray-700 text-professional-dark dark:text-professional-accent dark:hover:text-professional-lightaccent transition-colors cursor-pointer">
                             <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                             Adicionar Idioma
                         </button>
@@ -413,15 +413,15 @@ export default function PerfilCandidato() {
                             return (
                                 <div key={idio.id} title={`Idioma: ${idio.nome}`} className="mb-2 mt-1">
                                     <div className="flex justify-between mb-1 mt-1">
-                                        <span className="text-white">{idio.nome}</span>
-                                        <span className="text-professional-subtitle text-sm">{carregarTextoDoNivel(idio.nivel)}</span>
-                                        <FontAwesomeIcon icon={faXmark} className="removerIdiomaIcone cursor-pointer" onClick={()=>{
+                                        <span className="text-professional-dark dark:text-gray-100">{idio.nome}</span>
+                                        <span className="text-professional-card dark:text-professional-subtitle text-sm">{carregarTextoDoNivel(idio.nivel)}</span>
+                                        <FontAwesomeIcon icon={faXmark} className="removerIdiomaIcone text-professional-card dark:text-professional-subtitle cursor-pointer" onClick={()=>{
                                             setIdiomaToRemove({nome: idio.nome, id: idio.id});
                                             setMostrarModalRmvIdioma(true);
                                         }}/>
                                     </div>
-                                    <div className="w-full bg-professional-gray rounded-full h-2">
-                                        <div className={`bg-professional-accent h-2 rounded-full`} style={{width: `${carregarPorcentagemPeloNivel(idio.nivel)}%`}}></div>
+                                    <div className="w-full bg-gray-300 dark:bg-professional-gray rounded-full h-2">
+                                        <div className={`bg-professional-dark dark:bg-professional-accent h-2 rounded-full`} style={{width: `${carregarPorcentagemPeloNivel(idio.nivel)}%`}}></div>
                                     </div>
                                 </div>
                             )
@@ -429,8 +429,8 @@ export default function PerfilCandidato() {
                         {(mostrarMaisIdiomasExib&&customPerfil.idiomas_count>3) && (
                             <div id="divIdiomasExib" className="space-y-3">
                                 <button id="maisIdiomas" ref={mostrarMaisIdiomasRef} onClick={async()=>await handleMostrarTodosIdiomas()}
-                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer mt-2">
-                                    <FontAwesomeIcon icon={faPlus} className="text-professional-accent" />
+                                    className="inline-flex items-center gap-1.5 py-2 px-4 bg-gray-100 text-professional-dark dark:bg-professional-card dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out dark:hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer mt-2">
+                                    <FontAwesomeIcon icon={faPlus} className="text-professional-dark dark:text-professional-accent" />
                                 </button>
                             </div>
                         )}
@@ -445,36 +445,36 @@ export default function PerfilCandidato() {
                 <div className="border-b border-professional-card mb-6">
                     <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="dashboard-tabs">
                         <li className="mr-2">
-                            <button id="experienciasTelinha" className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button id="experienciasTelinha" className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="experiencias" style={tabAtual==='experiencias'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('experiencias')}>
                                 <FontAwesomeIcon icon={faBriefcase} className="mr-2" />Experiências
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out hover:text-professional-accent" data-tab="certificacoes" style={tabAtual==='certificacoes'?{color: '#7c3aed'}:{}}
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle 
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            after:transition-all after:duration-300 after:ease-out dark:hover:text-professional-accent" data-tab="certificacoes" style={tabAtual==='certificacoes'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('certificacoes')}>
                                 <FontAwesomeIcon icon={faCertificate} className="mr-2" />Certificações
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="projetos" style={tabAtual==='projetos'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('projetos')}>
                                 <FontAwesomeIcon icon={faProjectDiagram} className="mr-2" />Projetos
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="formacoes" style={tabAtual==='formacoes'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('formacoes')}>
                                 <div className="relative">
@@ -483,9 +483,9 @@ export default function PerfilCandidato() {
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="solicitacoes" style={tabAtual==='solicitacoes'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('solicitacoes')}>
                                 <div className="relative">
@@ -494,9 +494,9 @@ export default function PerfilCandidato() {
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="notificacoes" style={tabAtual==='notificacoes'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('notificacoes')}>
                                 <div className="relative">
@@ -505,9 +505,9 @@ export default function PerfilCandidato() {
                             </button>
                         </li>
                         <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer
-                            after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
+                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
+                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
+                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="recomendacoes" style={tabAtual==='recomendacoes'?{color: '#7c3aed'}:{}}
                             onClick={()=>setTabAtual('recomendacoes')}>
                                 <div className="relative">

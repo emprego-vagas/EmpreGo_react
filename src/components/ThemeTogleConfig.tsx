@@ -34,7 +34,7 @@ export default function ThemeToggle() {
     // </button>
     <button 
         id="theme-toggle"
-        className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        className="bg-transparent border-none text-left p-2 text-sm cursor-pointer  hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
         onClick={toggleTheme}
         >
         {isDark ? ('Modo: Escuro') : ('Modo: Claro')}           

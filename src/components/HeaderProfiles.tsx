@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { DadosUsuario, logout } from "../utils/globalFunctions";
-
+import ThemeTogleConfig from "./ThemeTogleConfig";
 import genPfp from '../assets/imgs/genPfp.png';
 import BIGSlogo from '../assets/imgs/BIGSlogo.png';
 import { useEffect, useRef, useState } from "react";
@@ -37,28 +37,28 @@ export default function HeaderProfiles(){
 
     return (
         <header
-        className=" top-0 left-0 right-0 bg-professional-gray shadow-md z-50 border-b border-professional-card">
+        className=" top-0 left-0 right-0 bg-white dark:bg-dark-600 dark:shadow-md z-50 border-b dark:border-professional-card ">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
             <div id="logo" className="flex items-center">
             <Link to="/" target="_self" className="flex items-center">
                 <img src={BIGSlogo} alt="Logo" id="logoimg" className="h-10 mr-2"/>
-                <span id="nomedosite" className="text-xl font-bold text-white">
+                <span id="nomedosite" className="text-xl font-bold text-gray-900 dark:text-white">
                 Empre<span className="text-professional-accent">Go</span>
                 </span>
             </Link>
             </div>
             <nav className="links flex items-center space-x-6">
-            <Link to="/" className="text-professional-subtitle hover:text-white transition-colors">Início</Link>
-            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="/chats"
+            <Link to="/" className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
+            <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="/chats"
                 target="_self">Chat</Link>
-            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
+            <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="#"
                 target="_self">Fórum</Link>
-            <Link className="headerlink text-professional-subtitle hover:text-white transition-colors" to="#"
+            <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="#"
                 target="_self">Favoritos</Link>
 
             <SinoNotificacoes />
 
-            <div className="header-profile flex items-center gap-3 bg-transparent px-1 py-1 rounded-full cursor-pointer transition-colors hover:bg-gray-700"
+            <div className="header-profile flex items-center gap-3 bg-transparent rounded-full cursor-pointer w-10 h-10 border-2 border-primary-500"
                 id="profile-toggle" ref={profileToggleRef}>
                 <div
                 className="user-avatar bg-twitch-purple text-white font-bold text-base w-9 h-9 rounded-full flex justify-center items-center select-none shadow-x1">
@@ -67,25 +67,25 @@ export default function HeaderProfiles(){
                 </div>
 
                 {mostrarDropDown && (
-                    <div className="profile-dropdown absolute top-16 right-4 bg-twitch-gray text-white w-60 rounded-lg shadow-xl flex flex-col p-2 z-50"
+                    <div className="profile-dropdown absolute top-16 right-4 bg-white text-professional-dark dark:bg-twitch-gray dark:text-white w-60 rounded-lg shadow-xl flex flex-col p-2 z-50"
                         id="profile-dropdown" ref={profileDropdownRef}>
                         <div className="profile-info p-3">
                             <p className="profile-name font-bold m-0">{usuario.nome}</p>
                             <Link to={`/perfil/${usuario.tipo}`} className="text-twitch-purple text-sm no-underline">Acessar perfil</Link>
                         </div>
                         <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                             onClick={()=>navigate(`/perfil/${usuario.tipo}/editar`)}>Editar perfil</button>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                             onClick={()=>logout()} id="logoutButton">Sair</button>
                         <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700">Notificações</button>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Notificações</button>
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                             onClick={()=>navigate('/chats')}>Chats</button>
                         <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700">Configurações</button>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700">Modo: Escuro</button>
-                        <button className="bg-transparent border-none text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-700"
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</button>
+                        <ThemeTogleConfig />
+                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                             onClick={()=>navigate('/suporte')}>Ajuda</button>
                     </div>
                 )}

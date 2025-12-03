@@ -114,7 +114,7 @@ export default function Index(){
     return (
         <>
             <HeaderInit />
-            <section id="home" className="min-h-screen flex items-center pt-20 bg-grid-pattern-light dark:bg-grid-pattern relative overflow-hidden bg-light-200 dark:bg-dark-900 transition-colors duration-300">
+            <section id="home" className="min-h-screen flex items-center pt-20 bg-grid-pattern-light dark:bg-grid-pattern relative overflow-hidden bg-white dark:bg-dark-900 transition-colors duration-300">
 
             {/* <!-- particulas de fundo --> */}
             {/* <div id="particles-js" className="fixed inset-0 z-0"></div> */}
