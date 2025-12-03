@@ -17,6 +17,7 @@ import socket from '../utils/socketsConnection';
 import Loader from '../components/Loader';
 import type { Conversa, Mensagem, MessageSocket, UserStatusSocket } from "../ts/chatsFunctions";
 import SinoNotificacoes from '../components/SinoNotificacoes';
+import type { NotificationEG } from '../ts/sinoNotificacoesFunctions';
 
 export default function Chats() {
     const navigate = useNavigate();
@@ -137,13 +138,82 @@ export default function Chats() {
             });
         }
 
+        function receivedNotification(notif: NotificationEG){
+            console.log(notif)
+            if(notif.tipo!=='Solicitação de Conversa' || !notif.object) return;
+            const object = notif.object;
+            if(object.action==='criar'){
+                const {id, user_id, user_name, user_image} = object as {
+                    id: string;
+                    user_id: string;
+                    user_name: string;
+                    user_image: string;
+                };
+                if(!id) return;
+                setSolicitacoes(prev=> [
+                    {
+                        id: id,
+                        usuario_id: user_id,
+                        usuario_nome: user_name,
+                        usuario_foto: user_image,
+                        tipo: 'recebida',
+                        status: 'pendente'
+                    },
+                    ...prev
+                ])
+            }
+            if(object.action==='recusar'||object.action==='cancelar'){
+                const { id } = object as { id: string };
+                setSolicitacoes(prev => prev.filter(sol => 
+                    sol.id !== id
+                ));
+            }
+            if(object.action==='aceitar'){
+                const {id, user_id, user_name, user_image, newChatId} = object as {
+                    id: string;
+                    user_id: string;
+                    user_name: string;
+                    user_image: string;
+                    newChatId: string;
+                };
+                setSolicitacoes(prev => prev.filter(sol => 
+                    sol.id !== id
+                ));
+                const novaConversa = {
+                    id: newChatId,
+                    bloqueadoStatus: false,
+                    bloqueador: null,
+                    remetente: user_id,
+                    statusRemetente: 'Offline',
+                    nome: user_name,
+                    ultimaMensagem: '',
+                    hora: '',
+                    naoLidas: 0,
+                    avatar: user_image,
+                    favoritada: false,
+                    mensagens: [],
+                    contadorMensagens: 0
+                };
+                setTimeout(()=>{
+                    setDadosConversas(prev=>[novaConversa, ...prev]);
+                    socket.emit('joinChat', newChatId, callback=>{
+                        if(callback.status==='error') {
+                            mostrarErroTopo(callback.message);
+                        }
+                    });
+                }, 500)
+            }
+        }
+
         socket.on('receivedMessage', receivedMessage);
         socket.on('userStatus', userStatus);
-
+        socket.on('receivedNotification', receivedNotification);
+      
         return () => {
             clearInterval(intervalId);
             socket.off('receivedMessage', receivedMessage);
             socket.off('userStatus', userStatus);
+            socket.off('receivedNotification', receivedNotification);
         };
     }, [usuario]);
 
@@ -319,7 +389,9 @@ export default function Chats() {
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
-                    action: 'aceitar'
+                    action: 'aceitar',
+                    newChatId: novaConversa.id,
+                    id
                 }
             })
         } catch (erro) {
@@ -337,7 +409,8 @@ export default function Chats() {
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
-                    action: 'recusar'
+                    action: 'recusar',
+                    id
                 }
             })
         } catch (erro) {
@@ -353,7 +426,8 @@ export default function Chats() {
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
-                    action: 'cancelar'
+                    action: 'cancelar',
+                    id
                 }
             })
         } catch (erro) {
@@ -1295,7 +1369,8 @@ export default function Chats() {
                                             const recipientType = novaSolicitacao.tipo.toLowerCase() as 'empresa'|'candidato';
                                             sendNotification({id: novaSolicitacao.id, type: recipientType}, {
                                                 solicitacao_conversa: {
-                                                    action: 'criar'
+                                                    action: 'criar',
+                                                    id: enviou.solicitacaoId!
                                                 }
                                             })
                                             setSolicitacoes([{

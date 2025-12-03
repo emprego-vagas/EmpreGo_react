@@ -166,12 +166,14 @@ export async function fileDownload(url: string, tipo: string){
 type NotificationContent =
     | {
         solicitacao_conversa: {
-        action: string;
+            action: string;
+            id?: string;
+            newChatId?: string;
         };
     }
     | {
         favoritado: {
-        action: string;
+            action: string;
         };
     };
 

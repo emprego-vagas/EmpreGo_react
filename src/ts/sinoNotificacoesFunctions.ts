@@ -9,6 +9,9 @@ export interface NotificationEG {
     lida: boolean;
     imagem?: string;
     data_criacao: Date;
+    object?: {
+        [key: string]: unknown;
+    };
 }
 
 export async function carregarNotificacoes(): Promise<NotificationEG[]>{
@@ -61,6 +64,7 @@ export async function lerNotificacao(idNotif: string): Promise<void> {
         const notifJsonUpdated = {...notifJson, notifs: notifJson.notifs.map(n=> n.id===idNotif ? {...n, lida: true} : n)};
         const newNotifString = JSON.stringify(notifJsonUpdated);
         localStorage.setItem('NotificacoesEmpreGo', newNotifString);
+        await axiosWe.post('/notificacao/ler', {ids: [idNotif]});
     } catch (erro) {
         console.error('Erro ao ler notificação:',erro);
     }
@@ -70,9 +74,11 @@ export async function lerTodasNotificacoes(): Promise<void> {
     try {
         const notifCachedString = localStorage.getItem('NotificacoesEmpreGo');
         const notifJson: {updatedAt: number, ownerId: string, notifs: NotificationEG[]} = JSON.parse(notifCachedString);
+        const idsToRead = notifJson.notifs.filter(nt=>!nt.lida).map(n=>n.id);
         const notifJsonUpdated = {...notifJson, notifs: notifJson.notifs.map(n=> ({...n, lida: true}))};
         const newNotifString = JSON.stringify(notifJsonUpdated);
         localStorage.setItem('NotificacoesEmpreGo', newNotifString);
+        await axiosWe.post('/notificacao/ler', {ids: idsToRead});
     } catch (erro) {
         console.error('Erro ao ler notificações:',erro);
     }
