@@ -52,7 +52,7 @@ export default function ConfirmEmail(){
                             setTimeout(()=>{
                                 navigate('/');
                             }, 3000);
-                        } else if(validado.sucesso) navigate('/');
+                        } else if(validado.sucesso) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                     }}/>
 
                 <p><a id="reenvio" className="text-primary-100">Não recebeu o email?<span className="text-primary-500 cursor-pointer" onClick={async()=>{

@@ -147,7 +147,7 @@ export default function Login() {
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await candidatoLogin(e, userLogin);
-                                        if (logado) navigate('/');
+                                        if (logado) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                                     }}
                                 >
                                     Entrar

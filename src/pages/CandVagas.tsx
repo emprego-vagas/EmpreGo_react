@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
-import { useNavigate } from 'react-router-dom';
-import { DadosUsuario, mostrarAvisoTopo } from '../utils/globalFunctions';
+import { Link, useNavigate } from 'react-router-dom';
+import { DadosUsuario, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
 import Loader from '../components/Loader';
@@ -12,6 +12,9 @@ import logo from './../assets/imgs/BIGSlogo.png';
 import lupa from './../assets/imgs/lupa.png';
 import filtro from './../assets/imgs/filtro.png';
 import '../css/filtragem.css';
+import SinoNotificacoes from '../components/SinoNotificacoes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faChevronRight, faComment } from '@fortawesome/free-solid-svg-icons';
 
 // interfaces
 interface Slide {
@@ -266,6 +269,8 @@ const Main: React.FC = () => {
         porte: [],
     });
     const [openCategory, setOpenCategory] = useState<string | null>(null);
+    const [buscaPesquisa, setBuscaPesquisa] = useState('');
+    const [mostrarFavoritos, setMostrarFavoritos] = useState(false);
 
     // Refs do Header
     const headerRef = useRef<HTMLDivElement>(null);
@@ -618,9 +623,9 @@ const Main: React.FC = () => {
     }, []);
 
     // Função para lidar com clique em filtro recomendado
-    const handleFiltroClick = (f: FiltroRecomendado) => {
-        f.nome;
-    };
+    // const handleFiltroClick = (f: FiltroRecomendado) => {
+    //     f.nome;
+    // };
 
     // Função para scroll dos filtros
     const scrollFiltros = (direction: "left" | "right") => {
@@ -692,27 +697,49 @@ const Main: React.FC = () => {
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
                             <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
-                        </a>
+                        </Link>
 
-                        <a href="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
                             <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
                                 Chat Geral
                             </span>
-                        </a>
+                        </Link>
 
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
                             <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
-                        </a>
+                        </Link>
 
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition cursor-pointer select-none" onClick={()=>setMostrarFavoritos(e=>!e)}>
                             <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
+                            <FontAwesomeIcon icon={(mostrarFavoritos? faChevronDown :faChevronRight)} className='ml-auto w-[10px] h-[10px]'/>
                         </a>
+                        {(mostrarFavoritos && isSidebarOpen) && (
+                            <div className="max-h-72 overflow-y-auto ml-1">
+                                {empresasFavoritadas.map(e => (
+                                    <div key={e.id} className='flex border border-black gap-1 mt-1 mr-1'>
+                                        <img src={e.foto==="/assets/imgs/genPfp.png"? genPfp : e.foto} className='w-[20px] h-[20px]' />
+                                        <div className="flex flex-col flex-1">
+                                            <p className="font-semibold text-gray-800 text-xs">
+                                                {e.nome_fant}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {e.setor}
+                                            </p>
+                                        </div>
+                                        <div className='flex flex-row'>
+                                            <i className={'bx bxs-star text-lg text-yellow-400 cursor-pointer'} onClick={()=>handleAlterarStatusFavorito(true, e)}/>
+                                            <FontAwesomeIcon icon={faComment} className='cursor-pointer' onClick={()=>navigate(`/chats?id=${e.id}`)}/>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </nav>
                 </aside>
 
@@ -721,17 +748,17 @@ const Main: React.FC = () => {
                     <div className="w-full flex items-center justify-between px-4 h-14">
                         <div className="flex items-center gap-4">
                             <button className="bx bx-menu text-3xl text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 w-10 h-10 flex items-center justify-center rounded-full transition" onClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
-                            <a href="/" className="flex items-center gap-1">
+                            <Link to="/" className="flex items-center gap-1">
                                 <img src={logo} alt="Logo" className="h-10 w-auto" />
                                 <span className="font-black text-xl text-gray-800 dark:text-white">
                                     Empre<span className="text-twitch-purple">Go</span>
                                 </span>
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="flex flex-1 justify-center px-4">
                             <div className="search-bar flex items-center w-full max-w-2xl bg-white dark:bg-twitch-gray rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
-                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white"/>
+                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e)=>setBuscaPesquisa(e.target.value)}/>
 
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
                                     <img src={filtro} className="w-6 h-6 filter brightness-0 invert" />
@@ -847,40 +874,46 @@ const Main: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+                            
+                        </div>
+
+                        <div className='flex mt-1 justify-center px-2'>
+                            <SinoNotificacoes/>
                         </div>
 
                         {/* Profile */}
                         <div className="relative " ref={profileRef}>
+                            
                             <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                                <img src={logo} alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
+                                <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
                             </div>
 
                             {isProfileOpen && (
                                 <div className="absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999]">
                                     <div className="p-3">
-                                        <p className="font-bold">nome VISIVEL</p>
-                                        <a href="/perfil/candidato" className="text-twitch-purple text-sm">
+                                        <p className="font-bold">{usuario.nome}</p>
+                                        <Link to="/perfil/candidato" className="text-twitch-purple text-sm">
                                             Acessar perfil
-                                        </a>
+                                        </Link>
                                     </div>
 
                                     <hr className="border-gray-300 dark:border-gray-700" />
 
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar perfil</button>
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Sair</button>
+                                    <Link to={`/perfil/${usuario.tipo}/editar`} className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Editar perfil</Link>
+                                    <button className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onClick={()=>logout()}>Sair</button>
 
                                     <hr className="border-gray-300 dark:border-gray-700" />
 
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button>
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Chats</button>
+                                    {/* <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button> */}
+                                    <Link to="/chats" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Chats</Link>
 
-                                    <hr className="border-gray-300 dark:border-gray-700" />
+                                    {/* <hr className="border-gray-300 dark:border-gray-700" /> */}
 
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Configurações</button>
+                                    <Link to="/" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</Link>
 
                                     <ThemeTogleConfig />
 
-                                    <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ajuda</button>
+                                    <Link to="/suporte" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Ajuda</Link>
                                 </div>
                             )}
                         </div>
@@ -897,8 +930,11 @@ const Main: React.FC = () => {
                             ref={filtrosContainerRef}
                             className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                            <button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                Tudo
+                            </button>
                             {filtrosRecomendados.map((f) => (
-                                <button key={f.id} onClick={() => handleFiltroClick(f)} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                <button key={f.id} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
                                     {f.nome}
                                 </button>
                             ))}

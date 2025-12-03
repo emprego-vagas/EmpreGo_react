@@ -1138,7 +1138,7 @@ export default function Chats() {
 
 
                                     <div className="flex-1 bg-dark-700 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500">
-                                        <textarea id="message-input"
+                                        <textarea id="message-input" autoFocus
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
                                             placeholder="Digite sua mensagem..." rows={1} maxLength={500} onClick={()=>{setMostrarAttachmentMenu(false);setMostrarMenu(false)}}
                                             ref={textareaRef} value={mensagemEnvio} onChange={(e)=>handleChangeMsg(e)} onKeyDown={async(e)=>{
