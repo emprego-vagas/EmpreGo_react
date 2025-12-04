@@ -90,7 +90,7 @@ const filtrosRecomendados: FiltroRecomendado[] = [
 ];
 
 // Constantes do Filtro
-const setoresFilter = ["Alimentício", "Varejo", "Turismo", "Energia", "Agronegócio", "Saúde"];
+const setoresFilter = ["Alimentação", "Vestuário", "Saúde", "Educação", "Consultoria", "Tecnologia", "Construção Civil", "Informática", "Marketing", "Advocacia", "Energia", "Transporte"];
 const portesFilter = ["Pequeno", "Médio", "Grande"];
 const estadosFilter = [
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
@@ -270,6 +270,27 @@ const Main: React.FC = () => {
     const [openCategory, setOpenCategory] = useState<string | null>(null);
     const [buscaPesquisa, setBuscaPesquisa] = useState('');
     const [mostrarFavoritos, setMostrarFavoritos] = useState(false);
+    const [searchData, setSearchData] = useState<{
+        active: boolean;
+        query: string;
+        page: number;
+        limit: boolean;
+        loading: boolean;
+        loadingMore: boolean;
+        empresas: Empresa[];
+    }>({active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: []});
+    const searchPageRef = useRef(1);
+    
+    function clearSearchData(){
+        searchPageRef.current = 1;
+        setBuscaPesquisa('');
+        setFilters({
+            setor: [],
+            estado: [],
+            porte: [],
+        });
+        setSearchData({active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: []});
+    }
 
     // Refs do Header
     const headerRef = useRef<HTMLDivElement>(null);
@@ -369,6 +390,14 @@ const Main: React.FC = () => {
 
                 return novo;
             });
+            setSearchData(prev=>({
+                ...prev,
+                empresas: prev.empresas.map(emp=>{
+                    if (emp.id === empresa.id) {
+                        return { ...emp, favoritada: !favoritada }
+                    } else return emp
+                })
+            }))
         }
         if (favoritada) {
             setEmpresasFavoritadas(prev => prev.filter(e => e.id !== empresa.id));
@@ -456,19 +485,229 @@ const Main: React.FC = () => {
         // }, 1500);
     };
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const atBottom =
-                window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+    const isLoadingMoreRef = useRef(false);
 
-            if (atBottom && !carregando) {
-                carregarMaisEmpresas();
+    async function loadMoreQuery(){
+        // Verificar usando a ref para prevenir race conditions
+        if (isLoadingMoreRef.current || searchData.limit || !searchData.active) {
+            console.log('loadMoreQuery abortado:', {
+                isLoadingMoreRef: isLoadingMoreRef.current,
+                limit: searchData.limit,
+                active: searchData.active
+            });
+            return;
+        }
+        
+        try {
+            // Marcar que está carregando - IMPORTANTE: fazer isso antes de qualquer await
+            isLoadingMoreRef.current = true;
+            // Aqui DEFINITIVAMENTE mostrar o loader
+            setSearchData(prev => ({...prev, loadingMore: true}));
+            
+            const nextPage = searchPageRef.current;
+            console.log('Carregando página:', nextPage, 'Query:', searchData.query);
+            
+            const response = await axiosWe(`/empresas/search?page=${nextPage}&${searchData.query}`);
+            const emps = response.data;
+            console.log('Resultados da página', nextPage, ':', emps.length);
+            
+            // Se não houver resultados, marcar como limite
+            if (emps.length === 0) {
+                console.log('Sem mais resultados, marcando como limite');
+                setSearchData(prev => ({
+                    ...prev, 
+                    limit: true, 
+                    loadingMore: false  // ← Desliga o loader
+                }));
+                isLoadingMoreRef.current = false;
+                return;
             }
+            
+            const isFavoritada = (id: string) => {
+                return empresasFavoritadas.some((e) => e.id === id);
+            };
+            
+            // Atualizar estado com os novos dados
+            setSearchData(prev => ({
+                ...prev,
+                active: true, 
+                page: nextPage, 
+                limit: emps.length < 9, 
+                loading: false, 
+                loadingMore: false,  // ← Desliga o loader
+                empresas: [...prev.empresas, ...emps.map(
+                    emp => ({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: emp.tags_empresas.map(t => t.nome),
+                        setor: emp.setor,
+                        favoritada: isFavoritada(emp.id),
+                    })
+                )]
+            }));
+            
+            // Incrementar a ref para a próxima página
+            searchPageRef.current = nextPage + 1;
+            console.log('Próxima página será:', searchPageRef.current);
+            
+        } catch (erro) {
+            console.error("Falha ao carregar mais empresas:", erro);
+            setSearchData(prev => ({...prev, loadingMore: false}));  // ← Em caso de erro também desliga
+        } finally {
+            // Garantir que a flag seja resetada mesmo em caso de erro
+            isLoadingMoreRef.current = false;
+        }
+    }
+
+    useEffect(() => {
+        let timeoutId;
+        
+        const handleScroll = () => {
+            // Debounce para prevenir múltiplas chamadas
+            clearTimeout(timeoutId);
+            
+            timeoutId = setTimeout(() => {
+                const atBottom =
+                    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+
+                if(atBottom){
+                    console.log('Scroll no fundo - Estado:', {
+                        searchActive: searchData.active,
+                        loading: searchData.loading,
+                        loadingMore: searchData.loadingMore,
+                        limit: searchData.limit,
+                        currentPageRef: searchPageRef.current,
+                        isLoadingMoreRef: isLoadingMoreRef.current
+                    });
+                    
+                    if (!searchData.active && !carregando) {
+                        carregarMaisEmpresas();
+                    }
+
+                    if (searchData.active && !searchData.loading && !isLoadingMoreRef.current && !searchData.limit){
+                        loadMoreQuery();
+                    }
+                }
+            }, 150);
         };
 
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [carregando]);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            clearTimeout(timeoutId);
+        };
+    }, [carregando, searchData.active, searchData.loading, searchData.loadingMore, searchData.limit]);
+
+    const handleSearch = async () => {
+        if(searchData.loading) return;
+        const setoresString = filters.setor.join(',');
+        const estadosString = filters.estado.join(',');
+        const portesString = filters.porte.join(',');
+        
+        if(!buscaPesquisa && !setoresString && !estadosString && !portesString) {
+            clearSearchData();
+            return;
+        }
+        
+        const queryParts: string[] = [];
+        if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
+        if(setoresString) queryParts.push(`setor=${setoresString}`);
+        if(estadosString) queryParts.push(`estado=${estadosString}`);
+        if(portesString) queryParts.push(`porte=${portesString}`);
+        
+        const queryJoin = queryParts.join('&');
+        
+        // Se for uma nova query, resetar completamente
+        if(queryJoin !== searchData.query) {
+            try {
+                // Resetar todas as refs e estado
+                searchPageRef.current = 1;
+                isLoadingMoreRef.current = false;
+                
+                // Aqui DEFINITIVAMENTE mostrar o loader
+                setSearchData({
+                    active: true, 
+                    query: queryJoin, 
+                    page: 1, 
+                    limit: false, 
+                    loading: true,  // ← Aqui está true
+                    loadingMore: false, 
+                    empresas: []
+                });
+                
+                // Buscar sempre da página 1 quando é uma nova busca
+                const response = await axiosWe(`/empresas/search?page=1&${queryJoin}`);
+                console.log('Busca inicial - Página 1:', response.data.length, 'resultados');
+                const emps = response.data;
+                
+                if (emps.length === 0) {
+                    setSearchData(prev => ({
+                        ...prev, 
+                        limit: true, 
+                        loading: false  // ← Aqui desliga o loader
+                    }));
+                    return;
+                }
+                
+                const isFavoritada = (id: string) => {
+                    return empresasFavoritadas.some((e) => e.id === id);
+                };
+                
+                // Atualizar estado com os dados da página 1
+                setSearchData({
+                    active: true, 
+                    query: queryJoin, 
+                    page: 1, // Página atual é 1
+                    limit: emps.length < 9, 
+                    loading: false,  // ← Aqui desliga o loader
+                    loadingMore: false, 
+                    empresas: emps.map(emp => ({
+                        id: emp.id,
+                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        nome: emp.nome_fant,
+                        descricao: emp.descricao,
+                        tags: emp.tags_empresas.map(t => t.nome),
+                        setor: emp.setor,
+                        favoritada: isFavoritada(emp.id),
+                    }))
+                });
+                
+                // Configurar a ref para a próxima página (2)
+                searchPageRef.current = 2;
+                
+            } catch (erro) {
+                console.error('Erro ao buscar empresas:', erro);
+                setSearchData(prev => ({...prev, loading: false}));  // ← Em caso de erro também desliga
+            }
+        }
+    };
+
+    useEffect(() => {
+        // Quando qualquer filtro ou busca mudar, resetar a busca
+        // Mas só se já tivermos uma busca ativa
+        if (searchData.active) {
+            const setoresString = filters.setor.join(',');
+            const estadosString = filters.estado.join(',');
+            const portesString = filters.porte.join(',');
+            
+            const queryParts: string[] = [];
+            if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
+            if(setoresString) queryParts.push(`setor=${setoresString}`);
+            if(estadosString) queryParts.push(`estado=${estadosString}`);
+            if(portesString) queryParts.push(`porte=${portesString}`);
+            
+            const queryJoin = queryParts.join('&');
+            
+            // Se a query mudou, preparar para uma nova busca
+            // Mas não executar automaticamente - esperar o clique do usuário
+            if (queryJoin !== searchData.query) {
+                // Podemos limpar ou marcar como precisa de atualização
+                console.log('Query mudou, preparando para nova busca');
+            }
+        }
+    }, [buscaPesquisa, filters.setor, filters.estado, filters.porte]);
 
     // slider three js particles background
     useEffect(() => {
@@ -748,14 +987,14 @@ const Main: React.FC = () => {
                                         <div className="flex items-center gap-2 ml-auto">
                                             <button
                                                 onClick={() => handleAlterarStatusFavorito(true, e)}
-                                                className="text-yellow-500 hover:text-yellow-800 transition-colors"
+                                                className="text-yellow-500 hover:text-yellow-600 transition-colors"
                                                 aria-label="Desfavoritar"
                                             >
                                                 <i className='bx bxs-star text-lg' />
                                             </button>
                                             <button
                                                 onClick={() => navigate(`/chats?id=${e.id}`)}
-                                                className="text-gray-600 hover:text-primary-500 transition-colors "
+                                                className="text-gray-400 hover:text-primary-500 transition-colors "
                                                 aria-label="Abrir chat"
                                             >
                                                 <FontAwesomeIcon icon={faComment} className="text-base" />
@@ -779,6 +1018,21 @@ const Main: React.FC = () => {
                                     Empre<span className="text-twitch-purple">Go</span>
                                 </span>
                             </Link>
+                            {searchData.active && (
+                                <button
+                                    onClick={() => clearSearchData()}
+                                    className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
+                                        bg-gradient-to-r from-twitch-purple to-purple-600 dark:from-twitch-purple dark:to-purple-700
+                                        text-white
+                                        hover:from-twitch-lightpurple hover:to-purple-500 dark:hover:from-twitch-lightpurple dark:hover:to-purple-600
+                                        hover:scale-105 active:scale-95
+                                        shadow hover:shadow-md
+                                        border border-purple-500 dark:border-purple-600"
+                                >
+                                    <i className="bx bx-arrow-back text-sm transition-transform group-hover:-translate-x-0.5"></i>
+                                    <span className="whitespace-nowrap">Voltar</span>
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex flex-1 justify-center px-4">
@@ -790,7 +1044,8 @@ const Main: React.FC = () => {
                                     <FontAwesomeIcon icon={faSliders} className="w-5 h-5 text-gray-800 dark:text-white" />
                                 </button>
 
-                                <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition">
+                                <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition" 
+                                    onClick={handleSearch}>
                                     <img src={lupa} className="w-5 h-5 filter brightness-0 invert" />
                                 </button>
                             </div>
@@ -945,196 +1200,172 @@ const Main: React.FC = () => {
                         </div>
                     </div>
 
-                    <div
-                        className={`recommended-filters-wrapper relative flex gap-6 overflow-x-auto scrollbar-hide pl-28 pr-6 py-2 transition-all duration-300
-                        ${isSidebarOpen ? "ml-[8rem]" : "ml-0"}`}>
-                        <button onClick={() => scrollFiltros("left")} className="absolute left-24 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
-                            <i className="bx bx-chevron-left text-xl"></i>
-                        </button>
-
+                    {!searchData.active && (
                         <div
-                            ref={filtrosContainerRef}
-                            className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
-                            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                            <button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
-                                Tudo
+                            className={`recommended-filters-wrapper relative flex gap-6 overflow-x-auto scrollbar-hide pl-28 pr-6 py-2 transition-all duration-300
+                            ${isSidebarOpen ? "ml-[8rem]" : "ml-0"}`}>
+                            <button onClick={() => scrollFiltros("left")} className="absolute left-24 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                                <i className="bx bx-chevron-left text-xl"></i>
                             </button>
-                            {filtrosRecomendados.map((f) => (
-                                <button key={f.id} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
-                                    {f.nome}
+                            
+                            <div
+                                ref={filtrosContainerRef}
+                                className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
+                                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                                <button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                    Tudo
                                 </button>
-                            ))}
-                        </div>
+                                {filtrosRecomendados.map((f) => (
+                                    <button key={f.id} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                        {f.nome}
+                                    </button>
+                                ))}
+                            </div>
 
-                        <button onClick={() => scrollFiltros("right")} className="absolute right-2 top-1/2 -translate-y-1/2 z-20  w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
-                            <i className="bx bx-chevron-right text-xl"></i>
-                        </button>
-                    </div>
+                            <button onClick={() => scrollFiltros("right")} className="absolute right-2 top-1/2 -translate-y-1/2 z-20  w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                                <i className="bx bx-chevron-right text-xl"></i>
+                            </button>
+                        </div>
+                    )}
+                    
                 </header>
 
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
-                    <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
-                        <div ref={threeContainerRef} className="absolute inset-0 -z-10" />
+                    {!searchData.active ? (
+                        <>
+                            <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
+                                <div ref={threeContainerRef} className="absolute inset-0 -z-10" />
 
-                        {/* Slides */}
-                        <div ref={slidesContainerRef} className="relative overflow-hidden w-full h-80 min-h-0">
-                            {slides.map((slide, index) => (
-                                <div
-                                    key={index}
-                                    style={
-                                        slide.background
-                                            ? { backgroundImage: `url(${slide.background})` }
-                                            : undefined
-                                    }
-                                    className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
-                                    <div className="slide-content bg-zinc-900/80 backdrop-blur-sm p-8 rounded-xl h-full box-border flex flex-col justify-center overflow-hidden">
-                                        <span className="slide-empresa text-sm uppercase tracking-[2px]  text-gray-400 mb-2 block">
-                                            {slide.empresa}
-                                        </span>
+                                {/* Slides */}
+                                <div ref={slidesContainerRef} className="relative overflow-hidden w-full h-80 min-h-0">
+                                    {slides.map((slide, index) => (
+                                        <div
+                                            key={index}
+                                            style={
+                                                slide.background
+                                                    ? { backgroundImage: `url(${slide.background})` }
+                                                    : undefined
+                                            }
+                                            className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
+                                            <div className="slide-content bg-zinc-900/80 backdrop-blur-sm p-8 rounded-xl h-full box-border flex flex-col justify-center overflow-hidden">
+                                                <span className="slide-empresa text-sm uppercase tracking-[2px]  text-gray-400 mb-2 block">
+                                                    {slide.empresa}
+                                                </span>
 
-                                        <h3 className=" slide-titulo text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
-                                            {slide.titulo}
-                                        </h3>
+                                                <h3 className=" slide-titulo text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                                                    {slide.titulo}
+                                                </h3>
 
-                                        <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow">
-                                            "{slide.texto}"
-                                        </blockquote>
+                                                <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow">
+                                                    "{slide.texto}"
+                                                </blockquote>
 
-                                        <div className="slide-meta flex justify-between items-center text-sm text-gray-400">
-                                            <div className="flex items-center gap-3">
-                                                {slide.fotoEmpresa && (
-                                                    <img
-                                                        src={slide.fotoEmpresa}
-                                                        alt={slide.empresa}
-                                                        className="w-10 h-10 rounded-full object-cover shadow-md"
-                                                    />
-                                                )}
-                                                <span className="slide-autor font-medium">{slide.autor}</span>
+                                                <div className="slide-meta flex justify-between items-center text-sm text-gray-400">
+                                                    <div className="flex items-center gap-3">
+                                                        {slide.fotoEmpresa && (
+                                                            <img
+                                                                src={slide.fotoEmpresa}
+                                                                alt={slide.empresa}
+                                                                className="w-10 h-10 rounded-full object-cover shadow-md"
+                                                            />
+                                                        )}
+                                                        <span className="slide-autor font-medium">{slide.autor}</span>
+                                                    </div>
+
+                                                    <span className="slide-data">{slide.data}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={prevSlide} aria-label="Slide anterior" className="swiper-button-prev absolute left-4 top-1/2 -translate-y-1/2 z-20 w-5 h-[315px] bg-black/50 rounded-lg flex items-center justify-center text-white transition-all group hover:bg-black/40 hover:[box-shadow:inset_120px_0_100px_rgba(000,000,000,0.8)]"> <svg className="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /> </svg>
+                                </button>
+
+                                <button onClick={nextSlide} aria-label="Próximo slide" className="swiper-button-next absolute right-4 top-1/2 -translate-y-1/2 z-20 w-5 h-[315px] bg-black/50 rounded-full flex items-center justify-center text-white transition-all group hover:bg-black/40 hover:[box-shadow:inset_-120px_0_100px_rgba(000,000,000,0.8)]">
+                                    <svg className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /> </svg>
+                                </button>
+
+                                <div className="swiper-pagination absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+                                    {slides.map((_, index) => (
+                                        <button key={index} onClick={() => goToSlide(index)} aria-label={`Ir para slide ${index + 1}`} className={`w-3 h-3 rounded-full border-2 border-white transition-all duration-300 
+                                    ${index === currentSlide ? 'bg-primary-100 scale-125 shadow-[0_0_6px_rgba(255,255,255,0.8)]' : 'bg-transparent hover:bg-primary-500'}`} />
+                                    ))}
+                                </div>
+                            </section>
+
+                            <section className="empresas-section w-full px-5 py-6 mt-2">
+                                {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
+                                    // const mostrarTodas = empresasExpandidas[categoria];
+                                    const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
+                                    const recolher = obj.recolher;
+
+                                    return (
+                                        <div key={categoria} className="categoria-empresas mb-12">
+                                            <h2 className="categoria-label text-2xl font-bold mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
+                                                {categoria}
+                                            </h2>
+
+                                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                                                {empresasParaMostrar.map(empresa => {
+                                                    return (
+                                                        <EmpresaCard
+                                                            key={empresa.id}
+                                                            logo={empresa.logo}
+                                                            nome={empresa.nome}
+                                                            descricao={empresa.descricao}
+                                                            tags={empresa.tags}
+                                                            favoritada={empresa.favoritada}
+                                                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        />
+                                                    )
+                                                })}
                                             </div>
 
-                                            <span className="slide-data">{slide.data}</span>
+                                            <div className="flex justify-center gap-4 mt-6">
+
+                                                <button
+                                                    onClick={() => {
+                                                        setEmpresasPorCategoria({
+                                                            ...empresasPorCategoria,
+                                                            [categoria]: {
+                                                                ...empresasPorCategoria[categoria],
+                                                                recolher: !recolher,
+                                                            },
+                                                        });
+                                                    }}
+                                                    className="ver-mais-btn flex items-center gap-2 hover:bg-dark-600 text-dark-900 dark:text-twitch-purple hover:text-white dark:hover:text-white transition-colors font-medium py-2 px-4 rounded-lg border border-dark-900 hover:border-dark-500 dark:border-twitch-purple dark:hover:border-twitch-lightpurple dark:hover:bg-twitch-purple"
+                                                >
+                                                    {recolher ? "Exibir" : "Recolher"}
+                                                    <i className={`bx bx-chevron-${recolher ? "down" : "up"} text-xl`} />
+                                                </button>
+
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                    );
+                                })}
 
-                        <button onClick={prevSlide} aria-label="Slide anterior" className="swiper-button-prev absolute left-4 top-1/2 -translate-y-1/2 z-20 w-5 h-[315px] bg-black/50 rounded-lg flex items-center justify-center text-white transition-all group hover:bg-black/40 hover:[box-shadow:inset_120px_0_100px_rgba(000,000,000,0.8)]"> <svg className="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /> </svg>
-                        </button>
-
-                        <button onClick={nextSlide} aria-label="Próximo slide" className="swiper-button-next absolute right-4 top-1/2 -translate-y-1/2 z-20 w-5 h-[315px] bg-black/50 rounded-full flex items-center justify-center text-white transition-all group hover:bg-black/40 hover:[box-shadow:inset_-120px_0_100px_rgba(000,000,000,0.8)]">
-                            <svg className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /> </svg>
-                        </button>
-
-                        <div className="swiper-pagination absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
-                            {slides.map((_, index) => (
-                                <button key={index} onClick={() => goToSlide(index)} aria-label={`Ir para slide ${index + 1}`} className={`w-3 h-3 rounded-full border-2 border-white transition-all duration-300 
-                            ${index === currentSlide ? 'bg-primary-100 scale-125 shadow-[0_0_6px_rgba(255,255,255,0.8)]' : 'bg-transparent hover:bg-primary-500'}`} />
-                            ))}
-                        </div>
-                    </section>
-
-                    <section className="empresas-section w-full px-5 py-6 mt-2">
-                        {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
-                            // const mostrarTodas = empresasExpandidas[categoria];
-                            const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
-                            const recolher = obj.recolher;
-
-                            return (
-                                <div key={categoria} className="categoria-empresas mb-12">
-                                    <h2 className="categoria-label text-2xl font-bold mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
-                                        {categoria}
-                                    </h2>
-
-                                    <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                                        {empresasParaMostrar.map(empresa => {
+                                {/* empresas recomendadas*/}
+                                <div className="categoria-empresas mb-12">
+                                    <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
+                                        {empresasSemLabel.map((empresa) => {
                                             return (
                                                 <EmpresaCard
                                                     key={empresa.id}
                                                     logo={empresa.logo}
                                                     nome={empresa.nome}
                                                     descricao={empresa.descricao}
-                                                    tags={empresa.tags}
                                                     favoritada={empresa.favoritada}
+                                                    tags={empresa.tags}
                                                     onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                     onClickVerMais={() => console.log('Ver mais', empresa.nome)}
                                                 />
                                             )
                                         })}
                                     </div>
-
-                                    <div className="flex justify-center gap-4 mt-6">
-
-                                        <button
-                                            onClick={() => {
-                                                setEmpresasPorCategoria({
-                                                    ...empresasPorCategoria,
-                                                    [categoria]: {
-                                                        ...empresasPorCategoria[categoria],
-                                                        recolher: !recolher,
-                                                    },
-                                                });
-                                            }}
-                                            className="ver-mais-btn flex items-center gap-2 hover:bg-dark-600 text-dark-900 dark:text-twitch-purple hover:text-white dark:hover:text-white transition-colors font-medium py-2 px-4 rounded-lg border border-dark-900 hover:border-dark-500 dark:border-twitch-purple dark:hover:border-twitch-lightpurple dark:hover:bg-twitch-purple"
-                                        >
-                                            {recolher ? "Exibir" : "Recolher"}
-                                            <i className={`bx bx-chevron-${recolher ? "down" : "up"} text-xl`} />
-                                        </button>
-
-                                    </div>
-                                </div>
-                            );
-                        })}
-
-                        {/* empresas recomendadas*/}
-                        <div className="categoria-empresas mb-12">
-                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
-                                {empresasSemLabel.map((empresa) => {
-                                    return (
-                                        <EmpresaCard
-                                            key={empresa.id}
-                                            logo={empresa.logo}
-                                            nome={empresa.nome}
-                                            descricao={empresa.descricao}
-                                            favoritada={empresa.favoritada}
-                                            tags={empresa.tags}
-                                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
-                                        />
-                                    )
-                                })}
-                            </div>
-                            {/* carregar empresas */}
-                            {carregando && (
-                                <div className="carregando-empresas flex justify-center items-center py-12">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
-                                        <p className="text-gray-400">Carregando mais empresas...</p>
-                                    </div>
-                                </div>
-                            )}
-
-
-                            {/* so para testar */}
-                            {/* {empresasSemLabelExpandidas && (
-                                <>
-                                    <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-8">
-                                        {empresasSemLabel.map((empresa, idx) => {
-                                            return(
-                                            <EmpresaCard
-                                                key={`sem-label-expandida-${idx}`}
-                                                logo={empresa.logo}
-                                                nome={`${empresa.nome} ${idx + 1}`}
-                                                descricao={`${empresa.descricao} - Nova leva de empresas carregadas.`}
-                                                favoritada={empresa.favoritada}
-                                                tags={[...empresa.tags, 'Nova']}
-                                                onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, {id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor})}
-                                                onClickVerMais={() => console.log('Ver mais', empresa.nome)}
-                                            />
-                                        )})}
-                                    </div>
-
+                                    {/* carregar empresas */}
                                     {carregando && (
                                         <div className="carregando-empresas flex justify-center items-center py-12">
                                             <div className="flex flex-col items-center gap-4">
@@ -1143,10 +1374,99 @@ const Main: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
-                                </>
-                            )} */}
-                        </div>
-                    </section>
+
+
+                                    {/* so para testar */}
+                                    {/* {empresasSemLabelExpandidas && (
+                                        <>
+                                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-8">
+                                                {empresasSemLabel.map((empresa, idx) => {
+                                                    return(
+                                                    <EmpresaCard
+                                                        key={`sem-label-expandida-${idx}`}
+                                                        logo={empresa.logo}
+                                                        nome={`${empresa.nome} ${idx + 1}`}
+                                                        descricao={`${empresa.descricao} - Nova leva de empresas carregadas.`}
+                                                        favoritada={empresa.favoritada}
+                                                        tags={[...empresa.tags, 'Nova']}
+                                                        onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, {id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor})}
+                                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                    />
+                                                )})}
+                                            </div>
+
+                                            {carregando && (
+                                                <div className="carregando-empresas flex justify-center items-center py-12">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                        <p className="text-gray-400">Carregando mais empresas...</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )} */}
+                                </div>
+                            </section>
+                        </>
+                    ): (
+                        <section className="empresas-section w-full px-5 py-6 min-h-screen">
+                            <div className="categoria-empresas mb-12">
+                                {searchData.empresas.length > 0 ? (
+                                    <>
+                                        <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
+                                            {searchData.empresas.map((empresa) => {
+                                                return (
+                                                    <EmpresaCard
+                                                        key={empresa.id}
+                                                        logo={empresa.logo}
+                                                        nome={empresa.nome}
+                                                        descricao={empresa.descricao}
+                                                        favoritada={empresa.favoritada}
+                                                        tags={empresa.tags}
+                                                        onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                    />
+                                                )
+                                            })}
+                                        </div>
+                                        
+                                        {/* Loader para carregar mais empresas */}
+                                        {searchData.loadingMore && (
+                                            <div className="carregando-empresas flex justify-center items-center py-12">
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                    <p className="text-gray-400">Carregando mais empresas...</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Mensagem quando não há mais empresas */}
+                                        {searchData.limit && searchData.empresas.length > 0 && (
+                                            <div className="text-center py-8">
+                                                <p className="text-gray-500">Não há mais empresas para carregar.</p>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    // Mostrar loader inicial ou mensagem de nenhum resultado
+                                    <div className="text-center py-12">
+                                        {searchData.loading ? (
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                <p className="text-gray-400">Carregando empresas...</p>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-4">
+                                                <i className="bx bx-search text-4xl text-gray-400"></i>
+                                                <p className="text-gray-500">Nenhuma empresa encontrada.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    )}
+                    
                 </main>
             </div>
         </>
