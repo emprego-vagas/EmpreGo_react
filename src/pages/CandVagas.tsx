@@ -143,8 +143,8 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
 const Main: React.FC = () => {
     const navigate = useNavigate();
     const [usuario] = useState(DadosUsuario.getUsuario(true, 'candidato'));
-    if(!usuario) {
-        setTimeout(()=>{
+    if (!usuario) {
+        setTimeout(() => {
             navigate('/')
         }, 3000)
     };
@@ -158,19 +158,19 @@ const Main: React.FC = () => {
         palavrasBuscaRef.current = palavrasBusca;
     }, [palavrasBusca]);
 
-    useEffect(()=>{
-        if(!usuario) return;
-        async function carregarDados(){
+    useEffect(() => {
+        if (!usuario) return;
+        async function carregarDados() {
             try {
                 const response = await axiosWe('/custom/vizualizar-empresas');
                 const data = response.data;
                 console.log(data);
-                console.log('Setores recomendados:', data.empresasRecomendadas.map(e=>e.setor));
+                console.log('Setores recomendados:', data.empresasRecomendadas.map(e => e.setor));
 
                 console.log(data.palavrasPraBusca)
                 setPalavrasBusca(data.palavrasPraBusca);
                 palavrasBuscaRef.current = data.palavrasPraBusca;
-                setEmpresasFavoritadas(data.empresasFavoritadas.map(e=>e.empresas));
+                setEmpresasFavoritadas(data.empresasFavoritadas.map(e => e.empresas));
 
                 const isFavoritada = (id: string) => {
                     return data.empresasFavoritadas.some((e) => e.empresas.id === id);
@@ -180,68 +180,68 @@ const Main: React.FC = () => {
                         pagina: 1,
                         chegouNoLimite: false,
                         recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
+                        empresasRecolhidas() {
+                            return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasRecomendadas.map(emp=>({
+                        empresas: data.empresasRecomendadas.map(emp => ({
                             id: emp.id,
                             logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                             nome: emp.nome_fant,
                             descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
+                            tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
                         }))
-                        },
+                    },
                     ["Empresas Recentes"]: {
                         pagina: 1,
                         chegouNoLimite: false,
                         recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
+                        empresasRecolhidas() {
+                            return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasRecentes.map(emp=>({
+                        empresas: data.empresasRecentes.map(emp => ({
                             id: emp.id,
                             logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                             nome: emp.nome_fant,
                             descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
+                            tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
                         }))
-                        },
+                    },
                     ["Empresas Principais"]: {
                         pagina: 1,
                         chegouNoLimite: false,
                         recolher: true,
-                        empresasRecolhidas(){
-                            return this.empresas.slice(0,3)
+                        empresasRecolhidas() {
+                            return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasPrincipais.map(emp=>({
+                        empresas: data.empresasPrincipais.map(emp => ({
                             id: emp.id,
                             logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                             nome: emp.nome_fant,
                             descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t=>t.nome),
+                            tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
                         }))
                     }
                 })
-                setEmpresasSemLabel(data.empresasSemLabel.map(emp=>({
+                setEmpresasSemLabel(data.empresasSemLabel.map(emp => ({
                     id: emp.id,
                     logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                     nome: emp.nome_fant,
                     descricao: emp.descricao,
                     setor: emp.setor,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t=>t.nome)
+                    tags: emp.tags_empresas.map(t => t.nome)
                 })));
                 setCarregandoDados(false);
             } catch (erro) {
-                console.error("Erro ao carregar empresas:",erro)
+                console.error("Erro ao carregar empresas:", erro)
             }
-            
+
         }
         carregarDados();
     }, [usuario])
@@ -317,7 +317,7 @@ const Main: React.FC = () => {
 
     const [empresasPorCategoria, setEmpresasPorCategoria] = useState<EmpresasPorCategoria>({})
     const [semLabelPage, setSemLabelPage] = useState(1);
-    
+
     const [empresasSemLabel, setEmpresasSemLabel] = useState([
         {
             id: '1',
@@ -345,12 +345,12 @@ const Main: React.FC = () => {
     const [empresasFavoritadas, setEmpresasFavoritadas] = useState<EmpresaFavoritada[]>([]);
 
     // favoritar ou desfavoritar empresa
-    const handleAlterarStatusFavorito = async(favoritada: boolean, empresa: EmpresaFavoritada)=>{
+    const handleAlterarStatusFavorito = async (favoritada: boolean, empresa: EmpresaFavoritada) => {
         console.log('atualizar')
-        function atualizarStatus(){
-            setEmpresasSemLabel(empresasSemLabel.map(emp=>{
-                if (emp.id===empresa.id){
-                    return {...emp, favoritada: !favoritada}
+        function atualizarStatus() {
+            setEmpresasSemLabel(empresasSemLabel.map(emp => {
+                if (emp.id === empresa.id) {
+                    return { ...emp, favoritada: !favoritada }
                 } else return emp
             }));
             setEmpresasPorCategoria(prev => {
@@ -371,7 +371,7 @@ const Main: React.FC = () => {
             });
         }
         if (favoritada) {
-            setEmpresasFavoritadas(prev=>prev.filter(e=>e.id!==empresa.id));
+            setEmpresasFavoritadas(prev => prev.filter(e => e.id !== empresa.id));
             atualizarStatus();
             try {
                 await axiosWe.delete(`/favoritos/empresa/${empresa.id}`);
@@ -380,7 +380,7 @@ const Main: React.FC = () => {
             };
         }
         else {
-            if(empresasFavoritadas.length >= 20){
+            if (empresasFavoritadas.length >= 20) {
                 mostrarAvisoTopo("Você só pode favoritar até 20 empresas");
             } else {
                 setEmpresasFavoritadas(prev => {
@@ -389,7 +389,7 @@ const Main: React.FC = () => {
                         return prev;
                     }
 
-                    
+
                     return [empresa, ...prev];
                 });
                 atualizarStatus();
@@ -411,7 +411,7 @@ const Main: React.FC = () => {
     const [carregando, setCarregando] = useState(false);
     const carregandoRef = useRef(false);
 
-    useEffect(()=>{
+    useEffect(() => {
         carregandoRef.current = carregando
     }, [carregando])
 
@@ -422,33 +422,33 @@ const Main: React.FC = () => {
     //     }));
     // };
 
-    const carregarMaisEmpresas = async() => {
+    const carregarMaisEmpresas = async () => {
         console.log(empresasSemLabel.length)
-        if(empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current){
+        if (empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current) {
             return;
         }
         setCarregando(true);
         try {
-            const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage+1}`, { palavras: palavrasBuscaRef.current });
-            setSemLabelPage(prev=>prev+1);
+            const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage + 1}`, { palavras: palavrasBuscaRef.current });
+            setSemLabelPage(prev => prev + 1);
             const novasEmpresas = response.data;
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
             };
-            setEmpresasSemLabel(prev=>
-                [...prev, ...novasEmpresas.map(emp=>({
+            setEmpresasSemLabel(prev =>
+                [...prev, ...novasEmpresas.map(emp => ({
                     id: emp.id,
                     logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
                     nome: emp.nome_fant,
                     descricao: emp.descricao,
                     setor: emp.setor,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t=>t.nome)
+                    tags: emp.tags_empresas.map(t => t.nome)
                 }))]
             );
             setCarregando(false);
         } catch (erro) {
-            console.error("Erro ao carregar mais empresas:",erro)
+            console.error("Erro ao carregar mais empresas:", erro)
         }
         // setTimeout(() => {
         //     setEmpresasSemLabelExpandidas(true);
@@ -469,7 +469,7 @@ const Main: React.FC = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [carregando]);
-    
+
     // slider three js particles background
     useEffect(() => {
         if (!threeContainerRef.current) return;
@@ -531,7 +531,7 @@ const Main: React.FC = () => {
             renderer.dispose();
         };
     }, []);
-    
+
     // mouse move for three js
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -687,7 +687,7 @@ const Main: React.FC = () => {
         setIsFilterOpen(false);
     };
 
-    if(carregandoDados) return (<Loader/>)
+    if (carregandoDados) return (<Loader />)
 
     return (
         <>
@@ -713,27 +713,53 @@ const Main: React.FC = () => {
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                         </Link>
 
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition cursor-pointer select-none" onClick={()=>setMostrarFavoritos(e=>!e)}>
+                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
                             <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
-                            <FontAwesomeIcon icon={(mostrarFavoritos? faChevronDown :faChevronRight)} className='ml-auto w-[10px] h-[10px]'/>
+                            <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px]' />
                         </a>
                         {(mostrarFavoritos && isSidebarOpen) && (
-                            <div className="max-h-72 overflow-y-auto ml-1">
+                            <div className="max-h-72 overflow-y-auto px-1 mb-2 scrollbar ">
                                 {empresasFavoritadas.map(e => (
-                                    <div key={e.id} className='flex border border-black gap-1 mt-1 mr-1'>
-                                        <img src={e.foto==="/assets/imgs/genPfp.png"? genPfp : e.foto} className='w-[20px] h-[20px]' />
-                                        <div className="flex flex-col flex-1">
-                                            <p className="font-semibold text-gray-800 text-xs">
+                                    <div
+                                        key={e.id}
+                                        className="flex items-center gap-2 p-1 mb-1 bg-light-100 dark:bg-dark-600 rounded-[13px] transition-colors duration-150 border border-gray-200"
+                                    >
+                                        {/* Avatar da empresa */}
+                                        <div className="flex-shrink-0">
+                                            <img
+                                                src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
+                                                alt={e.nome_fant}
+                                                className="w-7 h-7 rounded-full object-cover border border-gray-300"
+                                            />
+                                        </div>
+
+                                        {/* Informações da empresa */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-dark-600 dark:text-light-100 text-xs truncate">
                                                 {e.nome_fant}
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-xs text-gray-500 truncate">
                                                 {e.setor}
                                             </p>
                                         </div>
-                                        <div className='flex flex-row'>
-                                            <i className={'bx bxs-star text-lg text-yellow-400 cursor-pointer'} onClick={()=>handleAlterarStatusFavorito(true, e)}/>
-                                            <FontAwesomeIcon icon={faComment} className='cursor-pointer' onClick={()=>navigate(`/chats?id=${e.id}`)}/>
+
+                                        {/* Ícones de ação */}
+                                        <div className="flex items-center gap-2 ml-auto">
+                                            <button
+                                                onClick={() => handleAlterarStatusFavorito(true, e)}
+                                                className="text-yellow-500 hover:text-yellow-800 transition-colors"
+                                                aria-label="Desfavoritar"
+                                            >
+                                                <i className='bx bxs-star text-lg' />
+                                            </button>
+                                            <button
+                                                onClick={() => navigate(`/chats?id=${e.id}`)}
+                                                className="text-gray-600 hover:text-primary-500 transition-colors "
+                                                aria-label="Abrir chat"
+                                            >
+                                                <FontAwesomeIcon icon={faComment} className="text-base" />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -746,7 +772,7 @@ const Main: React.FC = () => {
                 <header ref={headerRef} className={`fixed top-0 left-0 right-0 bg-white dark:bg-dark-600 z-50 flex flex-col`}>
                     <div className="w-full flex items-center justify-between px-4 h-14">
                         <div className="flex items-center gap-4">
-                            <button className="bx bx-menu text-3xl text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 w-10 h-10 flex items-center justify-center rounded-full transition" onClick={() => setIsSidebarOpen(!isSidebarOpen)}/>
+                            <button className="bx bx-menu text-3xl text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 w-10 h-10 flex items-center justify-center rounded-full transition" onClick={() => setIsSidebarOpen(!isSidebarOpen)} />
                             <Link to="/" className="flex items-center gap-1">
                                 <img src={logo} alt="Logo" className="h-10 w-auto" />
                                 <span className="font-black text-xl text-gray-800 dark:text-white">
@@ -757,7 +783,7 @@ const Main: React.FC = () => {
 
                         <div className="flex flex-1 justify-center px-4">
                             <div className="search-bar flex items-center w-full max-w-2xl bg-white dark:bg-twitch-gray rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
-                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e)=>setBuscaPesquisa(e.target.value)}/>
+                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e) => setBuscaPesquisa(e.target.value)} />
 
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
                                     {/* <img src={filtro} className="w-6 h-6 filter brightness-0 invert" /> */}
@@ -774,14 +800,14 @@ const Main: React.FC = () => {
                                 <div
                                     ref={filterRef}
                                     className={`filter-container absolute top-14 right-64 bg-white dark:bg-twitch-gray p-4 rounded-xl shadow-xl border border-gray-300 dark:border-gray-700 w-72 z-50 ${isFilterOpen ? "open" : "closed"}`}>
-                                    
+
                                     {/* SETOR */}
                                     <div className="filter-category">
                                         <button className="filter-category-header flex justify-between w-full mb-1 dark:bg-twitch-gray bg-white"
-                                        onClick={() => setOpenCategory(openCategory === "setor" ? null : "setor")}>
+                                            onClick={() => setOpenCategory(openCategory === "setor" ? null : "setor")}>
                                             <span className="text-twitch-gray dark:text-dark-300 text-sm font-medium ">Setor</span>
                                             <i className="bx bx-chevron-down text-twitch-gray dark:text-dark-300"></i>
-                                        </button>   
+                                        </button>
 
                                         {openCategory === "setor" && (
                                             <div className=" flex flex-wrap gap-2 max-h-36 overflow-y-auto mb-3 pr-2 p-1 custom-scrollbar text-twitch-gray dark:text-dark-300">
@@ -874,18 +900,18 @@ const Main: React.FC = () => {
                                     </div>
                                 </div>
                             )}
-                            
+
                         </div>
 
                         <div className='flex mt-1 justify-center px-2'>
-                            <SinoNotificacoes/>
+                            <SinoNotificacoes />
                         </div>
 
                         {/* Profile */}
                         <div className="relative " ref={profileRef}>
-                            
+
                             <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                                <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover"/>
+                                <img src={usuario.foto === '/assets/imgs/genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
                             </div>
 
                             {isProfileOpen && (
@@ -900,7 +926,7 @@ const Main: React.FC = () => {
                                     <hr className="border-gray-300 dark:border-gray-700" />
 
                                     <Link to={`/perfil/${usuario.tipo}/editar`} className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Editar perfil</Link>
-                                    <button className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onClick={()=>logout()}>Sair</button>
+                                    <button className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onClick={() => logout()}>Sair</button>
 
                                     <hr className="border-gray-300 dark:border-gray-700" />
 
@@ -1023,7 +1049,7 @@ const Main: React.FC = () => {
 
                                     <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                                         {empresasParaMostrar.map(empresa => {
-                                            return(
+                                            return (
                                                 <EmpresaCard
                                                     key={empresa.id}
                                                     logo={empresa.logo}
@@ -1031,7 +1057,7 @@ const Main: React.FC = () => {
                                                     descricao={empresa.descricao}
                                                     tags={empresa.tags}
                                                     favoritada={empresa.favoritada}
-                                                    onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, {id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor})}
+                                                    onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                     onClickVerMais={() => console.log('Ver mais', empresa.nome)}
                                                 />
                                             )
@@ -1066,17 +1092,17 @@ const Main: React.FC = () => {
                             <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
                                 {empresasSemLabel.map((empresa) => {
                                     return (
-                                    <EmpresaCard
-                                        key={empresa.id}
-                                        logo={empresa.logo}
-                                        nome={empresa.nome}
-                                        descricao={empresa.descricao}
-                                        favoritada={empresa.favoritada}
-                                        tags={empresa.tags}
-                                        onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, {id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor})}
-                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
-                                    />
-                                )
+                                        <EmpresaCard
+                                            key={empresa.id}
+                                            logo={empresa.logo}
+                                            nome={empresa.nome}
+                                            descricao={empresa.descricao}
+                                            favoritada={empresa.favoritada}
+                                            tags={empresa.tags}
+                                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                        />
+                                    )
                                 })}
                             </div>
                             {/* carregar empresas */}
