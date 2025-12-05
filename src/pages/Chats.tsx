@@ -245,6 +245,7 @@ export default function Chats() {
 
     useEffect(() => {
         if (conversaAtualId !== '0' && messagesContainerRef.current) {
+            textareaRef.current.focus();
             const container = messagesContainerRef.current;
             container.scrollTop = container.scrollHeight;
             setTimeout(() => {
@@ -1141,7 +1142,7 @@ export default function Chats() {
                                         <textarea id="message-input" autoFocus
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
                                             placeholder="Digite sua mensagem..." rows={1} maxLength={500} onClick={()=>{setMostrarAttachmentMenu(false);setMostrarMenu(false)}}
-                                            ref={textareaRef} value={mensagemEnvio} onChange={(e)=>handleChangeMsg(e)} onKeyDown={async(e)=>{
+                                            ref={textareaRef} value={mensagemEnvio} onChange={(e)=>handleChangeMsg(e)} onKeyDown={(e)=>{
                                                 if (e.key === "Enter" && !e.shiftKey) {
                                                     e.preventDefault();
 

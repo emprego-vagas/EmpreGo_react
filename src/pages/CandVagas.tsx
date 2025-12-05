@@ -71,23 +71,14 @@ interface FiltroRecomendado {
     categoria: string;
 }
 
-// Filtros recomendados
-const filtrosRecomendados: FiltroRecomendado[] = [
-    { id: 1, nome: "Programação de computadores", categoria: "Tecnologia" },
-    { id: 2, nome: "Música", categoria: "Entretenimento" },
-    { id: 3, nome: "Notícias", categoria: "Informação" },
-    { id: 4, nome: "Yu-Gi-Oh! Duel Monsters", categoria: "Games" },
-    { id: 5, nome: "Mixes", categoria: "Música" },
-    { id: 6, nome: "Jogos de cartas", categoria: "Games" },
-    { id: 7, nome: "Música medieval", categoria: "Música" },
-    { id: 8, nome: "Chefes", categoria: "Culinária" },
-    { id: 9, nome: "Música ao vivo", categoria: "Música" },
-    { id: 10, nome: "Lista", categoria: "Organização" },
-    { id: 11, nome: "Desenvolvimento Web", categoria: "Tecnologia" },
-    { id: 12, nome: "React", categoria: "Tecnologia" },
-    { id: 13, nome: "TypeScript", categoria: "Tecnologia" },
-    { id: 14, nome: "UI/UX Design", categoria: "Design" },
-];
+interface FiltroAtual {
+    name: string;
+    page: number;
+    loading: boolean;
+    loadingMore: boolean;
+    limit: boolean;
+    empresas: Empresa[];
+}
 
 // Constantes do Filtro
 const setoresFilter = ["Alimentação", "Vestuário", "Saúde", "Educação", "Consultoria", "Tecnologia", "Construção Civil", "Informática", "Marketing", "Advocacia", "Energia", "Transporte"];
@@ -139,6 +130,64 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
     );
 };
 
+const formatacoes: Record<string, string> = {
+  "energia": "Energia",
+  "construcao civil": "Construção Civil",
+  "imobiliario": "Imobiliário",
+  "construcao": "Construção",
+  "midia e comunicacao": "Mídia e Comunicação",
+  "consultoria": "Consultoria",
+  "escritorio": "Escritório",
+  "joalheria": "Joalheria",
+  "artes": "Artes",
+  "vestuario": "Vestuário",
+  "varejo": "Varejo",
+  "musica": "Música",
+  "livros": "Livros",
+  "tecnologia": "Tecnologia",
+  "celulares": "Celulares",
+  "esportes": "Esportes",
+  "automotivo": "Automotivo",
+  "transporte": "Transporte",
+  "games": "Games",
+  "moveis": "Móveis",
+  "setor publico": "Setor Público",
+  "meio ambiente": "Meio Ambiente",
+  "financeiro": "Financeiro",
+  "pets": "Pets",
+  "educacao": "Educação",
+  "metalurgica": "Metalúrgica",
+  "agricultura": "Agricultura",
+  "saude": "Saúde",
+  "moda": "Moda",
+  "turismo": "Turismo",
+  "saude e bem-estar": "Saúde e Bem-Estar",
+  "eletronicos": "Eletrônicos",
+  "marketing": "Marketing",
+  "recursos humanos": "Recursos Humanos",
+  "informatica": "Informática",
+  "ferramentas": "Ferramentas",
+  "entretenimento": "Entretenimento",
+  "beleza": "Beleza",
+  "quimica": "Química",
+  "industria": "Indústria",
+  "alimentacao": "Alimentação",
+  "seguranca": "Segurança",
+  "brinquedos": "Brinquedos",
+  "telecomunicacoes": "Telecomunicações",
+  "bebidas": "Bebidas",
+  "eventos": "Eventos",
+  "juridico": "Jurídico",
+  "materiais": "Materiais",
+  "limpeza": "Limpeza",
+  "fotografia": "Fotografia",
+  "servicos gerais": "Serviços Gerais"
+};
+
+function formatarPalavra(palavra: string) {
+  return formatacoes[palavra.toLowerCase()] ?? palavra;
+}
+
 // main componentes
 const Main: React.FC = () => {
     const navigate = useNavigate();
@@ -157,6 +206,96 @@ const Main: React.FC = () => {
     useEffect(() => {
         palavrasBuscaRef.current = palavrasBusca;
     }, [palavrasBusca]);
+
+    const [filtrosRecomendados, setFiltrosRecomendados] = useState<FiltroRecomendado[]>([
+        { id: 1, nome: "Programação de computadores", categoria: "Tecnologia" },
+        { id: 2, nome: "Música", categoria: "Entretenimento" },
+        { id: 3, nome: "Notícias", categoria: "Informação" },
+        { id: 4, nome: "Yu-Gi-Oh! Duel Monsters", categoria: "Games" },
+        { id: 5, nome: "Mixes", categoria: "Música" },
+        { id: 6, nome: "Jogos de cartas", categoria: "Games" },
+        { id: 7, nome: "Música medieval", categoria: "Música" },
+        { id: 8, nome: "Chefes", categoria: "Culinária" },
+        { id: 9, nome: "Música ao vivo", categoria: "Música" },
+        { id: 10, nome: "Lista", categoria: "Organização" },
+        { id: 11, nome: "Desenvolvimento Web", categoria: "Tecnologia" },
+        { id: 12, nome: "React", categoria: "Tecnologia" },
+        { id: 13, nome: "TypeScript", categoria: "Tecnologia" },
+        { id: 14, nome: "UI/UX Design", categoria: "Design" },
+    ]);
+
+    const [filtroAtual, setFiltroAtual] = useState<FiltroAtual>({
+        name: 'Tudo',
+        page: 1,
+        loading: false,
+        loadingMore: false,
+        limit: false,
+        empresas: []
+    });
+    const filtroAtualPageRef = useRef<number>(1);
+    const filtroAtualLoadingRef = useRef<boolean>(false);
+    const filtroAtualLoadingMoreRef = useRef<boolean>(false);
+    const filtroAtualLimitRef = useRef<boolean>(false);
+    const filtroAtualNameRef = useRef<string>('Tudo');
+    useEffect(()=>{
+        filtroAtualPageRef.current = filtroAtual.page;
+        filtroAtualLoadingRef.current = filtroAtual.loading;
+        filtroAtualLoadingMoreRef.current = filtroAtual.loadingMore;
+        filtroAtualLimitRef.current = filtroAtual.limit;
+        filtroAtualNameRef.current = filtroAtual.name;
+    }, [filtroAtual.page, filtroAtual.loading, filtroAtual.loadingMore, filtroAtual.limit, filtroAtual.name]);
+
+    async function buscarEmpresasCategoria(categoria: string){
+        try {
+            const loading = filtroAtualLoadingRef.current;
+            const loadingMore = filtroAtualLoadingMoreRef.current;
+            const limit = filtroAtualLimitRef.current;
+
+            if(loading || loadingMore || limit) return;
+
+            const pagina = filtroAtualPageRef.current;
+            console.log(pagina)
+            setFiltroAtual(prev=>({
+                ...prev,
+                loading: pagina === 1 ? true : false,
+                loadingMore: pagina === 1 ? false : true
+            }));
+            const response = await axiosWe(`/empresas/categoria/${categoria}?page=${pagina}`);
+            const empresas = response.data;
+            const isFavoritada = (id: string) => {
+                return empresasFavoritadas.some((e) => e.id === id);
+            };
+            setFiltroAtual(prev=>({
+                ...prev,
+                page: pagina+1,
+                loading: false,
+                loadingMore: false,
+                limit: empresas.length < 9,
+                empresas: [...prev.empresas, ...empresas.map(emp => ({
+                    id: emp.id,
+                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    nome: emp.nome_fant,
+                    descricao: emp.descricao,
+                    setor: emp.setor,
+                    favoritada: isFavoritada(emp.id),
+                    tags: emp.tags_empresas.map(t => t.nome)
+                }))]
+            }))
+            console.log(response.data)
+        } catch (erro) {
+            console.error('Erro ao buscar empresa por categoria:',erro);
+        }
+    }
+
+    useEffect(()=>{
+        const categoria = filtroAtual.name;
+        if(categoria==='Tudo'){
+            return;
+        }
+        
+        buscarEmpresasCategoria(categoria)
+        console.log("Filtro mudou")
+    }, [filtroAtual.name])
 
     useEffect(() => {
         if (!usuario) return;
@@ -237,6 +376,7 @@ const Main: React.FC = () => {
                     favoritada: isFavoritada(emp.id),
                     tags: emp.tags_empresas.map(t => t.nome)
                 })));
+                setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarPalavra(c), categoria: c})));
                 setCarregandoDados(false);
             } catch (erro) {
                 console.error("Erro ao carregar empresas:", erro)
@@ -280,6 +420,7 @@ const Main: React.FC = () => {
         empresas: Empresa[];
     }>({active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: []});
     const searchPageRef = useRef(1);
+    const searchButtonRef = useRef<HTMLButtonElement>(null);
     
     function clearSearchData(){
         searchPageRef.current = 1;
@@ -569,19 +710,14 @@ const Main: React.FC = () => {
             clearTimeout(timeoutId);
             
             timeoutId = setTimeout(() => {
-                const atBottom =
-                    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+                const atBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
 
                 if(atBottom){
-                    console.log('Scroll no fundo - Estado:', {
-                        searchActive: searchData.active,
-                        loading: searchData.loading,
-                        loadingMore: searchData.loadingMore,
-                        limit: searchData.limit,
-                        currentPageRef: searchPageRef.current,
-                        isLoadingMoreRef: isLoadingMoreRef.current
-                    });
-                    
+                    if(filtroAtualNameRef.current!=='Tudo') {
+                        buscarEmpresasCategoria(filtroAtualNameRef.current);
+                        return;
+                    }
+
                     if (!searchData.active && !carregando) {
                         carregarMaisEmpresas();
                     }
@@ -684,30 +820,28 @@ const Main: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        // Quando qualquer filtro ou busca mudar, resetar a busca
-        // Mas só se já tivermos uma busca ativa
-        if (searchData.active) {
-            const setoresString = filters.setor.join(',');
-            const estadosString = filters.estado.join(',');
-            const portesString = filters.porte.join(',');
+    // useEffect(() => {
+    //     if (searchData.active) {
+    //         const setoresString = filters.setor.join(',');
+    //         const estadosString = filters.estado.join(',');
+    //         const portesString = filters.porte.join(',');
             
-            const queryParts: string[] = [];
-            if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
-            if(setoresString) queryParts.push(`setor=${setoresString}`);
-            if(estadosString) queryParts.push(`estado=${estadosString}`);
-            if(portesString) queryParts.push(`porte=${portesString}`);
+    //         const queryParts: string[] = [];
+    //         if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
+    //         if(setoresString) queryParts.push(`setor=${setoresString}`);
+    //         if(estadosString) queryParts.push(`estado=${estadosString}`);
+    //         if(portesString) queryParts.push(`porte=${portesString}`);
             
-            const queryJoin = queryParts.join('&');
+    //         const queryJoin = queryParts.join('&');
             
-            // Se a query mudou, preparar para uma nova busca
-            // Mas não executar automaticamente - esperar o clique do usuário
-            if (queryJoin !== searchData.query) {
-                // Podemos limpar ou marcar como precisa de atualização
-                console.log('Query mudou, preparando para nova busca');
-            }
-        }
-    }, [buscaPesquisa, filters.setor, filters.estado, filters.porte]);
+    //         // Se a query mudou, preparar para uma nova busca
+    //         // Mas não executar automaticamente - esperar o clique do usuário
+    //         if (queryJoin !== searchData.query) {
+    //             // Podemos limpar ou marcar como precisa de atualização
+    //             console.log('Query mudou, preparando para nova busca');
+    //         }
+    //     }
+    // }, [buscaPesquisa, filters.setor, filters.estado, filters.porte]);
 
     // slider three js particles background
     useEffect(() => {
@@ -1037,7 +1171,16 @@ const Main: React.FC = () => {
 
                         <div className="flex flex-1 justify-center px-4">
                             <div className="search-bar flex items-center w-full max-w-2xl bg-white dark:bg-twitch-gray rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
-                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e) => setBuscaPesquisa(e.target.value)} />
+                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e) => setBuscaPesquisa(e.target.value)} 
+                                    onKeyDown={(e)=>{
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+
+                                            if (buscaPesquisa.trim() === "") return;
+
+                                            searchButtonRef.current.click();
+                                        }
+                                    }}/>
 
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
                                     {/* <img src={filtro} className="w-6 h-6 filter brightness-0 invert" /> */}
@@ -1045,7 +1188,7 @@ const Main: React.FC = () => {
                                 </button>
 
                                 <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition" 
-                                    onClick={handleSearch}>
+                                    onClick={handleSearch} ref={searchButtonRef}>
                                     <img src={lupa} className="w-5 h-5 filter brightness-0 invert" />
                                 </button>
                             </div>
@@ -1169,8 +1312,8 @@ const Main: React.FC = () => {
                                 <img src={usuario.foto === '/assets/imgs/genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
                             </div>
 
-                            {isProfileOpen && (
-                                <div className="absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999]">
+                            {/* {isProfileOpen && ( */}
+                                <div className={`absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999] ${!isProfileOpen ? "hidden": ""}`}>
                                     <div className="p-3">
                                         <p className="font-bold">{usuario.nome}</p>
                                         <Link to="/perfil/candidato" className="text-twitch-purple text-sm">
@@ -1196,7 +1339,7 @@ const Main: React.FC = () => {
 
                                     <Link to="/suporte" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Ajuda</Link>
                                 </div>
-                            )}
+                            {/* )} */}
                         </div>
                     </div>
 
@@ -1212,11 +1355,13 @@ const Main: React.FC = () => {
                                 ref={filtrosContainerRef}
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                                <button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name==='Tudo'?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
+                                    onClick={()=>setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})}>
                                     Tudo
                                 </button>
                                 {filtrosRecomendados.map((f) => (
-                                    <button key={f.id} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all  border border-gray-600 hover:border-gray-500 hover:scale-105 flex-shrink-0">
+                                    <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name===f.categoria?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
+                                        onClick={()=>setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})}>
                                         {f.nome}
                                     </button>
                                 ))}
@@ -1443,7 +1588,7 @@ const Main: React.FC = () => {
                                         {/* Mensagem quando não há mais empresas */}
                                         {searchData.limit && searchData.empresas.length > 0 && (
                                             <div className="text-center py-8">
-                                                <p className="text-gray-500">Não há mais empresas para carregar.</p>
+                                                <p className="text-gray-500">Não há mais resultados.</p>
                                             </div>
                                         )}
                                     </>
