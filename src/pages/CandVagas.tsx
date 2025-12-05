@@ -757,6 +757,7 @@ const Main: React.FC = () => {
         
         // Se for uma nova query, resetar completamente
         if(queryJoin !== searchData.query) {
+            setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})
             try {
                 // Resetar todas as refs e estado
                 searchPageRef.current = 1;
@@ -1376,7 +1377,62 @@ const Main: React.FC = () => {
                 </header>
 
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
-                    {!searchData.active ? (
+                    {filtroAtual.name !== 'Tudo' ? (
+                        <section className="empresas-section w-full px-5 py-6 mt-2">
+                                <div className="categoria-empresas mb-12">
+                                    {filtroAtual.empresas.length > 0 ? (
+                                        <>
+                                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
+                                                {filtroAtual.empresas.map((empresa) => {
+                                                    return (
+                                                        <EmpresaCard
+                                                            key={empresa.id}
+                                                            logo={empresa.logo}
+                                                            nome={empresa.nome}
+                                                            descricao={empresa.descricao}
+                                                            favoritada={empresa.favoritada}
+                                                            tags={empresa.tags}
+                                                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        />
+                                                    )
+                                                })}
+                                            </div>
+                                            {/* carregar empresas */}
+                                            {filtroAtual.loadingMore && (
+                                                <div className="carregando-empresas flex justify-center items-center py-12">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                        <p className="text-gray-400">Carregando mais empresas...</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {filtroAtual.limit && (
+                                                <div className="text-center py-8">
+                                                    <p className="text-gray-500">Não há mais resultados.</p>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-12">
+                                            {filtroAtual.loading ? (
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                    <p className="text-gray-400">Carregando empresas...</p>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <i className="bx bx-search text-4xl text-gray-400"></i>
+                                                    <p className="text-gray-500">Nenhuma empresa encontrada.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    
+                                </div>
+                            </section>
+                    ) : !searchData.active ? (
                         <>
                             <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
                                 <div ref={threeContainerRef} className="absolute inset-0 -z-10" />
