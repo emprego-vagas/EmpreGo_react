@@ -23,7 +23,7 @@ interface Slide {
     autor: string;
     data: string;
     background?: string;
-    fotoEmpresa?: string;
+    fotoCandidato?: string;
 }
 
 interface CandidatoCardProps {
@@ -133,7 +133,7 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
                         {idioma?.trim() && (
                             <div className="setor-container flex items-center gap-1">
                                 <i className="bx bx-world text-base"></i>
-                                <span className="setor-text font-medium truncate max-w-[150px]" title={idioma}>
+                                <span className="setor-text font-medium truncate max-w-[200px]" title={idioma}>
                                     {idioma}
                                 </span>
                             </div>
@@ -363,6 +363,19 @@ const Main: React.FC = () => {
                     idioma: cand.idiomas[0]?.nome
                 })));
                 setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarCategoria(c), categoria: c})));
+                setSlides(data.experienciasSlide.map(e=>({
+                    empresa: e.empresa,
+                    titulo: e.titulo,
+                    texto: e.descricao,
+                    autor: e.candidato_nome,
+                    data: new Date(e.data_criacao).toLocaleDateString('pt-BR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }),
+                    background: JoaoAzevedo,
+                    fotoCandidato: e.candidato_foto
+                })))
                 setCarregandoDados(false);
             } catch (erro) {
                 console.error("Erro ao carregar candidatos:", erro)
@@ -425,7 +438,7 @@ const Main: React.FC = () => {
     // const dateTimeNow = Date.now();
 
     // informações
-    const slides: Slide[] = [
+    const [slides, setSlides] = useState<Slide[]>([
         {
             empresa: "TechSolutions Inc.",
             titulo: "Parceria Excepcional",
@@ -433,7 +446,7 @@ const Main: React.FC = () => {
             autor: "Carlos Mendes",
             data: "15 de Março, 2023",
             background: JoaoAzevedo,
-            fotoEmpresa: JoaoAzevedo
+            fotoCandidato: JoaoAzevedo
         },
         {
             empresa: "Global Innovations",
@@ -457,9 +470,8 @@ const Main: React.FC = () => {
             texto: "O que mais impressiona é a capacidade de inovar constantemente, trazendo soluções que não apenas resolvem problemas imediatos, mas preparam nossa empresa para os desafios futuros. Uma relação de confiança construída ao longo de anos.",
             autor: "Fernanda Oliveira",
             data: "10 de Junho, 2023",
-            background: JoaoAzevedo
         }
-    ];
+    ]);
 
     const [candidatosPorCategoria, setCandidatosPorCategoria] = useState<CandidatosPorCategoria>({})
     const [semLabelPage, setSemLabelPage] = useState(1);
@@ -1450,9 +1462,9 @@ const Main: React.FC = () => {
 
                                                 <div className="slide-meta flex justify-between items-center text-sm text-gray-400">
                                                     <div className="flex items-center gap-3">
-                                                        {slide.fotoEmpresa && (
+                                                        {slide.fotoCandidato && (
                                                             <img
-                                                                src={slide.fotoEmpresa}
+                                                                src={slide.fotoCandidato === '/assets/imgs/genPfp.png' ? genPfp : slide.fotoCandidato}
                                                                 alt={slide.empresa}
                                                                 className="w-10 h-10 rounded-full object-cover shadow-md"
                                                             />

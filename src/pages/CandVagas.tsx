@@ -136,7 +136,7 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({
                         {setor?.trim() && (
                             <div className="setor-container flex items-center gap-1">
                                 <i className="bx bx-buildings text-base"></i>
-                                <span className="setor-text font-medium truncate max-w-[150px]" title={setor}>
+                                <span className="setor-text font-medium truncate max-w-[200px]" title={setor}>
                                     {setor}
                                 </span>
                             </div>
