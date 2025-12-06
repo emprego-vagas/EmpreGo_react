@@ -194,3 +194,61 @@ export function sendNotification(recipient: {id: string, type: 'empresa' | 'cand
         ...(content as NotificationContent)
     });
 }
+
+const formatacoes: Record<string, string> = {
+  "energia": "Energia",
+  "construcao civil": "Construção Civil",
+  "imobiliario": "Imobiliário",
+  "construcao": "Construção",
+  "midia e comunicacao": "Mídia e Comunicação",
+  "consultoria": "Consultoria",
+  "escritorio": "Escritório",
+  "joalheria": "Joalheria",
+  "artes": "Artes",
+  "vestuario": "Vestuário",
+  "varejo": "Varejo",
+  "musica": "Música",
+  "livros": "Livros",
+  "tecnologia": "Tecnologia",
+  "celulares": "Celulares",
+  "esportes": "Esportes",
+  "automotivo": "Automotivo",
+  "transporte": "Transporte",
+  "games": "Games",
+  "moveis": "Móveis",
+  "setor publico": "Setor Público",
+  "meio ambiente": "Meio Ambiente",
+  "financeiro": "Financeiro",
+  "pets": "Pets",
+  "educacao": "Educação",
+  "metalurgica": "Metalúrgica",
+  "agricultura": "Agricultura",
+  "saude": "Saúde",
+  "moda": "Moda",
+  "turismo": "Turismo",
+  "saude e bem-estar": "Saúde e Bem-Estar",
+  "eletronicos": "Eletrônicos",
+  "marketing": "Marketing",
+  "recursos humanos": "Recursos Humanos",
+  "informatica": "Informática",
+  "ferramentas": "Ferramentas",
+  "entretenimento": "Entretenimento",
+  "beleza": "Beleza",
+  "quimica": "Química",
+  "industria": "Indústria",
+  "alimentacao": "Alimentação",
+  "seguranca": "Segurança",
+  "brinquedos": "Brinquedos",
+  "telecomunicacoes": "Telecomunicações",
+  "bebidas": "Bebidas",
+  "eventos": "Eventos",
+  "juridico": "Jurídico",
+  "materiais": "Materiais",
+  "limpeza": "Limpeza",
+  "fotografia": "Fotografia",
+  "servicos gerais": "Serviços Gerais"
+};
+
+export function formatarCategoria(palavra: string) {
+  return formatacoes[palavra.toLowerCase()] ?? palavra;
+}

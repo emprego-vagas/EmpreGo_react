@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
+import { DadosUsuario, formatarCategoria, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
 import Loader from '../components/Loader';
@@ -34,6 +34,8 @@ interface EmpresaCardProps {
     tags: string[];
     onClickFavorito?: () => void;
     onClickVerMais?: () => void;
+    setor: string;
+    estado: string;
 }
 
 interface Empresa {
@@ -43,6 +45,7 @@ interface Empresa {
     descricao: string;
     setor: string;
     favoritada: boolean;
+    estado: string;
     tags: string[];
 }
 
@@ -88,7 +91,17 @@ const estadosFilter = [
     "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais, favoritada }) => {
+const EmpresaCard: React.FC<EmpresaCardProps> = ({ 
+    logo, 
+    nome, 
+    descricao, 
+    tags, 
+    onClickFavorito, 
+    onClickVerMais, 
+    favoritada,
+    setor,
+    estado 
+}) => {
     const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
@@ -101,7 +114,9 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
 
     return (
         <article
-            className={"empresa-card bg-gray-200 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[380px]"}>
+            className={"empresa-card bg-gray-200 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[400px]"}>
+            
+            {/* Header com logo e botão favorito */}
             <div className="card-header relative h-40 bg-gray-800 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
                 <img src={logo} alt={nome} className="empresa-logo w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md z-10 transition-transform" />
 
@@ -110,11 +125,40 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
                 </button>
             </div>
 
+            {/* Corpo do card */}
             <div className="card-body p-6 flex-1">
-                <h3 className="empresa-nome text-xl font-semibold mb-3 dark:text-gray-200 text-twitch-gray">{nome}</h3>
-                <p className="empresa-descricao dark:text-gray-400 text-twitch-gray text-sm mb-4 line-clamp-3 leading-relaxed ">{descricao}</p>
+                {/* Nome da empresa e informações de localização/setor */}
+                <div className="empresa-info mb-3">
+                    <h3 className="empresa-nome text-xl font-semibold dark:text-gray-200 text-twitch-gray mb-2">{nome}</h3>
+                    
+                    <div className="empresa-meta flex items-center text-sm dark:text-gray-400 text-twitch-gray">
+                        {/* Setor */}
+                        {setor?.trim() && (
+                            <div className="setor-container flex items-center gap-1">
+                                <i className="bx bx-buildings text-base"></i>
+                                <span className="setor-text font-medium truncate max-w-[150px]" title={setor}>
+                                    {setor}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Estado - SEMPRE à direita */}
+                        {estado?.trim() && (
+                            <div className="estado-container flex items-center gap-1 ml-auto">
+                                <i className="bx bx-map text-base"></i>
+                                <span className="estado-sigla font-semibold px-2 py-0.5 bg-gray-700 dark:bg-gray-800 rounded-md">
+                                    {estado}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                
+                {/* Descrição */}
+                <p className="empresa-descricao dark:text-gray-400 text-twitch-gray text-sm mb-4 line-clamp-3 leading-relaxed">{descricao}</p>
             </div>
 
+            {/* Footer com tags e botão */}
             <div className="card-footer flex justify-between items-center p-5 border-t border-gray-700 bg-black/10 flex-wrap gap-2">
                 <div className="card-meta flex items-center gap-2 flex-1 min-w-[150px]">
                     <div className="tag-chips flex flex-wrap gap-1">
@@ -129,64 +173,6 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({ logo, nome, descricao, tags, 
         </article>
     );
 };
-
-const formatacoes: Record<string, string> = {
-  "energia": "Energia",
-  "construcao civil": "Construção Civil",
-  "imobiliario": "Imobiliário",
-  "construcao": "Construção",
-  "midia e comunicacao": "Mídia e Comunicação",
-  "consultoria": "Consultoria",
-  "escritorio": "Escritório",
-  "joalheria": "Joalheria",
-  "artes": "Artes",
-  "vestuario": "Vestuário",
-  "varejo": "Varejo",
-  "musica": "Música",
-  "livros": "Livros",
-  "tecnologia": "Tecnologia",
-  "celulares": "Celulares",
-  "esportes": "Esportes",
-  "automotivo": "Automotivo",
-  "transporte": "Transporte",
-  "games": "Games",
-  "moveis": "Móveis",
-  "setor publico": "Setor Público",
-  "meio ambiente": "Meio Ambiente",
-  "financeiro": "Financeiro",
-  "pets": "Pets",
-  "educacao": "Educação",
-  "metalurgica": "Metalúrgica",
-  "agricultura": "Agricultura",
-  "saude": "Saúde",
-  "moda": "Moda",
-  "turismo": "Turismo",
-  "saude e bem-estar": "Saúde e Bem-Estar",
-  "eletronicos": "Eletrônicos",
-  "marketing": "Marketing",
-  "recursos humanos": "Recursos Humanos",
-  "informatica": "Informática",
-  "ferramentas": "Ferramentas",
-  "entretenimento": "Entretenimento",
-  "beleza": "Beleza",
-  "quimica": "Química",
-  "industria": "Indústria",
-  "alimentacao": "Alimentação",
-  "seguranca": "Segurança",
-  "brinquedos": "Brinquedos",
-  "telecomunicacoes": "Telecomunicações",
-  "bebidas": "Bebidas",
-  "eventos": "Eventos",
-  "juridico": "Jurídico",
-  "materiais": "Materiais",
-  "limpeza": "Limpeza",
-  "fotografia": "Fotografia",
-  "servicos gerais": "Serviços Gerais"
-};
-
-function formatarPalavra(palavra: string) {
-  return formatacoes[palavra.toLowerCase()] ?? palavra;
-}
 
 // main componentes
 const Main: React.FC = () => {
@@ -278,7 +264,8 @@ const Main: React.FC = () => {
                     descricao: emp.descricao,
                     setor: emp.setor,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome)
+                    tags: emp.tags_empresas.map(t => t.nome),
+                    estado: emp.estado
                 }))]
             }))
             console.log(response.data)
@@ -330,6 +317,7 @@ const Main: React.FC = () => {
                             tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
+                            estado: emp.estado
                         }))
                     },
                     ["Empresas Recentes"]: {
@@ -347,6 +335,7 @@ const Main: React.FC = () => {
                             tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
+                            estado: emp.estado
                         }))
                     },
                     ["Empresas Principais"]: {
@@ -364,6 +353,7 @@ const Main: React.FC = () => {
                             tags: emp.tags_empresas.map(t => t.nome),
                             setor: emp.setor,
                             favoritada: isFavoritada(emp.id),
+                            estado: emp.estado
                         }))
                     }
                 })
@@ -374,9 +364,10 @@ const Main: React.FC = () => {
                     descricao: emp.descricao,
                     setor: emp.setor,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome)
+                    tags: emp.tags_empresas.map(t => t.nome),
+                    estado: emp.estado
                 })));
-                setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarPalavra(c), categoria: c})));
+                setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarCategoria(c), categoria: c})));
                 setCarregandoDados(false);
             } catch (erro) {
                 console.error("Erro ao carregar empresas:", erro)
@@ -488,6 +479,7 @@ const Main: React.FC = () => {
             descricao: 'Soluções inovadoras em tecnologia e consultoria digital.',
             favoritada: false,
             setor: '',
+            estado: '',
             tags: ['Tecnologia', 'Inovação', 'Remoto']
         },
         {
@@ -497,10 +489,12 @@ const Main: React.FC = () => {
             descricao: 'Desenvolvimento de sistemas corporativos personalizados.',
             favoritada: false,
             setor: '',
+            estado: '',
             tags: ['Sistemas', 'Corporate', 'Híbrido']
         },
     ]);
     const empresasSemLabelRef = useRef(null);
+    const limitEmpresasSemLabelRef = useRef(false);
     useEffect(() => {
         empresasSemLabelRef.current = empresasSemLabel;
     }, [empresasSemLabel]);
@@ -594,7 +588,7 @@ const Main: React.FC = () => {
 
     const carregarMaisEmpresas = async () => {
         console.log(empresasSemLabel.length)
-        if (empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current) {
+        if (limitEmpresasSemLabelRef.current || empresasSemLabelRef.current.length % 9 !== 0 || carregandoRef.current) {
             return;
         }
         setCarregando(true);
@@ -602,6 +596,7 @@ const Main: React.FC = () => {
             const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage + 1}`, { palavras: palavrasBuscaRef.current });
             setSemLabelPage(prev => prev + 1);
             const novasEmpresas = response.data;
+            if(novasEmpresas.length<9) limitEmpresasSemLabelRef.current = true;
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
             };
@@ -613,7 +608,8 @@ const Main: React.FC = () => {
                     descricao: emp.descricao,
                     setor: emp.setor,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome)
+                    tags: emp.tags_empresas.map(t => t.nome),
+                    estado: emp.estado
                 }))]
             );
             setCarregando(false);
@@ -685,6 +681,7 @@ const Main: React.FC = () => {
                         tags: emp.tags_empresas.map(t => t.nome),
                         setor: emp.setor,
                         favoritada: isFavoritada(emp.id),
+                        estado: emp.estado
                     })
                 )]
             }));
@@ -769,7 +766,7 @@ const Main: React.FC = () => {
                     query: queryJoin, 
                     page: 1, 
                     limit: false, 
-                    loading: true,  // ← Aqui está true
+                    loading: true,
                     loadingMore: false, 
                     empresas: []
                 });
@@ -783,7 +780,7 @@ const Main: React.FC = () => {
                     setSearchData(prev => ({
                         ...prev, 
                         limit: true, 
-                        loading: false  // ← Aqui desliga o loader
+                        loading: false
                     }));
                     return;
                 }
@@ -808,6 +805,7 @@ const Main: React.FC = () => {
                         tags: emp.tags_empresas.map(t => t.nome),
                         setor: emp.setor,
                         favoritada: isFavoritada(emp.id),
+                        estado: emp.estado
                     }))
                 });
                 
@@ -1394,6 +1392,8 @@ const Main: React.FC = () => {
                                                             tags={empresa.tags}
                                                             onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                             onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                            setor={empresa.setor}
+                                                            estado={empresa.estado}
                                                         />
                                                     )
                                                 })}
@@ -1520,6 +1520,8 @@ const Main: React.FC = () => {
                                                             favoritada={empresa.favoritada}
                                                             onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                             onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                            setor={empresa.setor}
+                                                            estado={empresa.estado}
                                                         />
                                                     )
                                                 })}
@@ -1562,6 +1564,8 @@ const Main: React.FC = () => {
                                                     tags={empresa.tags}
                                                     onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                     onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                    setor={empresa.setor}
+                                                    estado={empresa.estado}
                                                 />
                                             )
                                         })}
@@ -1626,6 +1630,8 @@ const Main: React.FC = () => {
                                                         tags={empresa.tags}
                                                         onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                                                         onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        setor={empresa.setor}
+                                                        estado={empresa.estado}
                                                     />
                                                 )
                                             })}

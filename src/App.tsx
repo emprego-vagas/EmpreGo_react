@@ -22,6 +22,7 @@ import socket from './utils/socketsConnection';
 import { novaNotificacaoLocalStorage, type NotificationEG } from './ts/sinoNotificacoesFunctions';
 import { useEffect } from 'react';
 import CandVagas from './pages/CandVagas';
+import ViewCandidatos from './pages/ViewCandidatos';
 import { DadosUsuario } from './utils/globalFunctions'
 
 function App() {
@@ -44,7 +45,7 @@ function App() {
       <Routes>
         <Route path='*' element={<NotFound />} />
         <Route path='/timeout' element={<TimeOut />} />
-        <Route path='/' element={usuario && usuario.tipo==='candidato' ? <CandVagas /> : <Index />} />
+        <Route path='/' element={usuario?.tipo==='candidato' ? <CandVagas /> : usuario?.tipo==='empresa'? <ViewCandidatos /> : <Index />} />
         <Route path='/login' element={<Login />} />
         <Route path='/suporte' element={<Suporte />} />
         <Route path='/sobre' element={<Sobre />} />
