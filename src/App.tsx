@@ -54,7 +54,6 @@ function App() {
         <Route path='/teste' element={<Teste/>} />
         <Route path='/loader' element={<Loader/>} />
         <Route path='/chats' element={<Chats/>} />
-        {/* <Route path='/chats2' element={<Chats2/>} /> */}
         <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
         <Route path='/perfil/candidato/editar' element={<EditarPerfilCandidato/>} />
         <Route path='/perfil/empresa' element={<PerfilEmpresa />} />
@@ -62,6 +61,9 @@ function App() {
         <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
         <Route path='/projetos/criar'element={<CriarProjetos/>} />
         <Route path='/empresas' element={<CandVagas />} />
+        <Route path='/candidatos' element={<ViewCandidatos />} />
+        <Route path='/empresa/:id' element={<Index />} />
+        <Route path='/candidato/:id' element={<Index />} />
       </Routes>
     </BrowserRouter>
   )
