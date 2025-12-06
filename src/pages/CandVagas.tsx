@@ -743,7 +743,8 @@ const Main: React.FC = () => {
             clearSearchData();
             return;
         }
-        
+
+        window.scrollTo(0, 0);
         const queryParts: string[] = [];
         if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
         if(setoresString) queryParts.push(`setor=${setoresString}`);
@@ -1153,7 +1154,10 @@ const Main: React.FC = () => {
                             </Link>
                             {searchData.active && (
                                 <button
-                                    onClick={() => clearSearchData()}
+                                    onClick={() => {
+                                        clearSearchData();
+                                        window.scrollTo(0, 0);
+                                    }}
                                     className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
                                         bg-gradient-to-r from-twitch-purple to-purple-600 dark:from-twitch-purple dark:to-purple-700
                                         text-white
@@ -1355,12 +1359,19 @@ const Main: React.FC = () => {
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                                 <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name==='Tudo'?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                    onClick={()=>setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})}>
+                                    onClick={()=>{
+                                        setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})
+                                        window.scrollTo(0, 0);
+                                    }}>
                                     Tudo
                                 </button>
                                 {filtrosRecomendados.map((f) => (
                                     <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name===f.categoria?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                        onClick={()=>setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})}>
+                                        onClick={()=>{
+                                            if(filtroAtual.name===f.categoria) return;
+                                            setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})
+                                            window.scrollTo(0, 0);
+                                        }}>
                                         {f.nome}
                                     </button>
                                 ))}
@@ -1376,7 +1387,7 @@ const Main: React.FC = () => {
 
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
                     {filtroAtual.name !== 'Tudo' ? (
-                        <section className="empresas-section w-full px-5 py-6 mt-2">
+                        <section className="empresas-section w-full px-5 py-6 min-h-screen">
                                 <div className="categoria-empresas mb-12">
                                     {filtroAtual.empresas.length > 0 ? (
                                         <>

@@ -721,7 +721,8 @@ const Main: React.FC = () => {
             clearSearchData();
             return;
         }
-        
+
+        window.scrollTo(0, 0);
         const queryParts: string[] = [];
         if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
         if(estadosString) queryParts.push(`estado=${estadosString}`);
@@ -1129,7 +1130,10 @@ const Main: React.FC = () => {
                             </Link>
                             {searchData.active && (
                                 <button
-                                    onClick={() => clearSearchData()}
+                                    onClick={() => {
+                                        clearSearchData();
+                                        window.scrollTo(0, 0);
+                                    }}
                                     className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
                                         bg-gradient-to-r from-twitch-purple to-purple-600 dark:from-twitch-purple dark:to-purple-700
                                         text-white
@@ -1331,12 +1335,19 @@ const Main: React.FC = () => {
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                                 <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name==='Tudo'?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                    onClick={()=>setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})}>
+                                    onClick={()=>{
+                                        setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1});
+                                        window.scrollTo(0, 0);
+                                    }}>
                                     Tudo
                                 </button>
                                 {filtrosRecomendados.map((f) => (
                                     <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name===f.categoria?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                        onClick={()=>setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})}>
+                                        onClick={()=>{
+                                            if(filtroAtual.name===f.categoria) return;
+                                            setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})
+                                            window.scrollTo(0, 0);
+                                        }}>
                                         {f.nome}
                                     </button>
                                 ))}
