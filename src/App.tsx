@@ -22,6 +22,7 @@ import socket from './utils/socketsConnection';
 import { novaNotificacaoLocalStorage, type NotificationEG } from './ts/sinoNotificacoesFunctions';
 import { useEffect } from 'react';
 import CandVagas from './pages/CandVagas';
+import ViewCandidatos from './pages/ViewCandidatos';
 import { DadosUsuario } from './utils/globalFunctions'
 
 function App() {
@@ -44,7 +45,7 @@ function App() {
       <Routes>
         <Route path='*' element={<NotFound />} />
         <Route path='/timeout' element={<TimeOut />} />
-        <Route path='/' element={usuario && usuario.tipo==='candidato' ? <CandVagas /> : <Index />} />
+        <Route path='/' element={usuario?.tipo==='candidato' ? <CandVagas /> : usuario?.tipo==='empresa'? <ViewCandidatos /> : <Index />} />
         <Route path='/login' element={<Login />} />
         <Route path='/suporte' element={<Suporte />} />
         <Route path='/sobre' element={<Sobre />} />
@@ -53,7 +54,6 @@ function App() {
         <Route path='/teste' element={<Teste/>} />
         <Route path='/loader' element={<Loader/>} />
         <Route path='/chats' element={<Chats/>} />
-        {/* <Route path='/chats2' element={<Chats2/>} /> */}
         <Route path='/perfil/candidato' element={<PerfilCandidato/>} />
         <Route path='/perfil/candidato/editar' element={<EditarPerfilCandidato/>} />
         <Route path='/perfil/empresa' element={<PerfilEmpresa />} />
@@ -61,6 +61,9 @@ function App() {
         <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
         <Route path='/projetos/criar'element={<CriarProjetos/>} />
         <Route path='/empresas' element={<CandVagas />} />
+        <Route path='/candidatos' element={<ViewCandidatos />} />
+        <Route path='/empresa/:id' element={<Index />} />
+        <Route path='/candidato/:id' element={<Index />} />
       </Routes>
     </BrowserRouter>
   )
