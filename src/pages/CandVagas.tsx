@@ -254,6 +254,7 @@ const Main: React.FC = () => {
             setFiltroAtual(prev=>({
                 ...prev,
                 page: pagina+1,
+                
                 loading: false,
                 loadingMore: false,
                 limit: empresas.length < 9,
