@@ -108,7 +108,7 @@ export async function candidatoRegister(e: MouseEvent<HTMLButtonElement>, candRe
     }
 }
 
-export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {cnpj: string, senha: string}): Promise<boolean> {
+export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {cnpj: string, senha: string, lembreMe: boolean}): Promise<boolean> {
     const target = e.target as HTMLButtonElement;
 
     const cnpj = empLogin.cnpj;
@@ -128,7 +128,7 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
 
     try {
         const cnpjClean = cnpj.replace(/[^\d]/g, "");
-        const response = await axiosWe.post('/login-empresa', { cnpj: cnpjClean, senha });
+        const response = await axiosWe.post('/login-empresa', { cnpj: cnpjClean, senha, lembreMe: empLogin.lembreMe });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
 
@@ -188,7 +188,7 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
             cidade
         });
 
-        const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha });
+        const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha, lembreMe: true });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
 

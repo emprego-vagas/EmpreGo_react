@@ -46,6 +46,7 @@ function App() {
         <Route path='*' element={<NotFound />} />
         <Route path='/timeout' element={<TimeOut />} />
         <Route path='/' element={usuario?.tipo==='candidato' ? <CandVagas /> : usuario?.tipo==='empresa'? <ViewCandidatos /> : <Index />} />
+        <Route path='/inicio' element={<Index />} />
         <Route path='/login' element={<Login />} />
         <Route path='/suporte' element={<Suporte />} />
         <Route path='/sobre' element={<Sobre />} />

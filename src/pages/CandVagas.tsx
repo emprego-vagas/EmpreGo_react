@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, formatarCategoria, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
+import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
 import Loader from '../components/Loader';
@@ -84,7 +84,7 @@ interface FiltroAtual {
 }
 
 // Constantes do Filtro
-const setoresFilter = ["Alimentação", "Vestuário", "Saúde", "Educação", "Consultoria", "Tecnologia", "Construção Civil", "Informática", "Marketing", "Advocacia", "Energia", "Transporte"];
+const setoresFilter = ["Alimentação", "Vestuário", "Saúde", "Educação", "Consultoria", "Tecnologia", "Construção Civil", "Informática", "Marketing", "Advocacia", "Energia", "Transporte", "Engenharia"];
 const portesFilter = ["Pequeno", "Médio", "Grande"];
 const estadosFilter = [
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
@@ -1249,7 +1249,7 @@ const Main: React.FC = () => {
                                                                 : "bg-dark-500 text-white/80"
                                                             }
                                                         `}>
-                                                        {uf}
+                                                        {formatarEstado(uf)}
                                                     </button>
                                                 ))}
                                             </div>

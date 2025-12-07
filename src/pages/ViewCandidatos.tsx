@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import * as THREE from 'three';
 import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, formatarCategoria, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
+import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
 import Loader from '../components/Loader';
@@ -1237,7 +1237,7 @@ const Main: React.FC = () => {
                                                                 : "bg-dark-500 text-white/80"
                                                             }
                                                         `}>
-                                                        {uf}
+                                                        {formatarEstado(uf)}
                                                     </button>
                                                 ))}
                                             </div>
@@ -1307,7 +1307,7 @@ const Main: React.FC = () => {
                                 <div className={`absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999] ${!isProfileOpen ? "hidden": ""}`}>
                                     <div className="p-3">
                                         <p className="font-bold">{usuario.nome}</p>
-                                        <Link to="/perfil/candidato" className="text-twitch-purple text-sm">
+                                        <Link to={`/perfil/${usuario.tipo}`} className="text-twitch-purple text-sm">
                                             Acessar perfil
                                         </Link>
                                     </div>
