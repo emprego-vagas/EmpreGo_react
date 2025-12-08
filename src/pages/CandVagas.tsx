@@ -534,6 +534,14 @@ const Main: React.FC = () => {
                     } else return emp
                 })
             }))
+            setFiltroAtual(prev=>({
+                ...prev,
+                empresas: prev.empresas.map(emp => {
+                    if (emp.id === empresa.id) {
+                        return { ...emp, favoritada: !favoritada }
+                    } else return emp
+                })
+            }))
         }
         if (favoritada) {
             setEmpresasFavoritadas(prev => prev.filter(e => e.id !== empresa.id));
