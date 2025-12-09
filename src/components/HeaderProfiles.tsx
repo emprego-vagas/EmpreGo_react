@@ -66,29 +66,27 @@ export default function HeaderProfiles(){
                     className="w-full h-full object-cover rounded-full" onClick={()=>setMostrarDropDown(e=>!e)} />
                 </div>
 
-                {mostrarDropDown && (
-                    <div className="profile-dropdown absolute top-16 right-4 bg-white text-professional-dark dark:bg-twitch-gray dark:text-white w-60 rounded-lg shadow-xl flex flex-col p-2 z-50"
-                        id="profile-dropdown" ref={profileDropdownRef}>
-                        <div className="profile-info p-3">
-                            <p className="profile-name font-bold m-0">{usuario.nome}</p>
-                            <Link to={`/perfil/${usuario.tipo}`} className="text-twitch-purple text-sm no-underline">Acessar perfil</Link>
-                        </div>
-                        <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            onClick={()=>navigate(`/perfil/${usuario.tipo}/editar`)}>Editar perfil</button>
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            onClick={()=>logout()} id="logoutButton">Sair</button>
-                        <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Notificações</button>
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            onClick={()=>navigate('/chats')}>Chats</button>
-                        <hr className="border-t border-gray-700 my-1"/>
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</button>
-                        <ThemeTogleConfig />
-                        <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            onClick={()=>navigate('/suporte')}>Ajuda</button>
+                <div className={`profile-dropdown absolute top-16 right-4 bg-white text-professional-dark dark:bg-twitch-gray dark:text-white w-60 rounded-lg shadow-xl flex flex-col p-2 z-50 ${mostrarDropDown?'':'hidden'}`}
+                    id="profile-dropdown" ref={profileDropdownRef}>
+                    <div className="profile-info p-3">
+                        <p className="profile-name font-bold m-0">{usuario.nome}</p>
+                        <Link to={`/perfil/${usuario.tipo}`} className="text-twitch-purple text-sm no-underline">Acessar perfil</Link>
                     </div>
-                )}
+                    <hr className="border-t border-gray-700 my-1"/>
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                        onClick={()=>navigate(`/perfil/${usuario.tipo}/editar`)}>Editar perfil</button>
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                        onClick={()=>logout()} id="logoutButton">Sair</button>
+                    <hr className="border-t border-gray-700 my-1"/>
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Notificações</button>
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                        onClick={()=>navigate('/chats')}>Chats</button>
+                    <hr className="border-t border-gray-700 my-1"/>
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</button>
+                    <ThemeTogleConfig />
+                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                        onClick={()=>navigate('/suporte')}>Ajuda</button>
+                </div>
             </div>
             </nav>
         </div>

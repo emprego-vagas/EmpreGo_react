@@ -656,15 +656,13 @@ const Main: React.FC = () => {
 
             const response = await axiosWe(`/empresas/search?page=${nextPage}&${searchData.query}`);
             const emps = response.data;
-            console.log('Resultados da página', nextPage, ':', emps.length);
 
-            // Se não houver resultados, marcar como limite
             if (emps.length === 0) {
                 console.log('Sem mais resultados, marcando como limite');
                 setSearchData(prev => ({
                     ...prev,
                     limit: true,
-                    loadingMore: false  // ← Desliga o loader
+                    loadingMore: false
                 }));
                 isLoadingMoreRef.current = false;
                 return;
@@ -1058,6 +1056,13 @@ const Main: React.FC = () => {
         setIsFilterOpen(false);
     };
 
+    const handleInicioBtn = ()=>{
+        clearSearchData();
+        window.scrollTo(0, 0);
+        homeCategoriaRef.current.click();
+    }
+    const homeCategoriaRef = useRef<HTMLButtonElement|null>(null);
+
     if (carregandoDados) return (<Loader />)
 
     return (
@@ -1067,15 +1072,16 @@ const Main: React.FC = () => {
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
+                        <button className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition"
+                            onClick={handleInicioBtn}>
                             <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
-                        </Link>
+                        </button>
 
                         <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
-                                Chat Geral
+                                Chats
                             </span>
                         </Link>
 
@@ -1157,12 +1163,12 @@ const Main: React.FC = () => {
                     <div className="w-full flex items-center justify-between px-4 h-14">
                         <div className="flex items-center gap-4">
                             <button className="bx bx-menu text-3xl text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 w-10 h-10 flex items-center justify-center rounded-full transition" onClick={() => setIsSidebarOpen(!isSidebarOpen)} />
-                            <Link to="/" className="flex items-center gap-1">
+                            <button className="flex items-center gap-1" onClick={handleInicioBtn}>
                                 <img src={logo} alt="Logo" className="h-10 w-auto" />
                                 <span className="font-black text-xl text-gray-800 dark:text-white">
                                     Empre<span className="text-twitch-purple">Go</span>
                                 </span>
-                            </Link>
+                            </button>
                             {searchData.active && (
                                 <button
                                     onClick={() => {
@@ -1369,7 +1375,7 @@ const Main: React.FC = () => {
                                 ref={filtrosContainerRef}
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                                <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === 'Tudo' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                                <button ref={homeCategoriaRef} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === 'Tudo' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
                                     onClick={() => {
                                         setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 })
                                         window.scrollTo(0, 0);
