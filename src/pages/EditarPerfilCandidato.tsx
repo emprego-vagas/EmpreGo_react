@@ -225,7 +225,7 @@ export default function EditarPerfilCandidato () {
                                 </label>
                                 <select id="pronomes" value={pronomesInfo.value} onChange={(e)=>setPronomesInfo(prev=>({...prev, value: e.target.value}))} disabled={pronomesInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
-                                    <option value="" disabled selected className="text-professional-subtitle">Selecione seus
+                                    <option value="" disabled className="text-professional-subtitle">Selecione seus
                                         pronomes</option>
                                     <option value="Ela/Dela" className="bg-professional-dark">Ela/Dela</option>
                                     <option value="Ele/Dele" className="bg-professional-dark">Ele/Dele</option>
@@ -393,7 +393,7 @@ export default function EditarPerfilCandidato () {
                                 </label>
                                 <select id="estado" value={estadoInfo.value} onChange={(e)=>setEstadoInfo(prev=>({...prev, value: e.target.value}))} disabled={estadoInfo.disabled}
                                     className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
-                                    <option value="" className="bg-professional-dark" selected>Selecione seu estado</option>
+                                    <option value="" className="bg-professional-dark">Selecione seu estado</option>
                                     <option value="AC" className="bg-professional-dark">Acre (AC)</option>
                                     <option value="AL" className="bg-professional-dark">Alagoas (AL)</option>
                                     <option value="AP" className="bg-professional-dark">Amapá (AP)</option>
@@ -440,7 +440,7 @@ export default function EditarPerfilCandidato () {
 
                         <div className="flex flex-col items-center">
                             <div className="relative mb-4">
-                                <img id="previewFoto" src={previewSrcFoto}
+                                <img id="previewFoto" src={previewSrcFoto||genPfp}
                                     alt="Foto de perfil"
                                     className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover shadow-lg" />
 

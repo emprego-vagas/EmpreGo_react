@@ -33,18 +33,25 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
         }
         formData.append('cpf', newCpf);
     };
-    if(!pronomesInfo.disabled && pronomesInfo.value && pronomesInfo.value!==pronomesInfo.cached && pronomesPersonalizadosInfo.value!==pronomesPersonalizadosInfo.cached) {
+    if((!pronomesInfo.disabled || !pronomesPersonalizadosInfo.disabled) && (pronomesInfo.value !== pronomesInfo.cached || pronomesPersonalizadosInfo.value !== pronomesPersonalizadosInfo.cached)) {
         const pronSelect = pronomesInfo.value;
         const pronPersnlzd = pronomesPersonalizadosInfo.value;
-        if (pronSelect==='Outro') {
-            // * Se escolheu o campo outro vê se ja tem cached, se não tem e não forneceu o personalizado da erro
-            if(!pronPersnlzd && !pronomesInfo.cached) {
+       
+        if (pronSelect === 'Outro') {
+            // Se escolheu "Outro" e não tem valor personalizado nem cached
+            if(!pronPersnlzd?.trim() && !pronomesPersonalizadosInfo.cached) {
                 mostrarErroTopo('O campo de pronome personalizado deve ser preenchido');
                 return false;
             }
-            // * Se ja tinha cached e quis remover seta como null
+            // Se tem valor personalizado, envia; se não, envia 'null' para remover
             formData.append('pronomes', pronPersnlzd?.trim() || 'null');
-        } else formData.append('pronomes', pronSelect);
+        } else if (pronSelect) {
+            // Para opções do select
+            formData.append('pronomes', pronSelect);
+        } else {
+            // Se não selecionou nada (para remover pronome)
+            formData.append('pronomes', 'null');
+        }
     }
     if(!portfolioInfo.disabled && (portfolioInfo.value || portfolioInfo.cached) && portfolioInfo.value!==portfolioInfo.cached) {
         // * Se passar pela validação do if (campo não está desabilitado, ou seja foi ou pode ter sido editado, foi editado ou foi removido mas tinha no cached e o valor é diferente do cached) tenta usar o 
