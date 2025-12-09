@@ -106,10 +106,19 @@
 .tag-chip:hover {
     background-color: #7C3AED !important;
 }
-
+.custom-scrollbar{
+overflow-x: hidden !important;
+    -ms-overflow-style: none !important;  /* IE/Edge */
+    scrollbar-width: none !important; 
+}
 
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
+
+    height: 0 !important;
+    width: 0 !important;
+    display: none !important;
+
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -183,11 +192,17 @@
     overflow: hidden;
     position: relative;
 }
-
-.main-content {
-    transition: transform .45s ease;
+/* .categoria-empresas{
+     transition: transform .45s ease;
     will-change: transform;
+    transform-origin: left center;
 }
+
+.categoria-empresas.sidebar-open {
+    transform: translatey(-9rem) translateX(9rem) scale(0.94);
+    max-width: calc(100% - 14rem);
+    transition: transform .45s ease;
+} */
 
 .main-content {
     transition: transform .45s ease;

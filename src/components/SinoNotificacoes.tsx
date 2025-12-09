@@ -100,7 +100,7 @@ export default function SinoNotificacoes() {
             <button
                 ref={buttonRef}
                 onClick={() => setOpen(!open)}
-                className="sidebar-icon text-gray-400 hover:text-white transition-colors relative"
+                className="sidebar-icon dark:text-dark-400 dark:hover:text-white text-dark-700 hover:text-dark-500 transition-colors relative"
             >
                 <FontAwesomeIcon icon={faBell} className="text-xl" />
                 {unreadCount > 0 && (

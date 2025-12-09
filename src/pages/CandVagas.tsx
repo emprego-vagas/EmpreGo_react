@@ -14,6 +14,7 @@ import '../css/filtragem.css';
 import SinoNotificacoes from '../components/SinoNotificacoes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight, faComment, faSliders } from '@fortawesome/free-solid-svg-icons';
+import { AnimatedItem } from '../animation/favoritoAnimation';
 
 // interfaces
 interface Slide {
@@ -91,16 +92,16 @@ const estadosFilter = [
     "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-const EmpresaCard: React.FC<EmpresaCardProps> = ({ 
-    logo, 
-    nome, 
-    descricao, 
-    tags, 
-    onClickFavorito, 
-    onClickVerMais, 
+const EmpresaCard: React.FC<EmpresaCardProps> = ({
+    logo,
+    nome,
+    descricao,
+    tags,
+    onClickFavorito,
+    onClickVerMais,
     favoritada,
     setor,
-    estado 
+    estado
 }) => {
     const [favorito, setFavorito] = useState(favoritada);
 
@@ -114,10 +115,10 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({
 
     return (
         <article
-            className={"empresa-card bg-gray-200 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[400px]"}>
-            
+            className={"empresa-card  bg-dark-50 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[400px]"}>
+
             {/* Header com logo e botão favorito */}
-            <div className="card-header relative h-40 bg-gray-800 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
+            <div className="card-header relative h-40 bg-dark-700 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
                 <img src={logo} alt={nome} className="empresa-logo w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md z-10 transition-transform" />
 
                 <button onClick={handleFavorito} className="favorite-btn absolute top-3 right-3 bg-black/40 border-none w-10 h-10 rounded-full flex items-center justify-center cursor-pointer text-gray-300 transition-all z-20 backdrop-blur-sm hover:bg-black/60 hover:scale-110">
@@ -126,12 +127,12 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({
             </div>
 
             {/* Corpo do card */}
-            <div className="card-body p-6 flex-1">
+            <div className="card-body p-6 flex-1 ">
                 {/* Nome da empresa e informações de localização/setor */}
                 <div className="empresa-info mb-3">
-                    <h3 className="empresa-nome text-xl font-semibold dark:text-gray-200 text-twitch-gray mb-2">{nome}</h3>
-                    
-                    <div className="empresa-meta flex items-center text-sm dark:text-gray-400 text-twitch-gray">
+                    <h3 className="empresa-nome text-xl font-semibold dark:text-dark-200 text-twitch-gray mb-2">{nome}</h3>
+
+                    <div className="empresa-meta flex items-center text-sm dark:text-gray-400 text-twitch-gray ">
                         {/* Setor */}
                         {setor?.trim() && (
                             <div className="setor-container flex items-center gap-1">
@@ -146,20 +147,20 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({
                         {estado?.trim() && (
                             <div className="estado-container flex items-center gap-1 ml-auto">
                                 <i className="bx bx-map text-base"></i>
-                                <span className="estado-sigla font-semibold px-2 py-0.5 bg-gray-700 dark:bg-gray-800 rounded-md">
+                                <span className="estado-sigla font-semibold px-2 py-0.5 text-dark-700 bg-dark-400 dark:text-dark-400 dark:bg-dark-700 rounded-md">
                                     {estado}
                                 </span>
                             </div>
                         )}
                     </div>
                 </div>
-                
+
                 {/* Descrição */}
                 <p className="empresa-descricao dark:text-gray-400 text-twitch-gray text-sm mb-4 line-clamp-3 leading-relaxed">{descricao}</p>
             </div>
 
             {/* Footer com tags e botão */}
-            <div className="card-footer flex justify-between items-center p-5 border-t border-gray-700 bg-black/10 flex-wrap gap-2">
+            <div className="card-footer  flex justify-between items-center p-5 border-t border-gray-700 flex-wrap gap-2">
                 <div className="card-meta flex items-center gap-2 flex-1 min-w-[150px]">
                     <div className="tag-chips flex flex-wrap gap-1">
                         {tags.map((tag, index) => (
@@ -223,7 +224,7 @@ const Main: React.FC = () => {
     const filtroAtualLoadingMoreRef = useRef<boolean>(false);
     const filtroAtualLimitRef = useRef<boolean>(false);
     const filtroAtualNameRef = useRef<string>('Tudo');
-    useEffect(()=>{
+    useEffect(() => {
         filtroAtualPageRef.current = filtroAtual.page;
         filtroAtualLoadingRef.current = filtroAtual.loading;
         filtroAtualLoadingMoreRef.current = filtroAtual.loadingMore;
@@ -231,17 +232,17 @@ const Main: React.FC = () => {
         filtroAtualNameRef.current = filtroAtual.name;
     }, [filtroAtual.page, filtroAtual.loading, filtroAtual.loadingMore, filtroAtual.limit, filtroAtual.name]);
 
-    async function buscarEmpresasCategoria(categoria: string){
+    async function buscarEmpresasCategoria(categoria: string) {
         try {
             const loading = filtroAtualLoadingRef.current;
             const loadingMore = filtroAtualLoadingMoreRef.current;
             const limit = filtroAtualLimitRef.current;
 
-            if(loading || loadingMore || limit) return;
+            if (loading || loadingMore || limit) return;
 
             const pagina = filtroAtualPageRef.current;
             console.log(pagina)
-            setFiltroAtual(prev=>({
+            setFiltroAtual(prev => ({
                 ...prev,
                 loading: pagina === 1 ? true : false,
                 loadingMore: pagina === 1 ? false : true
@@ -251,10 +252,10 @@ const Main: React.FC = () => {
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
             };
-            setFiltroAtual(prev=>({
+            setFiltroAtual(prev => ({
                 ...prev,
-                page: pagina+1,
-                
+                page: pagina + 1,
+
                 loading: false,
                 loadingMore: false,
                 limit: empresas.length < 9,
@@ -271,16 +272,16 @@ const Main: React.FC = () => {
             }))
             console.log(response.data)
         } catch (erro) {
-            console.error('Erro ao buscar empresa por categoria:',erro);
+            console.error('Erro ao buscar empresa por categoria:', erro);
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         const categoria = filtroAtual.name;
-        if(categoria==='Tudo'){
+        if (categoria === 'Tudo') {
             return;
         }
-        
+
         buscarEmpresasCategoria(categoria)
         console.log("Filtro mudou")
     }, [filtroAtual.name])
@@ -368,7 +369,7 @@ const Main: React.FC = () => {
                     tags: emp.tags_empresas.map(t => t.nome),
                     estado: emp.estado
                 })));
-                setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarCategoria(c), categoria: c})));
+                setFiltrosRecomendados(data.categoriasAleatorias.map((c, i) => ({ id: i, nome: formatarCategoria(c), categoria: c })));
                 setCarregandoDados(false);
             } catch (erro) {
                 console.error("Erro ao carregar empresas:", erro)
@@ -410,11 +411,11 @@ const Main: React.FC = () => {
         loading: boolean;
         loadingMore: boolean;
         empresas: Empresa[];
-    }>({active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: []});
+    }>({ active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: [] });
     const searchPageRef = useRef(1);
     const searchButtonRef = useRef<HTMLButtonElement>(null);
-    
-    function clearSearchData(){
+
+    function clearSearchData() {
         searchPageRef.current = 1;
         setBuscaPesquisa('');
         setFilters({
@@ -422,7 +423,7 @@ const Main: React.FC = () => {
             estado: [],
             porte: [],
         });
-        setSearchData({active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: []});
+        setSearchData({ active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: [] });
     }
 
     // Refs do Header
@@ -526,9 +527,9 @@ const Main: React.FC = () => {
 
                 return novo;
             });
-            setSearchData(prev=>({
+            setSearchData(prev => ({
                 ...prev,
-                empresas: prev.empresas.map(emp=>{
+                empresas: prev.empresas.map(emp => {
                     if (emp.id === empresa.id) {
                         return { ...emp, favoritada: !favoritada }
                     } else return emp
@@ -597,7 +598,7 @@ const Main: React.FC = () => {
             const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage + 1}`, { palavras: palavrasBuscaRef.current });
             setSemLabelPage(prev => prev + 1);
             const novasEmpresas = response.data;
-            if(novasEmpresas.length<9) limitEmpresasSemLabelRef.current = true;
+            if (novasEmpresas.length < 9) limitEmpresasSemLabelRef.current = true;
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
             };
@@ -625,7 +626,7 @@ const Main: React.FC = () => {
 
     const isLoadingMoreRef = useRef(false);
 
-    async function loadMoreQuery(){
+    async function loadMoreQuery() {
         // Verificar usando a ref para prevenir race conditions
         if (isLoadingMoreRef.current || searchData.limit || !searchData.active) {
             console.log('loadMoreQuery abortado:', {
@@ -635,44 +636,43 @@ const Main: React.FC = () => {
             });
             return;
         }
-        
+
         try {
             // Marcar que está carregando - IMPORTANTE: fazer isso antes de qualquer await
             isLoadingMoreRef.current = true;
             // Aqui DEFINITIVAMENTE mostrar o loader
-            setSearchData(prev => ({...prev, loadingMore: true}));
-            
+            setSearchData(prev => ({ ...prev, loadingMore: true }));
+
             const nextPage = searchPageRef.current;
             console.log('Carregando página:', nextPage, 'Query:', searchData.query);
-            
+
             const response = await axiosWe(`/empresas/search?page=${nextPage}&${searchData.query}`);
             const emps = response.data;
             console.log('Resultados da página', nextPage, ':', emps.length);
-            
+
             // Se não houver resultados, marcar como limite
             if (emps.length === 0) {
                 console.log('Sem mais resultados, marcando como limite');
                 setSearchData(prev => ({
-                    ...prev, 
-                    limit: true, 
+                    ...prev,
+                    limit: true,
                     loadingMore: false  // ← Desliga o loader
                 }));
                 isLoadingMoreRef.current = false;
                 return;
             }
-            
+
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
             };
-            
-            // Atualizar estado com os novos dados
+
             setSearchData(prev => ({
                 ...prev,
-                active: true, 
-                page: nextPage, 
-                limit: emps.length < 9, 
-                loading: false, 
-                loadingMore: false,  // ← Desliga o loader
+                active: true,
+                page: nextPage,
+                limit: emps.length < 9,
+                loading: false,
+                loadingMore: false,
                 empresas: [...prev.empresas, ...emps.map(
                     emp => ({
                         id: emp.id,
@@ -686,32 +686,29 @@ const Main: React.FC = () => {
                     })
                 )]
             }));
-            
-            // Incrementar a ref para a próxima página
+
             searchPageRef.current = nextPage + 1;
             console.log('Próxima página será:', searchPageRef.current);
-            
+
         } catch (erro) {
             console.error("Falha ao carregar mais empresas:", erro);
-            setSearchData(prev => ({...prev, loadingMore: false}));  // ← Em caso de erro também desliga
+            setSearchData(prev => ({ ...prev, loadingMore: false }));
         } finally {
-            // Garantir que a flag seja resetada mesmo em caso de erro
             isLoadingMoreRef.current = false;
         }
     }
 
     useEffect(() => {
         let timeoutId;
-        
+
         const handleScroll = () => {
-            // Debounce para prevenir múltiplas chamadas
             clearTimeout(timeoutId);
-            
+
             timeoutId = setTimeout(() => {
                 const atBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
 
-                if(atBottom){
-                    if(filtroAtualNameRef.current!=='Tudo') {
+                if (atBottom) {
+                    if (filtroAtualNameRef.current !== 'Tudo') {
                         buscarEmpresasCategoria(filtroAtualNameRef.current);
                         return;
                     }
@@ -720,7 +717,7 @@ const Main: React.FC = () => {
                         carregarMaisEmpresas();
                     }
 
-                    if (searchData.active && !searchData.loading && !isLoadingMoreRef.current && !searchData.limit){
+                    if (searchData.active && !searchData.loading && !isLoadingMoreRef.current && !searchData.limit) {
                         loadMoreQuery();
                     }
                 }
@@ -735,70 +732,65 @@ const Main: React.FC = () => {
     }, [carregando, searchData.active, searchData.loading, searchData.loadingMore, searchData.limit]);
 
     const handleSearch = async () => {
-        if(searchData.loading) return;
+        if (searchData.loading) return;
         const setoresString = filters.setor.join(',');
         const estadosString = filters.estado.join(',');
         const portesString = filters.porte.join(',');
-        
-        if(!buscaPesquisa && !setoresString && !estadosString && !portesString) {
+
+        if (!buscaPesquisa && !setoresString && !estadosString && !portesString) {
             clearSearchData();
             return;
         }
 
         window.scrollTo(0, 0);
         const queryParts: string[] = [];
-        if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
-        if(setoresString) queryParts.push(`setor=${setoresString}`);
-        if(estadosString) queryParts.push(`estado=${estadosString}`);
-        if(portesString) queryParts.push(`porte=${portesString}`);
-        
+        if (buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
+        if (setoresString) queryParts.push(`setor=${setoresString}`);
+        if (estadosString) queryParts.push(`estado=${estadosString}`);
+        if (portesString) queryParts.push(`porte=${portesString}`);
+
         const queryJoin = queryParts.join('&');
-        
-        // Se for uma nova query, resetar completamente
-        if(queryJoin !== searchData.query) {
-            setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})
+
+        if (queryJoin !== searchData.query) {
+            setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 })
             try {
-                // Resetar todas as refs e estado
                 searchPageRef.current = 1;
                 isLoadingMoreRef.current = false;
-                
-                // Aqui DEFINITIVAMENTE mostrar o loader
+
                 setSearchData({
-                    active: true, 
-                    query: queryJoin, 
-                    page: 1, 
-                    limit: false, 
+                    active: true,
+                    query: queryJoin,
+                    page: 1,
+                    limit: false,
                     loading: true,
-                    loadingMore: false, 
+                    loadingMore: false,
                     empresas: []
                 });
-                
-                // Buscar sempre da página 1 quando é uma nova busca
+
                 const response = await axiosWe(`/empresas/search?page=1&${queryJoin}`);
                 console.log('Busca inicial - Página 1:', response.data.length, 'resultados');
                 const emps = response.data;
-                
+
                 if (emps.length === 0) {
                     setSearchData(prev => ({
-                        ...prev, 
-                        limit: true, 
+                        ...prev,
+                        limit: true,
                         loading: false
                     }));
                     return;
                 }
-                
+
                 const isFavoritada = (id: string) => {
                     return empresasFavoritadas.some((e) => e.id === id);
                 };
-                
-                // Atualizar estado com os dados da página 1
+
                 setSearchData({
-                    active: true, 
-                    query: queryJoin, 
-                    page: 1, // Página atual é 1
-                    limit: emps.length < 9, 
-                    loading: false,  // ← Aqui desliga o loader
-                    loadingMore: false, 
+                    active: true,
+                    query: queryJoin,
+                    page: 1,
+                    limit: emps.length < 9,
+                    loading: false,
+                    loadingMore: false,
                     empresas: emps.map(emp => ({
                         id: emp.id,
                         logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
@@ -810,13 +802,12 @@ const Main: React.FC = () => {
                         estado: emp.estado
                     }))
                 });
-                
-                // Configurar a ref para a próxima página (2)
+
                 searchPageRef.current = 2;
-                
+
             } catch (erro) {
                 console.error('Erro ao buscar empresas:', erro);
-                setSearchData(prev => ({...prev, loading: false}));  // ← Em caso de erro também desliga
+                setSearchData(prev => ({ ...prev, loading: false }));
             }
         }
     };
@@ -826,15 +817,15 @@ const Main: React.FC = () => {
     //         const setoresString = filters.setor.join(',');
     //         const estadosString = filters.estado.join(',');
     //         const portesString = filters.porte.join(',');
-            
+
     //         const queryParts: string[] = [];
     //         if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
     //         if(setoresString) queryParts.push(`setor=${setoresString}`);
     //         if(estadosString) queryParts.push(`estado=${estadosString}`);
     //         if(portesString) queryParts.push(`porte=${portesString}`);
-            
+
     //         const queryJoin = queryParts.join('&');
-            
+
     //         // Se a query mudou, preparar para uma nova busca
     //         // Mas não executar automaticamente - esperar o clique do usuário
     //         if (queryJoin !== searchData.query) {
@@ -1018,8 +1009,6 @@ const Main: React.FC = () => {
         });
     };
 
-    // ===== FUNÇÕES E ESTADOS DO FILTRO =====
-
     // useEffect para fechar filtro ao clicar fora
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -1070,72 +1059,85 @@ const Main: React.FC = () => {
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
                         </Link>
 
-                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
                                 Chat Geral
                             </span>
                         </Link>
 
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                         </Link>
 
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
-                            <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
-                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
-                            <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px]' />
-                        </a>
+                        <div className="relative">
+                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
+                                <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
+                                <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
+                                <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px] text-dark-700' />
+                            </a>
+
+                            {!isSidebarOpen && empresasFavoritadas && empresasFavoritadas.length > 0 && (
+                                <div className="absolute left-1 top-full mt-2 flex flex-col gap-2 z-40">
+                                    {empresasFavoritadas.slice(0, 6).map((fav) => (
+                                        <button
+                                            key={fav.id}
+                                            onClick={() => navigate(`/chats?id=${fav.id}`)}
+                                            title={fav.nome_fant}
+                                            className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
+                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         {(mostrarFavoritos && isSidebarOpen) && (
-                            <div className="max-h-72 overflow-y-auto px-1 mb-2 scrollbar ">
-                                {empresasFavoritadas.map(e => (
-                                    <div
-                                        key={e.id}
-                                        className="flex items-center gap-2 p-1 mb-1 bg-light-100 dark:bg-dark-600 rounded-[13px] transition-colors duration-150 border border-gray-200"
-                                    >
-                                        {/* Avatar da empresa */}
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
-                                                alt={e.nome_fant}
-                                                className="w-7 h-7 rounded-full object-cover border border-gray-300"
-                                            />
-                                        </div>
+                            <div className="max-h-72 overflow-y-auto px-1 mb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                {empresasFavoritadas.map((e, i) => (
+                                    <AnimatedItem key={e.id} index={i} delay={i * 0.03}>
+                                        <div
+                                            className="flex items-center gap-2 p-1.5 mb-1.5 bg-white/80 dark:bg-dark-600/90 backdrop-blur-sm rounded-xl transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-primary-300/50 hover:shadow-xs hover:shadow-primary-100/50 dark:hover:border-primary-500/30">
+                                            <div className="flex-shrink-0">
+                                                <div className="relative">
+                                                    <img
+                                                        src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
+                                                        alt={e.nome_fant}
+                                                        className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm"/>
+                                                    {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
+                                                </div>
+                                            </div>
 
-                                        {/* Informações da empresa */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-dark-600 dark:text-light-100 text-xs truncate">
-                                                {e.nome_fant}
-                                            </p>
-                                            <p className="text-xs text-gray-500 truncate">
-                                                {e.setor}
-                                            </p>
-                                        </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-dark-700 dark:text-light-100 text-xs truncate tracking-tight">
+                                                    {e.nome_fant}
+                                                </p>
+                                                <p className="text-xs text-dark-500 dark:text-dark-200 truncate mt-0.5">
+                                                    {e.setor}
+                                                </p>
+                                            </div>
 
-                                        {/* Ícones de ação */}
-                                        <div className="flex items-center gap-2 ml-auto">
-                                            <button
-                                                onClick={() => handleAlterarStatusFavorito(true, e)}
-                                                className="text-yellow-500 hover:text-yellow-600 transition-colors"
-                                                aria-label="Desfavoritar"
-                                            >
-                                                <i className='bx bxs-star text-lg' />
-                                            </button>
-                                            <button
-                                                onClick={() => navigate(`/chats?id=${e.id}`)}
-                                                className="text-gray-400 hover:text-primary-500 transition-colors "
-                                                aria-label="Abrir chat"
-                                            >
-                                                <FontAwesomeIcon icon={faComment} className="text-base" />
-                                            </button>
+                                            <div className="flex items-center gap-1.5 ml-auto">
+                                                <button
+                                                    onClick={() => handleAlterarStatusFavorito(true, e)}
+                                                    className="p-1.5 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-full transition-all duration-200"
+                                                    aria-label="Desfavoritar">
+                                                    <i className='bx bxs-star text-sm' />
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate(`/chats?id=${e.id}`)}
+                                                    className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-full transition-all duration-200"
+                                                    aria-label="Abrir chat">
+                                                    <FontAwesomeIcon icon={faComment} className="text-xs" />
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </AnimatedItem>
                                 ))}
                             </div>
                         )}
@@ -1175,8 +1177,8 @@ const Main: React.FC = () => {
 
                         <div className="flex flex-1 justify-center px-4">
                             <div className="search-bar flex items-center w-full max-w-2xl bg-white dark:bg-twitch-gray rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
-                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e) => setBuscaPesquisa(e.target.value)} 
-                                    onKeyDown={(e)=>{
+                                <input type="text" placeholder="Pesquisar empresas..." className="flex-1 px-4 py-2 bg-transparent outline-none text-sm text-gray-800 dark:text-white" value={buscaPesquisa} onChange={(e) => setBuscaPesquisa(e.target.value)}
+                                    onKeyDown={(e) => {
                                         if (e.key === "Enter") {
                                             e.preventDefault();
 
@@ -1184,14 +1186,14 @@ const Main: React.FC = () => {
 
                                             searchButtonRef.current.click();
                                         }
-                                    }}/>
+                                    }} />
 
                                 <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="px-3 flex items-center justify-center">
                                     {/* <img src={filtro} className="w-6 h-6 filter brightness-0 invert" /> */}
                                     <FontAwesomeIcon icon={faSliders} className="w-5 h-5 text-gray-800 dark:text-white" />
                                 </button>
 
-                                <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition" 
+                                <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition"
                                     onClick={handleSearch} ref={searchButtonRef}>
                                     <img src={lupa} className="w-5 h-5 filter brightness-0 invert" />
                                 </button>
@@ -1317,32 +1319,32 @@ const Main: React.FC = () => {
                             </div>
 
                             {/* {isProfileOpen && ( */}
-                                <div className={`absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999] ${!isProfileOpen ? "hidden": ""}`}>
-                                    <div className="p-3">
-                                        <p className="font-bold">{usuario.nome}</p>
-                                        <Link to="/perfil/candidato" className="text-twitch-purple text-sm">
-                                            Acessar perfil
-                                        </Link>
-                                    </div>
-
-                                    <hr className="border-gray-300 dark:border-gray-700" />
-
-                                    <Link to={`/perfil/${usuario.tipo}/editar`} className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Editar perfil</Link>
-                                    <button className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onClick={() => logout()}>Sair</button>
-
-                                    <hr className="border-gray-300 dark:border-gray-700" />
-
-                                    {/* <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button> */}
-                                    <Link to="/chats" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Chats</Link>
-
-                                    {/* <hr className="border-gray-300 dark:border-gray-700" /> */}
-
-                                    <Link to="/" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</Link>
-
-                                    <ThemeTogleConfig />
-
-                                    <Link to="/suporte" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Ajuda</Link>
+                            <div className={`absolute top-14 right-0 w-60 bg-white dark:bg-twitch-gray text-gray-800 dark:text-white rounded-lg shadow-xl border border-gray-300 dark:border-gray-700 p-2 flex flex-col z-[999] ${!isProfileOpen ? "hidden" : ""}`}>
+                                <div className="p-3">
+                                    <p className="font-bold">{usuario.nome}</p>
+                                    <Link to="/perfil/candidato" className="text-twitch-purple text-sm">
+                                        Acessar perfil
+                                    </Link>
                                 </div>
+
+                                <hr className="border-gray-300 dark:border-gray-700" />
+
+                                <Link to={`/perfil/${usuario.tipo}/editar`} className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Editar perfil</Link>
+                                <button className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onClick={() => logout()}>Sair</button>
+
+                                <hr className="border-gray-300 dark:border-gray-700" />
+
+                                {/* <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button> */}
+                                <Link to="/chats" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Chats</Link>
+
+                                {/* <hr className="border-gray-300 dark:border-gray-700" /> */}
+
+                                <Link to="/" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</Link>
+
+                                <ThemeTogleConfig />
+
+                                <Link to="/suporte" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Ajuda</Link>
+                            </div>
                             {/* )} */}
                         </div>
                     </div>
@@ -1354,23 +1356,23 @@ const Main: React.FC = () => {
                             <button onClick={() => scrollFiltros("left")} className="absolute left-24 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
                                 <i className="bx bx-chevron-left text-xl"></i>
                             </button>
-                            
+
                             <div
                                 ref={filtrosContainerRef}
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                                <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name==='Tudo'?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                    onClick={()=>{
-                                        setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})
+                                <button className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === 'Tudo' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                                    onClick={() => {
+                                        setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 })
                                         window.scrollTo(0, 0);
                                     }}>
                                     Tudo
                                 </button>
                                 {filtrosRecomendados.map((f) => (
-                                    <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name===f.categoria?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
-                                        onClick={()=>{
-                                            if(filtroAtual.name===f.categoria) return;
-                                            setFiltroAtual({empresas: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})
+                                    <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === f.categoria ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                                        onClick={() => {
+                                            if (filtroAtual.name === f.categoria) return;
+                                            setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: f.categoria, page: 1 })
                                             window.scrollTo(0, 0);
                                         }}>
                                         {f.nome}
@@ -1383,68 +1385,68 @@ const Main: React.FC = () => {
                             </button>
                         </div>
                     )}
-                    
+
                 </header>
 
-                <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px]  `} >
+                <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px] custom-scrollbar `} >
                     {filtroAtual.name !== 'Tudo' ? (
-                        <section className="empresas-section w-full px-5 py-6 min-h-screen">
-                                <div className="categoria-empresas mb-12">
-                                    {filtroAtual.empresas.length > 0 ? (
-                                        <>
-                                            <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
-                                                {filtroAtual.empresas.map((empresa) => {
-                                                    return (
-                                                        <EmpresaCard
-                                                            key={empresa.id}
-                                                            logo={empresa.logo}
-                                                            nome={empresa.nome}
-                                                            descricao={empresa.descricao}
-                                                            favoritada={empresa.favoritada}
-                                                            tags={empresa.tags}
-                                                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
-                                                            setor={empresa.setor}
-                                                            estado={empresa.estado}
-                                                        />
-                                                    )
-                                                })}
-                                            </div>
-                                            {/* carregar empresas */}
-                                            {filtroAtual.loadingMore && (
-                                                <div className="carregando-empresas flex justify-center items-center py-12">
-                                                    <div className="flex flex-col items-center gap-4">
-                                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
-                                                        <p className="text-gray-400">Carregando mais empresas...</p>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {filtroAtual.limit && (
-                                                <div className="text-center py-8">
-                                                    <p className="text-gray-500">Não há mais resultados.</p>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="text-center py-12">
-                                            {filtroAtual.loading ? (
+                        <section className= "empresas-section w-full px-5 py-3 min-h-screen">
+                            <div className={`categoria-empresas transition-all duration-300 ${isSidebarOpen ? "mt-20" : "mt-4"}`}>
+                                {filtroAtual.empresas.length > 0 ? (
+                                    <>
+                                        <div className="empresas-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full ">
+                                            {filtroAtual.empresas.map((empresa) => {
+                                                return (
+                                                    <EmpresaCard
+                                                        key={empresa.id}
+                                                        logo={empresa.logo}
+                                                        nome={empresa.nome}
+                                                        descricao={empresa.descricao}
+                                                        favoritada={empresa.favoritada}
+                                                        tags={empresa.tags}
+                                                        onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        setor={empresa.setor}
+                                                        estado={empresa.estado}
+                                                    />
+                                                )
+                                            })}
+                                        </div>
+                                        {/* carregar empresas */}
+                                        {filtroAtual.loadingMore && (
+                                            <div className="carregando-empresas flex justify-center items-center py-12">
                                                 <div className="flex flex-col items-center gap-4">
                                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
-                                                    <p className="text-gray-400">Carregando empresas...</p>
+                                                    <p className="text-gray-400">Carregando mais empresas...</p>
                                                 </div>
-                                            ) : (
-                                                <div className="flex flex-col items-center gap-4">
-                                                    <i className="bx bx-search text-4xl text-gray-400"></i>
-                                                    <p className="text-gray-500">Nenhuma empresa encontrada.</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    
-                                </div>
-                            </section>
-                    ) : !searchData.active ? (
+                                            </div>
+                                        )}
+
+                                        {filtroAtual.limit && (
+                                            <div className="text-center py-8">
+                                                <p className="text-gray-500">Não há mais resultados.</p>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        {filtroAtual.loading ? (
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                                <p className="text-gray-400">Carregando empresas...</p>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-4">
+                                                <i className="bx bx-search text-4xl text-gray-400"></i>
+                                                <p className="text-gray-500">Nenhuma empresa encontrada.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                            </div>
+                        </section>
+                    ) : (!searchData.active && filtroAtual.name === 'Tudo') ? (
                         <>
                             <section ref={sliderRef} className="relative w-full max-w-6xl mx-auto my-8 px-4 rounded-xl overflow-hidden" aria-label="Recomendações de clientes">
                                 <div ref={threeContainerRef} className="absolute inset-0 -z-10" />
@@ -1625,7 +1627,7 @@ const Main: React.FC = () => {
                                 </div>
                             </section>
                         </>
-                    ): (
+                    ) : (
                         <section className="empresas-section w-full px-5 py-6 min-h-screen">
                             <div className="categoria-empresas mb-12">
                                 {searchData.empresas.length > 0 ? (
@@ -1648,7 +1650,7 @@ const Main: React.FC = () => {
                                                 )
                                             })}
                                         </div>
-                                        
+
                                         {/* Loader para carregar mais empresas */}
                                         {searchData.loadingMore && (
                                             <div className="carregando-empresas flex justify-center items-center py-12">
@@ -1658,7 +1660,7 @@ const Main: React.FC = () => {
                                                 </div>
                                             </div>
                                         )}
-                                        
+
                                         {/* Mensagem quando não há mais empresas */}
                                         {searchData.limit && searchData.empresas.length > 0 && (
                                             <div className="text-center py-8">
@@ -1685,7 +1687,7 @@ const Main: React.FC = () => {
                             </div>
                         </section>
                     )}
-                    
+
                 </main>
             </div>
         </>

@@ -1,1 +1,12 @@
 @import "./css/erroTopo.css";
+.no-horizontal-scrollbar {
+    overflow-x: hidden !important;
+    -ms-overflow-style: none !important;  /* IE/Edge */
+    scrollbar-width: none !important;      /* Firefox */
+}
+
+.no-horizontal-scrollbar::-webkit-scrollbar {
+    height: 0 !important;
+    width: 0 !important;
+    display: none !important;
+}
