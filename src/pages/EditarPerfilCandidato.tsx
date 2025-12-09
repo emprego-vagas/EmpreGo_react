@@ -148,14 +148,14 @@ export default function EditarPerfilCandidato () {
     if(!dataLoaded) return (<Loader />);
 
     return (
-        <div className="font-inter min-h-screen">
+        <div className="font-inter min-h-screen bg-white dark:bg-professional-dark">
         <HeaderProfiles />
-        <div className="container mx-auto px-4 pt-10 pb-10">
+        <div className="container mx-auto px-4 pt-10 pb-10 ">
             {dataLoaded && (
             <>
             <div className="page-header text-center mb-10">
-                <h1 className="text-4xl font-bold gradient-text mb-2">Editar Perfil</h1>
-                <p className="text-professional-subtitle text-lg max-w-2xl mx-auto">Atualize suas informações profissionais e
+                <h1 className="text-4xl font-bold gradient-text mb-2 text-professional-dark dark:text-white">Editar Perfil</h1>
+                <p className="text-professional-gray dark:text-professional-subtitle text-lg max-w-2xl mx-auto">Atualize suas informações profissionais e
                     pessoais para destacar seu perfil no mercado</p>
             </div>
 
@@ -164,39 +164,39 @@ export default function EditarPerfilCandidato () {
                 <div className="lg:col-span-8 space-y-6">
                     {/* <!-- Informações Básicas --> */}
                     <div
-                        className="gradient-bg rounded-2xl p-8 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in">
-                        <h2 className="text-2xl text-center font-semibold mb-8 text-professional-subtitle relative pb-4
+                        className="bg-gray-100 dark:bg-professional-dark rounded-2xl p-8 border border-professional-dark dark:border-professional-card shadow-xl transition-all duration-300 ease-in-out dark:hover:border-professional-accent/50 animate-fade-in">
+                        <h2 className="text-2xl text-center font-semibold mb-8 text-professional-dark dark:text-professional-subtitle relative pb-4
                         after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                        after:w-20 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                            <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-2" />Informações Pessoais
+                        after:w-20 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-subtitleText after:rounded">
+                            <FontAwesomeIcon icon={faUser} className="text-professional-dark dark:text-professional-accent mr-2" />Informações Pessoais
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label htmlFor="nomeCompleto"
-                                    className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                    <FontAwesomeIcon icon={faSignature} className="text-professional-accent mr-2" />Nome Completo
+                                    className="text-professional-gray dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                    <FontAwesomeIcon icon={faSignature} className="text-professional-dark dark:text-professional-accent mr-2" />Nome Completo
                                     {nomeInfo.cached && (nomeInfo.disabled ? (
-                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, disabled: false}))} />
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, disabled: false}))} />
                                     ):(
-                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setNomeInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
                                     ))}
                                 </label>
                                 
                                 <input type="text" id="nomeCompleto" value={nomeInfo.value} onChange={(e)=>setNomeInfo(prev=>({...prev, value: e.target.value}))} disabled={nomeInfo.disabled}
-                                    className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                    className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-card dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: João Silva Santos" />
                             </div>
 
 
                             <div>
                                 <label htmlFor="cpf"
-                                    className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                    <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />CPF
+                                    className="text-professional-gray dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                    <FontAwesomeIcon icon={faIdCard} className="text-professional-dark dark:text-professional-accent mr-2" />CPF
                                     {cpfInfo.cached && (cpfInfo.disabled ? (
-                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, disabled: false}))} />
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, disabled: false}))} />
                                     ):(
-                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setCpfInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
                                     ))}
                                 </label>
                                 <input type="text" id="cpf" value={cpfInfo.value} onChange={(e)=>{
@@ -207,7 +207,7 @@ export default function EditarPerfilCandidato () {
                                     value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, "$1.$2.$3-$4");
                                     setCpfInfo(prev=>({...prev, value}));
                                 }} disabled={cpfInfo.disabled}
-                                    className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                    className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-card dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: 000.000.000-00" />
                             </div>
 
@@ -215,23 +215,23 @@ export default function EditarPerfilCandidato () {
 
                             <div>
                                 <label htmlFor="pronomes"
-                                    className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                    <FontAwesomeIcon icon={faUserTag} className="text-professional-accent mr-2" />Pronomes
-                                    {pronomesInfo.cached && (pronomesInfo.disabled ? (
-                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, disabled: false}))} />
+                                    className="text-professional-gray dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                    <FontAwesomeIcon icon={faUserTag} className="text-professional-dark dark:text-professional-accent mr-2" />Pronomes
+                                    {pronomesInfo.cached && (pronomesInfo.disabled ? ( 
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, disabled: false}))} />
                                     ):(
-                                        <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
                                     ))}
                                 </label>
                                 <select id="pronomes" value={pronomesInfo.value} onChange={(e)=>setPronomesInfo(prev=>({...prev, value: e.target.value}))} disabled={pronomesInfo.disabled}
-                                    className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
+                                    className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-card dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
                                     <option value="" disabled className="text-professional-subtitle">Selecione seus
                                         pronomes</option>
-                                    <option value="Ela/Dela" className="bg-professional-dark">Ela/Dela</option>
-                                    <option value="Ele/Dele" className="bg-professional-dark">Ele/Dele</option>
-                                    <option value="Elu/Delu" className="bg-professional-dark">Elu/Delu</option>
-                                    <option value="Outro" className="bg-professional-dark">Outro</option>
-                                    <option value="Prefiro não informar" className="bg-professional-dark">Prefiro não informar
+                                    <option value="Ela/Dela" className="bg-white dark:bg-professional-dark">Ela/Dela</option>
+                                    <option value="Ele/Dele" className="bg-white dark:bg-professional-dark">Ele/Dele</option>
+                                    <option value="Elu/Delu" className="bg-white dark:bg-professional-dark">Elu/Delu</option>
+                                    <option value="Outro" className="bg-white dark:bg-professional-dark">Outro</option>
+                                    <option value="Prefiro não informar" className="bg-white dark:bg-professional-dark">Prefiro não informar
                                     </option>
                                 </select>
                             </div>
@@ -239,16 +239,16 @@ export default function EditarPerfilCandidato () {
                             {pronomesInfo.value==='Outro' && (
                                 <div id="pronomePersonalizadoContainer">
                                     <label htmlFor="pronomePersonalizado"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <FontAwesomeIcon icon={faEdit} className="text-professional-accent mr-2" />Especifique seus pronomes
+                                        className="text-professional-gray dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faEdit} className="text-professional-dark dark:text-professional-accent mr-2" />Especifique seus pronomes
                                         {pronomesPersonalizadosInfo.cached && (pronomesPersonalizadosInfo.disabled ? (
-                                            <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, disabled: false}))} />
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-dark dark:text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, disabled: false}))} />
                                         ):(
-                                            <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-dark dark:text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPronomesPersonalizadosInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
                                         ))}
                                     </label>
                                     <input type="text" id="pronomePersonalizado" value={pronomesPersonalizadosInfo.value} onChange={(e)=>setPronomesPersonalizadosInfo(prev=>({...prev, value: e.target.value}))} disabled={pronomesPersonalizadosInfo.disabled}
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                        className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-card dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                         placeholder="Ex: Ela/Dela, Elu/Delu" />
                                 </div>
                             )}
