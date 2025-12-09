@@ -9,7 +9,7 @@ export default function HeaderInit(){
     interacaoUI();
     const User = DadosUsuario.getUsuario();
     return (
-        <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-20 transition-colors duration-300 border border-b dark:dark:border-professional-card">
+        <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-20 transition-colors duration-300 dark:dark:border-professional-card">
 
             <div className="container mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">

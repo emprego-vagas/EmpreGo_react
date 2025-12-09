@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { DadosUsuario, fileDownload, mostrarErroTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faHandshake, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
@@ -482,7 +482,7 @@ export default function PerfilCandidato() {
                                 </div>
                             </button>
                         </li>
-                        <li className="mr-2">
+                        {/* <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
                             dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
@@ -492,8 +492,8 @@ export default function PerfilCandidato() {
                                     <FontAwesomeIcon icon={faHandshake} className="mr-2" />Solicitações
                                 </div>
                             </button>
-                        </li>
-                        <li className="mr-2">
+                        </li> */}
+                        {/* <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
                             dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
@@ -503,7 +503,7 @@ export default function PerfilCandidato() {
                                     <FontAwesomeIcon icon={faBell} className="mr-2" />Notificações
                                 </div>
                             </button>
-                        </li>
+                        </li> */}
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray

@@ -1338,7 +1338,7 @@ const Main: React.FC = () => {
                                     {/* <button className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Notificações</button> */}
                                     <Link to="/chats" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Chats</Link>
 
-                                    {/* <hr className="border-gray-300 dark:border-gray-700" /> */}
+                                    <hr className="border-gray-300 dark:border-gray-700" />
 
                                     <Link to="/" className="bg-transparent border-none text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Configurações</Link>
 

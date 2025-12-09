@@ -50,11 +50,9 @@ export default function HeaderProfiles(){
             <nav className="links flex items-center space-x-6">
             <Link to="/" className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
             <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="/chats"
-                target="_self">Chat</Link>
+                target="_self">Chats</Link>
             <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="#"
                 target="_self">Fórum</Link>
-            <Link className="headerlink text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors" to="#"
-                target="_self">Favoritos</Link>
 
             <SinoNotificacoes />
 
@@ -78,7 +76,7 @@ export default function HeaderProfiles(){
                     <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                         onClick={()=>logout()} id="logoutButton">Sair</button>
                     <hr className="border-t border-gray-700 my-1"/>
-                    <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Notificações</button>
+                    {/* <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Notificações</button> */}
                     <button className="bg-transparent border-none text-professional-gray dark:text-white text-left p-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                         onClick={()=>navigate('/chats')}>Chats</button>
                     <hr className="border-t border-gray-700 my-1"/>
