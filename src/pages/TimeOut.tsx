@@ -37,7 +37,7 @@ const RippleGrid: React.FC<RippleGridProps> = ({
     const mousePositionRef = useRef({ x: 0.5, y: 0.5 });
     const targetMouseRef = useRef({ x: 0.5, y: 0.5 });
     const mouseInfluenceRef = useRef(0);
-    const uniformsRef = useRef<any>(null);
+    const uniformsRef = useRef(null);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -516,7 +516,7 @@ export default function TimeOut() {
                 <div className="flex justify-center gap-6 mb-10">
                     <AnimatedButton
                         onClick={handleRetry}
-                        baseColor="#ffffff"
+                        baseColor="#7e22ce"
                         pillColor="#000000"
                         hoveredPillTextColor="#000000"
                         pillTextColor="#ffffff"

@@ -52,7 +52,7 @@ export default function Login() {
 
     const [userLogin, setUserLogin] = useState({ email: "", senha: "", lembreMe: false });
     const [userRegister, setUserRegister] = useState({ nome: "", sobrenome: "", email: "", senha: "", senhaConfirm: "", data_nasc: "", genero: "", outroGenero: "" });
-    const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "" });
+    const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "", lembreMe: false });
     const [companyRegister, setCompanyRegister] = useState({ email: "", razao_soci: "", nome_fant: "", cnpj: "", telefone: "", senha: "", senhaConfirm: "", cep: "", rua: "", bairro: "", cidade: "", estado: "", numero: "", complemento: "" });
     const [forgotEmail, setForgotEmail] = useState({email: ""});
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -430,6 +430,20 @@ export default function Login() {
                                         </button>
                                     </div>
                                 </div>
+
+                                <label className="flex items-center gap-2 cursor-pointer text-white text-sm mb-4 relative">
+                                    <input
+                                        type="checkbox"
+                                        className="absolute opacity-0 cursor-pointer"
+                                        onChange={(e) => setCompanyLogin({ ...companyLogin, lembreMe: e.target.checked })}
+                                    />
+                                    <span className="w-4 h-4 bg-gray-700 border-2 border-purple-500 rounded transition-all duration-300 flex items-center justify-center">
+                                        {companyLogin.lembreMe && (
+                                            <div className="w-1.5 h-2.5 border-r-2 border-b-2 border-white transform rotate-45 -translate-y-0.5" />
+                                        )}
+                                    </span>
+                                    Lembre-me
+                                </label>
 
                                 <button
                                     type="submit"
@@ -816,7 +830,6 @@ export default function Login() {
                                         } finally {
                                             setEnviandoEmailTroca(false);
                                             setErrorInputCand({ campo: "", mensagem: "" });
-                                            setForgotEmail({email:""})
                                         }
                                     }}
                                 >
