@@ -287,7 +287,7 @@ export default function PerfilCandidato() {
 
                         <div id="formacaoInfo" className="dark:bg-professional-gray bg-white rounded-lg p-4">
 
-                            <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
+                            <h2 className="text-lg text-center font-semibold mb-2 dark:bg-professional-gray  text-professional-card bg-white dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded">
                                 Formação Acadêmica</h2>
@@ -525,37 +525,37 @@ export default function PerfilCandidato() {
                     <div id="experiencias" className="tab-pane active">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bodyBottom">
                             <div id="boxCriar"
-                                className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/experiencias/criar')}}>
                                 <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-accent mb-3 text-4xl" />
-                                    <p id="textCriar" className="text-professional-subtitle">Adicionar nova experiência
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
+                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar nova experiência
                                         profissional</p>
                                 </Link>
                             </div>
                             {customPerfil.experiencias_count>0 && customPerfil.experiencias.map(expe=>(
                                 <div key={expe.id}
-                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent cursor-pointer">
+                                    className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-white">{expe.titulo}</h3>
-                                            <p className="text-professional-accent font-medium">{expe.nome}</p>
+                                            <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.titulo}</h3>
+                                            <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.nome}</p>
                                         </div>
                                         {expe.periodo.split(' - ')[1] === 'Presente' && (
-                                            <span className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
+                                            <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
                                         )}
                                     </div>
-                                    <p className="text-professional-subtitle mb-4">{expe.periodo}</p>
-                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.descricao}</p>
+                                    <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.periodo}</p>
+                                    <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.descricao}</p>
                                     <div className="flex flex-wrap gap-2">
                                         {expe.tags_experiencias[0] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[0].nome}</span>
+                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[0].nome}</span>
                                         )}
                                         {expe.tags_experiencias[1] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[1].nome}</span>
+                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[1].nome}</span>
                                         )}
                                         {expe.tags_experiencias[2] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">{expe.tags_experiencias[2].nome}</span>
+                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.tags_experiencias[2].nome}</span>
                                         )}
                                     </div>
                                 </div>
@@ -572,49 +572,49 @@ export default function PerfilCandidato() {
                     <div id="certificacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card dark:border-professional-card hover:border-professional-dark duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px]">
                                 <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
-                                    <p id="textCriar" className="text-professional-subtitle">Adicionar novas Certificações
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-dark dark:text-professional-accent mb-3" />
+                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novas Certificações
                                     </p>
                                 </Link>
                             </div>
                             <div
-                                className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-white">PMP - Project Management Professional
+                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">PMP - Project Management Professional
                                     </h3>
                                     <span
-                                        className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2022</span>
+                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2022</span>
                                 </div>
-                                <p className="text-professional-subtitle mb-4">Project Management Institute</p>
-                                <p className="text-professional-subtitle text-sm">Certificação internacional em
+                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Project Management Institute</p>
+                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação internacional em
                                     gerenciamento de
                                     projetos reconhecida globalmente.</p>
                             </div>
 
                             <div
-                                className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-white">Scrum Master Certified</h3>
+                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Scrum Master Certified</h3>
                                     <span
-                                        className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2021</span>
+                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2021</span>
                                 </div>
-                                <p className="text-professional-subtitle mb-4">Scrum Alliance</p>
-                                <p className="text-professional-subtitle text-sm">Certificação em metodologias ágeis e
+                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Scrum Alliance</p>
+                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação em metodologias ágeis e
                                     framework
                                     Scrum.</p>
                             </div>
 
                             <div
-                                className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-white">Google Analytics Certification</h3>
+                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Google Analytics Certification</h3>
                                     <span
-                                        className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2020</span>
+                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2020</span>
                                 </div>
-                                <p className="text-professional-subtitle mb-4">Google</p>
-                                <p className="text-professional-subtitle text-sm">Certificação em análise de dados e
+                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Google</p>
+                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação em análise de dados e
                                     métricas
                                     digitais.</p>
                             </div>
@@ -627,11 +627,11 @@ export default function PerfilCandidato() {
                     <div id="projetos" className="tab-pane">
                         <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/projetos/criar')}}>
                                 <Link to="/projetos/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
-                                    <p id="textCriar" className="text-professional-subtitle">Adicionar novos projetos</p>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
+                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novos projetos</p>
                                 </Link>
                             </div>
                             {customPerfil.projetos_count>0 && customPerfil.projetos_cand.map(proj=>(
@@ -699,54 +699,54 @@ export default function PerfilCandidato() {
                     <div id="formacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent">
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent">
                                 <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
-                                    <p id="textCriar" className="text-professional-subtitle">Adicionar uma nova formação</p>
+                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
+                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
                                 </Link>
                             </div>
                             <div
-                                className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-white">Sistema de Gestão Empresarial</h3>
+                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Sistema de Gestão Empresarial</h3>
                                     <span
-                                        className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Concluído</span>
+                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Concluído</span>
                                 </div>
-                                <p className="text-professional-subtitle mb-4">Tech Solutions Ltda • 2022</p>
-                                <p className="text-professional-subtitle text-sm mb-4">Desenvolvimento de sistema integrado
+                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Tech Solutions Ltda • 2022</p>
+                                <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4">Desenvolvimento de sistema integrado
                                     para
                                     gestão de processos empresariais, resultando em aumento de 30% na eficiência
                                     operacional.</p>
                                 <div className="flex flex-wrap gap-2">
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">Java</span>
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Java</span>
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">Spring
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Spring
                                         Boot</span>
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">PostgreSQL</span>
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">PostgreSQL</span>
                                 </div>
                             </div>
 
                             <div
-                                className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-white">Plataforma de E-learning</h3>
+                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Plataforma de E-learning</h3>
                                     <span
-                                        className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Em
+                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Em
                                         Andamento</span>
                                 </div>
-                                <p className="text-professional-subtitle mb-4">Inovação Digital S.A. • 2023</p>
-                                <p className="text-professional-subtitle text-sm mb-4">Desenvolvimento de plataforma
+                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Inovação Digital S.A. • 2023</p>
+                                <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4">Desenvolvimento de plataforma
                                     educacional
                                     com foco em experiência do usuário e acessibilidade.</p>
                                 <div className="flex flex-wrap gap-2">
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">React</span>
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">React</span>
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">Node.js</span>
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Node.js</span>
                                     <span
-                                        className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">MongoDB</span>
+                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">MongoDB</span>
                                 </div>
                             </div>
                         </div>
@@ -757,18 +757,18 @@ export default function PerfilCandidato() {
                     {tabAtual==='recomendacoes' && (
                     <div id="recomendacoes" className="tab-pane">
                         <div
-                            className="bg-professional-card rounded-xl border border-professional-card overflow-hidden transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                            <div className="border-b border-professional-card px-6 py-4">
-                                <h3 className="text-lg font-semibold text-white">Recomendações de Colegas</h3>
+                            className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
+                            <div className="border-b border-gray-100  dark:border-professional-card px-6 py-4">
+                                <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Recomendações de Colegas</h3>
                             </div>
-                            <div className="divide-y divide-professional-card">
+                            <div className="divide-y divide-gray-100 dark:divide-professional-card">
                                 <div className="p-6">
                                     <div className="flex items-start">
                                         <img src={genPfp} alt="User"
                                             className="w-12 h-12 rounded-full mr-4"/>
                                         <div>
-                                            <h4 className="font-medium text-white">Maria Silva</h4>
-                                            <p className="text-professional-subtitle">Diretora de Projetos na Tech Solutions
+                                            <h4 className="font-bold text-professional-dark dark:text-white">Maria Silva</h4>
+                                            <p className="text-professional-gray dark:text-professional-subtitle">Diretora de Projetos na Tech Solutions
                                             </p>
                                             <div className="flex text-yellow-400 my-2">
                                                 <FontAwesomeIcon icon={faStar} />
@@ -777,11 +777,11 @@ export default function PerfilCandidato() {
                                                 <FontAwesomeIcon icon={faStar} />
                                                 <FontAwesomeIcon icon={faStar} />
                                             </div>
-                                            <p className="text-professional-subtitle">"Profissional excepcional com grande
+                                            <p className="text-professional-gray dark:text-professional-subtitle">"Profissional excepcional com grande
                                                 capacidade de liderança e resolução de problemas. Sempre entrega
                                                 resultados
                                                 além do esperado."</p>
-                                            <p className="text-xs text-professional-subtitle mt-2">Há 3 meses</p>
+                                            <p className="text-xs text-professional-card dark:text-professional-subtitle mt-2">Há 3 meses</p>
                                         </div>
                                     </div>
                                 </div>
@@ -791,8 +791,8 @@ export default function PerfilCandidato() {
                                         <img src={genPfp} alt="User"
                                             className="w-12 h-12 rounded-full mr-4"/>
                                         <div>
-                                            <h4 className="font-medium text-white">João Santos</h4>
-                                            <p className="text-professional-subtitle">CTO na Inovação Digital</p>
+                                            <h4 className="font-bold text-professional-dark dark:text-white">João Santos</h4>
+                                            <p className="text-professional-gray dark:text-professional-subtitle">CTO na Inovação Digital</p>
                                             <div className="flex text-yellow-400 my-2">
                                                 <FontAwesomeIcon icon={faStar} />
                                                 <FontAwesomeIcon icon={faStar} />
@@ -800,12 +800,12 @@ export default function PerfilCandidato() {
                                                 <FontAwesomeIcon icon={faStar} />
                                                 <FontAwesomeIcon icon={faStar} />
                                             </div>
-                                            <p className="text-professional-subtitle">"Um dos melhores profissionais com
+                                            <p className="text-professional-gray dark:text-professional-subtitle">"Um dos melhores profissionais com
                                                 quem já
                                                 trabalhei. Sua expertise técnica e visão estratégica foram fundamentais
                                                 para
                                                 o sucesso de nossos projetos."</p>
-                                            <p className="text-xs text-professional-subtitle mt-2">Há 6 meses</p>
+                                            <p className="text-xs text-professional-card dark:text-professional-subtitle mt-2">Há 6 meses</p>
                                         </div>
                                     </div>
                                 </div>
