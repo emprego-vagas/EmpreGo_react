@@ -65,6 +65,7 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
     const usuarioTipo = usuario.tipo;
 
     const response = usuarioTipo === 'candidato' ? await axiosWe('/custom/chats-candidatos'): await axiosWe('/custom/chats-empresas');
+    console.log(response.data)
     const data = response.data.chats;
     const { solicitacoes_chat_p_candidatos, solicitacoes_chat_p_empresas } = response.data;
 

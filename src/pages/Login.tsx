@@ -52,7 +52,7 @@ export default function Login() {
 
     const [userLogin, setUserLogin] = useState({ email: "", senha: "", lembreMe: false });
     const [userRegister, setUserRegister] = useState({ nome: "", sobrenome: "", email: "", senha: "", senhaConfirm: "", data_nasc: "", genero: "", outroGenero: "" });
-    const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "" });
+    const [companyLogin, setCompanyLogin] = useState({ cnpj: "", senha: "", lembreMe: false });
     const [companyRegister, setCompanyRegister] = useState({ email: "", razao_soci: "", nome_fant: "", cnpj: "", telefone: "", senha: "", senhaConfirm: "", cep: "", rua: "", bairro: "", cidade: "", estado: "", numero: "", complemento: "" });
     const [forgotEmail, setForgotEmail] = useState({email: ""});
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -147,7 +147,7 @@ export default function Login() {
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await candidatoLogin(e, userLogin);
-                                        if (logado) navigate('/');
+                                        if (logado) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                                     }}
                                 >
                                     Entrar
@@ -431,12 +431,26 @@ export default function Login() {
                                     </div>
                                 </div>
 
+                                <label className="flex items-center gap-2 cursor-pointer text-white text-sm mb-4 relative">
+                                    <input
+                                        type="checkbox"
+                                        className="absolute opacity-0 cursor-pointer"
+                                        onChange={(e) => setCompanyLogin({ ...companyLogin, lembreMe: e.target.checked })}
+                                    />
+                                    <span className="w-4 h-4 bg-gray-700 border-2 border-purple-500 rounded transition-all duration-300 flex items-center justify-center">
+                                        {companyLogin.lembreMe && (
+                                            <div className="w-1.5 h-2.5 border-r-2 border-b-2 border-white transform rotate-45 -translate-y-0.5" />
+                                        )}
+                                    </span>
+                                    Lembre-me
+                                </label>
+
                                 <button
                                     type="submit"
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await empresaLogin(e, companyLogin);
-                                        if (logado) navigate('/');
+                                        if (logado) window.location.href = '/';
                                     }}
                                 >
                                     Entrar
@@ -730,7 +744,7 @@ export default function Login() {
                                             return;
                                         } else {
                                             setTimeout(() => {
-                                                navigate('/');
+                                                window.location.href = '/';
                                             }, 1000);
                                         }
                                     }}
@@ -816,7 +830,6 @@ export default function Login() {
                                         } finally {
                                             setEnviandoEmailTroca(false);
                                             setErrorInputCand({ campo: "", mensagem: "" });
-                                            setForgotEmail({email:""})
                                         }
                                     }}
                                 >

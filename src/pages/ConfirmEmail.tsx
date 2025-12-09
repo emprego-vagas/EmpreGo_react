@@ -52,10 +52,10 @@ export default function ConfirmEmail(){
                             setTimeout(()=>{
                                 navigate('/');
                             }, 3000);
-                        } else if(validado.sucesso) navigate('/');
+                        } else if(validado.sucesso) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                     }}/>
 
-                <p><a id="reenvio" className="text-gradient">Não recebeu o email? Clique <span className="text-primary-500 cursor-pointer" onClick={async()=>{
+                <p><a id="reenvio" className="text-primary-100">Não recebeu o email?<span className="text-primary-500 cursor-pointer" onClick={async()=>{
                     if(podeEnviar){
                         setPodeEnviar(false);
                         const reenvio = await reenviarCodigo(email);
@@ -69,7 +69,7 @@ export default function ConfirmEmail(){
                             setPodeEnviar(true);
                         }
                     }
-                }}>aqui</span> para reenviar.</a></p>
+                }}> Clique aqui para reenviar.</span> </a></p>
                 <p id="mensagem">{msgReenvio}</p>
             </div>
         </section>

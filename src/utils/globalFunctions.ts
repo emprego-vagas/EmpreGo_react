@@ -1,4 +1,5 @@
 import axiosWe from "./axiosInstance";
+import socket from "./socketsConnection";
 
 export function mostrarErroTopo(mensagem: string) {
     const old = document.querySelector('.erro-mensagem-geral2');
@@ -154,10 +155,134 @@ export class DadosUsuario {
 }
 
 export async function fileDownload(url: string, tipo: string){
-    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:3002' : 'urlDeployBack';
+    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:3002' : 'https://api.emprego-vagas.com.br';
     const link = document.createElement('a');   // * Cria um link temporário
     link.href = `${hostName}/mensagens/download?link=${encodeURIComponent(url)}&tipo=${tipo}`;   // * Seta a rota de download como href do link
     document.body.appendChild(link);   // * Insere o link temporário na Árvore DOM
     link.click();   // * Clica no link temporário automaticamente para iniciar o download
     document.body.removeChild(link);   // * Remove o link temporário da Árvore DOM (OBS: fui eu q comentei isso tá? foi chat nn)
 };
+
+type NotificationContent =
+    | {
+        solicitacao_conversa: {
+            action: string;
+            id?: string;
+            newChatId?: string;
+        };
+    }
+    | {
+        favoritado: {
+            action: string;
+        };
+    };
+
+export function sendNotification(recipient: {id: string, type: 'empresa' | 'candidato'}, content: NotificationContent){
+    const usuario = DadosUsuario.getUsuario(true);
+    if(!usuario) return;
+    socket.emit('sendNotification',{
+        remetente: {
+            id: usuario.id,
+            nome: usuario.nome,
+            tipo: usuario.tipo,
+            foto: usuario.foto
+        },
+        destinatario: {
+            id: recipient.id,
+            tipo: recipient.type
+        },
+        ...(content as NotificationContent)
+    });
+}
+
+const formatacoes: Record<string, string> = {
+  "energia": "Energia",
+  "construcao civil": "Construção Civil",
+  "imobiliario": "Imobiliário",
+  "construcao": "Construção",
+  "midia e comunicacao": "Mídia e Comunicação",
+  "consultoria": "Consultoria",
+  "escritorio": "Escritório",
+  "joalheria": "Joalheria",
+  "artes": "Artes",
+  "vestuario": "Vestuário",
+  "varejo": "Varejo",
+  "musica": "Música",
+  "livros": "Livros",
+  "tecnologia": "Tecnologia",
+  "celulares": "Celulares",
+  "esportes": "Esportes",
+  "automotivo": "Automotivo",
+  "transporte": "Transporte",
+  "games": "Games",
+  "moveis": "Móveis",
+  "setor publico": "Setor Público",
+  "meio ambiente": "Meio Ambiente",
+  "financeiro": "Financeiro",
+  "pets": "Pets",
+  "educacao": "Educação",
+  "metalurgica": "Metalúrgica",
+  "agricultura": "Agricultura",
+  "saude": "Saúde",
+  "moda": "Moda",
+  "turismo": "Turismo",
+  "saude e bem-estar": "Saúde e Bem-Estar",
+  "eletronicos": "Eletrônicos",
+  "marketing": "Marketing",
+  "recursos humanos": "Recursos Humanos",
+  "informatica": "Informática",
+  "ferramentas": "Ferramentas",
+  "entretenimento": "Entretenimento",
+  "beleza": "Beleza",
+  "quimica": "Química",
+  "industria": "Indústria",
+  "alimentacao": "Alimentação",
+  "seguranca": "Segurança",
+  "brinquedos": "Brinquedos",
+  "telecomunicacoes": "Telecomunicações",
+  "bebidas": "Bebidas",
+  "eventos": "Eventos",
+  "juridico": "Jurídico",
+  "materiais": "Materiais",
+  "limpeza": "Limpeza",
+  "fotografia": "Fotografia",
+  "servicos gerais": "Serviços Gerais"
+};
+
+export function formatarCategoria(palavra: string) {
+  return formatacoes[palavra.toLowerCase()] ?? palavra;
+}
+
+const estadosFormatados: Record<string, string> = {
+  "ac": "Acre",
+  "al": "Alagoas",
+  "ap": "Amapá",
+  "am": "Amazonas",
+  "ba": "Bahia",
+  "ce": "Ceará",
+  "df": "Distrito Federal",
+  "es": "Espírito Santo",
+  "go": "Goiás",
+  "ma": "Maranhão",
+  "mt": "Mato Grosso",
+  "ms": "Mato Grosso do Sul",
+  "mg": "Minas Gerais",
+  "pa": "Pará",
+  "pb": "Paraíba",
+  "pr": "Paraná",
+  "pe": "Pernambuco",
+  "pi": "Piauí",
+  "rj": "Rio de Janeiro",
+  "rn": "Rio Grande do Norte",
+  "rs": "Rio Grande do Sul",
+  "ro": "Rondônia",
+  "rr": "Roraima",
+  "sc": "Santa Catarina",
+  "sp": "São Paulo",
+  "se": "Sergipe",
+  "to": "Tocantins",
+};
+
+export function formatarEstado(sigla: string) {
+  return estadosFormatados[sigla.toLowerCase()] ?? sigla;
+}
