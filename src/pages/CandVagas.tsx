@@ -13,7 +13,7 @@ import lupa from './../assets/imgs/lupa.png';
 import '../css/filtragem.css';
 import SinoNotificacoes from '../components/SinoNotificacoes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight, faComment, faSliders } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faComment, faSliders, faStar } from '@fortawesome/free-solid-svg-icons';
 import { AnimatedItem } from '../animation/favoritoAnimation';
 
 // interfaces
@@ -426,7 +426,6 @@ const Main: React.FC = () => {
         setSearchData({ active: false, query: '', page: 1, limit: false, loading: false, loadingMore: false, empresas: [] });
     }
 
-    // Refs do Header
     const headerRef = useRef<HTMLDivElement>(null);
     const profileRef = useRef<HTMLDivElement>(null);
     const filtrosContainerRef = useRef<HTMLDivElement>(null);
@@ -535,7 +534,7 @@ const Main: React.FC = () => {
                     } else return emp
                 })
             }))
-            setFiltroAtual(prev=>({
+            setFiltroAtual(prev => ({
                 ...prev,
                 empresas: prev.empresas.map(emp => {
                     if (emp.id === empresa.id) {
@@ -577,8 +576,6 @@ const Main: React.FC = () => {
             }
         };
     }
-
-    // infinite scroll empresas sem label
 
     // const [empresasExpandidas, setEmpresasExpandidas] = useState<{ [key: string]: boolean }>({});
     //! const [empresasSemLabelExpandidas, setEmpresasSemLabelExpandidas] = useState(false);  FORA DE USO
@@ -635,7 +632,6 @@ const Main: React.FC = () => {
     const isLoadingMoreRef = useRef(false);
 
     async function loadMoreQuery() {
-        // Verificar usando a ref para prevenir race conditions
         if (isLoadingMoreRef.current || searchData.limit || !searchData.active) {
             console.log('loadMoreQuery abortado:', {
                 isLoadingMoreRef: isLoadingMoreRef.current,
@@ -646,9 +642,7 @@ const Main: React.FC = () => {
         }
 
         try {
-            // Marcar que está carregando - IMPORTANTE: fazer isso antes de qualquer await
             isLoadingMoreRef.current = true;
-            // Aqui DEFINITIVAMENTE mostrar o loader
             setSearchData(prev => ({ ...prev, loadingMore: true }));
 
             const nextPage = searchPageRef.current;
@@ -658,13 +652,12 @@ const Main: React.FC = () => {
             const emps = response.data;
             console.log('Resultados da página', nextPage, ':', emps.length);
 
-            // Se não houver resultados, marcar como limite
             if (emps.length === 0) {
                 console.log('Sem mais resultados, marcando como limite');
                 setSearchData(prev => ({
                     ...prev,
                     limit: true,
-                    loadingMore: false  // ← Desliga o loader
+                    loadingMore: false
                 }));
                 isLoadingMoreRef.current = false;
                 return;
@@ -981,9 +974,6 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
-    // ===== FUNÇÕES E ESTADOS DO HEADER =====
-
-    // useEffect para fechar menu de perfil ao clicar fora
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -999,7 +989,6 @@ const Main: React.FC = () => {
     //     f.nome;
     // };
 
-    // Função para scroll dos filtros
     const scrollFiltros = (direction: "left" | "right") => {
         if (!filtrosContainerRef.current) return;
 
@@ -1017,7 +1006,6 @@ const Main: React.FC = () => {
         });
     };
 
-    // useEffect para fechar filtro ao clicar fora
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
             if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
@@ -1028,7 +1016,6 @@ const Main: React.FC = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Função para alternar chip de filtro
     const toggleChip = (category: keyof typeof filters, value: string) => {
         setFilters(prev => {
             const current = prev[category];
@@ -1043,7 +1030,6 @@ const Main: React.FC = () => {
         });
     };
 
-    // Função para limpar filtros
     const clearFilters = () => {
         setFilters({
             setor: [],
@@ -1052,9 +1038,7 @@ const Main: React.FC = () => {
         });
     };
 
-    // Função para confirmar filtros
     const confirmFilters = () => {
-        // onApply(filters); // descomente quando implementar
         setIsFilterOpen(false);
     };
 
@@ -1067,25 +1051,25 @@ const Main: React.FC = () => {
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-500 transition">
                             <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
                         </Link>
 
-                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
+                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-500 transition">
                             <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
                                 Chat Geral
                             </span>
                         </Link>
 
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-500 transition">
                             <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                         </Link>
 
                         <div className="relative">
-                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
+                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-500 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
                                 <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
                                 <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
                                 <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px] text-dark-700' />
@@ -1096,17 +1080,17 @@ const Main: React.FC = () => {
                                     {empresasFavoritadas.slice(0, 6).map((fav) => (
                                         <button
                                             key={fav.id}
-                                            onClick={() => navigate(`/chats?id=${fav.id}`)}
+                                            onClick={() => navigate(`/perfil?id=${fav.id}`)}
                                             title={fav.nome_fant}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
-                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
+                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover" />
                                         </button>
                                     ))}
                                 </div>
                             )}
                         </div>
                         {(mostrarFavoritos && isSidebarOpen) && (
-                            <div className="max-h-72 overflow-y-auto px-1 mb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                            <div className="max-h-72 overflow-y-auto px-1 mb-2 custom-scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                                 {empresasFavoritadas.map((e, i) => (
                                     <AnimatedItem key={e.id} index={i} delay={i * 0.03}>
                                         <div
@@ -1116,12 +1100,12 @@ const Main: React.FC = () => {
                                                     <img
                                                         src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
                                                         alt={e.nome_fant}
-                                                        className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm"/>
+                                                        className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm" />
                                                     {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
                                                 </div>
                                             </div>
 
-                                            <div className="flex-1 min-w-0">
+                                            <div className="flex-1 min-w-[80px]">
                                                 <p className="font-semibold text-dark-700 dark:text-light-100 text-xs truncate tracking-tight">
                                                     {e.nome_fant}
                                                 </p>
@@ -1130,20 +1114,22 @@ const Main: React.FC = () => {
                                                 </p>
                                             </div>
 
-                                            <div className="flex items-center gap-1.5 ml-auto">
+                                            <div className="flex items-center gap-0.5 ml-auto">
                                                 <button
                                                     onClick={() => handleAlterarStatusFavorito(true, e)}
-                                                    className="p-1.5 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-full transition-all duration-200"
+                                                    className="p-0.5 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-full transition-all duration-200"
                                                     aria-label="Desfavoritar">
-                                                    <i className='bx bxs-star text-sm' />
+                                                    <FontAwesomeIcon icon={faStar} className="text-sm" />
                                                 </button>
+
                                                 <button
                                                     onClick={() => navigate(`/chats?id=${e.id}`)}
-                                                    className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-full transition-all duration-200"
+                                                    className="p-0.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-full transition-all duration-200"
                                                     aria-label="Abrir chat">
-                                                    <FontAwesomeIcon icon={faComment} className="text-xs" />
+                                                    <FontAwesomeIcon icon={faComment} className="text-sm" />
                                                 </button>
                                             </div>
+
                                         </div>
                                     </AnimatedItem>
                                 ))}
@@ -1398,7 +1384,7 @@ const Main: React.FC = () => {
 
                 <main className={`main-content ${isSidebarOpen ? "sidebar-open" : ""} flex-grow overflow-y-auto flex flex-col items-center w-full max-w-6xl mx-auto mt-14 pt-[80px] custom-scrollbar `} >
                     {filtroAtual.name !== 'Tudo' ? (
-                        <section className= "empresas-section w-full px-5 py-3 min-h-screen">
+                        <section className="empresas-section w-full px-5 py-3 min-h-screen">
                             <div className={`categoria-empresas transition-all duration-300 ${isSidebarOpen ? "mt-20" : "mt-4"}`}>
                                 {filtroAtual.empresas.length > 0 ? (
                                     <>
@@ -1677,7 +1663,6 @@ const Main: React.FC = () => {
                                         )}
                                     </>
                                 ) : (
-                                    // Mostrar loader inicial ou mensagem de nenhum resultado
                                     <div className="text-center py-12">
                                         {searchData.loading ? (
                                             <div className="flex flex-col items-center gap-4">
