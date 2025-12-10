@@ -36,10 +36,11 @@ axiosWe.interceptors.response.use(function (config) {
           window.location.href = '/';
         }, 3*1000);
       }
-      else if(msg.includes("Token inválido")){
+      else if(msg.includes("Sessão inválida")){
+        msg = 'Sessão inválida. Faça login novamente.';
         DadosUsuario.clearUsuario();
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/login';
         }, 3*1000);
       }
 

@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo, sendNotification } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload, faClock, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload, faClock, faCheck, faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import {faStar as faStarRegular} from '@fortawesome/free-regular-svg-icons';
 
 import '../css/chat.css';
@@ -440,6 +440,8 @@ export default function Chats() {
     const solicitacoesRecebidas = solicitacoes.filter(sol => sol.tipo === 'recebida' && sol.status === 'pendente');
     const solicitacoesEnviadas = solicitacoes.filter(sol => sol.tipo === 'enviada' && sol.status === 'pendente');
 
+    const [sessaoAtual, setSessaoAtual] = useState('Todas');
+
     if(carregando) return (<Loader />);
 
     return (
@@ -611,6 +613,20 @@ export default function Chats() {
             <aside className="w-80 bg-dark-800 border-r border-gray-800 flex flex-col h-full">
                 <div className="p-4 border-b border-gray-800">
                     <h2 className="text-lg font-semibold">Conversas</h2>
+                    <div className="flex gap-2">
+                        <button className={`mt-2 text-white px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${sessaoAtual==='Todas' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                            onClick={()=>{
+                                setSessaoAtual('Todas');
+                            }}>
+                            Todas
+                        </button>
+                        <button className={`mt-2 text-white px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${sessaoAtual==='Desabilitadas' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                            onClick={()=>{
+                                setSessaoAtual('Desabilitadas');
+                            }}>
+                            Desabilitadas
+                        </button>
+                    </div>
                 </div>
 
                 {/* <!-- Lista das conversas --> */}
@@ -924,6 +940,15 @@ export default function Chats() {
                                                         <FontAwesomeIcon icon={faTrashCan} className='text-gray-400' />
                                                         <span id="apagarTxt">Apagar conversa</span>
                                                     </li>
+                                                    <li id="salvarBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2" aria-label="Salvar conversa"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja salvar a conversa com ${conversa.nome}?`, action: 'save', valor: '', chatId: conversa.id})
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faFloppyDisk} className='text-gray-400' />
+                                                        <span id="apagarTxt">Salvar conversa</span>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         }
@@ -1139,7 +1164,7 @@ export default function Chats() {
 
 
                                     <div className="flex-1 bg-dark-700 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500">
-                                        <textarea id="message-input" autoFocus
+                                        <textarea id="message-input"
                                             className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
                                             placeholder="Digite sua mensagem..." rows={1} maxLength={500} onClick={()=>{setMostrarAttachmentMenu(false);setMostrarMenu(false)}}
                                             ref={textareaRef} value={mensagemEnvio} onChange={(e)=>handleChangeMsg(e)} onKeyDown={(e)=>{
@@ -1204,28 +1229,31 @@ export default function Chats() {
                                 <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                                     <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
                                         <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
-                                        {modalAction.action === 'remove' && (
+                                        {(modalAction.action === 'remove' || modalAction.action === 'save') && (
                                             <div className="space-y-4 mb-6">
                                                 {/* Checkbox para receber email */}
-                                                <div className="flex items-center space-x-3 p-3 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-                                                    <input 
-                                                        id='receberEmail'
-                                                        type="checkbox" 
-                                                        ref={receberEmailRef}
-                                                        checked={receberEmail} 
-                                                        onChange={(e) => setReceberEmail(e.target.checked)}
-                                                        className="w-4 h-4 text-blue-600 bg-dark-600 border-dark-500 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
-                                                    />
-                                                    <label 
-                                                        htmlFor="receberEmail" 
-                                                        className="text-gray-300 cursor-pointer select-none"
-                                                    >
-                                                        Receber uma cópia do chat por email?
-                                                    </label>
-                                                </div>
+                                                {modalAction.action === 'remove' && (
+                                                    <div className="flex items-center space-x-3 p-3 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
+                                                        <input 
+                                                            id='receberEmail'
+                                                            type="checkbox" 
+                                                            ref={receberEmailRef}
+                                                            checked={receberEmail} 
+                                                            onChange={(e) => setReceberEmail(e.target.checked)}
+                                                            className="w-4 h-4 text-blue-600 bg-dark-600 border-dark-500 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                                        />
+                                                        <label 
+                                                            htmlFor="receberEmail" 
+                                                            className="text-gray-300 cursor-pointer select-none"
+                                                        >
+                                                            Receber uma cópia do chat por email?
+                                                        </label>
+                                                    </div>
+                                                )}
+                                                
 
                                                 {/* Input para quantidade de mensagens */}
-                                                {receberEmail && (
+                                                {((modalAction.action === 'remove' && receberEmail) || modalAction.action === 'save') && (
                                                     <div className="p-3 bg-dark-700 rounded-lg space-y-2 animate-fadeIn">
                                                         <label 
                                                             htmlFor="quantidadeReceber" 
@@ -1306,7 +1334,10 @@ export default function Chats() {
                                                             setConversaAtualId('0');
                                                             socket.emit('leaveRoom', chatId);
                                                             break;
-                                                        }                                      
+                                                        }               
+                                                        case 'save':
+                                                            mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
+                                                            break;
                                                         default:
                                                             break;
                                                     }

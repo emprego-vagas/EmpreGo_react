@@ -266,6 +266,14 @@ export async function modalActions(action: string, id: string, valor?: string, r
                 return {success: false};
             }
         }
+        case 'save':
+            try {
+                await axiosWe.post(`/chats/save/${id}`, {quantidade: removeOptions.quantidadeReceber})
+                return {success: true};
+            } catch (erro) {
+                console.error(erro);
+                return {success: false};
+            }
         default:
             break;
     }

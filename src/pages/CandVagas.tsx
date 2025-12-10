@@ -743,14 +743,14 @@ const Main: React.FC = () => {
         const estadosString = filters.estado.join(',');
         const portesString = filters.porte.join(',');
 
-        if (!buscaPesquisa && !setoresString && !estadosString && !portesString) {
+        if (!buscaPesquisa.trim() && !setoresString && !estadosString && !portesString) {
             clearSearchData();
             return;
         }
 
         window.scrollTo(0, 0);
         const queryParts: string[] = [];
-        if (buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
+        if (buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa.trim()}`);
         if (setoresString) queryParts.push(`setor=${setoresString}`);
         if (estadosString) queryParts.push(`estado=${estadosString}`);
         if (portesString) queryParts.push(`porte=${portesString}`);
@@ -1091,7 +1091,13 @@ const Main: React.FC = () => {
                         </Link>
 
                         <div className="relative">
-                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
+                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition cursor-pointer select-none" onClick={() => {
+                                if(isSidebarOpen) setMostrarFavoritos(e => !e);
+                                else {
+                                    setIsSidebarOpen(true);
+                                    setMostrarFavoritos(true);
+                                }
+                            }}>
                                 <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
                                 <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
                                 <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px] text-dark-700' />

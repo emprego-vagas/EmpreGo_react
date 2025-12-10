@@ -13,7 +13,8 @@ import lupa from './../assets/imgs/lupa.png';
 import '../css/filtragem.css';
 import SinoNotificacoes from '../components/SinoNotificacoes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight, faComment, faSliders } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faComment, faSliders, faStar } from '@fortawesome/free-solid-svg-icons';
+import { AnimatedItem } from '../animation/favoritoAnimation';
 
 // interfaces
 interface Slide {
@@ -1090,55 +1091,76 @@ const Main: React.FC = () => {
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                         </Link>
 
-                        <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition cursor-pointer select-none" onClick={() => setMostrarFavoritos(e => !e)}>
-                            <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
-                            <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
-                            <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px]' />
-                        </a>
+                        <div className="relative">
+                            <a className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition cursor-pointer select-none" onClick={() => {
+                                if(isSidebarOpen) setMostrarFavoritos(e => !e);
+                                else {
+                                    setIsSidebarOpen(true);
+                                    setMostrarFavoritos(true);
+                                }
+                            }}>
+                                <i className="bx bx-star text-2xl dark:text-gray-200 text-dark-900"></i>
+                                <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Favoritos</span>
+                                <FontAwesomeIcon icon={(mostrarFavoritos ? faChevronDown : faChevronRight)} className='ml-auto w-[10px] h-[10px] text-dark-700' />
+                            </a>
+
+                            {!isSidebarOpen && candidatosFavoritadas && candidatosFavoritadas.length > 0 && (
+                                <div className="absolute left-1.5 top-full mt-2 flex flex-col gap-2 z-40">
+                                    {candidatosFavoritadas.slice(0, 6).map((fav) => (
+                                        <button
+                                            key={fav.id}
+                                            onClick={() => navigate(`/chats?id=${fav.id}`)}
+                                            title={fav.nome}
+                                            className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
+                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome} className="w-full h-full object-cover"/>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         {(mostrarFavoritos && isSidebarOpen) && (
-                            <div className="max-h-72 overflow-y-auto px-1 mb-2 scrollbar ">
-                                {candidatosFavoritadas.map(e => (
-                                    <div
-                                        key={e.id}
-                                        className="flex items-center gap-2 p-1 mb-1 bg-light-100 dark:bg-dark-600 rounded-[13px] transition-colors duration-150 border border-gray-200"
-                                    >
-                                        {/* Avatar da empresa */}
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
-                                                alt={e.nome}
-                                                className="w-7 h-7 rounded-full object-cover border border-gray-300"
-                                            />
-                                        </div>
+                            <div className="max-h-72 overflow-y-auto px-1 mb-2 custom-scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                {candidatosFavoritadas.map((e, i) => (
+                                    <AnimatedItem key={e.id} index={i} delay={i * 0.03}>
+                                        <div
+                                            className="flex items-center gap-2 p-1.5 mb-1.5 bg-white/80 dark:bg-dark-600/90 backdrop-blur-sm rounded-xl transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-primary-300/50 hover:shadow-xs hover:shadow-primary-100/50 dark:hover:border-primary-500/30">
+                                            <div className="flex-shrink-0">
+                                                <div className="relative">
+                                                    <img
+                                                        src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
+                                                        alt={e.nome}
+                                                        className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm" />
+                                                    {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
+                                                </div>
+                                            </div>
 
-                                        {/* Informações da empresa */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-dark-600 dark:text-light-100 text-xs truncate">
-                                                {e.nome}
-                                            </p>
-                                            <p className="text-xs text-gray-500 truncate">
-                                                {e.tag}
-                                            </p>
-                                        </div>
+                                            <div className="flex-1 min-w-[80px]">
+                                                <p className="font-semibold text-dark-700 dark:text-light-100 text-xs truncate tracking-tight">
+                                                    {e.nome}
+                                                </p>
+                                                <p className="text-xs text-dark-500 dark:text-dark-200 truncate mt-0.5">
+                                                    {e.tag}
+                                                </p>
+                                            </div>
 
-                                        {/* Ícones de ação */}
-                                        <div className="flex items-center gap-2 ml-auto">
-                                            <button
-                                                onClick={() => handleAlterarStatusFavorito(true, e)}
-                                                className="text-yellow-500 hover:text-yellow-600 transition-colors"
-                                                aria-label="Desfavoritar"
-                                            >
-                                                <i className='bx bxs-star text-lg' />
-                                            </button>
-                                            <button
-                                                onClick={() => navigate(`/chats?id=${e.id}`)}
-                                                className="text-gray-400 hover:text-primary-500 transition-colors "
-                                                aria-label="Abrir chat"
-                                            >
-                                                <FontAwesomeIcon icon={faComment} className="text-base" />
-                                            </button>
+                                            <div className="flex items-center gap-0.5 ml-auto">
+                                                <button
+                                                    onClick={() => handleAlterarStatusFavorito(true, e)}
+                                                    className="p-0.5 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-full transition-all duration-200"
+                                                    aria-label="Desfavoritar">
+                                                    <FontAwesomeIcon icon={faStar} className="text-sm" />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => navigate(`/chats?id=${e.id}`)}
+                                                    className="p-0.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-full transition-all duration-200"
+                                                    aria-label="Abrir chat">
+                                                    <FontAwesomeIcon icon={faComment} className="text-sm" />
+                                                </button>
+                                            </div>
+
                                         </div>
-                                    </div>
+                                    </AnimatedItem>
                                 ))}
                             </div>
                         )}
