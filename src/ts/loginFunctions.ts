@@ -277,7 +277,7 @@ export async function validarCep(cep: string): Promise<CepValidationtResponse>{
 
     try {
         console.log(cepLimpo)
-        const response = await axios.get(`/viacep/ws/${cepLimpo}/json/`);
+        const response = await axiosWe(`/custom/viacep/${cepLimpo}`);
         const data = response.data;
 
         if(data.erro==='true') throw new Error("Erro")
