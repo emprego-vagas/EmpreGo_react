@@ -140,69 +140,77 @@ export default function Chats() {
 
         function receivedNotification(notif: NotificationEG){
             console.log(notif)
-            if(notif.tipo!=='Solicitação de Conversa' || !notif.object) return;
+            if(!notif.object) return;
             const object = notif.object;
-            if(object.action==='criar'){
-                const {id, user_id, user_name, user_image} = object as {
-                    id: string;
-                    user_id: string;
-                    user_name: string;
-                    user_image: string;
+            if(notif.tipo==='Solicitação de Conversa'){
+                if(object.action==='criar'){
+                    const {id, user_id, user_name, user_image} = object as {
+                        id: string;
+                        user_id: string;
+                        user_name: string;
+                        user_image: string;
+                    };
+                    if(!id) return;
+                    setSolicitacoes(prev=> [
+                        {
+                            id: id,
+                            usuario_id: user_id,
+                            usuario_nome: user_name,
+                            usuario_foto: user_image,
+                            tipo: 'recebida',
+                            status: 'pendente'
+                        },
+                        ...prev
+                    ])
+                }
+                if(object.action==='recusar'||object.action==='cancelar'){
+                    const { id } = object as { id: string };
+                    setSolicitacoes(prev => prev.filter(sol => 
+                        sol.id !== id
+                    ));
+                }
+                if(object.action==='aceitar'){
+                    const {id, user_id, user_name, user_image, newChatId} = object as {
+                        id: string;
+                        user_id: string;
+                        user_name: string;
+                        user_image: string;
+                        newChatId: string;
+                    };
+                    setSolicitacoes(prev => prev.filter(sol => 
+                        sol.id !== id
+                    ));
+                    const novaConversa = {
+                        id: newChatId,
+                        bloqueadoStatus: false,
+                        bloqueador: null,
+                        remetente: user_id,
+                        statusRemetente: 'Offline',
+                        nome: user_name,
+                        ultimaMensagem: '',
+                        hora: '',
+                        naoLidas: 0,
+                        avatar: user_image,
+                        favoritada: false,
+                        mensagens: [],
+                        contadorMensagens: 0
+                    };
+                    setTimeout(()=>{
+                        setDadosConversas(prev=>[novaConversa, ...prev]);
+                        socket.emit('joinChat', newChatId, callback=>{
+                            if(callback.status==='error') {
+                                mostrarErroTopo(callback.message);
+                            }
+                        });
+                    }, 500)
+                }
+            } else if(notif.tipo==='Conversa'){
+                if(object.action==='deletar'){
+                    if(conversaAtualIdRef.current===object.id) setConversaAtualId('0');
+                    setDadosConversas(prev=>prev.filter(c=>c.id!==object.id));
                 };
-                if(!id) return;
-                setSolicitacoes(prev=> [
-                    {
-                        id: id,
-                        usuario_id: user_id,
-                        usuario_nome: user_name,
-                        usuario_foto: user_image,
-                        tipo: 'recebida',
-                        status: 'pendente'
-                    },
-                    ...prev
-                ])
             }
-            if(object.action==='recusar'||object.action==='cancelar'){
-                const { id } = object as { id: string };
-                setSolicitacoes(prev => prev.filter(sol => 
-                    sol.id !== id
-                ));
-            }
-            if(object.action==='aceitar'){
-                const {id, user_id, user_name, user_image, newChatId} = object as {
-                    id: string;
-                    user_id: string;
-                    user_name: string;
-                    user_image: string;
-                    newChatId: string;
-                };
-                setSolicitacoes(prev => prev.filter(sol => 
-                    sol.id !== id
-                ));
-                const novaConversa = {
-                    id: newChatId,
-                    bloqueadoStatus: false,
-                    bloqueador: null,
-                    remetente: user_id,
-                    statusRemetente: 'Offline',
-                    nome: user_name,
-                    ultimaMensagem: '',
-                    hora: '',
-                    naoLidas: 0,
-                    avatar: user_image,
-                    favoritada: false,
-                    mensagens: [],
-                    contadorMensagens: 0
-                };
-                setTimeout(()=>{
-                    setDadosConversas(prev=>[novaConversa, ...prev]);
-                    socket.emit('joinChat', newChatId, callback=>{
-                        if(callback.status==='error') {
-                            mostrarErroTopo(callback.message);
-                        }
-                    });
-                }, 500)
-            }
+            
         }
 
         socket.on('receivedMessage', receivedMessage);
@@ -1613,14 +1621,22 @@ export default function Chats() {
                                                 break;
                                             }
                                             case 'remove': {
+                                                const chatToRemove = dadosConversas.find(c=>c.id===chatId);
                                                 if(receberEmail) mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
-                                                if(dadosConversas.find(c=>c.id===chatId)?.favoritada) setContadorFavoritos(e=>e-1);
+                                                if(chatToRemove?.favoritada) setContadorFavoritos(e=>e-1);
                                                 setDadosConversas(prev=> {
                                                     return prev.filter((con)=>
                                                         con.id !== chatId 
                                                     )
                                                 });
                                                 setConversaAtualId('0');
+                                                const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato';
+                                                sendNotification({id: chatToRemove.remetente, type: recipientType}, {
+                                                    conversa: {
+                                                        action: 'deletar',
+                                                        id: chatId
+                                                    }
+                                                });
                                                 socket.emit('leaveRoom', chatId);
                                                 break;
                                             }               
