@@ -11,7 +11,7 @@ import PDFpng from '../assets/imgs/PDF.png';
 import DOCXICONROXO from '../assets/imgs/DOCXICONROXO.png'
 import TXTAZUL from '../assets/imgs/TXTAZUL.png'
 import { carregarConversasBack, conversaConstructor, enviarMensagem, enviarSolicitacaoConversa, modalActions, validarSeEhArquivo } from '../ts/chatsFunctions';
-import type { NovaSolicitacaoConversa, SolicitacaoConversa } from '../ts/chatsFunctions';
+import { conversaDesabilitadaConstructor, type ConversaDesabilitada, type NovaSolicitacaoConversa, type SolicitacaoConversa } from '../ts/chatsFunctions';
 import axiosWe from '../utils/axiosInstance';
 import socket from '../utils/socketsConnection';
 import Loader from '../components/Loader';
@@ -243,32 +243,6 @@ export default function Chats() {
         conversaAtualIdRef.current = conversaAtualId;
     }, [conversaAtualId]);
 
-    useEffect(() => {
-        if (conversaAtualId !== '0' && messagesContainerRef.current) {
-            textareaRef.current.focus();
-            const container = messagesContainerRef.current;
-            container.scrollTop = container.scrollHeight;
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 50);
-            setDadosConversas(prev => {
-                const conversaExiste = prev.some(c => c.id === conversaAtualId);
-                if (!conversaExiste) return prev;
-
-                return prev.map(conversa => {
-                    if(conversa.id === conversaAtualId) {
-                        if(conversa.naoLidas>0) axiosWe.patch(`/mensagens/vizualizar/${conversaAtualId}`).catch(console.error);
-                        return {...conversa, naoLidas: 0 };
-                    } else {
-                        return conversa;
-                    }
-                });
-            });
-            setMostrarMenu(false)
-            setMostrarAttachmentMenu(false);
-        }
-    }, [conversaAtualId]);
-
     const handleFileInput = (e: ChangeEvent<HTMLInputElement>, tipo: string): void=>{
         setMostrarAttachmentMenu(false);
         const target = e.target;
@@ -441,6 +415,44 @@ export default function Chats() {
     const solicitacoesEnviadas = solicitacoes.filter(sol => sol.tipo === 'enviada' && sol.status === 'pendente');
 
     const [sessaoAtual, setSessaoAtual] = useState('Todas');
+
+    const [desabilitadasData, setDesabilitadasData] = useState<{
+        loading: boolean;
+        searched: boolean;
+        chats: ConversaDesabilitada[]
+    }>({loading: false, searched: false, chats: []});
+
+    useEffect(() => {
+        if (conversaAtualId !== '0' && messagesContainerRef.current) {
+            
+            if(sessaoAtual==='Todas'){
+                textareaRef.current.focus();
+                
+                const container = messagesContainerRef.current;
+                container.scrollTop = container.scrollHeight;
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 50);
+                
+                setDadosConversas(prev => {
+                    const conversaExiste = prev.some(c => c.id === conversaAtualId);
+                    if (!conversaExiste) return prev;
+
+                    return prev.map(conversa => {
+                        if(conversa.id === conversaAtualId) {
+                            if(conversa.naoLidas>0) axiosWe.patch(`/mensagens/vizualizar/${conversaAtualId}`).catch(console.error);
+                            return {...conversa, naoLidas: 0 };
+                        } else {
+                            return conversa;
+                        }
+                    });
+                });
+            }
+            
+            setMostrarMenu(false)
+            setMostrarAttachmentMenu(false);
+        }
+    }, [conversaAtualId, sessaoAtual]);
 
     if(carregando) return (<Loader />);
 
@@ -617,96 +629,72 @@ export default function Chats() {
                         <button className={`mt-2 text-white px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${sessaoAtual==='Todas' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
                             onClick={()=>{
                                 setSessaoAtual('Todas');
+                                setConversaAtualId('0');
                             }}>
                             Todas
                         </button>
                         <button className={`mt-2 text-white px-2 py-1 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${sessaoAtual==='Desabilitadas' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
-                            onClick={()=>{
+                            onClick={async()=>{
                                 setSessaoAtual('Desabilitadas');
+                                setConversaAtualId('0');
+                                if(!desabilitadasData.searched){
+                                    setDesabilitadasData(prev=>({...prev, loading: true}));
+                                    try {
+                                        const response = await axiosWe(`/chats/${usuario.tipo}/disabled`);
+                                        const chats = response.data;
+                                        setDesabilitadasData({loading: false, searched: true, chats: chats.map(chat=>
+                                            conversaDesabilitadaConstructor(usuario.tipo, chat)
+                                        )})
+                                    } catch (erro) {
+                                        console.error("Erro ao carregar conversas desabilitadas:",erro);
+                                        setDesabilitadasData({loading: false, searched: true, chats: []});
+                                    }
+                                }
                             }}>
                             Desabilitadas
                         </button>
                     </div>
                 </div>
-
+                
                 {/* <!-- Lista das conversas --> */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
-                    {contadorFavoritos>0 && <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Favoritadas: {contadorFavoritos}</div>}
-                    {dadosConversas.filter(con=>con.favoritada).length>0 && dadosConversas.filter(con=>con.favoritada).map(conversa=>(
-                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
+                {sessaoAtual==='Todas'? (
+                    <div className="flex-1 overflow-y-auto custom-scrollbar" id="conversations-list">
+                        {contadorFavoritos>0 && <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Favoritadas: {contadorFavoritos}</div>}
+                        {dadosConversas.filter(con=>con.favoritada).length>0 && dadosConversas.filter(con=>con.favoritada).map(conversa=>(
+                            <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
 
-                            <div className="flex items-center w-full">
-                                <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img
-                                        src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                    {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
-                                </div>
-                                <div className="ml-3 flex-1 min-w-0">
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="font-semibold truncate">{conversa.nome}</h3>
-                                        <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
+                                <div className="flex items-center w-full">
+                                    <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
+                                        <img
+                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                        {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
                                     </div>
-                                    {(() => {
-                                        const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
+                                    <div className="ml-3 flex-1 min-w-0">
+                                        <div className="flex justify-between items-baseline">
+                                            <h3 className="font-semibold truncate">{conversa.nome}</h3>
+                                            <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
+                                        </div>
+                                        {(() => {
+                                            const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
 
-                                        if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
+                                            if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
 
-                                        if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
+                                            if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
 
-                                        return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
-                                    })()}
-                                </div>
-                                {conversa.naoLidas > 0 && (
-                                    <div className="ml-2 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        {conversa.naoLidas}
+                                            return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
+                                        })()}
                                     </div>
-                                )}
-                                <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
-                                    data-id={conversa.id} onClick={async()=>{
-                                        console.log("Favoritar clicado");
-                                        if(conversa.favoritada){
-                                            setDadosConversas(prev=>{
-                                                return prev.map(con=>
-                                                    con.id === conversa.id ?
-                                                    {...con, favoritada: false} 
-                                                    : con
-                                                )
-                                            })
-                                            const valorAtual = contadorFavoritos;
-                                            setContadorFavoritos(valorAtual - 1);
-                                            try {
-                                                await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
-                                            } catch (erro) {
-                                                console.error(erro);
-                                                setDadosConversas(prev=>{
-                                                    return prev.map(con=>
-                                                        con.id === conversa.id ?
-                                                        {...con, favoritada: true} 
-                                                        : con
-                                                    )
-                                                })
-                                                setContadorFavoritos(valorAtual);
-                                            }
-                                        } else {
-                                            if (contadorFavoritos >= 3) {
-                                                mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
-                                                return;
-                                            }
-                                            setDadosConversas(prev=>{
-                                                return prev.map(con=>
-                                                    con.id === conversa.id ?
-                                                    {...con, favoritada: true} 
-                                                    : con
-                                                )
-                                            })
-                                            const valorAtual = contadorFavoritos;
-                                            setContadorFavoritos(valorAtual + 1);
-                                            try {
-                                                await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
-                                            } catch (erro) {
-                                                console.error(erro);
+                                    {conversa.naoLidas > 0 && (
+                                        <div className="ml-2 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {conversa.naoLidas}
+                                        </div>
+                                    )}
+                                    <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
+                                        data-id={conversa.id} onClick={async()=>{
+                                            console.log("Favoritar clicado");
+                                            if(conversa.favoritada){
                                                 setDadosConversas(prev=>{
                                                     return prev.map(con=>
                                                         con.id === conversa.id ?
@@ -714,65 +702,26 @@ export default function Chats() {
                                                         : con
                                                     )
                                                 })
-                                                setContadorFavoritos(valorAtual);
-                                            }
-                                        }
-                                    }}>
-                                    <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
-                                </button>
-                            </div>
-
-                        </div>
-                    ))}
-                    {/* <!-- As conversas serão inseridas aqui via JavaScript (O código todo está lá) --> */}
-                    <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Conversas</div>
-                    {dadosConversas.filter(con=>!con.favoritada).length>0 && dadosConversas.filter(con=>!con.favoritada).map(conversa=>(
-                        <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
-
-                            <div className="flex items-center w-full">
-                                <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
-                                    <img
-                                        src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                    {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
-                                </div>
-                                <div className="ml-3 flex-1 min-w-0">
-                                    <div className="flex justify-between items-baseline">
-                                        <h3 className="font-semibold truncate">{conversa.nome}</h3>
-                                        <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
-                                    </div>
-                                    {(() => {
-                                        const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
-
-                                        if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
-
-                                        if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
-
-                                        return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
-                                    })()}
-                                </div>
-                                {conversa.naoLidas > 0 && (
-                                    <div className="ml-2 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        {conversa.naoLidas}
-                                    </div>
-                                )}
-                                <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
-                                    data-id={conversa.id} onClick={async()=>{
-                                        if(conversa.favoritada){
-                                            setDadosConversas(prev=>{
-                                                return prev.map(con=>
-                                                    con.id === conversa.id ?
-                                                    {...con, favoritada: false} 
-                                                    : con
-                                                )
-                                            })
-                                            const valorAtual = contadorFavoritos;
-                                            setContadorFavoritos(valorAtual - 1);
-                                            try {
-                                                await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
-                                            } catch (erro) {
-                                                console.error(erro);
+                                                const valorAtual = contadorFavoritos;
+                                                setContadorFavoritos(valorAtual - 1);
+                                                try {
+                                                    await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                                } catch (erro) {
+                                                    console.error(erro);
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, favoritada: true} 
+                                                            : con
+                                                        )
+                                                    })
+                                                    setContadorFavoritos(valorAtual);
+                                                }
+                                            } else {
+                                                if (contadorFavoritos >= 3) {
+                                                    mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
+                                                    return;
+                                                }
                                                 setDadosConversas(prev=>{
                                                     return prev.map(con=>
                                                         con.id === conversa.id ?
@@ -780,44 +729,174 @@ export default function Chats() {
                                                         : con
                                                     )
                                                 })
-                                                setContadorFavoritos(valorAtual);
+                                                const valorAtual = contadorFavoritos;
+                                                setContadorFavoritos(valorAtual + 1);
+                                                try {
+                                                    await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                                } catch (erro) {
+                                                    console.error(erro);
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, favoritada: false} 
+                                                            : con
+                                                        )
+                                                    })
+                                                    setContadorFavoritos(valorAtual);
+                                                }
                                             }
-                                        } else {
-                                            if (contadorFavoritos >= 3) {
-                                                mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
-                                                return;
-                                            }
-                                            setDadosConversas(prev=>{
-                                                return prev.map(con=>
-                                                    con.id === conversa.id ?
-                                                    {...con, favoritada: true} 
-                                                    : con
-                                                )
-                                            })
-                                            const valorAtual = contadorFavoritos;
-                                            setContadorFavoritos(valorAtual + 1);
-                                            try {
-                                                await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
-                                            } catch (erro) {
-                                                console.error(erro);
+                                        }}>
+                                        <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
+                                    </button>
+                                </div>
+
+                            </div>
+                        ))}
+                        {/* <!-- As conversas serão inseridas aqui via JavaScript (O código todo está lá) --> */}
+                        <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Conversas</div>
+                        {dadosConversas.filter(con=>!con.favoritada).length>0 && dadosConversas.filter(con=>!con.favoritada).map(conversa=>(
+                            <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
+
+                                <div className="flex items-center w-full">
+                                    <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
+                                        <img
+                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                        {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
+                                    </div>
+                                    <div className="ml-3 flex-1 min-w-0">
+                                        <div className="flex justify-between items-baseline">
+                                            <h3 className="font-semibold truncate">{conversa.nome}</h3>
+                                            <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
+                                        </div>
+                                        {(() => {
+                                            const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
+
+                                            if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
+
+                                            if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
+
+                                            return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
+                                        })()}
+                                    </div>
+                                    {conversa.naoLidas > 0 && (
+                                        <div className="ml-2 bg-primary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {conversa.naoLidas}
+                                        </div>
+                                    )}
+                                    <button className={`ml-2 botao-favorito p-1 rounded-full cursor-pointer ${conversa.favoritada ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-300'}`} 
+                                        data-id={conversa.id} onClick={async()=>{
+                                            if(conversa.favoritada){
                                                 setDadosConversas(prev=>{
                                                     return prev.map(con=>
                                                         con.id === conversa.id ?
                                                         {...con, favoritada: false} 
                                                         : con
                                                     )
-                                                });
-                                                setContadorFavoritos(valorAtual);
+                                                })
+                                                const valorAtual = contadorFavoritos;
+                                                setContadorFavoritos(valorAtual - 1);
+                                                try {
+                                                    await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                                } catch (erro) {
+                                                    console.error(erro);
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, favoritada: true} 
+                                                            : con
+                                                        )
+                                                    })
+                                                    setContadorFavoritos(valorAtual);
+                                                }
+                                            } else {
+                                                if (contadorFavoritos >= 3) {
+                                                    mostrarErroTopo('Você só pode favoritar no máximo 3 conversas.');
+                                                    return;
+                                                }
+                                                setDadosConversas(prev=>{
+                                                    return prev.map(con=>
+                                                        con.id === conversa.id ?
+                                                        {...con, favoritada: true} 
+                                                        : con
+                                                    )
+                                                })
+                                                const valorAtual = contadorFavoritos;
+                                                setContadorFavoritos(valorAtual + 1);
+                                                try {
+                                                    await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                                } catch (erro) {
+                                                    console.error(erro);
+                                                    setDadosConversas(prev=>{
+                                                        return prev.map(con=>
+                                                            con.id === conversa.id ?
+                                                            {...con, favoritada: false} 
+                                                            : con
+                                                        )
+                                                    });
+                                                    setContadorFavoritos(valorAtual);
+                                                }
                                             }
-                                        }
-                                    }}>
-                                    <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
-                                </button>
-                            </div>
+                                        }}>
+                                        <FontAwesomeIcon icon={conversa.favoritada?faStar : faStarRegular} />
+                                    </button>
+                                </div>
 
+                            </div>
+                        ))}
+                    </div>
+                ):(
+                    <>
+                    {desabilitadasData.loading ? (
+                        <div className="carregando-empresas flex justify-center items-center py-12">
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-twitch-purple"></div>
+                                <p className="text-gray-400">Carregando Conversas Desabilitadas...</p>
+                            </div>
                         </div>
-                    ))}
-                </div>
+                    ):(
+                        <>
+                        {desabilitadasData.chats.length>0 ? desabilitadasData.chats.map(conversa=>(
+                            <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
+
+                                <div className="flex items-center w-full">
+                                    <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
+                                        <img
+                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    </div>
+                                    <div className="ml-3 flex-1 min-w-0">
+                                        <div className="flex justify-between items-baseline">
+                                            <h3 className="font-semibold truncate">{conversa.nome}</h3>
+                                            <span className="text-xs text-gray-400 ml-2">{conversa.hora}</span>
+                                        </div>
+                                        {(() => {
+                                            const arquivo = validarSeEhArquivo(conversa.ultimaMensagem);
+
+                                            if (!arquivo.eh) return <p className="text-sm text-gray-400 truncate">{conversa.ultimaMensagem}</p>;
+
+                                            if (arquivo.tipo === 'raw') return <p className="text-sm text-gray-400 truncate">{arquivo.nomeExib}</p>;
+
+                                            return <p className="text-sm text-gray-400 truncate">Foto📷</p>;
+                                        })()}
+                                    </div>
+                                </div>
+
+                            </div>
+                        )):(
+                            <div className="flex flex-col items-center gap-4 mt-2">
+                                <i className="bx bx-search text-4xl text-gray-400"></i>
+                                <p className="text-gray-500 text-center">Você não possui nenhuma conversa desabilitada.</p>
+                            </div>
+                        )}
+                        </>
+                    )}
+                    
+                    </>
+                )}
+                
 
             </aside>
         
@@ -859,7 +938,7 @@ export default function Chats() {
                 
 
                 {/* <!-- estrutura do header da conversa (1 pra 1)--> */}
-                {(conversaAtualId!=='0') && (()=>{
+                {(conversaAtualId!=='0' && sessaoAtual==='Todas') && (()=>{
                     const conversa = dadosConversas.find(con=>con.id===conversaAtualId);
                     return (
                         <>

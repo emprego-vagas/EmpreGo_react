@@ -25,6 +25,19 @@ export interface Conversa {
     contadorMensagens: number;
 }
 
+export interface ConversaDesabilitada {
+    id: string;
+    desabilitador_tipo: string;
+    data_desabilitacao: Date;
+    remetente: string;
+    nome: string;
+    ultimaMensagem: string;
+    hora: string;
+    avatar: string | null;
+    mensagens: Mensagem[];
+    contadorMensagens: number;
+}
+
 export interface MessageSocket {
     author: string;
     message: string;
@@ -184,6 +197,38 @@ export function conversaConstructor(usuarioTipo: string, chat) {
                     return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
                 })(),
                 datetime: new Date(msg.data_criacao),
+                id: msg.id
+            }
+        }),
+        contadorMensagens: chat.mensagens.length
+    }
+}
+
+export function conversaDesabilitadaConstructor(usuarioTipo: string, chat): ConversaDesabilitada{
+    return {
+        id: chat.id,
+        desabilitador_tipo: chat.desabilitador_tipo,
+        data_desabilitacao: new Date(chat.data_desabilitacao),
+        remetente: usuarioTipo === 'candidato' ? chat.empresas.id : chat.candidatos.id,
+        nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
+        ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
+        hora: (() => {
+            const msg = chat.mensagens.toReversed()[0]?.data_criacao
+            if(!msg) return '';
+            const horario = new Date(msg);
+            const txtData = hojeOntem(horario);
+            return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
+        })(),
+        avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
+        mensagens: chat.mensagens.map(msg=>{
+            return {
+                texto: msg.mensagem,
+                remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
+                hora: (()=>{
+                    const horario = new Date(msg.data_criacao);
+                    const txtData = hojeOntem(horario);
+                    return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
+                })(),
                 id: msg.id
             }
         }),
