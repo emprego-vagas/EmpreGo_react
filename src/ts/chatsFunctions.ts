@@ -299,11 +299,9 @@ export async function modalActions(action: string, id: string, valor?: string, r
         }
         case 'remove': {
             try {
-                await axiosWe.delete(`/chats/${id}`, {
-                    data: {
-                        receberMensagens: removeOptions.receberEmail,
-                        quantidadeReceber: removeOptions.quantidadeReceber
-                    }
+                await axiosWe.patch(`/chats/disable/${id}`, {
+                    receberMensagens: removeOptions.receberEmail,
+                    quantidadeReceber: removeOptions.quantidadeReceber
                 });
                 return {success: true};
             } catch (erro) {
@@ -314,6 +312,14 @@ export async function modalActions(action: string, id: string, valor?: string, r
         case 'save':
             try {
                 await axiosWe.post(`/chats/save/${id}`, {quantidade: removeOptions.quantidadeReceber})
+                return {success: true};
+            } catch (erro) {
+                console.error(erro);
+                return {success: false};
+            }
+        case 'delete':
+            try {
+                await axiosWe.delete(`/chats/${id}`);
                 return {success: true};
             } catch (erro) {
                 console.error(erro);

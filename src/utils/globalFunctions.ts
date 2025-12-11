@@ -172,8 +172,9 @@ type NotificationContent =
         };
     }
     | {
-        favoritado: {
+        conversa: {
             action: string;
+            id: string;
         };
     };
 

@@ -857,6 +857,7 @@ export default function Chats() {
                         </div>
                     ):(
                         <>
+                        <div className="px-4 py-2 text-xs text-gray-500 uppercase font-semibold">Desabilitadas</div>
                         {desabilitadasData.chats.length>0 ? desabilitadasData.chats.map(conversa=>(
                             <div className={`flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors mb-1 rounded-lg ${conversaAtualId===conversa.id?'bg-gray-700':''}`} key={conversa.id} onClick={()=>{setConversaAtualId(conversa.id)}}>
 
@@ -1304,131 +1305,348 @@ export default function Chats() {
                                 </div>
                             </div>
 
-                            {modalAction.status && (
-                                <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                                    <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
-                                        <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
-                                        {(modalAction.action === 'remove' || modalAction.action === 'save') && (
-                                            <div className="space-y-4 mb-6">
-                                                {/* Checkbox para receber email */}
-                                                {modalAction.action === 'remove' && (
-                                                    <div className="flex items-center space-x-3 p-3 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
-                                                        <input 
-                                                            id='receberEmail'
-                                                            type="checkbox" 
-                                                            ref={receberEmailRef}
-                                                            checked={receberEmail} 
-                                                            onChange={(e) => setReceberEmail(e.target.checked)}
-                                                            className="w-4 h-4 text-blue-600 bg-dark-600 border-dark-500 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
-                                                        />
-                                                        <label 
-                                                            htmlFor="receberEmail" 
-                                                            className="text-gray-300 cursor-pointer select-none"
-                                                        >
-                                                            Receber uma cópia do chat por email?
-                                                        </label>
-                                                    </div>
-                                                )}
-                                                
-
-                                                {/* Input para quantidade de mensagens */}
-                                                {((modalAction.action === 'remove' && receberEmail) || modalAction.action === 'save') && (
-                                                    <div className="p-3 bg-dark-700 rounded-lg space-y-2 animate-fadeIn">
-                                                        <label 
-                                                            htmlFor="quantidadeReceber" 
-                                                            className="block text-sm font-medium text-gray-300"
-                                                        >
-                                                            Quantidade máxima de mensagens para receber
-                                                        </label>
-                                                        <input 
-                                                            id='quantidadeReceber'
-                                                            type="number" 
-                                                            value={quantidadeReceber} 
-                                                            onChange={(e) => {
-                                                                const val = e.target.valueAsNumber;
-
-                                                                if (val < 1) return setQuantidadeReceber(1);
-                                                                if (val > 1000) return setQuantidadeReceber(1000);
-
-                                                                setQuantidadeReceber(val);
-                                                            }}
-                                                            min={1}
-                                                            max={1000}
-                                                            className="w-full px-3 py-2 bg-dark-600 border border-dark-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                            placeholder="Ex: 50"
-                                                        />
-                                                        <p className="text-xs text-gray-400">
-                                                            Digite quantas mensagens você deseja receber por email
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                        <div className="flex justify-center space-x-3">
-                                            <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>{
-                                                setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''});
-                                                setQuantidadeReceber(100);
-                                                setReceberEmail(true);
-                                            }}>Cancelar</button>
-                                            <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={async()=>{
-                                                const {action, valor, chatId} = modalAction;
-                                                setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})
-                                                const actionRes = await modalActions(action, chatId, valor, {receberEmail, quantidadeReceber});
-                                                if(actionRes.success) {
-                                                    switch (action) {
-                                                        case 'block': {
-                                                            setDadosConversas(prev=> {
-                                                                return prev.map((con)=>
-                                                                    con.id === chatId ?
-                                                                    {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador, statusRemetente: valor==='true'?'Offline':con.statusRemetente}
-                                                                    : con
-                                                                )
-                                                            });
-                                                            if(valor==='true') socket.emit('leaveRoom', chatId);
-                                                            else socket.emit('joinChat', chatId, callback=>{
-                                                                if(callback.status==='error') {
-                                                                    mostrarErroTopo(callback.message);
-                                                                }
-                                                            });
-                                                            break;
-                                                        }
-                                                        case 'clean': {
-                                                            setDadosConversas(prev=> {
-                                                                return prev.map((con)=>
-                                                                    con.id === chatId ?
-                                                                    {...con, mensagens: [], ultimaMensagem: '', hora: ''}
-                                                                    : con
-                                                                )
-                                                            });
-                                                            break;
-                                                        }
-                                                        case 'remove': {
-                                                            if(receberEmail) mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
-                                                            if(conversa.favoritada) setContadorFavoritos(e=>e-1);
-                                                            setDadosConversas(prev=> {
-                                                                return prev.filter((con)=>
-                                                                    con.id !== chatId 
-                                                                )
-                                                            });
-                                                            setConversaAtualId('0');
-                                                            socket.emit('leaveRoom', chatId);
-                                                            break;
-                                                        }               
-                                                        case 'save':
-                                                            mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
-                                                }
-                                            }}>Confirmar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                            
                         </>
                     )}
                 )()}
+
+                {(conversaAtualId!=='0' && sessaoAtual==='Desabilitadas') && (()=>{
+                    const conversa = desabilitadasData.chats.find(con=>con.id===conversaAtualId);
+                    return (
+                        <>
+                            <header className="bg-dark-800 px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <div
+                                        className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
+                                        <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
+                                            className="w-full h-full object-cover rounded-full"/>
+                                    </div>
+                                    <div>
+                                        <h2 className="font-semibold" id="current-chat-name">{conversa.nome}</h2>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    
+                                    <button className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
+                                        aria-label="Deletar completamente a conversa" onClick={()=>setModalAction({status: true, mensagem: `Tem certeza que deseja deletar completamente a conversa com ${conversa.nome}?`, action: 'delete', valor: '', chatId: conversa.id})}>
+                                        <FontAwesomeIcon icon={faTrashCan} />
+                                    </button>
+                                    <button id="search-toggle" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
+                                        aria-label="Pesquisar na conversa">
+                                        <FontAwesomeIcon icon={faSearch} />
+                                    </button>
+                                    
+
+                                    <div className="relative">
+                                        <button id="menu-toggle" className="p-2 rounded-full hover:bg-gray-700 w-12 h-12 transition-colors cursor-pointer"
+                                            aria-label="Menu" onClick={()=>{setMostrarMenu((p)=>!p)}}>
+                                            <FontAwesomeIcon icon={faEllipsisVertical} />
+                                        </button>
+                                        {/* <!-- Dropdown Menu --> */}
+                                        {mostrarMenu && 
+                                            <div id="menu-dropdown"
+                                                className="absolute right-0 mt-2 w-64 bg-dark-800 shadow-lg rounded-lg overflow-hidden border border-gray-700 z-50">
+                                                <ul className="py-2 text-sm text-gray-200">
+                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                        <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
+                                                        <span>Dados do contato</span>
+                                                    </li>
+                                                    <li id="fecharBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setConversaAtualId('0');
+                                                        }} >
+                                                        <FontAwesomeIcon icon={faXmark} className='text-gray-400'/>
+                                                        <span>Fechar conversa</span>
+                                                    </li>
+
+                                                    <hr className="border-gray-700 my-2"/>
+
+                                                    <li id="apagarBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja deletar completamente a conversa com ${conversa.nome}?`, action: 'delete', valor: '', chatId: conversa.id});
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faTrashCan} className='text-gray-400' />
+                                                        <span id="apagarTxt">Deletar conversa</span>
+                                                    </li>
+                                                    <li id="salvarBtn"
+                                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2" aria-label="Salvar conversa"
+                                                        onClick={()=>{
+                                                            setMostrarMenu(false);
+                                                            setModalAction({status: true, mensagem: `Tem certeza que deseja salvar a conversa com ${conversa.nome}?`, action: 'save', valor: '', chatId: conversa.id})
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faFloppyDisk} className='text-gray-400' />
+                                                        <span id="apagarTxt">Salvar conversa</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                            </header>
+
+                            {/* <!-- Barra de pesquisa (inicialmente oculta, (melhorar o estilo!!!!)) --> */}
+                            <div id="search-bar" className="bg-dark-800 p-3 border-b border-gray-800 hidden">
+                                <div className="flex items-center">
+                                    <input type="text" id="search-input" placeholder="Pesquisar nesta conversa..."
+                                        className="flex-1 bg-dark-700 text-white rounded-lg px-4 py-2 outline-none"/>
+                                    <button id="search-prev" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                        aria-label="Resultado anterior">
+                                        <FontAwesomeIcon icon={faChevronUp} />
+                                    </button>
+                                    <button id="search-next" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                        aria-label="Próximo resultado">
+                                        <FontAwesomeIcon icon={faChevronDown} />
+                                    </button>
+                                    <button id="search-close" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                        aria-label="Fechar pesquisa">
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* <!-- Área das mensagens --> */}
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-dark-900 bg-opacity-50" id="messages-container" ref={messagesContainerRef}>
+                                {/* <!-- As mensagens serão inseridas aqui via JavaScript --> */}
+                                {conversa.mensagens.map(msg=>{
+                                        const ehUsuario = msg.remetente === 'usuario';
+                                        const ehArquivo = validarSeEhArquivo(msg.texto);
+                                        return (
+                                            <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id}>
+                                                {(()=>{
+                                                    if(!ehArquivo.eh){
+                                                        return (
+                                                            <div className={`max-w-md px-3 py-2 text-sm shadow-md
+                                                                ${ehUsuario
+                                                                    ? 'bg-purple-900 text-white rounded-2xl rounded-br-sm'
+                                                                    : 'bg-gray-700 text-gray-100 rounded-2xl rounded-bl-sm'}`}>
+                                                                
+                                                                <div className="flex justify-between items-start gap-3">
+                                                                    <p className="whitespace-pre-wrap break-words flex-1 min-w-0">
+                                                                        {transformarLinksEmAnchors(msg.texto)}
+                                                                    </p>
+                                                                    <span className="text-[10px] opacity-80 flex-shrink-0 mt-0.5">{msg.hora}</span>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    } else if(ehArquivo.tipo==='raw'){                                                        
+                                                        return (
+                                                            <div className={`mensagem-arquivo ${ehUsuario ?
+                                                                'bg-purple-900' :
+                                                                'bg-dark-800' 
+                                                            } rounded-xl p-3 flex items-center justify-between w-100 shadow-md my-2`}>
+                                                                <div className="flex items-center gap-3">
+                                                                    {(()=>{
+                                                                        switch(ehArquivo.extensao) {
+                                                                            case('PDF'):
+                                                                                return (<img src={PDFpng} className="w-10 h-10 object-contain"></img>);
+                                                                            case('DOCX'):
+                                                                            case('DOC'):
+                                                                                return (<img src={DOCXICONROXO} className="w-10 h-10 object-contain"></img>);
+                                                                            case('TXT'):
+                                                                                return (<img src={TXTAZUL} className="w-10 h-10 object-contain"></img>);
+                                                                            case('ZIP'):
+                                                                            case('RAR'):
+                                                                            default:
+                                                                                return (<FontAwesomeIcon icon={faFileZipper} className='text-yellow-400 text-3xl' />)
+                                                                        }
+                                                                    })()}
+                                                                    <div>
+                                                                        <p className="text-white font-semibold text-sm truncate">{ehArquivo.nomeExib}</p>
+                                                                        <p className="text-gray-400 text-xs">{`${ehArquivo.extensao} • ${ehArquivo.size}`}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <button className="download-btn text-gray-300 hover:text-white">
+                                                                    <FontAwesomeIcon icon={faDownload} className='text-lg' onClick={()=>{fileDownload(ehArquivo.url, 'raw')}}/>
+                                                                </button>
+                                                            </div>
+                                                        )
+                                                    } else if (ehArquivo.tipo==='img') {
+                                                        return (
+                                                            <div className="mensagem-imagem bg-dark-800 rounded-xl p-2 w-64 shadow-md my-2">
+                                                                <img src={ehArquivo.url} alt="Imagem enviada"
+                                                                    className="rounded-lg w-full h-auto object-cover mb-2"/>
+                                                                <div className="flex justify-between text-xs text-gray-400">
+                                                                    <span>{`Foto • ${ehArquivo.size}`}</span>
+                                                                    <button className="text-primary-500 hover:underline skibibaixar cursor-pointer" onClick={()=>{fileDownload(ehArquivo.url, 'img')}}>Baixar</button>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    }
+                                                })()}
+                                            </div>
+                                        )
+                                    }
+                                )}
+                            </div>
+                            <div className="bg-dark-800 p-4 border-t border-gray-800 pointer-events-none opacity-60">
+                                <div className="flex items-end space-x-3">
+                                    <button id="attach-button" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors mb-2 cursor-pointer"
+                                        aria-label="Anexar arquivo">
+                                        <FontAwesomeIcon icon={faPaperclip} className='text-gray-400'/>
+                                    </button>
+
+
+                                    <div className="flex-1 bg-dark-700 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-primary-500">
+                                        <textarea id="message-input"
+                                            className="w-full bg-transparent border-0 outline-none text-white message-input py-2"
+                                            placeholder="Digite sua mensagem..." rows={1} maxLength={500} >
+                                        </textarea>
+                                    </div>
+
+                                    <button id="send-button" ref={btnEnviarRef}
+                                        className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2 cursor-pointer"
+                                        aria-label="Enviar mensagem" >
+                                        <FontAwesomeIcon icon={faPaperPlane} className='text-gray-400'/>
+                                    </button>
+                                </div>
+
+                                <div className="flex justify-between items-center mt-2 text-xs text-gray-500 px-2">
+                                    <span>Pressione Enter para enviar</span>
+                                    <span id="message-counter">{conversa.contadorMensagens} mensagens nesta conversa</span>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                )()}
+
+                {modalAction.status && (
+                    <div id="modalDelete" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                        <div id="modalDelete-content" className="bg-dark-800 rounded-xl p-6 w-full max-w-md">
+                            <h3 className="text-lg font-semibold mb-4 text-center"><strong>{modalAction.mensagem}</strong></h3>
+                            {(modalAction.action === 'remove' || modalAction.action === 'save') && (
+                                <div className="space-y-4 mb-6">
+                                    {/* Checkbox para receber email */}
+                                    {modalAction.action === 'remove' && (
+                                        <div className="flex items-center space-x-3 p-3 bg-dark-700 rounded-lg hover:bg-dark-600 transition-colors">
+                                            <input 
+                                                id='receberEmail'
+                                                type="checkbox" 
+                                                ref={receberEmailRef}
+                                                checked={receberEmail} 
+                                                onChange={(e) => setReceberEmail(e.target.checked)}
+                                                className="w-4 h-4 text-blue-600 bg-dark-600 border-dark-500 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                            />
+                                            <label 
+                                                htmlFor="receberEmail" 
+                                                className="text-gray-300 cursor-pointer select-none"
+                                            >
+                                                Receber uma cópia do chat por email?
+                                            </label>
+                                        </div>
+                                    )}
+                                    
+
+                                    {/* Input para quantidade de mensagens */}
+                                    {((modalAction.action === 'remove' && receberEmail) || modalAction.action === 'save') && (
+                                        <div className="p-3 bg-dark-700 rounded-lg space-y-2 animate-fadeIn">
+                                            <label 
+                                                htmlFor="quantidadeReceber" 
+                                                className="block text-sm font-medium text-gray-300"
+                                            >
+                                                Quantidade máxima de mensagens para receber
+                                            </label>
+                                            <input 
+                                                id='quantidadeReceber'
+                                                type="number" 
+                                                value={quantidadeReceber} 
+                                                onChange={(e) => {
+                                                    const val = e.target.valueAsNumber;
+
+                                                    if (val < 1) return setQuantidadeReceber(1);
+                                                    if (val > 1000) return setQuantidadeReceber(1000);
+
+                                                    setQuantidadeReceber(val);
+                                                }}
+                                                min={1}
+                                                max={1000}
+                                                className="w-full px-3 py-2 bg-dark-600 border border-dark-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                placeholder="Ex: 50"
+                                            />
+                                            <p className="text-xs text-gray-400">
+                                                Digite quantas mensagens você deseja receber por email
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <div className="flex justify-center space-x-3">
+                                <button id="btnCancelarDel" className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer" onClick={()=>{
+                                    setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''});
+                                    setQuantidadeReceber(100);
+                                    setReceberEmail(true);
+                                }}>Cancelar</button>
+                                <button id="btnConfirmarDel" className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer" onClick={async()=>{
+                                    const {action, valor, chatId} = modalAction;
+                                    setModalAction({status: false, mensagem: '', action: '', valor: '', chatId: ''})
+                                    const actionRes = await modalActions(action, chatId, valor, {receberEmail, quantidadeReceber});
+                                    if(actionRes.success) {
+                                        switch (action) {
+                                            case 'block': {
+                                                setDadosConversas(prev=> {
+                                                    return prev.map((con)=>
+                                                        con.id === chatId ?
+                                                        {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador, statusRemetente: valor==='true'?'Offline':con.statusRemetente}
+                                                        : con
+                                                    )
+                                                });
+                                                if(valor==='true') socket.emit('leaveRoom', chatId);
+                                                else socket.emit('joinChat', chatId, callback=>{
+                                                    if(callback.status==='error') {
+                                                        mostrarErroTopo(callback.message);
+                                                    }
+                                                });
+                                                break;
+                                            }
+                                            case 'clean': {
+                                                setDadosConversas(prev=> {
+                                                    return prev.map((con)=>
+                                                        con.id === chatId ?
+                                                        {...con, mensagens: [], ultimaMensagem: '', hora: ''}
+                                                        : con
+                                                    )
+                                                });
+                                                break;
+                                            }
+                                            case 'remove': {
+                                                if(receberEmail) mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
+                                                if(dadosConversas.find(c=>c.id===chatId)?.favoritada) setContadorFavoritos(e=>e-1);
+                                                setDadosConversas(prev=> {
+                                                    return prev.filter((con)=>
+                                                        con.id !== chatId 
+                                                    )
+                                                });
+                                                setConversaAtualId('0');
+                                                socket.emit('leaveRoom', chatId);
+                                                break;
+                                            }               
+                                            case 'save': {
+                                                mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
+                                                break;
+                                            }
+                                            case 'delete': {
+                                                setDesabilitadasData(prev=> 
+                                                    ({
+                                                        ...prev, 
+                                                        chats: prev.chats.filter((con)=> con.id !== chatId)
+                                                    })
+                                                );
+                                                setConversaAtualId('0');
+                                                break;
+                                            }
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }}>Confirmar</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {novaSolicitacao && (
                     <div id="modalSolicitacaoConversa"
                         className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
