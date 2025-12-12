@@ -207,7 +207,28 @@ export default function Chats() {
             } else if(notif.tipo==='Conversa'){
                 if(object.action==='deletar'){
                     if(conversaAtualIdRef.current===object.id) setConversaAtualId('0');
-                    setDadosConversas(prev=>prev.filter(c=>c.id!==object.id));
+
+                    // * Tudo dentro do set para pegar os status atualizados
+                    setDadosConversas(prev=>{
+                        const cvs = prev.find(c=>c.id===object.id);
+                        if(!cvs) return prev;
+
+                        const {bloqueadoStatus, bloqueador, naoLidas, statusRemetente, favoritada, ...conversaAnterior} = cvs;
+
+                        setDesabilitadasData(prev=>{
+                            if(!prev.searched) return prev;
+                            return {
+                                ...prev,
+                                chats: [...prev.chats, {
+                                    ...conversaAnterior,
+                                    desabilitador_tipo: usuario.tipo === 'candidato' ? 'empresa' : 'candidato',
+                                    data_desabilitacao: new Date()
+                                }]
+                            };
+                        })
+
+                        return prev.filter(c=>c.id!==object.id);
+                    })
                 };
             }
             
