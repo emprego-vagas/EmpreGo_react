@@ -1493,8 +1493,8 @@ const Main: React.FC = () => {
                                                     {slide.titulo}
                                                 </h3>
 
-                                                <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow">
-                                                    "{slide.texto}"
+                                                <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow line-clamp-2">
+                                                    "{slide.texto.length > 700 ? slide.texto.substring(0, 700) + '...' : slide.texto}"
                                                 </blockquote>
 
                                                 <div className="slide-meta flex justify-between items-center text-sm text-gray-400">

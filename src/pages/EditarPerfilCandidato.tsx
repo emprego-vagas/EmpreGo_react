@@ -429,7 +429,6 @@ export default function EditarPerfilCandidato () {
 
                 {/* <!-- Coluna direita - Foto de perfil e ações --> */}
                 <div className="lg:col-span-4 space-y-6">
-                    {/* <!-- Foto de Perfil --> */}
                     <div
                         className="gradient-bg rounded-2xl p-8 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in">
                         <h2 className="text-2xl text-center font-semibold mb-8 text-professional-subtitle relative pb-4
@@ -626,7 +625,7 @@ export default function EditarPerfilCandidato () {
             {/* <!-- Botões de Ação --> */}
             <div className="mt-10 flex justify-center space-x-4">
                 <button id="btnSalvar" disabled={salvandoEdicao}
-                    className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer"
+                    className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r bg-primary-700 from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer"
                     onClick={async()=>{
                         setSalvandoEdicao(true);
                         const editou = await salvarEdicaoCandidato(nomeInfo, cpfInfo, pronomesInfo, pronomesPersonalizadosInfo, portfolioInfo, githubInfo, curriculoInfo, instagramInfo, site_pessoalInfo, twitterInfo, cidadeInfo, estadoInfo, cargo_atualInfo, empresa_atualInfo, descricaoInfo, fotoInfo, curriculo_fileInfo);
@@ -644,7 +643,6 @@ export default function EditarPerfilCandidato () {
                 </button>
             </div>
 
-            {/* <!-- Mensagem de Status --> */}
             <div id="mensagemStatus" className="hidden mt-6 p-4 rounded-lg text-center"></div>
             </>
             )}

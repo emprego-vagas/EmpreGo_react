@@ -91,11 +91,18 @@ export interface Empresa {
     contato: string | null;
     site: string | null;
     youtube: string | null;
+    filiais?: {
+        cidade: string | null;
+        estado: string | null;
+        tipo?: string | null;
+    }[];
 }
 
 export interface CustomEmp {
     tags_empresas: Tag_empresa[];
     tags_count: number;
+    filiais?: { cidade: string | null; estado: string | null; tipo?: string | null; id?: string }[];
+    filiais_count?: number;
 }
 
 export interface Tag_empresa {
