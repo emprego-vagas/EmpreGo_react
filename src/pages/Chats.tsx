@@ -212,7 +212,8 @@ export default function Chats() {
                     setDadosConversas(prev=>{
                         const cvs = prev.find(c=>c.id===object.id);
                         if(!cvs) return prev;
-
+                        
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         const {bloqueadoStatus, bloqueador, naoLidas, statusRemetente, favoritada, ...conversaAnterior} = cvs;
 
                         setDesabilitadasData(prev=>{
@@ -1168,8 +1169,8 @@ export default function Chats() {
                                             <FontAwesomeIcon icon={faChevronUp} />
                                         </button>
                                         <button id="search-next" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                            aria-label="Próximo resultado">
-                                            <FontAwesomeIcon icon={faChevronDown} onClick={()=>navegarResultados('proxima')}/>
+                                            aria-label="Próximo resultado" onClick={()=>navegarResultados('proxima')} >
+                                            <FontAwesomeIcon icon={faChevronDown} />
                                         </button>
                                         <button id="search-close" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
                                             aria-label="Fechar pesquisa" onClick={()=>setMostrarBarraPesquisa(false)}>
@@ -1542,8 +1543,8 @@ export default function Chats() {
                                             <FontAwesomeIcon icon={faChevronUp} />
                                         </button>
                                         <button id="search-next" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                            aria-label="Próximo resultado">
-                                            <FontAwesomeIcon icon={faChevronDown} onClick={()=>navegarResultados('proxima')}/>
+                                            aria-label="Próximo resultado" onClick={()=>navegarResultados('proxima')}>
+                                            <FontAwesomeIcon icon={faChevronDown} />
                                         </button>
                                         <button id="search-close" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
                                             aria-label="Fechar pesquisa" onClick={()=>setMostrarBarraPesquisa(false)}>
