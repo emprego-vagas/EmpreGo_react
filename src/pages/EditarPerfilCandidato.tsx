@@ -612,12 +612,12 @@ export default function EditarPerfilCandidato () {
                             <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setDescricaoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
                         ))}
                     </label>
-                    <textarea id="resumoProfissional" rows={6} maxLength={500} value={descricaoInfo.value} onChange={(e)=>setDescricaoInfo(prev=>({...prev, value: e.target.value}))} disabled={descricaoInfo.disabled}
+                    <textarea id="resumoProfissional" rows={6} maxLength={700} value={descricaoInfo.value} onChange={(e)=>setDescricaoInfo(prev=>({...prev, value: e.target.value}))} disabled={descricaoInfo.disabled}
                         className="w-full h-48 p-6 bg-professional-dark border border-professional-card rounded-xl text-professional-text resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                         placeholder="Descreva sua experiência profissional, habilidades e objetivos de carreira. Seja específico e use métricas quando possível."></textarea>
                     <div className="flex justify-between mt-2">
-                        <span className="text-xs text-professional-subtitle">Máximo de 500 caracteres</span>
-                        <span id="contadorCaracteres" className="text-xs text-professional-subtitle">{`${descricaoLength}/500`}</span>
+                        <span className="text-xs text-professional-subtitle">Máximo de 700 caracteres</span>
+                        <span id="contadorCaracteres" className="text-xs text-professional-subtitle">{`${descricaoLength}/700`}</span>
                     </div>
                 </div>
             </div>

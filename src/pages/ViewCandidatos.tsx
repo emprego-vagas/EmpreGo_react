@@ -298,7 +298,7 @@ const Main: React.FC = () => {
                     return data.candidatosFavoritados.some((e) => e.candidatos.id === id);
                 };
                 setCandidatosPorCategoria({
-                    ["Candidatos Recomendadas"]: {
+                    ["Candidatos Recomendados"]: {
                         pagina: 1,
                         chegouNoLimite: false,
                         recolher: true,
