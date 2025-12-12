@@ -249,6 +249,7 @@ export default function Chats() {
     const conversaAtualIdRef = useRef(conversaAtualId);
     useEffect(() => {
         conversaAtualIdRef.current = conversaAtualId;
+        setMostrarBarraPesquisa(false);
     }, [conversaAtualId]);
 
     const handleFileInput = (e: ChangeEvent<HTMLInputElement>, tipo: string): void=>{
@@ -432,15 +433,15 @@ export default function Chats() {
 
     useEffect(() => {
         if (conversaAtualId !== '0' && messagesContainerRef.current) {
+
+            const container = messagesContainerRef.current;
+            container.scrollTop = container.scrollHeight;
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 50);
             
             if(sessaoAtual==='Todas'){
                 textareaRef.current.focus();
-                
-                const container = messagesContainerRef.current;
-                container.scrollTop = container.scrollHeight;
-                setTimeout(() => {
-                    container.scrollTop = container.scrollHeight;
-                }, 50);
                 
                 setDadosConversas(prev => {
                     const conversaExiste = prev.some(c => c.id === conversaAtualId);
@@ -461,6 +462,74 @@ export default function Chats() {
             setMostrarAttachmentMenu(false);
         }
     }, [conversaAtualId, sessaoAtual]);
+
+    // * Variáveis para a barra de pesquisa das conversas
+    const [mostrarBarraPesquisa, setMostrarBarraPesquisa] = useState(false);
+    const [barraPesquisaText, setBarraPesquisaText] = useState('');
+    const searchButtonRef = useRef<HTMLButtonElement | null>(null);
+    const [idsMsgsEquivalentes, setIdsMsgsEquivalentes] = useState<string[]>([]);
+    const [msgEquivalenteAtual, setMsgEquivalenteAtual] = useState('');
+    const idsMsgsEquivalentesRef = useRef<string[]>([]);
+    const msgEquivalenteAtualRef = useRef('');
+
+    // * Effect para mapear que a barra de pesquisa foi oculta e limpar a pesquisa
+    useEffect(()=>{
+        if(!mostrarBarraPesquisa) {
+            setBarraPesquisaText('');
+            setIdsMsgsEquivalentes([]);
+            setMsgEquivalenteAtual('');
+        };
+    }, [mostrarBarraPesquisa]);
+    
+    // * Effect para detectar as mensagens a serem destacadas
+    useEffect(()=>{
+        setMsgEquivalenteAtual('');
+        document.querySelectorAll('.msg-highlight').forEach(el=>{
+            el.classList.remove('msg-highlight');
+            el.classList.remove('msg-current');
+        });
+        idsMsgsEquivalentes.forEach(id=>{
+            const messageContainer = document.querySelector<HTMLElement>(`[data-id="${id}"]`);
+            if (messageContainer) {
+                messageContainer.classList.add("msg-highlight");
+            }
+        });
+    }, [idsMsgsEquivalentes]);
+
+    // * Effect para manter as refs atualizadas para usar no handler
+    useEffect(()=>{
+        idsMsgsEquivalentesRef.current = idsMsgsEquivalentes;
+        msgEquivalenteAtualRef.current = msgEquivalenteAtual;
+    }, [idsMsgsEquivalentes, msgEquivalenteAtual])
+
+    // * Handler para facilitar a navegação entre mensagens detectadas
+    const navegarResultados = (nv: 'anterior' | 'proxima')=>{
+        const equivalenteAtual = msgEquivalenteAtualRef.current;
+        const todasEquivalentes = idsMsgsEquivalentesRef.current;
+
+        if(!equivalenteAtual){
+            const primeiraMensagemDestacada = todasEquivalentes[0];
+            setMsgEquivalenteAtual(primeiraMensagemDestacada);
+            const elementoMensagem = document.querySelector(`[data-id="${primeiraMensagemDestacada}"]`);
+            elementoMensagem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elementoMensagem.classList.add('msg-current');
+            return;
+        }
+        const indexParaDestacar = todasEquivalentes.findIndex(m=>m===equivalenteAtual);
+        const msgParaDestacar = todasEquivalentes[nv==='anterior'?indexParaDestacar-1:indexParaDestacar+1];
+
+        if (!msgParaDestacar) return;
+
+        document.querySelectorAll('.msg-current').forEach(el=>
+            el.classList.remove('msg-current')
+        );
+
+        setMsgEquivalenteAtual(msgParaDestacar);
+
+        const elementoMensagem = document.querySelector(`[data-id="${msgParaDestacar}"]`);
+        elementoMensagem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        elementoMensagem.classList.add('msg-current');
+    }
 
     if(carregando) return (<Loader />);
 
@@ -967,10 +1036,10 @@ export default function Chats() {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-4">
-                                    <button id="search-toggle" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
-                                        aria-label="Pesquisar conversa">
+                                    {/* <button id="search-toggle" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
+                                        aria-label="Pesquisar na conversa">
                                         <FontAwesomeIcon icon={faSearch} />
-                                    </button>
+                                    </button> */}
 
                                     <div className="relative">
                                         <button id="menu-toggle" className="p-2 rounded-full hover:bg-gray-700 w-12 h-12 transition-colors cursor-pointer"
@@ -985,6 +1054,14 @@ export default function Chats() {
                                                     <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
                                                         <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
                                                         <span>Dados do contato</span>
+                                                    </li>
+                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarBarraPesquisa(true);
+                                                            setMostrarMenu(false);
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faSearch} className='text-gray-400' />
+                                                        <span>Pesquisar na conversa</span>
                                                     </li>
                                                     <li id="fecharBtn"
                                                         className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
@@ -1041,29 +1118,45 @@ export default function Chats() {
                                             </div>
                                         }
                                     </div>
-
                                 </div>
                             </header>
 
                             {/* <!-- Barra de pesquisa (inicialmente oculta, (melhorar o estilo!!!!)) --> */}
-                            <div id="search-bar" className="bg-dark-800 p-3 border-b border-gray-800 hidden">
-                                <div className="flex items-center">
-                                    <input type="text" id="search-input" placeholder="Pesquisar nesta conversa..."
-                                        className="flex-1 bg-dark-700 text-white rounded-lg px-4 py-2 outline-none"/>
-                                    <button id="search-prev" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Resultado anterior">
-                                        <FontAwesomeIcon icon={faChevronUp} />
-                                    </button>
-                                    <button id="search-next" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Próximo resultado">
-                                        <FontAwesomeIcon icon={faChevronDown} />
-                                    </button>
-                                    <button id="search-close" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Fechar pesquisa">
-                                        <FontAwesomeIcon icon={faTimes} />
-                                    </button>
+                            {mostrarBarraPesquisa && (
+                                <div id="search-bar" className="bg-dark-800 p-3 border-b border-gray-800">
+                                    <div className="flex items-center">
+                                        <input type="text" id="search-input" placeholder="Pesquisar nesta conversa..." value={barraPesquisaText} autoFocus
+                                            onChange={(e)=>setBarraPesquisaText(e.target.value)} className="flex-1 bg-dark-700 text-white rounded-lg px-4 py-2 outline-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') searchButtonRef.current.click();
+                                            }}
+                                        />
+
+                                        <button id="search-prev" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Pesquisar" ref={searchButtonRef} onClick={()=>{
+                                                if(!barraPesquisaText.trim()) return setIdsMsgsEquivalentes([]);
+                                                const conversaAtual = dadosConversas.find(con=>con.id===conversa.id);
+                                                const termoLower = barraPesquisaText.toLowerCase();
+                                                const messagesIds = conversaAtual.mensagens.filter(msg=>msg.texto.toLowerCase().includes(termoLower)).map(m=>m.id);
+                                                setIdsMsgsEquivalentes(messagesIds);
+                                            }}>
+                                            <FontAwesomeIcon icon={faSearch} />
+                                        </button>
+                                        <button id="search-prev" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Resultado anterior" onClick={()=>navegarResultados('anterior')}>
+                                            <FontAwesomeIcon icon={faChevronUp} />
+                                        </button>
+                                        <button id="search-next" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Próximo resultado">
+                                            <FontAwesomeIcon icon={faChevronDown} onClick={()=>navegarResultados('proxima')}/>
+                                        </button>
+                                        <button id="search-close" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Fechar pesquisa" onClick={()=>setMostrarBarraPesquisa(false)}>
+                                            <FontAwesomeIcon icon={faTimes} />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* <!-- Área das mensagens --> */}
                             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-dark-900 bg-opacity-50" id="messages-container" ref={messagesContainerRef}>
@@ -1072,7 +1165,7 @@ export default function Chats() {
                                         const ehUsuario = msg.remetente === 'usuario';
                                         const ehArquivo = validarSeEhArquivo(msg.texto);
                                         return (
-                                            <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id}>
+                                            <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id} data-id={msg.id} >
                                                 {(()=>{
                                                     if(!ehArquivo.eh){
                                                         return (
@@ -1303,7 +1396,7 @@ export default function Chats() {
                                                 }
                                             }
                                         }}>
-                                        <FontAwesomeIcon icon={faPaperPlane} className='text-gray-400'/>
+                                        <FontAwesomeIcon icon={faPaperPlane} />
                                     </button>
                                 </div>
 
@@ -1312,8 +1405,6 @@ export default function Chats() {
                                     <span id="message-counter">{conversa.contadorMensagens} mensagens nesta conversa</span>
                                 </div>
                             </div>
-
-                            
                         </>
                     )}
                 )()}
@@ -1339,11 +1430,10 @@ export default function Chats() {
                                         aria-label="Deletar completamente a conversa" onClick={()=>setModalAction({status: true, mensagem: `Tem certeza que deseja deletar completamente a conversa com ${conversa.nome}?`, action: 'delete', valor: '', chatId: conversa.id})}>
                                         <FontAwesomeIcon icon={faTrashCan} />
                                     </button>
-                                    <button id="search-toggle" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
+                                    {/* <button id="search-toggle" className="p-2 rounded-full w-12 h-12 hover:bg-gray-700 transition-colors"
                                         aria-label="Pesquisar na conversa">
                                         <FontAwesomeIcon icon={faSearch} />
-                                    </button>
-                                    
+                                    </button> */}
 
                                     <div className="relative">
                                         <button id="menu-toggle" className="p-2 rounded-full hover:bg-gray-700 w-12 h-12 transition-colors cursor-pointer"
@@ -1358,6 +1448,14 @@ export default function Chats() {
                                                     <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
                                                         <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
                                                         <span>Dados do contato</span>
+                                                    </li>
+                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
+                                                        onClick={()=>{
+                                                            setMostrarBarraPesquisa(true);
+                                                            setMostrarMenu(false);
+                                                        }}>
+                                                        <FontAwesomeIcon icon={faSearch} className='text-gray-400' />
+                                                        <span>Pesquisar na conversa</span>
                                                     </li>
                                                     <li id="fecharBtn"
                                                         className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2"
@@ -1398,24 +1496,41 @@ export default function Chats() {
                             </header>
 
                             {/* <!-- Barra de pesquisa (inicialmente oculta, (melhorar o estilo!!!!)) --> */}
-                            <div id="search-bar" className="bg-dark-800 p-3 border-b border-gray-800 hidden">
-                                <div className="flex items-center">
-                                    <input type="text" id="search-input" placeholder="Pesquisar nesta conversa..."
-                                        className="flex-1 bg-dark-700 text-white rounded-lg px-4 py-2 outline-none"/>
-                                    <button id="search-prev" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Resultado anterior">
-                                        <FontAwesomeIcon icon={faChevronUp} />
-                                    </button>
-                                    <button id="search-next" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Próximo resultado">
-                                        <FontAwesomeIcon icon={faChevronDown} />
-                                    </button>
-                                    <button id="search-close" className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-                                        aria-label="Fechar pesquisa">
-                                        <FontAwesomeIcon icon={faTimes} />
-                                    </button>
+                            {mostrarBarraPesquisa && (
+                                <div id="search-bar" className="bg-dark-800 p-3 border-b border-gray-800">
+                                    <div className="flex items-center">
+                                        <input type="text" id="search-input" placeholder="Pesquisar nesta conversa..." value={barraPesquisaText} autoFocus
+                                            onChange={(e)=>setBarraPesquisaText(e.target.value)} className="flex-1 bg-dark-700 text-white rounded-lg px-4 py-2 outline-none"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') searchButtonRef.current.click();
+                                            }}
+                                        />
+
+                                        <button id="search-prev" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Pesquisar" ref={searchButtonRef} onClick={()=>{
+                                                if(!barraPesquisaText.trim()) return setIdsMsgsEquivalentes([]);
+                                                const conversaAtual = dadosConversas.find(con=>con.id===conversa.id);
+                                                const termoLower = barraPesquisaText.toLowerCase();
+                                                const messagesIds = conversaAtual.mensagens.filter(msg=>msg.texto.toLowerCase().includes(termoLower)).map(m=>m.id);
+                                                setIdsMsgsEquivalentes(messagesIds);
+                                            }}>
+                                            <FontAwesomeIcon icon={faSearch} />
+                                        </button>
+                                        <button id="search-prev" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Resultado anterior" onClick={()=>navegarResultados('anterior')}>
+                                            <FontAwesomeIcon icon={faChevronUp} />
+                                        </button>
+                                        <button id="search-next" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Próximo resultado">
+                                            <FontAwesomeIcon icon={faChevronDown} onClick={()=>navegarResultados('proxima')}/>
+                                        </button>
+                                        <button id="search-close" className="w-10 h-10 ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                            aria-label="Fechar pesquisa" onClick={()=>setMostrarBarraPesquisa(false)}>
+                                            <FontAwesomeIcon icon={faTimes} />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* <!-- Área das mensagens --> */}
                             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-dark-900 bg-opacity-50" id="messages-container" ref={messagesContainerRef}>
@@ -1424,7 +1539,7 @@ export default function Chats() {
                                         const ehUsuario = msg.remetente === 'usuario';
                                         const ehArquivo = validarSeEhArquivo(msg.texto);
                                         return (
-                                            <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id}>
+                                            <div className={`mb-2 flex ${ehUsuario ? 'justify-end' : 'justify-start'} fade-in`} key={msg.id} data-id={msg.id} >
                                                 {(()=>{
                                                     if(!ehArquivo.eh){
                                                         return (
@@ -1509,7 +1624,7 @@ export default function Chats() {
                                     <button id="send-button" ref={btnEnviarRef}
                                         className="bg-primary-500 text-white p-3 w-12 h-12 rounded-full hover:bg-primary-600 transition-colors mb-2 cursor-pointer"
                                         aria-label="Enviar mensagem" >
-                                        <FontAwesomeIcon icon={faPaperPlane} className='text-gray-400'/>
+                                        <FontAwesomeIcon icon={faPaperPlane} />
                                     </button>
                                 </div>
 
