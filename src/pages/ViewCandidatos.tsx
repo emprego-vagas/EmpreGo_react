@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 // import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
 import genPfp from '../assets/imgs/genPfp.png';
@@ -180,6 +180,8 @@ const Main: React.FC = () => {
             navigate('/')
         }, 3000)
     };
+
+    const [searchParams] = useSearchParams();
 
     const [carregandoDados, setCarregandoDados] = useState(true);
     const [palavrasBusca, setPalavrasBusca] = useState<string[]>([]);
@@ -385,6 +387,20 @@ const Main: React.FC = () => {
         }
         carregarDados();
     }, [usuario])
+
+    // * Effect para buscar pela query automaticamente
+    useEffect(()=>{
+        if(carregandoDados) return;
+
+        const pesquisa = searchParams.get('p');
+        if(!pesquisa) return;
+        
+        setBuscaPesquisa(pesquisa);
+        
+        setTimeout(() => {
+            searchButtonRef.current?.click();
+        }, 100);
+    }, [carregandoDados, searchParams]);
 
     // slider states 
     const [currentSlide, setCurrentSlide] = useState(0);
