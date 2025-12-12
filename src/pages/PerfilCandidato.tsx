@@ -83,7 +83,6 @@ export default function PerfilCandidato() {
     const [tabAtual, setTabAtual] = useState('experiencias');
 
     useEffect(()=>{
-        console.log('opa');
         async function loadCand(){
             if(!usuario) return;
             try {
@@ -399,7 +398,7 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Idiomas --> */}
                     <div
-                        className="bg-gray-100  dark:bg-professional-gray rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-gray-100  dark:bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">

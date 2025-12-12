@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
+// import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { Link, useNavigate } from 'react-router-dom';
 import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
@@ -16,7 +16,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight, faComment, faSliders, faStar } from '@fortawesome/free-solid-svg-icons';
 import { AnimatedItem } from '../animation/favoritoAnimation';
 
-// interfaces
 interface Slide {
     empresa: string;
     titulo: string;
@@ -124,16 +123,16 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
                 </button>
             </div>
 
-            <div className="card-body p-6 flex-1">
+            <div className="card-body p-6 flex-1 ">
                 {/* Nome da empresa e informações de localização/setor */}
                 <div className="empresa-info mb-3">
-                    <h3 className="empresa-nome text-xl font-semibold dark:text-gray-200 text-twitch-gray mb-2">{nome}</h3>
-                    
-                    <div className="empresa-meta flex items-center text-sm dark:text-gray-400 text-twitch-gray">
-                        {/* Setor/Idioma */}
+                    <h3 className="empresa-nome text-xl font-semibold dark:text-dark-200 text-twitch-gray mb-2">{nome}</h3>
+
+                    <div className="empresa-meta flex items-center text-sm dark:text-gray-400 text-twitch-gray ">
+                        {/* Setor */}
                         {idioma?.trim() && (
                             <div className="setor-container flex items-center gap-1">
-                                <i className="bx bx-world text-base"></i>
+                                <i className="bx bx-buildings text-base"></i>
                                 <span className="setor-text font-medium truncate max-w-[200px]" title={idioma}>
                                     {idioma}
                                 </span>
@@ -144,19 +143,20 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
                         {estado?.trim() && (
                             <div className="estado-container flex items-center gap-1 ml-auto">
                                 <i className="bx bx-map text-base"></i>
-                                <span className="estado-sigla font-semibold px-2 py-0.5 bg-gray-700 dark:bg-gray-800 rounded-md">
+                                <span className="estado-sigla font-semibold px-2 py-0.5 text-dark-700 bg-dark-400 dark:text-dark-400 dark:bg-dark-700 rounded-md">
                                     {estado}
                                 </span>
                             </div>
                         )}
                     </div>
                 </div>
-                
+
                 {/* Descrição */}
                 <p className="empresa-descricao dark:text-gray-400 text-twitch-gray text-sm mb-4 line-clamp-3 leading-relaxed">{descricao}</p>
             </div>
 
-            <div className="card-footer flex justify-between items-center p-5 border-t border-gray-700 bg-black/10 flex-wrap gap-2">
+            {/* Footer com tags e botão */}
+            <div className="card-footer  flex justify-between items-center p-5 border-t border-gray-700 flex-wrap gap-2">
                 <div className="card-meta flex items-center gap-2 flex-1 min-w-[150px]">
                     <div className="tag-chips flex flex-wrap gap-1">
                         {tags.map((tag, index) => (
@@ -374,7 +374,7 @@ const Main: React.FC = () => {
                         month: 'long',
                         year: 'numeric'
                     }),
-                    background: JoaoAzevedo,
+                    background: 'Black',
                     fotoCandidato: e.candidato_foto
                 })))
                 setCarregandoDados(false);
@@ -446,8 +446,8 @@ const Main: React.FC = () => {
             texto: "Trabalhar com esta equipe foi uma experiência transformadora para nosso negócio. A qualidade do serviço superou todas as expectativas e os resultados foram visíveis já no primeiro mês de colaboração.",
             autor: "Carlos Mendes",
             data: "15 de Março, 2023",
-            background: JoaoAzevedo,
-            fotoCandidato: JoaoAzevedo
+            background: 'Black',
+            fotoCandidato: undefined
         },
         {
             empresa: "Global Innovations",
@@ -455,7 +455,7 @@ const Main: React.FC = () => {
             texto: "Recomendo fortemente os serviços prestados. A equipe demonstrou um nível de profissionalismo raro no mercado, com atenção aos detalhes e prazos rigorosamente cumpridos. Uma parceria que certamente continuaremos no futuro.",
             autor: "Ana Beatriz Silva",
             data: "2 de Abril, 2023",
-            background: JoaoAzevedo
+            background: 'Black'
         },
         {
             empresa: "Digital Ventures",
@@ -463,7 +463,7 @@ const Main: React.FC = () => {
             texto: "Em menos de 6 meses, nossa presença online cresceu 300% graças ao trabalho meticuloso desta equipe. A abordagem estratégica e a capacidade de adaptação às necessidades do nosso setor foram impressionantes.",
             autor: "Ricardo Almeida",
             data: "22 de Maio, 2023",
-            background: JoaoAzevedo
+            background: 'Black'
         },
         {
             empresa: "Future Labs",
@@ -480,7 +480,7 @@ const Main: React.FC = () => {
     const [candidatosSemLabel, setCandidatosSemLabel] = useState([
         {
             id: '1',
-            logo: JoaoAzevedo,
+            logo: undefined,
             nome: 'Alpha Tech',
             descricao: 'Soluções inovadoras em tecnologia e consultoria digital.',
             favoritada: false,
@@ -490,7 +490,7 @@ const Main: React.FC = () => {
         },
         {
             id: '2',
-            logo: JoaoAzevedo,
+            logo: undefined,
             nome: 'Beta Systems',
             descricao: 'Desenvolvimento de sistemas corporativos personalizados.',
             favoritada: false,
@@ -625,7 +625,6 @@ const Main: React.FC = () => {
     const isLoadingMoreRef = useRef(false);
 
     async function loadMoreQuery(){
-        // Verificar usando a ref para prevenir race conditions
         if (isLoadingMoreRef.current || searchData.limit || !searchData.active) {
             console.log('loadMoreQuery abortado:', {
                 isLoadingMoreRef: isLoadingMoreRef.current,
@@ -636,9 +635,7 @@ const Main: React.FC = () => {
         }
         
         try {
-            // Marcar que está carregando - IMPORTANTE: fazer isso antes de qualquer await
             isLoadingMoreRef.current = true;
-            // Aqui DEFINITIVAMENTE mostrar o loader
             setSearchData(prev => ({...prev, loadingMore: true}));
             
             const nextPage = searchPageRef.current;
@@ -647,14 +644,13 @@ const Main: React.FC = () => {
             const response = await axiosWe(`/candidatos/search?page=${nextPage}&${searchData.query}`);
             const emps = response.data;
             console.log('Resultados da página', nextPage, ':', emps.length);
-            
-            // Se não houver resultados, marcar como limite
+
             if (emps.length === 0) {
                 console.log('Sem mais resultados, marcando como limite');
                 setSearchData(prev => ({
                     ...prev, 
                     limit: true, 
-                    loadingMore: false  // ← Desliga o loader
+                    loadingMore: false 
                 }));
                 isLoadingMoreRef.current = false;
                 return;
@@ -663,15 +659,14 @@ const Main: React.FC = () => {
             const isFavoritada = (id: string) => {
                 return candidatosFavoritadas.some((e) => e.id === id);
             };
-            
-            // Atualizar estado com os novos dados
+
             setSearchData(prev => ({
                 ...prev,
                 active: true, 
                 page: nextPage, 
                 limit: emps.length < 9, 
                 loading: false, 
-                loadingMore: false,  // ← Desliga o loader
+                loadingMore: false,
                 candidatos: [...prev.candidatos, ...emps.map(
                     cand => ({
                         id: cand.id,
@@ -685,16 +680,14 @@ const Main: React.FC = () => {
                     })
                 )]
             }));
-            
-            // Incrementar a ref para a próxima página
+
             searchPageRef.current = nextPage + 1;
             console.log('Próxima página será:', searchPageRef.current);
             
         } catch (erro) {
             console.error("Falha ao carregar mais candidatos:", erro);
-            setSearchData(prev => ({...prev, loadingMore: false}));  // ← Em caso de erro também desliga
+            setSearchData(prev => ({...prev, loadingMore: false}));
         } finally {
-            // Garantir que a flag seja resetada mesmo em caso de erro
             isLoadingMoreRef.current = false;
         }
     }
@@ -703,7 +696,6 @@ const Main: React.FC = () => {
         let timeoutId;
         
         const handleScroll = () => {
-            // Debounce para prevenir múltiplas chamadas
             clearTimeout(timeoutId);
             
             timeoutId = setTimeout(() => {
@@ -750,16 +742,13 @@ const Main: React.FC = () => {
         if(idiomasString) queryParts.push(`idioma=${idiomasString}`);
         
         const queryJoin = queryParts.join('&');
-        
-        // Se for uma nova query, resetar completamente
+
         if(queryJoin !== searchData.query) {
             setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1})
             try {
-                // Resetar todas as refs e estado
                 searchPageRef.current = 1;
                 isLoadingMoreRef.current = false;
                 
-                // Aqui DEFINITIVAMENTE mostrar o loader
                 setSearchData({
                     active: true, 
                     query: queryJoin, 
@@ -769,8 +758,7 @@ const Main: React.FC = () => {
                     loadingMore: false, 
                     candidatos: []
                 });
-                
-                // Buscar sempre da página 1 quando é uma nova busca
+
                 const response = await axiosWe(`/candidatos/search?page=1&${queryJoin}`);
                 console.log('Busca inicial - Página 1:', response.data.length, 'resultados');
                 const emps = response.data;
@@ -787,14 +775,13 @@ const Main: React.FC = () => {
                 const isFavoritada = (id: string) => {
                     return candidatosFavoritadas.some((e) => e.id === id);
                 };
-                
-                // Atualizar estado com os dados da página 1
+
                 setSearchData({
                     active: true, 
                     query: queryJoin, 
-                    page: 1, // Página atual é 1
+                    page: 1,
                     limit: emps.length < 9, 
-                    loading: false,  // ← Aqui desliga o loader
+                    loading: false, 
                     loadingMore: false, 
                     candidatos: emps.map(cand => ({
                         id: cand.id,
@@ -807,13 +794,12 @@ const Main: React.FC = () => {
                         idioma: cand.idiomas[0]?.nome
                     }))
                 });
-                
-                // Configurar a ref para a próxima página (2)
+
                 searchPageRef.current = 2;
                 
             } catch (erro) {
                 console.error('Erro ao buscar candidatos:', erro);
-                setSearchData(prev => ({...prev, loading: false}));  // ← Em caso de erro também desliga
+                setSearchData(prev => ({...prev, loading: false})); 
             }
         }
     };
@@ -979,9 +965,6 @@ const Main: React.FC = () => {
         setCurrentSlide(index);
     };
 
-    // ===== FUNÇÕES E ESTADOS DO HEADER =====
-
-    // useEffect para fechar menu de perfil ao clicar fora
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -1015,9 +998,6 @@ const Main: React.FC = () => {
         });
     };
 
-    // ===== FUNÇÕES E ESTADOS DO FILTRO =====
-
-    // useEffect para fechar filtro ao clicar fora
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
             if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
@@ -1028,7 +1008,6 @@ const Main: React.FC = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Função para alternar chip de filtro
     const toggleChip = (category: keyof typeof filters, value: string) => {
         setFilters(prev => {
             const current = prev[category];
@@ -1043,7 +1022,6 @@ const Main: React.FC = () => {
         });
     };
 
-    // Função para limpar filtros
     const clearFilters = () => {
         setFilters({
             estado: [],
@@ -1051,9 +1029,8 @@ const Main: React.FC = () => {
         });
     };
 
-    // Função para confirmar filtros
     const confirmFilters = () => {
-        // onApply(filters); // descomente quando implementar
+        // onApply(filters);
         setIsFilterOpen(false);
     };
 
@@ -1069,7 +1046,7 @@ const Main: React.FC = () => {
     return (
         <>
             <div className={`app-wrapper ${isSidebarOpen ? 'sidebar-open' : ''} relative bg-white dark:bg-dark-600`}>
-                {/* ===== HEADER SIDEBAR ===== */}
+                {/* HEADER SIDEBAR */}
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
@@ -1167,7 +1144,7 @@ const Main: React.FC = () => {
                     </nav>
                 </aside>
 
-                {/* ===== HEADER PRINCIPAL ===== */}
+                {/* HEADER PRINCIPAL */}
                 <header ref={headerRef} className={`fixed top-0 left-0 right-0 bg-white dark:bg-dark-600 z-50 flex flex-col`}>
                     <div className="w-full flex items-center justify-between px-4 h-14">
                         <div className="flex items-center gap-4">
@@ -1222,7 +1199,7 @@ const Main: React.FC = () => {
                                 </button>
                             </div>
 
-                            {/* ===== FILTER DROPDOWN ===== */}
+                            {/* FILTER DROPDOWN */}
                             {isFilterOpen && (
                                 <div
                                     ref={filterRef}
@@ -1484,7 +1461,7 @@ const Main: React.FC = () => {
                                                     ? { backgroundImage: `url(${slide.background})` }
                                                     : undefined
                                             }
-                                            className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
+                                            className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${!slide.background ? 'bg-primary-400 dark:bg-primary-500' : ''} ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
                                             <div className="slide-content bg-zinc-900/80 backdrop-blur-sm p-8 rounded-xl h-full box-border flex flex-col justify-center overflow-hidden">
                                                 <span className="slide-empresa text-sm uppercase tracking-[2px]  text-gray-400 mb-2 block">
                                                     {slide.empresa}
@@ -1494,8 +1471,8 @@ const Main: React.FC = () => {
                                                     {slide.titulo}
                                                 </h3>
 
-                                                <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow">
-                                                    "{slide.texto}"
+                                                <blockquote className="slide-texto text-lg md:text-xl text-gray-200 italic leading-relaxed mb-6 flex-grow line-clamp-max">
+                                                    "{slide.texto.length > 500 ? slide.texto.substring(0, 500) + '...' : slide.texto}"
                                                 </blockquote>
 
                                                 <div className="slide-meta flex justify-between items-center text-sm text-gray-400">
@@ -1673,8 +1650,7 @@ const Main: React.FC = () => {
                                                 )
                                             })}
                                         </div>
-                                        
-                                        {/* Loader para carregar mais candidatos */}
+
                                         {searchData.loadingMore && (
                                             <div className="carregando-empresas flex justify-center items-center py-12">
                                                 <div className="flex flex-col items-center gap-4">
@@ -1684,7 +1660,6 @@ const Main: React.FC = () => {
                                             </div>
                                         )}
                                         
-                                        {/* Mensagem quando não há mais candidatos */}
                                         {searchData.limit && searchData.candidatos.length > 0 && (
                                             <div className="text-center py-8">
                                                 <p className="text-gray-500">Não há mais resultados.</p>
@@ -1692,7 +1667,6 @@ const Main: React.FC = () => {
                                         )}
                                     </>
                                 ) : (
-                                    // Mostrar loader inicial ou mensagem de nenhum resultado
                                     <div className="text-center py-12">
                                         {searchData.loading ? (
                                             <div className="flex flex-col items-center gap-4">
