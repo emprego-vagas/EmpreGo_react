@@ -137,6 +137,14 @@ export default function PerfilEmpresa() {
         loadEmp();
     }, [usuario]);
 
+    useEffect(()=>{
+        if(!mostrarMaisTags) {
+            if(!mostrarMaisTagsRef.current) return;
+            mostrarMaisTagsRef.current.disabled = true;
+            mostrarMaisTagsRef.current.textContent = 'Carregando...';
+        };
+    }, [mostrarMaisTags]);
+
     // ! Dps validar se precisa mesmo desse effect
     // useEffect(() => {
     //     if (customPerfil.filiais && customPerfil) {
@@ -479,14 +487,43 @@ export default function PerfilEmpresa() {
                                             title="Editar filial"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                const knownTypes = ['Sede','Filial','Escritório','Centro de Operações','Depósito / Logística','Depósito/Logística','Depósito/Logística'];
-                                                const matchedType = knownTypes.find(t => String(filial.tipo).toLowerCase() === String(t).toLowerCase());
+                                                const knownTypes = ['Sede', 'Filial', 'Escritório', 'Centro de Operações', 'Depósito / Logística'];
+                                                
+                                                // Normaliza o tipo da filial para comparação
+                                                const filialTipoNormalizado = String(filial.tipo || '').toLowerCase().trim();
+                                                
+                                                // Encontra o tipo correspondente nos knownTypes
+                                                const matchedType = knownTypes.find(t => 
+                                                    String(t).toLowerCase().trim() === filialTipoNormalizado
+                                                );
+                                                
                                                 if (matchedType) {
-                                                    setNovaFilial({ cidade: filial.cidade ?? '', estado: filial.estado ?? '', tipo: matchedType, tipo_outro: '' });
+                                                    setNovaFilial({ 
+                                                        cidade: filial.cidade ?? '', 
+                                                        estado: filial.estado ?? '', 
+                                                        tipo: matchedType, 
+                                                        tipo_outro: '' 
+                                                    });
+                                                } else if (filial.tipo) {
+                                                    // Se tem um tipo mas não está nos conhecidos, usa 'outro'
+                                                    setNovaFilial({ 
+                                                        cidade: filial.cidade ?? '', 
+                                                        estado: filial.estado ?? '', 
+                                                        tipo: 'outro', 
+                                                        tipo_outro: filial.tipo ?? '' 
+                                                    });
                                                 } else {
-                                                    setNovaFilial({ cidade: filial.cidade ?? '', estado: filial.estado ?? '', tipo: 'outro', tipo_outro: filial.tipo ?? '' });
+                                                    // Se não tem tipo definido
+                                                    setNovaFilial({ 
+                                                        cidade: filial.cidade ?? '', 
+                                                        estado: filial.estado ?? '', 
+                                                        tipo: '', 
+                                                        tipo_outro: '' 
+                                                    });
                                                 }
+                                                
                                                 setEditingFilialId(filial.id ?? `${filial.cidade}-${filial.estado}-${idx}`);
+                                                setBuscaEstado(filial.estado ?? ''); // IMPORTANTE: Preenche o campo de busca do estado
                                                 setMostrarModalAddFilial(true);
                                             }}>
                                             <FontAwesomeIcon icon={faEdit} size="sm" />
@@ -697,33 +734,36 @@ export default function PerfilEmpresa() {
                                                 try {
                                                     setCarregandoFilial(true);
                                                     if (editingFilialId) {
-                                                        setCustomPerfil(prev => {
-                                                            if (!prev) return prev;
-                                                            const current = prev.filiais ?? [];
-                                                            const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
-                                                            
-                                                            const filialDataBefore = current.find(c=>c.id === editingFilialId);
-                                                            const alterouCidade = filialDataBefore.cidade!==novaFilial.cidade;
-                                                            const alterouEstado = filialDataBefore.estado!==novaFilial.estado;
-                                                            const alterouTipo = filialDataBefore.tipo!==resolvedTipo;
-                                                            const modifiedData = {
-                                                                ...(alterouCidade?{cidade: novaFilial.cidade}:{}),
-                                                                ...(alterouEstado?{estado: novaFilial.estado}:{}),
-                                                                ...(alterouTipo?{tipo: resolvedTipo}:{}),
-                                                            };
-                                                            if(Object.keys(modifiedData).length===0) return prev;
+                                                        const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
 
-                                                            
+                                                        const filialDataBefore = customPerfil.filiais.find(c=>c.id === editingFilialId);
+                                                        const alterouCidade = filialDataBefore.cidade!==novaFilial.cidade;
+                                                        const alterouEstado = filialDataBefore.estado!==novaFilial.estado;
+                                                        const alterouTipo = filialDataBefore.tipo!==resolvedTipo;
+                                                        const modifiedData = {
+                                                            ...(alterouCidade?{cidade: novaFilial.cidade}:{}),
+                                                            ...(alterouEstado?{estado: novaFilial.estado}:{}),
+                                                            ...(alterouTipo?{tipo: resolvedTipo===''?null:resolvedTipo}:{}),
+                                                        };
 
-                                                            const newList = current.map(f => {
-                                                                const fid = f.id ?? `${f.cidade}-${f.estado}`;
-                                                                if (fid === editingFilialId) {
-                                                                    return { ...f, ...(modifiedData) };
-                                                                }
-                                                                return f;
+                                                        if(Object.keys(modifiedData).length!==0){
+                                                            await axiosWe.patch(`/filial/${editingFilialId}`, modifiedData);
+
+                                                            setCustomPerfil(prev => {
+                                                                if (!prev) return prev;
+                                                                const current = prev.filiais ?? [];
+
+                                                                const newList = current.map(f => {
+                                                                    const fid = f.id ?? `${f.cidade}-${f.estado}`;
+                                                                    if (fid === editingFilialId) {
+                                                                        return { ...f, ...(modifiedData) };
+                                                                    }
+                                                                    return f;
+                                                                });
+                                                                return { ...prev, filiais: newList };
                                                             });
-                                                            return { ...prev, filiais: newList };
-                                                        });
+                                                        };                                                        
+
                                                         console.log('Editando filial:', novaFilial);
                                                         setEditingFilialId(null);
                                                     } else {
@@ -739,12 +779,13 @@ export default function PerfilEmpresa() {
                                                         });
                                                         console.log('Adicionando filial:', novaFilial);
                                                     }
-                                                    setCarregandoFilial(false);
                                                     setMostrarModalAddFilial(false);
                                                     setNovaFilial({ cidade: '', estado: '', tipo: '', tipo_outro: '' });
                                                     setBuscaEstado('');
                                                 } catch (erro) {
                                                     console.error('Erro ao adicionar filial:', erro);
+                                                } finally{
+                                                    setCarregandoFilial(false);
                                                 }
                                             }}
                                             className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer">
