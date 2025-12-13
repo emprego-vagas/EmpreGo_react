@@ -1,13 +1,13 @@
 import { faGithub, faInstagram, faXTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import {
-  faAward, faBell, faBriefcase, faCity, faFlag, faCodeBranch, faSearch, faBuilding,
-  faCalendarAlt, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEnvelope,
-  faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone,
-  faProjectDiagram, faStar, faUser, faUserPlus, faUsers,
+  faBriefcase, faCodeBranch, faBuilding,
+  faChevronLeft, faChevronRight, faEnvelope,
+  faGlobe, faHandshake, faMapMarkerAlt,
+  faProjectDiagram, faUser,
   faChartLine
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { DadosUsuario } from "../utils/globalFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useState, useMemo } from "react";
@@ -18,12 +18,12 @@ import genPfp from '../assets/imgs/genPfp.png';
 import "../App.css";
 
 // Função auxiliar para renderizar campos com verificação
-const renderField = (value: string | null | undefined, fieldTitle: string) => {
-  if (!value || value.trim() === '') {
-    return <span className="text-dark-700 dark:text-professional-subtitle italic">Não há informação neste campo: {fieldTitle}</span>;
-  }
-  return <span className="text-white">{value}</span>;
-};
+// const renderField = (value: string | null | undefined, fieldTitle: string) => {
+//   if (!value || value.trim() === '') {
+//     return <span className="text-dark-700 dark:text-professional-subtitle italic">Não há informação neste campo: {fieldTitle}</span>;
+//   }
+//   return <span className="text-white">{value}</span>;
+// };
 
 export default function PerfilEmpresaPublico() {
   const params = useParams<{ empresaId?: string; id?: string }>();
@@ -168,7 +168,7 @@ export default function PerfilEmpresaPublico() {
     const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
 
     let startPage = Math.max(currentPage - halfMaxPagesToShow, 1);
-    let endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+    const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
 
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(endPage - maxPagesToShow + 1, 1);
@@ -255,7 +255,7 @@ export default function PerfilEmpresaPublico() {
       </div>
     );
   };
-  const renderField = (value: string | null | undefined, fieldTitle: string) => {
+  const renderField = (value: string | null | undefined, _fieldTitle: string) => {
     if (!value || value.trim() === '') {
       return (
         <span className="italic">
