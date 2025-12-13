@@ -1,10 +1,16 @@
-import { useNavigate } from "react-router-dom"
-import HeaderProfiles from "../components/HeaderProfiles";
-import { DadosUsuario } from "../utils/globalFunctions";
-import { useState } from "react";
+import { useNavigate } from 'react-router-dom'
+import HeaderProfiles from '../components/HeaderProfiles';
+import { DadosUsuario, mostrarSucessoTopo } from '../utils/globalFunctions';
+import { useEffect, useRef, useState } from 'react';
 import '../App.css';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileAlt, faBuilding, faSign, faIdCard, faIndustry, faChartBar, faCamera, faShareAlt, faGlobe, faMap, faSave, faTimes, faUndo, faTrashAlt, faEdit, faCancel } from '@fortawesome/free-solid-svg-icons';
+import { faInstagram, faGithub, faTwitter, faYoutube, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import axiosWe from '../utils/axiosInstance';
+import type { Empresa } from '../utils/utilsInterfaces';
+import { salvarEdicaoEmpresa, type CampoEditEmpFace, type FileEditEmpFace } from '../ts/editarPerfilEmpresaFunctions';
+import Loader from '../components/Loader';
+import genPfp from '../assets/imgs/genPfp.png';
 
 export default function EditarPerfilEmpresa() {
     const navigate = useNavigate();
@@ -14,6 +20,82 @@ export default function EditarPerfilEmpresa() {
             navigate('/')
         }, 3000);
     };
+
+    const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+
+    const [dataLoaded, setDataLoaded] = useState(false);
+    useEffect(()=>{
+        async function loadEmp(){
+            if(!usuario) return;
+            try {
+                const response = await axiosWe('/custom/perfil-empresa-editar') as {data: {usua: Empresa}};
+                const { usua } = response.data;
+                DadosUsuario.setarFoto(usua.foto);
+                DadosUsuario.setarNome(usua.nome_fant);
+                const {
+                    foto, descricao, instagram, github, twitter, nome_fant, facebook,
+                    setor, porte, contato, site, youtube, linkedin, link_endereco
+                } = usua;
+                setNomeFantInfo({cached: nome_fant, value: nome_fant, disabled: true});
+                if(foto) setFotoInfo({cached: foto, value: null, disabled: true, truncate: false});
+                if(descricao) setDescricaoInfo({cached: descricao, value: descricao, disabled: true});
+                if(instagram) setInstagramInfo({cached: instagram, value: instagram, disabled: true});
+                if(github) setGithubInfo({cached: github, value: github, disabled: true});
+                if(twitter) setTwitterInfo({cached: twitter, value: twitter, disabled: true});
+                if(facebook) setFacebookInfo({cached: facebook, value: facebook, disabled: true});
+                if(setor) setSetorInfo({cached: setor, value: setor, disabled: true});
+                if(porte) setPorteInfo({cached: porte, value: porte, disabled: true});
+                if(contato) setContatoInfo({cached: contato, value: contato, disabled: true});
+                if(site) setSiteInfo({cached: site, value: site, disabled: true});
+                if(youtube) setYoutubeInfo({cached: youtube, value: youtube, disabled: true});
+                if(linkedin) setLinkedinInfo({cached: linkedin, value: linkedin, disabled: true});
+                if(link_endereco) setLinkEnderecoInfo({cached: link_endereco, value: link_endereco, disabled: true});
+
+                setDataLoaded(true);
+            } catch (erro) {
+                console.error('Erro ao carregar dados do usuário:',erro)
+            }
+        }
+        loadEmp();
+    }, [usuario]);
+
+    const initialState = {cached: '', value: '', disabled: false};
+    const [nomeFantInfo, setNomeFantInfo] = useState<CampoEditEmpFace>(initialState);
+    const [descricaoInfo, setDescricaoInfo] = useState<CampoEditEmpFace>(initialState);
+    const descricaoLength = descricaoInfo.value.length;
+    const [instagramInfo, setInstagramInfo] = useState<CampoEditEmpFace>(initialState);
+    const [githubInfo, setGithubInfo] = useState<CampoEditEmpFace>(initialState);
+    const [twitterInfo, setTwitterInfo] = useState<CampoEditEmpFace>(initialState);
+    const [setorInfo, setSetorInfo] = useState<CampoEditEmpFace>(initialState);
+    const [porteInfo, setPorteInfo] = useState<CampoEditEmpFace>(initialState);
+    const [contatoInfo, setContatoInfo] = useState<CampoEditEmpFace>(initialState);
+    const [siteInfo, setSiteInfo] = useState<CampoEditEmpFace>(initialState);
+    const [youtubeInfo, setYoutubeInfo] = useState<CampoEditEmpFace>(initialState);
+    const [linkedinInfo, setLinkedinInfo] = useState<CampoEditEmpFace>(initialState);
+    const [linkEnderecoInfo, setLinkEnderecoInfo] = useState<CampoEditEmpFace>(initialState);
+    const [facebookInfo, setFacebookInfo] = useState<CampoEditEmpFace>(initialState);
+    const [fotoInfo, setFotoInfo] = useState<FileEditEmpFace>({cached: '', value: null, disabled: false, truncate: false});
+
+    const [previewSrcFoto, setPreviewSrcFoto] = useState(genPfp);
+    const inputFotoPerfilOcultRef = useRef(null);
+    useEffect(() => {
+        if(fotoInfo.truncate) {
+            setPreviewSrcFoto(genPfp);
+        }
+        else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
+            setPreviewSrcFoto(fotoInfo.cached);
+        }
+        else if (fotoInfo.value as File) {
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewSrcFoto(e.target.result as string);
+            reader.readAsDataURL(fotoInfo.value);
+        }
+        else {
+            setPreviewSrcFoto(genPfp);
+        }
+    }, [fotoInfo]);
+
+    if(!dataLoaded) return (<Loader />);
 
     return (
         <div className="font-inter min-h-screen dark:bg-dark-900 bg-dark-50 ">
@@ -32,70 +114,52 @@ export default function EditarPerfilEmpresa() {
                             <h2 className="text-2xl text-center font-semibold mb-8 text-dark-900 dark:text-professional-subtitle relative pb-4
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-20 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                                <i className="fas fa-building text-professional-accent mr-2"></i>Informações da Empresa
+            
+                                <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-2" />Informações da Empresa
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label htmlFor="nomeEmpresa"
-                                        className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-signature text-professional-accent mr-2"></i>Nome Fantasia
+                                        className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faSign} className="text-professional-accent mr-2" />Nome Fantasia
+                                        {nomeFantInfo.cached && (nomeFantInfo.disabled ? (
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setNomeFantInfo(prev=>({...prev, disabled: false}))} />
+                                        ):(
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setNomeFantInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        ))}
                                     </label>
-                                    <input type="text" id="nomeEmpresa"
+                                    <input type="text" id="nomeEmpresa" value={nomeFantInfo.value} onChange={(e)=>setNomeFantInfo(prev=>({...prev, value: e.target.value}))} disabled={nomeFantInfo.disabled}
                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-dark-700  border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                         placeholder="Ex: Tech Solutions Ltda" />
                                 </div>
 
                                 <div>
                                     <label htmlFor="EmailEmpresa"
-                                        className="block text-dark-900 dark:text-professional-subtitle  mb-2 font-medium flex items-center">
-                                        <i className="fas fa-id-card text-professional-accent mr-2"></i>Email de Contato
+                                        className="text-dark-900 dark:text-professional-subtitle  mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />Email de Contato
+                                        {contatoInfo.cached && (contatoInfo.disabled ? (
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setContatoInfo(prev=>({...prev, disabled: false}))} />
+                                        ):(
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setContatoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        ))}
                                     </label>
-                                    <input type="text" id="EmailEmpresa"
+                                    <input type="text" id="EmailEmpresa" value={contatoInfo.value} onChange={(e)=>setContatoInfo(prev=>({...prev, value: e.target.value}))} disabled={contatoInfo.disabled}
                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-dark-700  border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                         placeholder="Ex: nome@exemplo.com" />
                                 </div>
 
-                                {/* <div>
-                                    <label htmlFor="cnpj"
-                                        className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-id-card text-professional-accent mr-2"></i>CNPJ
-                                    </label>
-                                    <input type="text" id="cnpj"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: xx.xxx.xxx/xxxx-xx" />
-                                </div> */}
-
-                                {/* <!-- <div>
-                                    <label for="dataAbertura"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-calendar-alt text-professional-accent mr-2"></i>Data de Abertura
-                                    </label>
-                                    <input type="date" id="dataAbertura"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
-                                </div>
-
-                                <div>
-                                    <label for="situacaoCadastral"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-user-check text-professional-accent mr-2"></i>Situação Cadastral
-                                    </label>
-                                    <select id="situacaoCadastral"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText">
-                                        <option value="" disabled selected className="text-professional-subtitle">Selecione a situação</option>
-                                        <option value="Ativa" className="bg-professional-dark">Ativa</option>
-                                        <option value="Inativa" className="bg-professional-dark">Inativa</option>
-                                        <option value="Suspensa" className="bg-professional-dark">Suspensa</option>
-                                        <option value="Baixada" className="bg-professional-dark">Baixada</option>
-                                    </select>
-                                </div> --> */}
-
                                 <div>
                                     <label htmlFor="setorAtuacao"
-                                        className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-industry text-professional-accent mr-2"></i>Setor de Atuação
+                                        className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faIndustry} className="text-professional-accent mr-2" />Setor de Atuação
+                                        {setorInfo.cached && (setorInfo.disabled ? (
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setSetorInfo(prev=>({...prev, disabled: false}))} />
+                                        ):(
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setSetorInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        ))}
                                     </label>
-                                    <input type="text" id="setorAtuacao"
+                                    <input type="text" id="setorAtuacao" value={setorInfo.value} onChange={(e)=>setSetorInfo(prev=>({...prev, value: e.target.value}))} disabled={setorInfo.disabled}
                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-dark-700  border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                         placeholder="Ex: Tecnologia da Informação" />
                                 </div>
@@ -112,12 +176,17 @@ export default function EditarPerfilEmpresa() {
 
                                 <div>
                                     <label htmlFor="porteEmpresa"
-                                        className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-chart-bar text-professional-accent mr-2"></i>Porte da Empresa
+                                        className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                        <FontAwesomeIcon icon={faChartBar} className="text-professional-accent mr-2" />Porte da Empresa
+                                        {porteInfo.cached && (porteInfo.disabled ? (
+                                            <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setPorteInfo(prev=>({...prev, disabled: false}))} />
+                                        ):(
+                                            <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setPorteInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                        ))}
                                     </label>
-                                    <select id="porteEmpresa"
+                                    <select id="porteEmpresa"  value={porteInfo.value} onChange={(e)=>setPorteInfo(prev=>({...prev, value: e.target.value}))} disabled={porteInfo.disabled}
                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-dark-700 border border-professional-card rounded-xl text-professional-subtitleText dark:text-dark-50 transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
-                                        <option value="" disabled selected className="text-dark-900 dark:text-dark-50">Selecione o porte</option>
+                                        <option value="" disabled className="text-dark-900 dark:text-dark-50">Selecione o porte</option>
                                         <option value="Pequeno" className="text-dark-900 dark:text-dark-50">Pequena Empresa</option>
                                         <option value="Médio" className="text-dark-900 dark:text-dark-50">Média Empresa</option>
                                         <option value="Grande" className="text-dark-900 dark:text-dark-50">Grande Empresa</option>
@@ -126,79 +195,6 @@ export default function EditarPerfilEmpresa() {
                             </div>
                         </div>
 
-
-
-                        {/* <!-- Redes Sociais e Links --> */}
-                        {/* <div
-                            className="gradient-bg rounded-2xl p-8 border border-professional-card shadow-xl transition-all duration-300 ease-in-out hover:border-professional-accent/50 animate-fade-in">
-                            <h2 className="text-2xl text-center font-semibold mb-8 text-professional-subtitle relative pb-4
-                            after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-                            after:w-12 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                                <i className="fas fa-share-alt text-professional-accent mr-2"></i>Redes Sociais e Contatos
-                            </h2>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label htmlFor="siteOficial"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-globe text-professional-accent mr-2"></i> Site Oficial
-                                    </label>
-                                    <input type="url" id="siteOficial"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: https://empresa.com" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="telefone"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-phone text-professional-accent mr-2"></i> Telefone
-                                    </label>
-                                    <input type="tel" id="telefone"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: (11) 99999-9999" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="instagram"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fab fa-instagram text-professional-accent mr-2"></i> Instagram
-                                    </label>
-                                    <input type="url" id="instagram"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: https://instagram.com/empresa" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="github"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fab fa-github text-professional-accent mr-2"></i> GitHub
-                                    </label>
-                                    <input type="url" id="github"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: https://github.com/empresa" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="twitter"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fab fa-x-twitter text-professional-accent mr-2"></i> Twitter/X
-                                    </label>
-                                    <input type="url" id="twitter"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: https://twitter.com/empresa" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="mapa"
-                                        className="block text-professional-subtitle mb-2 font-medium flex items-center">
-                                        <i className="fas fa-map text-professional-accent mr-2"></i> Link do Mapa
-                                    </label>
-                                    <input type="url" id="mapa"
-                                        className="w-full px-4 py-3 bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
-                                        placeholder="Ex: https://maps.google.com/..." />
-                                </div>
-                            </div>
-                        </div> */}
                     </div>
 
                     {/* <!-- Coluna direita - Logo e Cultura --> */}
@@ -209,33 +205,41 @@ export default function EditarPerfilEmpresa() {
                             <h2 className="text-2xl text-center font-semibold mb-8 text-dark-900 dark:text-professional-subtitle relative pb-4
                                 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                                 after:w-12 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                                <i className="fas fa-camera text-professional-accent mr-2"></i>Logo da Empresa
+                                <FontAwesomeIcon icon={faCamera} className="text-professional-accent mr-2" />Logo da Empresa
                             </h2>
 
                             <div className="flex flex-col items-center">
                                 <div className="relative mb-4">
-                                    <img id="previewLogo" src="/assets/imgs/genPfp.png" alt="Logo da empresa"
+                                    <img id="previewLogo" src={previewSrcFoto||genPfp} alt="Logo da empresa"
                                         className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover shadow-lg" />
 
-                                    <input type="file" id="inputLogo" accept="image/*" className="hidden" />
+                                    <input type="file" id="inputFotoPerfil" accept="image/*" className="hidden" ref={inputFotoPerfilOcultRef} onChange={(e)=>{
+                                        const file = e.target.files[0];
+                                        if(!file) return;
+                                        setFotoInfo(prev=>({...prev, value: file, truncate: false}));
+                                    }}/>
 
-                                    <button id="btnAlterarLogo"
-                                        title="Alterar Logo"
-                                        className="absolute bottom-2 right-2 bg-professional-accent text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-professional-lightaccent transition-all duration-200 transform hover:scale-110">
-                                        <i className="fas fa-camera"></i>
+                                    <button id="btnAlterarFoto" onClick={()=>inputFotoPerfilOcultRef.current.click()}
+                                        title="Adicionar Foto"
+                                        className="absolute bottom-2 right-2 bg-professional-accent text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-professional-lightaccent transition-all duration-200 transform hover:scale-110 cursor-pointer">
+                                        <FontAwesomeIcon icon={faCamera} />
                                     </button>
 
-                                    <button id="btnRemoverLogo"
-                                        title="Remover Logo"
-                                        className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 hidden">
-                                        <i className="fas fa-trash-alt"></i>
-                                    </button>
+                                    {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached!=='/assets/imgs/genPfp.png')) && (
+                                        <button id="btnRemoverFoto" onClick={()=>setFotoInfo(prev=>({...prev, value: null, truncate: true}))}
+                                            title="Remover Foto"
+                                            className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">
+                                            <FontAwesomeIcon icon={faTrashAlt} />
+                                        </button>
+                                    )}
 
-                                    <button id="btnVoltarLogo"
-                                        title="Cancelar Edição"
-                                        className="absolute top-2 left-2 bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-600 transition-all duration-200 transform hover:scale-110 hidden">
-                                        <i className="fas fa-undo"></i>
-                                    </button>
+                                    {(fotoInfo.truncate || fotoInfo.value) && (
+                                        <button id="btnVoltarFoto" onClick={()=>setFotoInfo(prev=>({...prev, value: null, truncate: false}))}
+                                            title="Cancelar Edição"
+                                            className="absolute top-2 left-2 bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-blue-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">
+                                            <FontAwesomeIcon icon={faUndo} />
+                                        </button>
+                                    )}
 
                                 </div>
 
@@ -244,9 +248,6 @@ export default function EditarPerfilEmpresa() {
                                 </p>
                             </div>
                         </div>
-
-
-                        
                     </div>
                 </div>
                 <div
@@ -254,69 +255,140 @@ export default function EditarPerfilEmpresa() {
                     <h2 className="text-2xl text-center font-semibold mb-8 text-dark-900 dark:text-professional-subtitle relative pb-4
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-12 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                        <i className="fas fa-share-alt text-professional-accent mr-2"></i>Redes Sociais e Contatos
+                        <FontAwesomeIcon icon={faShareAlt} className="text-professional-accent mr-2" />Redes Sociais e Contatos
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label htmlFor="siteOficial"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fas fa-globe text-professional-accent mr-2"></i> Site Oficial
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faGlobe} className="text-professional-accent mr-2" /> Site Oficial
+                                {siteInfo.cached && (siteInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setSiteInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setSiteInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
                             </label>
-                            <input type="url" id="siteOficial"
+                            <input type="url" id="siteOficial"  value={siteInfo.value} onChange={(e)=>setSiteInfo(prev=>({...prev, value: e.target.value}))} disabled={siteInfo.disabled}
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: https://empresa.com" />
                         </div>
 
-                        <div>
+                        {/* <div>
                             <label htmlFor="telefone"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fas fa-phone text-professional-accent mr-2"></i> Telefone
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-2" /> Telefone
                             </label>
                             <input type="tel" id="telefone"
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: (11) 99999-9999" />
+                        </div> */}
+
+                        <div>
+                            <label htmlFor="youtube"
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faYoutube} className="text-professional-accent mr-2" /> Youtube
+                                {youtubeInfo.cached && (youtubeInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setYoutubeInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setYoutubeInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
+                            </label>
+                            <input type="url" id="youtube" value={youtubeInfo.value} onChange={(e)=>setYoutubeInfo(prev=>({...prev, value: e.target.value}))} disabled={youtubeInfo.disabled}
+                                className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                placeholder="Ex: https://www.youtube.com/@empresa" />
                         </div>
 
                         <div>
                             <label htmlFor="instagram"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fab fa-instagram text-professional-accent mr-2"></i> Instagram
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faInstagram} className="text-professional-accent mr-2" /> Instagram
+                                {instagramInfo.cached && (instagramInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setInstagramInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setInstagramInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
                             </label>
-                            <input type="url" id="instagram"
+                            <input type="url" id="instagram" value={instagramInfo.value} onChange={(e)=>setInstagramInfo(prev=>({...prev, value: e.target.value}))} disabled={instagramInfo.disabled}
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: https://instagram.com/empresa" />
                         </div>
 
                         <div>
                             <label htmlFor="github"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fab fa-github text-professional-accent mr-2"></i> GitHub
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faGithub} className="text-professional-accent mr-2" /> GitHub
+                                {githubInfo.cached && (githubInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setGithubInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setGithubInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
                             </label>
-                            <input type="url" id="github"
+                            <input type="url" id="github" value={githubInfo.value} onChange={(e)=>setGithubInfo(prev=>({...prev, value: e.target.value}))} disabled={githubInfo.disabled}
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: https://github.com/empresa" />
                         </div>
 
                         <div>
                             <label htmlFor="twitter"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fab fa-x-twitter text-professional-accent mr-2"></i> Twitter/X
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faTwitter} className="text-professional-accent mr-2" /> Twitter/X
+                                {twitterInfo.cached && (twitterInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setTwitterInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setTwitterInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
                             </label>
-                            <input type="url" id="twitter"
+                            <input type="url" id="twitter" value={twitterInfo.value} onChange={(e)=>setTwitterInfo(prev=>({...prev, value: e.target.value}))} disabled={twitterInfo.disabled}
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: https://twitter.com/empresa" />
                         </div>
 
                         <div>
                             <label htmlFor="mapa"
-                                className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
-                                <i className="fas fa-map text-professional-accent mr-2"></i> Link do Mapa
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faMap} className="text-professional-accent mr-2" /> Link do Mapa
+                                {linkEnderecoInfo.cached && (linkEnderecoInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setLinkEnderecoInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setLinkEnderecoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
                             </label>
-                            <input type="url" id="mapa"
+                            <input type="url" id="mapa" value={linkEnderecoInfo.value} onChange={(e)=>setLinkEnderecoInfo(prev=>({...prev, value: e.target.value}))} disabled={linkEnderecoInfo.disabled}
                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                 placeholder="Ex: https://maps.google.com/..." />
                         </div>
+
+                        <div>
+                            <label htmlFor="facebook"
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faFacebook} className="text-professional-accent mr-2" /> Facebook
+                                {facebookInfo.cached && (facebookInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setFacebookInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setFacebookInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
+                            </label>
+                            <input type="url" id="facebook" value={facebookInfo.value} onChange={(e)=>setFacebookInfo(prev=>({...prev, value: e.target.value}))} disabled={facebookInfo.disabled}
+                                className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                placeholder="Ex: https://www.facebook.com/empresa" />
+                        </div>
+
+                        <div>
+                            <label htmlFor="linkedin"
+                                className="text-dark-900 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                <FontAwesomeIcon icon={faLinkedin} className="text-professional-accent mr-2" /> Linkedin
+                                {linkedinInfo.cached && (linkedinInfo.disabled ? (
+                                    <FontAwesomeIcon icon={faEdit} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 dark:hover:text-professional-subtitleText cursor-pointer" onClick={()=>setLinkedinInfo(prev=>({...prev, disabled: false}))} />
+                                ):(
+                                    <FontAwesomeIcon icon={faCancel} className="text-professional-dark hover:text-gray-500 dark:text-professional-accent ml-2 cursor-pointer" onClick={()=>setLinkedinInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                                ))}
+                            </label>
+                            <input type="url" id="linkedin" value={linkedinInfo.value} onChange={(e)=>setLinkedinInfo(prev=>({...prev, value: e.target.value}))} disabled={linkedinInfo.disabled}
+                                className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
+                                placeholder="Ex: https://www.linkedin.com/company/empresa" />
+                        </div>
+
                     </div>
                 </div>
                 <div
@@ -324,30 +396,50 @@ export default function EditarPerfilEmpresa() {
                     <h2 className="text-2xl text-center font-semibold mb-8 text-dark-900 dark:text-professional-subtitle relative pb-4
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-12 after:h-0.5 after:bg-professional-subtitleText after:rounded">
-                        <i className="fas fa-file-alt text-professional-accent mr-2"></i>Sobre a Empresa
+                        <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-2" />Sobre a Empresa
                     </h2>
 
                     <div>
                         <label htmlFor="sobreEmpresa" className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium">
-                            <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-2" />Descrição da Empresa</label>
-                        <textarea id="sobreEmpresa" rows={6} maxLength={500}
+                            <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-2" />Descrição da Empresa
+                            {descricaoInfo.cached && (descricaoInfo.disabled ? (
+                                <FontAwesomeIcon icon={faEdit} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setDescricaoInfo(prev=>({...prev, disabled: false}))} />
+                            ):(
+                                <FontAwesomeIcon icon={faCancel} className="text-professional-accent ml-2 hover:text-professional-subtitleText cursor-pointer" onClick={()=>setDescricaoInfo(prev=>({...prev, value: prev.cached, disabled: true}))} />
+                            ))}
+                        </label>
+                        <textarea id="sobreEmpresa" rows={6} maxLength={700} value={descricaoInfo.value} onChange={(e)=>setDescricaoInfo(prev=>({...prev, value: e.target.value}))} disabled={descricaoInfo.disabled}
                             className="w-full h-48 p-6 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-subtitle resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                             placeholder="Descreva sua empresa, sua história, especialidades e diferenciais no mercado. Seja específico e use métricas quando possível."></textarea>
                         <div className="flex justify-between mt-2">
-                            <span className="text-xs text-dark-900 dark:text-professional-subtitle">Máximo de 500 caracteres</span>
-                            <span id="contadorCaracteres" className="text-xs text-dark-900 dark:text-professional-subtitle">0/500</span>
+                            <span className="text-xs text-dark-900 dark:text-professional-subtitle">Máximo de 700 caracteres</span>
+                            <span id="contadorCaracteres" className="text-xs text-dark-900 dark:text-professional-subtitle">{`${descricaoLength}/700`}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-10 flex justify-center space-x-4">
-                    <button id="btnSalvar"
-                        className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-gradient-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40">
-                        <i className="fas fa-save"></i>Salvar Alterações
+                    <button id="btnSalvar" disabled={salvandoEdicao}
+                        className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-gradient-to-r from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40"
+                        onClick={async()=>{
+                            setSalvandoEdicao(true);
+                            const editou = await salvarEdicaoEmpresa(
+                                nomeFantInfo , descricaoInfo , instagramInfo , githubInfo ,
+                                twitterInfo , setorInfo , porteInfo , contatoInfo ,
+                                siteInfo , youtubeInfo , linkedinInfo , linkEnderecoInfo ,
+                                facebookInfo , fotoInfo
+                            );
+                            if(!editou) setSalvandoEdicao(false);
+                            else {
+                                mostrarSucessoTopo('Perfil editado com sucesso!');
+                                setTimeout(()=>{navigate('/perfil/empresa')}, 3000);
+                            }
+                        }}>
+                        <FontAwesomeIcon icon={faSave} />{salvandoEdicao ? 'Salvando...' : 'Salvar Alterações'}
                     </button>
                     <button id="btnCancelar" onClick={() => navigate('/perfil/empresa')}
                         className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-dark-700 text-professional-subtitle hover:bg-dark-700 hover:-translate-y-1">
-                        <i className="fas fa-times"></i>Cancelar
+                        <FontAwesomeIcon icon={faTimes} />Cancelar
                     </button>
                 </div>
 

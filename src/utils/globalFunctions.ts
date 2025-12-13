@@ -287,3 +287,27 @@ const estadosFormatados: Record<string, string> = {
 export function formatarEstado(sigla: string) {
   return estadosFormatados[sigla.toLowerCase()] ?? sigla;
 }
+
+export function validarLink(link: string, campo = 'Link') {
+    if (campo !== 'Link' && !link.includes(campo.toLowerCase())) {
+        mostrarErroTopo(`${campo} inválido`);
+        return false
+    };
+    try {
+        new URL(link.includes("://") ? link : "https://" + link);
+        return true;
+    } catch {
+        mostrarErroTopo(`${campo} inválido`);
+        return false;
+    };
+}
+
+export function validarEmail(email: string): boolean {
+    if (!email) return false;
+
+    const emailLimpo = email.trim();
+
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/;
+
+    return emailRegex.test(emailLimpo);
+}

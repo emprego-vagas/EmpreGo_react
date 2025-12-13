@@ -70,42 +70,39 @@ export interface Idioma {
 }
 
 export interface Empresa {
-    email: string;
-    foto: string | null;
+    id: string;
+    foto: string;
     descricao: string | null;
-    estado: string;
-    cidade: string;
     instagram: string | null;
     github: string | null;
     twitter: string | null;
-    cnpj: string;
+    data_criacao: Date | null;
     nome_fant: string;
-    telefone: string;
-    razao_soci: string;
-    cep: string;
-    complemento: string | null;
-    numero: string;
     setor: string | null;
     porte: string | null;
-    data_fund: string | null;
     contato: string | null;
     site: string | null;
     youtube: string | null;
-    filiais?: {
-        cidade: string | null;
-        estado: string | null;
-        tipo?: string | null;
-    }[];
+    linkedin: string | null;
+    link_endereco: string | null;
+    facebook: string | null;
 }
 
 export interface CustomEmp {
     tags_empresas: Tag_empresa[];
     tags_count: number;
-    filiais?: { cidade: string | null; estado: string | null; tipo?: string | null; id?: string }[];
-    filiais_count?: number;
+    filiais: Filial[];
+    filiais_count: number;
 }
 
 export interface Tag_empresa {
     id: string;
     nome: string;
+}
+
+export interface Filial { 
+    cidade: string;
+    estado: string;
+    tipo: string;
+    id: string
 }

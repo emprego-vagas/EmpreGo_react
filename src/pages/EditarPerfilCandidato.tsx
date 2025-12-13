@@ -73,21 +73,22 @@ export default function EditarPerfilCandidato () {
         loadCand();
     }, [usuario]);
 
-    const [nomeInfo, setNomeInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [cpfInfo, setCpfInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [pronomesInfo, setPronomesInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [portfolioInfo, setPortfolioInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [githubInfo, setGithubInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [curriculoInfo, setCurriculoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [instagramInfo, setInstagramInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [site_pessoalInfo, setSite_pessoalInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [twitterInfo, setTwitterInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [cidadeInfo, setCidadeInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [estadoInfo, setEstadoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [cargo_atualInfo, setCargo_atualInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [empresa_atualInfo, setEmpresa_atualInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
-    const [descricaoInfo, setDescricaoInfo] = useState<CampoEditCandFace>({cached: '', value: '', disabled: false});
+    const initialState = {cached: '', value: '', disabled: false};
+    const [nomeInfo, setNomeInfo] = useState<CampoEditCandFace>(initialState);
+    const [cpfInfo, setCpfInfo] = useState<CampoEditCandFace>(initialState);
+    const [pronomesInfo, setPronomesInfo] = useState<CampoEditCandFace>(initialState);
+    const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState<CampoEditCandFace>(initialState);
+    const [portfolioInfo, setPortfolioInfo] = useState<CampoEditCandFace>(initialState);
+    const [githubInfo, setGithubInfo] = useState<CampoEditCandFace>(initialState);
+    const [curriculoInfo, setCurriculoInfo] = useState<CampoEditCandFace>(initialState);
+    const [instagramInfo, setInstagramInfo] = useState<CampoEditCandFace>(initialState);
+    const [site_pessoalInfo, setSite_pessoalInfo] = useState<CampoEditCandFace>(initialState);
+    const [twitterInfo, setTwitterInfo] = useState<CampoEditCandFace>(initialState);
+    const [cidadeInfo, setCidadeInfo] = useState<CampoEditCandFace>(initialState);
+    const [estadoInfo, setEstadoInfo] = useState<CampoEditCandFace>(initialState);
+    const [cargo_atualInfo, setCargo_atualInfo] = useState<CampoEditCandFace>(initialState);
+    const [empresa_atualInfo, setEmpresa_atualInfo] = useState<CampoEditCandFace>(initialState);
+    const [descricaoInfo, setDescricaoInfo] = useState<CampoEditCandFace>(initialState);
     const descricaoLength = descricaoInfo.value.length;
     const [fotoInfo, setFotoInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
     const [curriculo_fileInfo, setCurriculo_fileInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
@@ -210,8 +211,6 @@ export default function EditarPerfilCandidato () {
                                     className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-card dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                                     placeholder="Ex: 000.000.000-00" />
                             </div>
-
-                            
 
                             <div>
                                 <label htmlFor="pronomes"
