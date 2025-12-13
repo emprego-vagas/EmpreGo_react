@@ -43,54 +43,54 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
                 mostrarErroTopo('O campo de pronome personalizado deve ser preenchido');
                 return false;
             }
-            // Se tem valor personalizado, envia; se não, envia 'null' para remover
-            formData.append('pronomes', pronPersnlzd?.trim() || 'null');
+            // Se tem valor personalizado, envia; se não, envia null para remover
+            formData.append('pronomes', pronPersnlzd?.trim() || null);
         } else if (pronSelect) {
             // Para opções do select
             formData.append('pronomes', pronSelect);
         } else {
             // Se não selecionou nada (para remover pronome)
-            formData.append('pronomes', 'null');
+            formData.append('pronomes', null);
         }
     }
     if(!portfolioInfo.disabled && (portfolioInfo.value || portfolioInfo.cached) && portfolioInfo.value!==portfolioInfo.cached) {
         // * Se passar pela validação do if (campo não está desabilitado, ou seja foi ou pode ter sido editado, foi editado ou foi removido mas tinha no cached e o valor é diferente do cached) tenta usar o 
-        // * valor do input, se não funcionar manda como 'null' para resetar o campo (pois significa que o usuário tinha mas quis tirar)
-        const valor = portfolioInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor)) return false;
+        // * valor do input, se não funcionar manda como null para resetar o campo (pois significa que o usuário tinha mas quis tirar)
+        const valor = portfolioInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor)) return false;
         formData.append('portifolio', valor);
     };
     if(!curriculoInfo.disabled && (curriculoInfo.value || curriculoInfo.cached) && curriculoInfo.value!==curriculoInfo.cached) {
-        const valor = curriculoInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor)) return false;
+        const valor = curriculoInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor)) return false;
         formData.append('curriculo', valor);
     };
     if(!site_pessoalInfo.disabled && (site_pessoalInfo.value || site_pessoalInfo.cached) && site_pessoalInfo.value!==site_pessoalInfo.cached) {
-        const valor = site_pessoalInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor)) return false;
+        const valor = site_pessoalInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor)) return false;
         formData.append('site_pessoal', valor);
     };
     if(!githubInfo.disabled && (githubInfo.value || githubInfo.cached) && githubInfo.value!==githubInfo.cached) {
-        const valor = githubInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor, 'Github')) return false;
+        const valor = githubInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor, 'Github')) return false;
         formData.append('github', valor);
     };
     if(!instagramInfo.disabled && (instagramInfo.value || instagramInfo.cached) && instagramInfo.value!==instagramInfo.cached) {
-        const valor = instagramInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor, 'Instagram')) return false;
+        const valor = instagramInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor, 'Instagram')) return false;
         formData.append('instagram', valor);
     };
     if(!twitterInfo.disabled && (twitterInfo.value || twitterInfo.cached) && twitterInfo.value!==twitterInfo.cached) {
-        const valor = twitterInfo.value?.trim() || 'null';
-        if (valor !== 'null' && !validarLink(valor, 'X')) return false;
+        const valor = twitterInfo.value?.trim() || null;
+        if (valor !== null && !validarLink(valor, 'X')) return false;
         formData.append('twitter', valor);
     };
     if(!estadoInfo.disabled && (estadoInfo.value || estadoInfo.cached) && estadoInfo.value!==estadoInfo.cached) {
-        formData.append('estado', estadoInfo.value || 'null');
+        formData.append('estado', estadoInfo.value || null);
     };
     if(!cidadeInfo.disabled && (cidadeInfo.value || cidadeInfo.cached) && cidadeInfo.value!==cidadeInfo.cached) {
-        const valor = cidadeInfo.value?.trim() || 'null';
-        if (valor !== 'null') {
+        const valor = cidadeInfo.value?.trim() || null;
+        if (valor !== null) {
             if(!estadoInfo.value) {
                 mostrarErroTopo('Para alterar a cidade você precisa fornecer um estado')
                 return false
@@ -101,19 +101,19 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
         formData.append('cidade', valor);
     };
     if(fotoInfo.value || (fotoInfo.cached!=='/assets/imgs/genPfp.png' && fotoInfo.truncate)) {
-        formData.append('foto', fotoInfo.value || 'null');
+        formData.append('foto', fotoInfo.value || null);
     };
     if(!cargo_atualInfo.disabled && (cargo_atualInfo.value || cargo_atualInfo.cached) && cargo_atualInfo.value!==cargo_atualInfo.cached) {
-        formData.append('cargo_atual', cargo_atualInfo.value?.trim() || 'null');
+        formData.append('cargo_atual', cargo_atualInfo.value?.trim() || null);
     };
     if(!empresa_atualInfo.disabled && (empresa_atualInfo.value || empresa_atualInfo.cached) && empresa_atualInfo.value!==empresa_atualInfo.cached) {
-        formData.append('empresa_atual', empresa_atualInfo.value?.trim() || 'null');
+        formData.append('empresa_atual', empresa_atualInfo.value?.trim() || null);
     };
     if(!descricaoInfo.disabled && (descricaoInfo.value || descricaoInfo.cached) && descricaoInfo.value!==descricaoInfo.cached) {
-        formData.append('descricao', descricaoInfo.value?.trim() || 'null');
+        formData.append('descricao', descricaoInfo.value?.trim() || null);
     };
     if(curriculo_fileInfo.value || (curriculo_fileInfo.cached && curriculo_fileInfo.truncate)) {
-        formData.append('curriculo_file', curriculo_fileInfo.value || 'null');
+        formData.append('curriculo_file', curriculo_fileInfo.value || null);
     };
     if (formData.entries().next().done) return true; // * Valida se nada foi editado
 

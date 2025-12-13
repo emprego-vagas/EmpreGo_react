@@ -3,6 +3,8 @@ import HeaderProfiles from "../components/HeaderProfiles";
 import { DadosUsuario } from "../utils/globalFunctions";
 import { useState } from "react";
 import '../App.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default function EditarPerfilEmpresa() {
     const navigate = useNavigate();
@@ -116,7 +118,7 @@ export default function EditarPerfilEmpresa() {
                                     <select id="porteEmpresa"
                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-dark-700 border border-professional-card rounded-xl text-professional-subtitleText dark:text-dark-50 transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
                                         <option value="" disabled selected className="text-dark-900 dark:text-dark-50">Selecione o porte</option>
-                                        <option value="Pequeno" className="text-dark-900 dark:text-dark-50">Pequena Empresa (EPP)</option>
+                                        <option value="Pequeno" className="text-dark-900 dark:text-dark-50">Pequena Empresa</option>
                                         <option value="Médio" className="text-dark-900 dark:text-dark-50">Média Empresa</option>
                                         <option value="Grande" className="text-dark-900 dark:text-dark-50">Grande Empresa</option>
                                     </select>
@@ -326,7 +328,8 @@ export default function EditarPerfilEmpresa() {
                     </h2>
 
                     <div>
-                        <label htmlFor="sobreEmpresa" className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium">Descrição da Empresa</label>
+                        <label htmlFor="sobreEmpresa" className="block text-dark-900 dark:text-professional-subtitle mb-2 font-medium">
+                            <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-2" />Descrição da Empresa</label>
                         <textarea id="sobreEmpresa" rows={6} maxLength={500}
                             className="w-full h-48 p-6 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-xl text-dark-900 dark:text-professional-subtitle resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText"
                             placeholder="Descreva sua empresa, sua história, especialidades e diferenciais no mercado. Seja específico e use métricas quando possível."></textarea>
