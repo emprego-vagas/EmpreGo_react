@@ -474,7 +474,7 @@ export default function PerfilEmpresaPublico() {
                         <div className="text-2xl font-bold text-professional-accent">12</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Vagas Ativas</div>
                       </div>
-                      <div className="bg-dark-100 dark:bg-professional-grayrounded-lg p-4 text-center">
+                      <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-professional-accent">15</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Colaboradores</div>
                       </div>
