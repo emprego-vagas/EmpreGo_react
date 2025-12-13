@@ -24,6 +24,7 @@ import { useEffect } from 'react';
 import CandVagas from './pages/CandVagas';
 import ViewCandidatos from './pages/ViewCandidatos';
 import { DadosUsuario } from './utils/globalFunctions'
+import EmpresasPF from './pages/EmpresasPF';
 
 function App() {
   const usuario = DadosUsuario.getUsuario();
@@ -65,6 +66,7 @@ function App() {
         <Route path='/candidatos' element={<ViewCandidatos />} />
         <Route path='/empresa/:id' element={<Index />} />
         <Route path='/candidato/:id' element={<Index />} />
+        <Route path='/EmpresasPF' element={<EmpresasPF />} />
       </Routes>
     </BrowserRouter>
   )

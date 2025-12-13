@@ -431,10 +431,10 @@ export default function PerfilEmpresa() {
                         <div
                             className="bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                             <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
-        after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
-        after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
+                                after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
+                                after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
-                                Filiais
+                                Tipos de Unidades
                             </h2>
 
                             <div id="divFiliaisExib" className="space-y-3 min-h-[100px] mb-4">
@@ -1033,7 +1033,6 @@ export default function PerfilEmpresa() {
                             </div>
                         </div>
 
-                        {/* <!--* Aba Depoimentos --> */}
                         <div id="Depoimentos" className="tab-pane hidden">
                             <div
                                 className="bg-professional-card rounded-xl border border-professional-card overflow-hidden transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
@@ -1092,7 +1091,6 @@ export default function PerfilEmpresa() {
                             </div>
                         </div>
 
-                        {/* <!--* Aba Favoritos --> */}
                         <div id="Favoritos" className="tab-pane hidden">
                             <div
                                 className="bg-professional-card rounded-xl border border-professional-card overflow-hidden transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
