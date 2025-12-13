@@ -114,8 +114,10 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
 
     return (
         <article
-            className={"empresa-card bg-gray-200 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[380px]"}>
-            <div className="card-header relative h-40 bg-gray-800 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
+            className={"empresa-card  bg-dark-50 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[400px]"}>
+
+            {/* Header com logo e botão favorito */}
+            <div className="card-header relative h-40 bg-dark-700 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
                 <img src={logo} alt={nome} className="empresa-logo w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md z-10 transition-transform" />
 
                 <button onClick={handleFavorito} className="favorite-btn absolute top-3 right-3 bg-black/40 border-none w-10 h-10 rounded-full flex items-center justify-center cursor-pointer text-gray-300 transition-all z-20 backdrop-blur-sm hover:bg-black/60 hover:scale-110">
@@ -123,6 +125,7 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
                 </button>
             </div>
 
+            {/* Corpo do card */}
             <div className="card-body p-6 flex-1 ">
                 {/* Nome da empresa e informações de localização/setor */}
                 <div className="empresa-info mb-3">
