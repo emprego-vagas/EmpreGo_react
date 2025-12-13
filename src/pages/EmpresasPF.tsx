@@ -36,33 +36,33 @@ export default function PerfilEmpresaPublico() {
 
 
   const [tagsCarregadasCompletas, setTagsCarregadasCompletas] = useState(false);
-const [tagsPerPage] = useState(15);
+  const [tagsPerPage] = useState(15);
   const carregarTodasTagsAutomatico = async () => {
-  if (tagsCarregadasCompletas) return;
+    if (tagsCarregadasCompletas) return;
 
-  try {
-    if (!customPerfil) return;
+    try {
+      if (!customPerfil) return;
 
-    if (customPerfil.tags_empresas.length >= customPerfil.tags_count) {
+      if (customPerfil.tags_empresas.length >= customPerfil.tags_count) {
+        setTagsCarregadasCompletas(true);
+        return;
+      }
+
+      const response = await axiosWe(`/tags/empresas?offset=${customPerfil.tags_empresas.length}`) as { data: Tag[] };
+
+      setCustomPerfil(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          tags_empresas: [...prev.tags_empresas, ...response.data]
+        };
+      });
+
       setTagsCarregadasCompletas(true);
-      return;
+    } catch (erro) {
+      console.error("Erro ao carregar todas as tags automaticamente:", erro);
     }
-
-    const response = await axiosWe(`/tags/empresas?offset=${customPerfil.tags_empresas.length}`) as { data: Tag[] };
-
-    setCustomPerfil(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        tags_empresas: [...prev.tags_empresas, ...response.data]
-      };
-    });
-
-    setTagsCarregadasCompletas(true);
-  } catch (erro) {
-    console.error("Erro ao carregar todas as tags automaticamente:", erro);
-  }
-};
+  };
 
 
   useEffect(() => {
@@ -70,8 +70,8 @@ const [tagsPerPage] = useState(15);
       try {
         setLoading(true);
         if (empresaId) {
-          const response = await axiosWe(`/empresa/public/${empresaId}`) as { 
-            data: { usua: Empresa, custom: CustomEmp } 
+          const response = await axiosWe(`/empresa/public/${empresaId}`) as {
+            data: { usua: Empresa, custom: CustomEmp }
           };
           const data = response.data;
           const { usua, custom } = data;
@@ -91,29 +91,27 @@ const [tagsPerPage] = useState(15);
         }
 
         const fallbackEmpresa: Empresa = {
-          // email: '',
+          id: '',
           foto: genPfp,
-          descricao: null,
-          estado: '',
-          cidade: '',
-          instagram: null,
-          github: null,
-          twitter: null,
-          // cnpj: '',
+          descricao: '',
+          instagram: '',
+          github: '',
+          twitter: '',
+          data_criacao: new Date(0),
           nome_fant: 'Nome da Empresa',
-          // telefone: '',
-          // razao_soci: '',
-          // cep: '',
-          // complemento: null,
-          // numero: '',
-          setor: null,
-          porte: null,
-          data_criacao: null,
-          contato: null,
-          site: null,
-          youtube: null,
-          linkedin: null,
-          filiais: []
+          setor: '',
+          porte: '',
+          contato: '',
+          site: '',
+          youtube: '',
+          linkedin: '',
+          link_endereco: '',
+          facebook: '',
+          cidade: '',
+          estado: '',
+          email: '',
+          telefone: '',
+          cnpj: '',
         };
         setEmpPerfil(fallbackEmpresa);
         setCustomPerfil({ tags_empresas: [], tags_count: 0, filiais: [], filiais_count: 0 });
@@ -125,15 +123,15 @@ const [tagsPerPage] = useState(15);
     };
     loadEmp();
   }, [empresaId]);
-    useEffect(() => {
-      if (
-        !customPerfil ||
-        tagsCarregadasCompletas ||
-        customPerfil.tags_empresas.length !== 6
-      ) return;
+  useEffect(() => {
+    if (
+      !customPerfil ||
+      tagsCarregadasCompletas ||
+      customPerfil.tags_empresas.length !== 6
+    ) return;
 
-      carregarTodasTagsAutomatico();
-    }, [customPerfil, tagsCarregadasCompletas]);
+    carregarTodasTagsAutomatico();
+  }, [customPerfil, tagsCarregadasCompletas]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -166,22 +164,22 @@ const [tagsPerPage] = useState(15);
   };
 
   const getPageNumbers = () => {
-    const maxPagesToShow = 5; 
+    const maxPagesToShow = 5;
     const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
-    
+
     let startPage = Math.max(currentPage - halfMaxPagesToShow, 1);
     let endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
 
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(endPage - maxPagesToShow + 1, 1);
     }
-    
+
     return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
   };
-// useEffect(() => {
-//   console.log("TOTAL TAGS:", customPerfil?.tags_empresas?.length);
-//   console.log("TAGS:", customPerfil?.tags_empresas);
-// }, [customPerfil]);
+  // useEffect(() => {
+  //   console.log("TOTAL TAGS:", customPerfil?.tags_empresas?.length);
+  //   console.log("TAGS:", customPerfil?.tags_empresas);
+  // }, [customPerfil]);
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -194,8 +192,8 @@ const [tagsPerPage] = useState(15);
         <button
           onClick={goToPreviousPage}
           disabled={currentPage === 1}
-          className={`p-2 rounded-lg mr-2 ${currentPage === 1 
-            ? 'bg-dark-300 dark:bg-professional-card text-dark-700 dark:text-professional-subtitle cursor-not-allowed' 
+          className={`p-2 rounded-lg mr-2 ${currentPage === 1
+            ? 'bg-dark-300 dark:bg-professional-card text-dark-700 dark:text-professional-subtitle cursor-not-allowed'
             : 'bg-dark-300 dark:bg-professional-gray text-black dark:text-white hover:bg-professional-accent hover:text-white transition-colors'}`}
         >
           <FontAwesomeIcon icon={faChevronLeft} />
@@ -249,7 +247,7 @@ const [tagsPerPage] = useState(15);
           onClick={goToNextPage}
           disabled={currentPage === totalPages}
           className={`p-2 rounded-lg ml-2 ${currentPage === totalPages
-            ? 'bg-dark-300 dark:bg-professional-card text-dark-700 dark:text-professional-subtitle cursor-not-allowed' 
+            ? 'bg-dark-300 dark:bg-professional-card text-dark-700 dark:text-professional-subtitle cursor-not-allowed'
             : 'bg-dark-300 dark:bg-professional-gray text-black dark:text-white hover:bg-professional-accent hover:text-white transition-colors'}`}
         >
           <FontAwesomeIcon icon={faChevronRight} />
@@ -257,16 +255,16 @@ const [tagsPerPage] = useState(15);
       </div>
     );
   };
-const renderField = (value: string | null | undefined, fieldTitle: string) => {
-  if (!value || value.trim() === '') {
-    return (
-      <span className="italic">
-        Contato Não informado
-      </span>
-    );
-  }
-  return <span>{value}</span>;
-};
+  const renderField = (value: string | null | undefined, fieldTitle: string) => {
+    if (!value || value.trim() === '') {
+      return (
+        <span className="italic">
+          Contato Não informado
+        </span>
+      );
+    }
+    return <span>{value}</span>;
+  };
 
   if (loading) return <Loader />;
   if (!empPerfil) return (
@@ -284,9 +282,9 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
           </div>
           <div className="absolute -bottom-12 left-6">
             <div className="flex items-end">
-              <img 
-                id="fotoUsuario" 
-                src={empPerfil.foto === '/assets/imgs/genPfp.png' ? genPfp : empPerfil.foto} 
+              <img
+                id="fotoUsuario"
+                src={empPerfil.foto === '/assets/imgs/genPfp.png' ? genPfp : empPerfil.foto}
                 alt="Logo da empresa"
                 className="w-32 h-32 rounded-full border-4 border-professional-card bg-professional-card object-cover"
               />
@@ -300,9 +298,9 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
               <h1 id="nomUsuario" className="text-3xl font-bold text-dark-700 dark:text-dark-50">{empPerfil.nome_fant}</h1>
               <div className="flex items-center mt-2 space-x-4">
                 {empPerfil.site && (
-                  <a 
-                    href={empPerfil.site} 
-                    target="_blank" 
+                  <a
+                    href={empPerfil.site}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
                   >
@@ -310,9 +308,9 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                   </a>
                 )}
                 {empPerfil.instagram && (
-                  <a 
-                    href={empPerfil.instagram} 
-                    target="_blank" 
+                  <a
+                    href={empPerfil.instagram}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
                   >
@@ -390,12 +388,12 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Setor</div>
                         <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.setor, "Setor")}</div>
                       </div>
-                      
+
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Porte</div>
                         <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.porte, "Porte")}</div>
                       </div>
-                      
+
                       {/* <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">CNPJ</div>
                         <div className="text-white">
@@ -438,7 +436,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                       <div className="space-y-4">
                         <div className="flex flex-wrap gap-3">
                           {currentTags.map((tag) => (
-                            <span 
+                            <span
                               key={tag.id}
                               className="inline-flex items-center gap-1.5 py-2 px-4 bg-dark-100 dark:bg-professional-gray text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                             >
@@ -446,14 +444,14 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                             </span>
                           ))}
                         </div>
-                        
+
                         {totalPages > 1 && (
                           <div className="pt-4 border-t border-professional-card">
                             <div className="flex flex-col items-center justify-between space-y-3 sm:flex-row sm:space-y-0">
                               <div className="text-sm text-dark-700 dark:text-professional-subtitle">
                                 Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.tags_empresas.length)} de {customPerfil.tags_empresas.length} especializações
                               </div>
-                              
+
                               {renderPagination()}
                             </div>
                           </div>
@@ -500,19 +498,19 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Missão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                           Missão não informado
+                          Missão não informado
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Visão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                           Visão não informado
+                          Visão não informado
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Valores</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                           Valores não informado
+                          Valores não informado
                         </p>
                       </div>
                     </div>
@@ -529,7 +527,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                         <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.contato, "Email")}</div>
                       </div>
                     </div>
-                    
+
                     {/* <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                       <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-3" />
                       <div>
@@ -549,7 +547,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Site</div>
                         {empPerfil.site ? (
-                          <a 
+                          <a
                             href={empPerfil.site}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -577,7 +575,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                   <h2 className="text-xl font-bold mb-4 text-professional-accent">Redes Sociais</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {empPerfil.instagram ? (
-                      <a 
+                      <a
                         href={empPerfil.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -602,9 +600,9 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                         </div>
                       </div>
                     )}
-                    
+
                     {empPerfil.github ? (
-                      <a 
+                      <a
                         href={empPerfil.github}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -629,9 +627,9 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                         </div>
                       </div>
                     )}
-                    
+
                     {empPerfil.twitter ? (
-                      <a 
+                      <a
                         href={empPerfil.twitter}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -658,7 +656,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                     )}
 
                     {empPerfil.youtube ? (
-                      <a 
+                      <a
                         href={empPerfil.youtube}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -678,7 +676,7 @@ const renderField = (value: string | null | undefined, fieldTitle: string) => {
                         <div>
                           <div className="text-dark-700 dark:text-white  font-medium">YouTube</div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle italic">
-                             YouTube não informado
+                            YouTube não informado
                           </div>
                         </div>
                       </div>
