@@ -1,5 +1,5 @@
-import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import {faAward, faBell, faBriefcase, faTimes, faCity, faFlag, faCodeBranch, faSearch, faBuilding, faCalendarAlt, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEdit, faEnvelope, faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faUserPlus, faUsers} from "@fortawesome/free-solid-svg-icons";
+import { faFacebook, faGithub, faInstagram, faLinkedin, faXTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import {faAward, faBell, faBriefcase, faTimes, faCity, faFlag, faCodeBranch, faSearch, faBuilding, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEdit, faEnvelope, faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone, faPlus, faPlusCircle, faProjectDiagram, faStar, faUserPlus, faUsers} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from "react-router-dom"
 import HeaderProfiles from "../components/HeaderProfiles";
@@ -42,6 +42,7 @@ export default function PerfilEmpresa() {
     const [buscaEstado, setBuscaEstado] = useState('');
     const [mostrarListaEstados, setMostrarListaEstados] = useState(false);
     const [mostrarMaisFiliaisExib, setMostrarMaisFiliaisExib] = useState(true);
+    const [carregandoFilial, setCarregandoFilial] = useState(false);
 
     const estadosBrasil = [
         { sigla: 'AC', nome: 'Acre' },
@@ -83,8 +84,8 @@ export default function PerfilEmpresa() {
                 setMostrarMaisFiliaisExib(false);
                 return;
             }
-            // const response = await axiosWe(`/filiais/empresa?offset=${customPerfil.filiais?.length ?? 0}`);
-            // setCustomPerfil(prev => ({ ...prev, filiais: [...(prev.filiais || []), ...response.data] }));
+            const response = await axiosWe(`/filial?offset=${customPerfil.filiais?.length ?? 0}`);
+            setCustomPerfil(prev => ({ ...prev, filiais: [...(prev.filiais || []), ...response.data] }));
             setMostrarMaisFiliaisExib(false);
         } catch (erro) {
             console.error('Erro ao buscar mais filiais', erro);
@@ -126,11 +127,8 @@ export default function PerfilEmpresa() {
                 DadosUsuario.setarFoto(usua.foto);
                 DadosUsuario.setarNome(usua.nome_fant);
                 setEmpPerfil(usua);
-                if (usua?.filiais && usua.filiais.length > 0) {
-                    setCustomPerfil({ ...custom, filiais: usua.filiais, filiais_count: usua.filiais.length });
-                } else {
-                    setCustomPerfil(custom);
-                }
+                setCustomPerfil(custom);
+                
                 console.log(data);
             } catch (erro) {
                 console.error("Erro ao carregar perfil da empresa:", erro);
@@ -139,11 +137,12 @@ export default function PerfilEmpresa() {
         loadEmp();
     }, [usuario]);
 
-    useEffect(() => {
-        if (empPerfil?.filiais && customPerfil) {
-            setCustomPerfil(prev => ({ ...prev, filiais: empPerfil.filiais, filiais_count: empPerfil.filiais.length }));
-        }
-    }, [empPerfil, customPerfil]);
+    // ! Dps validar se precisa mesmo desse effect
+    // useEffect(() => {
+    //     if (customPerfil.filiais && customPerfil) {
+    //         setCustomPerfil(prev => ({ ...prev, filiais: customPerfil.filiais, filiais_count: customPerfil.filiais_count }));
+    //     }
+    // }, [customPerfil]);
 
     if (!empPerfil) return (<Loader />)
 
@@ -159,11 +158,17 @@ export default function PerfilEmpresa() {
                                 className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover mb-4"
                                 title="Foto de Perfil" />
                             <div className="w-full space-y-2 mb-6">
-                                {/* <div className="bg-professional-gray rounded-lg p-3" title="CNPJ">
+                                <div className="bg-professional-gray rounded-lg p-3" title="CNPJ">
                                     <FontAwesomeIcon icon={faIdCard} className="text-professional-accent mr-2" />
                                     <span id="cnpjEmpresa" className="text-sm">{empPerfil.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")}</span>
-                                </div> */}
-                                {empPerfil.data_fund && (
+                                </div>
+
+                                <div className="bg-professional-gray rounded-lg p-3" title="Telefone">
+                                    <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-2" />
+                                    <span id="telefoneEmpresa" className="text-sm">{empPerfil.telefone.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4')}</span>
+                                </div>
+                                
+                                {/* {empPerfil.data_fund && (
                                     <div className="bg-professional-gray rounded-lg p-3" title="Data de abertura">
                                         <FontAwesomeIcon icon={faCalendarAlt} className="text-professional-accent mr-2" />
                                         {(() => {
@@ -172,7 +177,7 @@ export default function PerfilEmpresa() {
                                             return (<span id="aberturaEmpresa" className="text-sm">{`${diaNasc}/${mesNasc}/${anoNasc}`}</span>)
                                         })()}
                                     </div>
-                                )}
+                                )} */}
 
                                 {/*
                                 //? Azevedo: O que vai definir essa situação cadastral?
@@ -210,7 +215,7 @@ export default function PerfilEmpresa() {
                                     <span id="estadoEmpresaSede" className="text-sm text-center">Estado: ({empPerfil.estado})</span><br />
                                     <span id="cidadeEmpresaSede" className="text-sm text-center">Cidade: {empPerfil.cidade}</span>
                                 </div>
-                                {customPerfil?.filiais && customPerfil.filiais.length > 0 && (
+                                {customPerfil.filiais && customPerfil.filiais_count > 0 && (
                                     <div id="divLocalizacaoFilial" className="bg-professional-gray rounded-lg p-3 mt-3" title="Localização Filial">
                                         <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
                                         <span id="localizacaoFilialEmpresa" className="text-sm">{`${customPerfil.filiais[0].cidade} (${customPerfil.filiais[0].estado})`}</span><br />
@@ -261,7 +266,7 @@ export default function PerfilEmpresa() {
                             <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Mapa">
                                     <FontAwesomeIcon icon={faMap} className="text-professional-accent mr-3 text-xl" />
-                                    <a id="mapaEmpresa" href="#"
+                                    <a id="mapaEmpresa" href={empPerfil.link_endereco}
                                         className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors"
                                         target="_blank">
                                         Mapa ou link para Google Maps
@@ -277,14 +282,6 @@ export default function PerfilEmpresa() {
                                             Site Oficial
                                         </a>
                                     )}
-                                </div>
-
-                                <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Telefone">
-                                    <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-3 text-xl" />
-                                    <span id="telefoneEmpresa"
-                                        className="nomeRedeSoc text-professional-subtitle hover:text-professional-accent transition-colors">
-                                        {empPerfil.telefone.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4')}
-                                    </span>
                                 </div>
 
                                 <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Instagram">
@@ -320,6 +317,40 @@ export default function PerfilEmpresa() {
                                         </a>
                                     )}
                                 </div>
+
+                                <div className="flex items-center bg-professional-gray rounded-lg p-3" title="YouTube">
+                                    <FontAwesomeIcon icon={faYoutube} className="text-professional-accent mr-3 text-xl" />
+                                    {empPerfil.youtube && (
+                                        <a id="twtUsuario" href={empPerfil.youtube}
+                                            className="ytUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
+                                            target="_blank">
+                                            YouTube
+                                        </a>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Linkedin">
+                                    <FontAwesomeIcon icon={faLinkedin} className="text-professional-accent mr-3 text-xl" />
+                                    {empPerfil.linkedin && (
+                                        <a id="linkedinUsuario" href={empPerfil.linkedin}
+                                            className="twtUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
+                                            target="_blank">
+                                            Linkedin
+                                        </a>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center bg-professional-gray rounded-lg p-3" title="Linkedin">
+                                    <FontAwesomeIcon icon={faFacebook} className="text-professional-accent mr-3 text-xl" />
+                                    {empPerfil.facebook && (
+                                        <a id="linkedinUsuario" href={empPerfil.facebook}
+                                            className="facebookUsuario text-professional-subtitle hover:text-professional-accent transition-colors"
+                                            target="_blank">
+                                            Facebook
+                                        </a>
+                                    )}
+                                </div>
+
                             </div>
 
                             <div id="valoresInfo" className="bg-professional-gray rounded-lg p-4">
@@ -434,12 +465,12 @@ export default function PerfilEmpresa() {
                                 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                                 after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
-                                Tipos de Unidades
+                                Unidades: {customPerfil.filiais_count}
                             </h2>
 
                             <div id="divFiliaisExib" className="space-y-3 min-h-[100px] mb-4">
-                                {(customPerfil?.filiais && customPerfil.filiais.length > 0) ? customPerfil.filiais.map((filial, idx) => (
-                                    <div key={filial.id ?? `${filial.cidade}-${filial.estado}-${idx}`} className="inline-flex items-center gap-2 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer group"
+                                {(customPerfil.filiais && customPerfil.filiais.length > 0) ? customPerfil.filiais.map((filial, idx) => (
+                                    <div key={filial.id} className="inline-flex items-center gap-2 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer group"
                                         title={`Filial ${filial.cidade} (${filial.estado}) - ${filial.tipo ?? 'Tipo não informado'}`}
                                         onClick={() => console.log(`Editar filial ${filial.estado}`)}>
                                         <FontAwesomeIcon icon={faBuilding} className="text-professional-accent" />
@@ -461,14 +492,15 @@ export default function PerfilEmpresa() {
                                             <FontAwesomeIcon icon={faEdit} size="sm" />
                                         </button>
                                         <button className="ml-2 text-professional-subtitleText hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            onClick={(e) => {
+                                            onClick={async(e) => {
                                                 e.stopPropagation();
                                                 setCustomPerfil(prev => {
                                                     if (!prev) return prev;
                                                     const current = prev.filiais ?? [];
                                                     const newList = current.filter((f, i) => (filial.id ? f.id !== filial.id : i !== idx));
-                                                    return { ...prev, filiais: newList, filiais_count: newList.length };
+                                                    return { ...prev, filiais: newList, filiais_count: prev.filiais_count-1 };
                                                 });
+                                                await axiosWe.delete(`/filial/${filial.id}`)
                                             }}>
                                             <FontAwesomeIcon icon={faTimes} size="xs" />
                                         </button>
@@ -480,7 +512,7 @@ export default function PerfilEmpresa() {
                                     </div>
                                 )}
 
-                                {mostrarMaisFiliaisExib && (customPerfil?.filiais_count ?? 0) > (customPerfil?.filiais?.length ?? 0) && (
+                                {mostrarMaisFiliaisExib && (customPerfil.filiais_count ?? 0) > (customPerfil.filiais.length ?? 0) && (
                                     <button id="maisFiliais"
                                         className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                         title="Carregar mais filiais"
@@ -654,7 +686,7 @@ export default function PerfilEmpresa() {
                                         >
                                             Cancelar
                                         </button>
-                                        <button
+                                        <button disabled={carregandoFilial}
                                             onClick={async () => {
                                                 if (!novaFilial.cidade || !novaFilial.estado) {
                                                     return;
@@ -663,33 +695,51 @@ export default function PerfilEmpresa() {
                                                     return mostrarErroTopo('Por favor, especifique o tipo da filial.');
                                                 }
                                                 try {
+                                                    setCarregandoFilial(true);
                                                     if (editingFilialId) {
                                                         setCustomPerfil(prev => {
                                                             if (!prev) return prev;
                                                             const current = prev.filiais ?? [];
                                                             const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
+                                                            
+                                                            const filialDataBefore = current.find(c=>c.id === editingFilialId);
+                                                            const alterouCidade = filialDataBefore.cidade!==novaFilial.cidade;
+                                                            const alterouEstado = filialDataBefore.estado!==novaFilial.estado;
+                                                            const alterouTipo = filialDataBefore.tipo!==resolvedTipo;
+                                                            const modifiedData = {
+                                                                ...(alterouCidade?{cidade: novaFilial.cidade}:{}),
+                                                                ...(alterouEstado?{estado: novaFilial.estado}:{}),
+                                                                ...(alterouTipo?{tipo: resolvedTipo}:{}),
+                                                            };
+                                                            if(Object.keys(modifiedData).length===0) return prev;
+
+                                                            
+
                                                             const newList = current.map(f => {
                                                                 const fid = f.id ?? `${f.cidade}-${f.estado}`;
                                                                 if (fid === editingFilialId) {
-                                                                    return { ...f, cidade: novaFilial.cidade, estado: novaFilial.estado, tipo: resolvedTipo };
+                                                                    return { ...f, ...(modifiedData) };
                                                                 }
                                                                 return f;
                                                             });
-                                                            return { ...prev, filiais: newList, filiais_count: newList.length };
+                                                            return { ...prev, filiais: newList };
                                                         });
                                                         console.log('Editando filial:', novaFilial);
                                                         setEditingFilialId(null);
                                                     } else {
+                                                        const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
+                                                        const newFilial = { cidade: novaFilial.cidade, estado: novaFilial.estado, tipo: resolvedTipo };
+                                                        const response = await axiosWe.post('/filial', newFilial);
+                                                        const newFilialId = response.data.id;
                                                         setCustomPerfil(prev => {
                                                             if (!prev) return prev;
                                                             const current = prev.filiais ?? [];
-                                                            const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
-                                                            const newFilial = { id: Date.now().toString(), cidade: novaFilial.cidade, estado: novaFilial.estado, tipo: resolvedTipo };
-                                                            const newList = [newFilial, ...current];
-                                                            return { ...prev, filiais: newList, filiais_count: newList.length };
+                                                            const newList = [{...newFilial, id: newFilialId}, ...current];
+                                                            return { ...prev, filiais: newList, filiais_count: prev.filiais_count+1 };
                                                         });
                                                         console.log('Adicionando filial:', novaFilial);
                                                     }
+                                                    setCarregandoFilial(false);
                                                     setMostrarModalAddFilial(false);
                                                     setNovaFilial({ cidade: '', estado: '', tipo: '', tipo_outro: '' });
                                                     setBuscaEstado('');

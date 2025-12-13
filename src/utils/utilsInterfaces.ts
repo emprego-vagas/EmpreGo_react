@@ -86,6 +86,11 @@ export interface Empresa {
     linkedin: string | null;
     link_endereco: string | null;
     facebook: string | null;
+    cidade: string | null;
+    estado: string | null;
+    email: string;
+    telefone: string;
+    cnpj: string;
 }
 
 export interface CustomEmp {
