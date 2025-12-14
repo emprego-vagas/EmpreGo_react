@@ -37,7 +37,7 @@ export default function HeaderProfiles(){
 
     return (
         <header
-        className=" top-0 left-0 right-0 bg-white dark:bg-dark-600 dark:shadow-md z-50 border-b dark:border-professional-card ">
+        className=" top-0 left-0 right-0 bg-white dark:bg-dark-600 dark:shadow-md z-50 ">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
             <div id="logo" className="flex items-center">
             <Link to="/" target="_self" className="flex items-center">
