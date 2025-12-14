@@ -1,7 +1,6 @@
 import HeaderInit from '../components/HeaderInit'
 import ThemeTogle from '../components/ThemeTogle'
 import teste from '../assets/imgs/BIGSlogo.png'
-import JoaoAzevedo2 from '../assets/imgs/JoaoAzevedo2.png'
 import { useEffect } from "react";
 import { animate } from 'animejs';
 import '../ts/indexFunctions'
@@ -11,6 +10,13 @@ import '../../index.css'
 import { interacaoUI } from "../ts/indexFunctions";
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
+import JoaoAzevedoPrime from '../assets/members/JoaoAzevedoPrime.jpeg';
+import CarolinaKaippert from '../assets/members/CarolinaKaippert.jpeg';
+import JoaoSouza from '../assets/members/JoaoSouza.jpeg';
+import MateusRicardo from '../assets/members/MateusRicardo.jpeg';
+import AlecVinicius from '../assets/members/AlecVinicius.jpeg';
+// import JoaoAzevedo from '../assets/members/JoaoAzevedo.jpeg';
+
 
 export default function Index(){
     interacaoUI();
@@ -298,7 +304,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="0">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={AlecVinicius} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">
@@ -318,7 +324,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="100">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={JoaoAzevedo2} alt="Perfil"
+                                <img src={JoaoAzevedoPrime} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">
@@ -338,7 +344,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="200">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={MateusRicardo} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">
@@ -358,7 +364,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="300">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={JoaoSouza} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">
@@ -379,7 +385,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="400">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={CarolinaKaippert} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">

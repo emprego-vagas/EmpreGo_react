@@ -169,7 +169,7 @@ const EmpresaCard: React.FC<EmpresaCardProps> = ({
                     </div>
                 </div>
 
-                <button onClick={onClickVerMais} className="ver-mais-btn bg-twitch-purple btn-primary text-white border-none px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all hover:bg-twitch-lightpurple hover:-translate-y-0.5 hover:shadow">Ver mais</button>
+                <button onClick={onClickVerMais} className="ver-mais-btn bg-twitch-purple btn-primary text-white border-none px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all hover:bg-twitch-lightpurple hover:-translate-y-0.5 hover:shadow">Ver perfil</button>
             </div>
         </article>
     );
@@ -1124,7 +1124,7 @@ const Main: React.FC = () => {
                                     {empresasFavoritadas.slice(0, 6).map((fav) => (
                                         <button
                                             key={fav.id}
-                                            onClick={() => navigate(`/chats?id=${fav.id}`)}
+                                            onClick={() => navigate(`/empresa/${fav.id}`)}
                                             title={fav.nome_fant}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
                                             <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
@@ -1140,7 +1140,7 @@ const Main: React.FC = () => {
                                         <div
                                             className="flex items-center gap-2 p-1.5 mb-1.5 bg-white/80 dark:bg-dark-600/90 backdrop-blur-sm rounded-xl transition-all duration-200 border border-gray-100 dark:border-gray-700 hover:border-primary-300/50 hover:shadow-xs hover:shadow-primary-100/50 dark:hover:border-primary-500/30">
                                             <div className="flex-shrink-0">
-                                                <div className="relative">
+                                                <div className="relative" onClick={()=>navigate(`/empresa/${e.id}`)}>
                                                     <img
                                                         src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
                                                         alt={e.nome_fant}
@@ -1443,7 +1443,7 @@ const Main: React.FC = () => {
                                                         favoritada={empresa.favoritada}
                                                         tags={empresa.tags}
                                                         onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
                                                         setor={empresa.setor}
                                                         estado={empresa.estado}
                                                     />
@@ -1571,7 +1571,7 @@ const Main: React.FC = () => {
                                                             tags={empresa.tags}
                                                             favoritada={empresa.favoritada}
                                                             onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                                            onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                            onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
                                                             setor={empresa.setor}
                                                             estado={empresa.estado}
                                                         />
@@ -1615,7 +1615,7 @@ const Main: React.FC = () => {
                                                     favoritada={empresa.favoritada}
                                                     tags={empresa.tags}
                                                     onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                                    onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                    onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
                                                     setor={empresa.setor}
                                                     estado={empresa.estado}
                                                 />
@@ -1681,7 +1681,7 @@ const Main: React.FC = () => {
                                                         favoritada={empresa.favoritada}
                                                         tags={empresa.tags}
                                                         onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                                                        onClickVerMais={() => console.log('Ver mais', empresa.nome)}
+                                                        onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
                                                         setor={empresa.setor}
                                                         estado={empresa.estado}
                                                     />

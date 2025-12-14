@@ -22,6 +22,7 @@ interface Slide {
     texto: string;
     autor: string;
     data: string;
+    candidato_id: string;
     background?: string;
     fotoCandidato?: string;
 }
@@ -168,7 +169,7 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
                     </div>
                 </div>
 
-                <button onClick={onClickVerMais} className="ver-mais-btn bg-twitch-purple btn-primary text-white border-none px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all hover:bg-twitch-lightpurple hover:-translate-y-0.5 hover:shadow">Ver mais</button>
+                <button onClick={onClickVerMais} className="ver-mais-btn bg-twitch-purple btn-primary text-white border-none px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all hover:bg-twitch-lightpurple hover:-translate-y-0.5 hover:shadow">Ver perfil</button>
             </div>
         </article>
     );
@@ -380,7 +381,8 @@ const Main: React.FC = () => {
                         year: 'numeric'
                     }),
                     background: 'Black',
-                    fotoCandidato: e.candidato_foto
+                    fotoCandidato: e.candidato_foto,
+                    candidato_id: e.candidato_id
                 })))
                 setCarregandoDados(false);
             } catch (erro) {
@@ -466,7 +468,8 @@ const Main: React.FC = () => {
             autor: "Carlos Mendes",
             data: "15 de Março, 2023",
             background: 'Black',
-            fotoCandidato: undefined
+            fotoCandidato: undefined,
+            candidato_id: '1'
         },
         {
             empresa: "Global Innovations",
@@ -474,7 +477,8 @@ const Main: React.FC = () => {
             texto: "Recomendo fortemente os serviços prestados. A equipe demonstrou um nível de profissionalismo raro no mercado, com atenção aos detalhes e prazos rigorosamente cumpridos. Uma parceria que certamente continuaremos no futuro.",
             autor: "Ana Beatriz Silva",
             data: "2 de Abril, 2023",
-            background: 'Black'
+            background: 'Black',
+            candidato_id: '2'
         },
         {
             empresa: "Digital Ventures",
@@ -482,7 +486,8 @@ const Main: React.FC = () => {
             texto: "Em menos de 6 meses, nossa presença online cresceu 300% graças ao trabalho meticuloso desta equipe. A abordagem estratégica e a capacidade de adaptação às necessidades do nosso setor foram impressionantes.",
             autor: "Ricardo Almeida",
             data: "22 de Maio, 2023",
-            background: 'Black'
+            background: 'Black',
+            candidato_id: '3'
         },
         {
             empresa: "Future Labs",
@@ -490,6 +495,7 @@ const Main: React.FC = () => {
             texto: "O que mais impressiona é a capacidade de inovar constantemente, trazendo soluções que não apenas resolvem problemas imediatos, mas preparam nossa empresa para os desafios futuros. Uma relação de confiança construída ao longo de anos.",
             autor: "Fernanda Oliveira",
             data: "10 de Junho, 2023",
+            candidato_id: '4'
         }
     ]);
 
@@ -1105,7 +1111,7 @@ const Main: React.FC = () => {
                                     {candidatosFavoritadas.slice(0, 6).map((fav) => (
                                         <button
                                             key={fav.id}
-                                            onClick={() => navigate(`/chats?id=${fav.id}`)}
+                                            onClick={() => navigate(`/candidato/${fav.id}`)}
                                             title={fav.nome}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
                                             <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome} className="w-full h-full object-cover"/>
@@ -1124,7 +1130,7 @@ const Main: React.FC = () => {
                                                 <div className="relative">
                                                     <img
                                                         src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
-                                                        alt={e.nome}
+                                                        alt={e.nome} onClick={() => navigate(`/candidato/${e.id}`)}
                                                         className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm" />
                                                     {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
                                                 </div>
@@ -1424,7 +1430,7 @@ const Main: React.FC = () => {
                                                             favoritada={candidato.favoritada}
                                                             tags={candidato.tags}
                                                             onClickFavorito={() => handleAlterarStatusFavorito(candidato.favoritada, { id: candidato.id, foto: candidato.logo, nome: candidato.nome, tag: candidato.tags[0] })}
-                                                            onClickVerMais={() => console.log('Ver mais', candidato.nome)}
+                                                            onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                             idioma={candidato.idioma}
                                                             estado={candidato.estado}
                                                         />
@@ -1497,10 +1503,10 @@ const Main: React.FC = () => {
                                                 <div className="slide-meta flex justify-between items-center text-sm text-gray-400">
                                                     <div className="flex items-center gap-3">
                                                         {slide.fotoCandidato && (
-                                                            <img
+                                                            <img onClick={()=> navigate(`/candidato/${slide.candidato_id}`)}
                                                                 src={slide.fotoCandidato === '/assets/imgs/genPfp.png' ? genPfp : slide.fotoCandidato}
                                                                 alt={slide.empresa}
-                                                                className="w-10 h-10 rounded-full object-cover shadow-md"
+                                                                className="w-10 h-10 rounded-full object-cover shadow-md z-50 cursor-pointer"
                                                             />
                                                         )}
                                                         <span className="slide-autor font-medium">{slide.autor}</span>
@@ -1552,7 +1558,7 @@ const Main: React.FC = () => {
                                                             tags={candidato.tags}
                                                             favoritada={candidato.favoritada}
                                                             onClickFavorito={() => handleAlterarStatusFavorito(candidato.favoritada, { id: candidato.id, foto: candidato.logo, nome: candidato.nome, tag: candidato.tags[0] })}
-                                                            onClickVerMais={() => console.log('Ver mais', candidato.nome)}
+                                                            onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                             idioma={candidato.idioma}
                                                             estado={candidato.estado}
                                                         />
@@ -1596,7 +1602,7 @@ const Main: React.FC = () => {
                                                     favoritada={candidato.favoritada}
                                                     tags={candidato.tags}
                                                     onClickFavorito={() => handleAlterarStatusFavorito(candidato.favoritada, { id: candidato.id, foto: candidato.logo, nome: candidato.nome, tag: candidato.tags[0] })}
-                                                    onClickVerMais={() => console.log('Ver mais', candidato.nome)}
+                                                    onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                     idioma={candidato.idioma}
                                                     estado={candidato.estado}
                                                 />
@@ -1662,7 +1668,7 @@ const Main: React.FC = () => {
                                                         favoritada={candidato.favoritada}
                                                         tags={candidato.tags}
                                                         onClickFavorito={() => handleAlterarStatusFavorito(candidato.favoritada, { id: candidato.id, foto: candidato.logo, nome: candidato.nome, tag: candidato.tags[0] })}
-                                                        onClickVerMais={() => console.log('Ver mais', candidato.nome)}
+                                                        onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                         idioma={candidato.idioma}
                                                         estado={candidato.estado}
                                                     />

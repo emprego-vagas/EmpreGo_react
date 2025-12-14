@@ -19,7 +19,10 @@ axiosWe.interceptors.response.use(function (config) {
   switch (status) {
     case 401:
 
-      if(msg.includes("Você não está logado")) erroTopo = false;
+      if(msg.includes("Você não está logado")) {
+        DadosUsuario.clearUsuario();
+        erroTopo = false;
+      };
 
       break;
     case 403:

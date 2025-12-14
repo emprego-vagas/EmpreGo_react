@@ -882,13 +882,31 @@ export default function PerfilEmpresaPublico() {
                       <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-3 mt-1" />
                       <div>
                         <h3 className="font-bold text-white">Sede Principal</h3>
+
                         {empPerfil.cidade && empPerfil.estado ? (
-                          <p className="text-dark-700 dark:text-professional-subtitle">{empPerfil.cidade}, {empPerfil.estado}</p>
+                          <p className="text-dark-700 dark:text-professional-subtitle">
+                            {empPerfil.cidade}, {empPerfil.estado}
+                          </p>
                         ) : (
-                          <p className="text-dark-700 dark:text-professional-subtitle italic">Não há informação neste campo: Localização da Sede</p>
+                          <p className="text-dark-700 dark:text-professional-subtitle italic">
+                            Não há informação neste campo: Localização da Sede
+                          </p>
                         )}
-                        {empPerfil.setor && (
-                          <p className="text-sm text-dark-700 dark:text-professional-subtitle">Setor: {empPerfil.setor}</p>
+
+                        {empPerfil.link_endereco ? (
+                          <a
+                            href={empPerfil.link_endereco}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center mt-2 text-sm text-professional-accent hover:underline"
+                          >
+                            <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
+                            Ver no mapa
+                          </a>
+                        ) : (
+                          <p className="text-sm text-dark-700 dark:text-professional-subtitle italic mt-2">
+                            Endereço não informado
+                          </p>
                         )}
                       </div>
                     </div>

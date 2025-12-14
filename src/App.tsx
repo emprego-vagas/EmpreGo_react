@@ -66,7 +66,7 @@ function App() {
         <Route path='/empresas' element={<CandVagas />} />
         <Route path='/candidatos' element={<ViewCandidatos />} />
         <Route path='/empresa/:id' element={<EmpresasPF />} />
-        <Route path='/candidato/:id' element={<Index />} />
+        <Route path='/candidato/:id' element={<CandidatosPF />} />
         <Route path='/EmpresasPF' element={<EmpresasPF />} />
         <Route path='/CandidatosPF' element={<CandidatosPF />} />
       </Routes>

@@ -1,12 +1,12 @@
-import {faFacebook, faGithub, faInstagram, faLinkedin, faTwitter, faXTwitter, faYoutube} from "@fortawesome/free-brands-svg-icons";
-import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faPhone} from "@fortawesome/free-solid-svg-icons";
+import {faGithub, faInstagram, faXTwitter} from "@fortawesome/free-brands-svg-icons";
+import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faPhone, faDownload} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useParams } from "react-router-dom";
-import { DadosUsuario } from "../utils/globalFunctions";
+import { DadosUsuario, fileDownload } from "../utils/globalFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useState, useMemo } from "react";
 import axiosWe from "../utils/axiosInstance";
-import type { Candidato, CustomCand, Tag, Experiencia, Projeto, Formacao, Certificacao, Idioma } from "../utils/utilsInterfaces";
+import type { Candidato, CustomCand, Tag, Experiencia, ProjetoCand, Idioma } from "../utils/utilsInterfaces";
 import Loader from "../components/Loader";
 import genPfp from '../assets/imgs/genPfp.png';
 import "../App.css";
@@ -30,6 +30,113 @@ export default function PerfilCandidatoPF() {
   const [isLoadingMoreTags, setIsLoadingMoreTags] = useState(false);
   const [allTagsLoaded, setAllTagsLoaded] = useState(false);
   const tagsPerPage = 15;
+  const [isLoadingMoreIdiomas, setIsLoadingMoreIdiomas] = useState(false);
+  const [allIdiomasLoaded, setAllIdiomasLoaded] = useState(false);
+  // EXPERIÊNCIAS
+  const [pageExperiencias, setPageExperiencias] = useState(1);
+  const [isLoadingMoreExperiencias, setIsLoadingMoreExperiencias] = useState(false);
+
+  // PROJETOS
+  const [pageProjetos, setPageProjetos] = useState(1);
+  const [isLoadingMoreProjetos, setIsLoadingMoreProjetos] = useState(false);
+
+  const carregarMaisExperiencias = async () => {
+    if (
+      !customPerfil ||
+      !candPerfil ||
+      isLoadingMoreExperiencias ||
+      customPerfil.experiencias.length >= customPerfil.experiencias_count
+    ) return;
+
+    try {
+      setIsLoadingMoreExperiencias(true);
+
+      const nextPage = pageExperiencias + 1;
+
+      const response = await axiosWe(
+        `/experiencias/candidato/${candPerfil.id}?page=${nextPage}`
+      ) as { data: Experiencia[] };
+
+      setCustomPerfil(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          experiencias: [...prev.experiencias, ...response.data],
+        };
+      });
+
+      setPageExperiencias(nextPage);
+    } catch (err) {
+      console.error('Erro ao carregar experiências', err);
+    } finally {
+      setIsLoadingMoreExperiencias(false);
+    }
+  };
+
+  const carregarMaisProjetos = async () => {
+    if (
+      !customPerfil ||
+      !candPerfil ||
+      isLoadingMoreProjetos ||
+      customPerfil.projetos_cand.length >= customPerfil.projetos_count
+    ) return;
+
+    try {
+      setIsLoadingMoreProjetos(true);
+
+      const nextPage = pageProjetos + 1;
+
+      const response = await axiosWe(
+        `/projeto/${candPerfil.id}?page=${nextPage}`
+      ) as { data: ProjetoCand[] };
+
+      setCustomPerfil(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          projetos_cand: [...prev.projetos_cand, ...response.data],
+        };
+      });
+
+      setPageProjetos(nextPage);
+    } catch (err) {
+      console.error('Erro ao carregar projetos', err);
+    } finally {
+      setIsLoadingMoreProjetos(false);
+    }
+  };
+
+  const carregarRestoDosIdiomas = async () => {
+    if (
+      !customPerfil ||
+      !candPerfil ||
+      allIdiomasLoaded ||
+      isLoadingMoreIdiomas ||
+      customPerfil.idiomas.length >= customPerfil.idiomas_count
+    ) return;
+
+    try {
+      setIsLoadingMoreIdiomas(true);
+
+      const response = await axiosWe(
+        `/idioma?offset=${customPerfil.idiomas.length}&candidato_id=${candPerfil.id}`
+      ) as { data: Idioma[] };
+
+      setCustomPerfil(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          idiomas: [...prev.idiomas, ...response.data],
+        };
+      });
+
+      setAllIdiomasLoaded(true);
+    } catch (err) {
+      console.error('Erro ao carregar idiomas', err);
+    } finally {
+      setIsLoadingMoreIdiomas(false);
+    }
+  };
 
   const carregarRestoDasTags = async () => {
     if (
@@ -74,6 +181,7 @@ export default function PerfilCandidatoPF() {
           const { usua, custom } = data;
           setCandPerfil(usua);
           setCustomPerfil(custom);
+          console.log(data)
           return;
         }
 
@@ -98,20 +206,20 @@ export default function PerfilCandidatoPF() {
           cargo_atual: '',
           empresa_atual: '',
           site_pessoal: '',
-          youtube: '',
-          linkedin: '',
-          facebook: '',
+          genero: 'Masculino',
+          // youtube: '',
+          // linkedin: '',
+          // facebook: '',
           cidade: '',
           estado: '',
           email: '',
-          telefone: '',
           cpf: '',
           data_nasc: '',
           pronomes: '',
           portifolio: '',
           curriculo: '',
           curriculo_file: '',
-          curriculo_filename: ''
+          // curriculo_filename: ''
         };
         setCandPerfil(fallbackCandidato);
         setCustomPerfil({
@@ -123,13 +231,14 @@ export default function PerfilCandidatoPF() {
           projetos_count: 0,
           idiomas: [],
           idiomas_count: 0,
-          formacoes: [],
-          formacoes_count: 0,
-          certificacoes: [],
-          certificacoes_count: 0
+          // formacoes: [],
+          // formacoes_count: 0,
+          // certificacoes: [],
+          // certificacoes_count: 0
         });
       } catch (erro) {
         console.error("Erro ao carregar perfil público do candidato:", erro);
+        setCandPerfil(null);
       } finally {
         setLoading(false);
       }
@@ -139,6 +248,9 @@ export default function PerfilCandidatoPF() {
 
   useEffect(() => {
     setCurrentPage(1);
+    setAllIdiomasLoaded(false);
+    setPageExperiencias(1);
+    setPageProjetos(1);
   }, [activeTab, candidatoId]);
 
   const currentTags = useMemo(() => {
@@ -292,11 +404,14 @@ export default function PerfilCandidatoPF() {
   };
 
   if (loading) return <Loader />;
-  if (!candPerfil) return (
-    <div className="container mx-auto px-4 pt-10 pb-10 text-center">
-      <h2 className="text-2xl font-bold text-professional-accent">Candidato não encontrado</h2>
-    </div>
-  );
+  if (!candPerfil) {
+    console.log(candPerfil)
+    return (
+      <div className="container mx-auto px-4 pt-10 pb-10 text-center">
+        <h2 className="text-2xl font-bold text-professional-accent">Candidato não encontrado</h2>
+      </div>
+    )
+  };
 
   return (
     <div className="bg-dark-50 dark:bg-dark-900">
@@ -365,7 +480,17 @@ export default function PerfilCandidatoPF() {
                     <FontAwesomeIcon icon={faGithub} className="mr-1" /> GitHub
                   </a>
                 )}
-                {candPerfil.linkedin && (
+                {candPerfil.twitter && (
+                  <a
+                    href={candPerfil.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faXTwitter} className="mr-1" /> Twitter 
+                  </a>
+                )}
+                {/* {candPerfil.linkedin && (
                   <a
                     href={candPerfil.linkedin}
                     target="_blank"
@@ -374,7 +499,7 @@ export default function PerfilCandidatoPF() {
                   >
                     <FontAwesomeIcon icon={faLinkedin} className="mr-1" /> LinkedIn
                   </a>
-                )}
+                )} */}
                 {candPerfil.portifolio && (
                   <a
                     href={candPerfil.portifolio}
@@ -398,7 +523,7 @@ export default function PerfilCandidatoPF() {
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Projetos</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.certificacoes_count || 0}</div>
+                <div className="text-2xl font-bold text-professional-accent">{0}</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Certificações</div>
               </div>
               <div className="text-center">
@@ -556,11 +681,11 @@ export default function PerfilCandidatoPF() {
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Projetos</div>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.certificacoes_count || 0}</div>
+                        <div className="text-2xl font-bold text-professional-accent">{0}</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Certificações</div>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.formacoes_count || 0}</div>
+                        <div className="text-2xl font-bold text-professional-accent">{0}</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Formações</div>
                       </div>
                     </div>
@@ -581,22 +706,44 @@ export default function PerfilCandidatoPF() {
                                 {idioma.nivel}
                               </span>
                             </div>
+
                             <div className="w-full bg-dark-300 dark:bg-professional-card rounded-full h-2">
                               <div
                                 className="bg-professional-accent h-2 rounded-full"
                                 style={{
-                                  width: idioma.nivel === 'A1' ? '20%' :
-                                         idioma.nivel === 'A2' ? '40%' :
-                                         idioma.nivel === 'B1' ? '60%' :
-                                         idioma.nivel === 'B2' ? '80%' :
-                                         idioma.nivel === 'C1' ? '90%' : '100%'
+                                  width:
+                                    idioma.nivel === 'A1' ? '20%' :
+                                    idioma.nivel === 'A2' ? '40%' :
+                                    idioma.nivel === 'B1' ? '60%' :
+                                    idioma.nivel === 'B2' ? '80%' :
+                                    idioma.nivel === 'C1' ? '90%' : '100%'
                                 }}
-                              ></div>
+                              />
                             </div>
                           </div>
                         ))
                       ) : (
-                        <p className="text-dark-700 dark:text-professional-subtitle italic">Idiomas não fornecidos</p>
+                        <p className="text-dark-700 dark:text-professional-subtitle italic">
+                          Idiomas não fornecidos
+                        </p>
+                      )}
+                      {customPerfil &&
+                        customPerfil.idiomas.length < customPerfil.idiomas_count && (
+                          <div className="flex justify-center pt-4">
+                            <button
+                              onClick={carregarRestoDosIdiomas}
+                              disabled={isLoadingMoreIdiomas}
+                              className={`px-6 py-2 rounded-lg font-medium transition-colors
+                                ${isLoadingMoreIdiomas
+                                  ? 'bg-dark-300 dark:bg-professional-card cursor-not-allowed'
+                                  : 'bg-professional-accent text-white hover:bg-professional-lightaccent'}
+                              `}
+                            >
+                              {isLoadingMoreIdiomas
+                                ? 'Carregando idiomas...'
+                                : `Ver mais idiomas (${customPerfil.idiomas_count - customPerfil.idiomas.length})`}
+                            </button>
+                          </div>
                       )}
                     </div>
                   </div>
@@ -613,7 +760,7 @@ export default function PerfilCandidatoPF() {
                       </div>
                     </div>
 
-                    {candPerfil.telefone && (
+                    {/* {candPerfil.telefone && (
                       <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                         <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-3" />
                         <div>
@@ -621,26 +768,77 @@ export default function PerfilCandidatoPF() {
                           <div className="text-dark-700 dark:text-white">{candPerfil.telefone}</div>
                         </div>
                       </div>
-                    )}
+                    )} */}
 
-                    {candPerfil.curriculo && (
+                    {candPerfil.portifolio && (
                       <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                         <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
                         <div>
-                          <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Currículo</div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
                           <a
-                            href={candPerfil.curriculo}
+                            href={candPerfil.portifolio}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-dark-700 dark:text-white hover:text-professional-accent transition-colors"
                           >
-                            Visualizar Currículo
+                            Visualizar Portfólio
                           </a>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
+
+                {/* Card de Currículo */}
+                {(candPerfil.curriculo || candPerfil.curriculo_file) && (
+                  <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
+                    <h2 className="text-xl font-bold mb-4 text-professional-accent">
+                      <FontAwesomeIcon icon={faFileAlt} className="mr-2" />
+                      Currículo
+                    </h2>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
+                      <div className="flex items-center mb-4 md:mb-0">
+                        <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-professional-accent/20 mr-4">
+                          <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent text-xl" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-dark-700 dark:text-white">Currículo Profissional</h3>
+                          <p className="text-sm text-dark-700 dark:text-professional-subtitle">
+                            {candPerfil.curriculo_file ? `${(parseFloat(candPerfil.curriculo_file.split('|')[1])/1024).toFixed(2)} MB` : 'Documento'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-3">
+                        {candPerfil.curriculo && (
+                          <a
+                            href={candPerfil.curriculo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 rounded-lg border border-professional-accent text-professional-accent hover:bg-professional-accent hover:text-white transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faFileAlt} className="mr-2" />
+                            Visualizar
+                          </a>
+                        )}
+                        
+                        
+                        {candPerfil.curriculo_file && (() => {
+                          const curriculo_fileSplited = candPerfil.curriculo_file.split('|');
+                          return (
+                            <button
+                              onClick={() => fileDownload(curriculo_fileSplited[0], 'raw')}
+                              className="px-4 py-2 rounded-lg bg-professional-accent hover:bg-professional-lightaccent transition-colors text-white flex items-center"
+                            >
+                              <FontAwesomeIcon icon={faDownload} className="mr-2" />
+                              Download
+                            </button>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-4 text-professional-accent">Redes Sociais & Portfólio</h2>
@@ -672,7 +870,7 @@ export default function PerfilCandidatoPF() {
                       </div>
                     )}
 
-                    {candPerfil.linkedin ? (
+                    {/* {candPerfil.linkedin ? (
                       <a
                         href={candPerfil.linkedin}
                         target="_blank"
@@ -697,7 +895,7 @@ export default function PerfilCandidatoPF() {
                           </div>
                         </div>
                       </div>
-                    )}
+                    )} */}
 
                     {candPerfil.portifolio ? (
                       <a
@@ -836,9 +1034,9 @@ export default function PerfilCandidatoPF() {
                           </p>
                           {exp.tags_experiencias && exp.tags_experiencias.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-4">
-                              {exp.tags_experiencias.map((tag) => (
+                              {exp.tags_experiencias.map((tag, idx) => (
                                 <span
-                                  key={tag.id}
+                                  key={idx}
                                   className="inline-flex items-center gap-1.5 py-1 px-3 bg-dark-200 dark:bg-professional-card text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                                 >
                                   {tag.nome}
@@ -854,6 +1052,24 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faBriefcase} className="text-4xl mb-3 opacity-50" />
                       <p>Nenhuma experiência profissional cadastrada.</p>
                     </div>
+                  )}
+                  {customPerfil &&
+                    customPerfil.experiencias.length < customPerfil.experiencias_count && (
+                      <div className="flex justify-center pt-6">
+                        <button
+                          onClick={carregarMaisExperiencias}
+                          disabled={isLoadingMoreExperiencias}
+                          className={`px-6 py-2 rounded-lg font-medium transition-colors
+                            ${isLoadingMoreExperiencias
+                              ? 'bg-dark-300 dark:bg-professional-card cursor-not-allowed'
+                              : 'bg-professional-accent text-white hover:bg-professional-lightaccent'}
+                          `}
+                        >
+                          {isLoadingMoreExperiencias
+                            ? 'Carregando experiências...'
+                            : 'Ver mais experiências'}
+                        </button>
+                      </div>
                   )}
                 </div>
               </div>
@@ -904,9 +1120,9 @@ export default function PerfilCandidatoPF() {
                           )}
                           {proj.tags_projetos_cand && proj.tags_projetos_cand.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-4">
-                              {proj.tags_projetos_cand.map((tag) => (
+                              {proj.tags_projetos_cand.map((tag, idx) => (
                                 <span
-                                  key={tag.id}
+                                  key={idx}
                                   className="inline-flex items-center gap-1.5 py-1 px-3 bg-dark-200 dark:bg-professional-card text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                                 >
                                   {tag.nome}
@@ -922,6 +1138,24 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faProjectDiagram} className="text-4xl mb-3 opacity-50" />
                       <p>Nenhum projeto cadastrado.</p>
                     </div>
+                  )}
+                  {customPerfil &&
+                    customPerfil.projetos_cand.length < customPerfil.projetos_count && (
+                      <div className="flex justify-center pt-6">
+                        <button
+                          onClick={carregarMaisProjetos}
+                          disabled={isLoadingMoreProjetos}
+                          className={`px-6 py-2 rounded-lg font-medium transition-colors
+                            ${isLoadingMoreProjetos
+                              ? 'bg-dark-300 dark:bg-professional-card cursor-not-allowed'
+                              : 'bg-professional-accent text-white hover:bg-professional-lightaccent'}
+                          `}
+                        >
+                          {isLoadingMoreProjetos
+                            ? 'Carregando projetos...'
+                            : 'Ver mais projetos'}
+                        </button>
+                      </div>
                   )}
                 </div>
               </div>
