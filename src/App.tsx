@@ -25,6 +25,7 @@ import CandVagas from './pages/CandVagas';
 import ViewCandidatos from './pages/ViewCandidatos';
 import { DadosUsuario } from './utils/globalFunctions'
 import EmpresasPF from './pages/EmpresasPF';
+import CandidatosPF from './pages/CandidatosPF'
 
 function App() {
   const usuario = DadosUsuario.getUsuario();
@@ -67,6 +68,7 @@ function App() {
         <Route path='/empresa/:id' element={<EmpresasPF />} />
         <Route path='/candidato/:id' element={<Index />} />
         <Route path='/EmpresasPF' element={<EmpresasPF />} />
+        <Route path='/CandidatosPF' element={<CandidatosPF />} />
       </Routes>
     </BrowserRouter>
   )
