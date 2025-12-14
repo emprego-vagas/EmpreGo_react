@@ -1069,20 +1069,20 @@ const Main: React.FC = () => {
                 <aside className={`sidebar-container fixed top-12 left-0 h-screen z-[999] bg-white dark:dark:bg-dark-600 flex flex-col pt-6 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? "open" : "closed"}`}>
                     <nav className="sidebar-itens flex flex-col gap-3 px-3">
-                        <button className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition"
+                        <button className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition"
                             onClick={handleInicioBtn}>
                             <i className="bx bx-home text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Início</span>
                         </button>
 
-                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/chats" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-message-rounded text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium whitespace-nowrap">
                                 Chats
                             </span>
                         </Link>
 
-                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-gray-700 transition">
+                        <Link to="/" className="flex items-center gap-4 px-3 py-2 rounded-full hover:bg-primary-400 transition">
                             <i className="bx bx-group text-2xl dark:text-gray-200 text-dark-900"></i>
                             <span className="dark:text-gray-200 text-dark-900 text-sm font-medium">Fórum</span>
                         </Link>

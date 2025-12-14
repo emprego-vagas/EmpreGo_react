@@ -152,6 +152,13 @@ export default function PerfilEmpresa() {
     //         setCustomPerfil(prev => ({ ...prev, filiais: customPerfil.filiais, filiais_count: customPerfil.filiais_count }));
     //     }
     // }, [customPerfil]);
+    useEffect(() => {
+  if (mostrarModalAddFilial) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+}, [mostrarModalAddFilial]);
 
     if (!empPerfil) return (<Loader />)
 
@@ -400,7 +407,7 @@ export default function PerfilEmpresa() {
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
                                 {`Áreas de Especialização${customPerfil.tags_count > 0 ? ` (${customPerfil.tags_count})` : ''}`}</h1>
                             <div id="boxTags"
-                                className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
+                                className="bg-dark-50 dark:bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
                                 <div id="Tags" className="flex flex-wrap gap-3">
                                     {customPerfil.tags_count > 0 && customPerfil.tags_empresas.map(tag => {
                                         return (
@@ -566,8 +573,8 @@ export default function PerfilEmpresa() {
                         </div>
 
                         {mostrarModalAddFilial && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-80 pointer-events-auto">
-                                <div className="relative w-full max-w-md mx-auto pointer-events-auto">
+                            <div className="fixed top-0 left-0 w-screen h-screen z-[9999] bg-black/80 flex items-center justify-center">
+                                <div className="relative w-full max-w-md  mx-4 p-6  pointer-events-auto">
                                     {/* Modal content */}
                                     <div className="relative bg-dark-50 dark:bg-professional-card rounded-xl border border-professional-card shadow-2xl overflow-hidden pointer-events-auto">
 
@@ -836,14 +843,14 @@ export default function PerfilEmpresa() {
                     <div className="relative border-b border-professional-card mb-6">
 
                         <button id="scrollLeft"
-                            className="absolute left-0 top-1/2 -translate-y-1/2 bg-professional-card/90 text-white px-2 py-3 rounded-r-md z-10 hover:bg-professional-accent transition">
+                            className="absolute left-0 top-1/2 -translate-y-1/2 bg-dark-300 dark:bg-professional-card/90 text-dark-900 dark:text-white px-2 py-3 rounded-r-md z-10 hover:bg-professional-accent transition">
                             <FontAwesomeIcon icon={faChevronLeft} />
                         </button>
 
                         <ul className="flex overflow-x-auto whitespace-nowrap text-sm font-medium text-center gap-1 scrollbar-hide scroll-smooth px-8"
                             id="dashboard-tabs">
                             <li>
-                                <button id="vagasTelinha" className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button id="vagasTelinha" className="tab-button relative inline-block p-4 text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="vagas" style={tabAtual === 'vagas' ? { color: '#7c3aed' } : {}}
@@ -852,7 +859,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Projetos" style={tabAtual === 'Projetos' ? { color: '#7c3aed' } : {}}
@@ -861,7 +868,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Candidatos" style={tabAtual === 'Candidatos' ? { color: '#7c3aed' } : {}}
@@ -870,7 +877,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Depoimentos" style={tabAtual === 'Depoimentos' ? { color: '#7c3aed' } : {}}
@@ -879,7 +886,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Servicos" style={tabAtual === 'Servicos' ? { color: '#7c3aed' } : {}}
@@ -888,7 +895,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Certificacoes" style={tabAtual === 'Certificacoes' ? { color: '#7c3aed' } : {}}
@@ -897,7 +904,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Parcerias" style={tabAtual === 'Parcerias' ? { color: '#7c3aed' } : {}}
@@ -906,7 +913,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Solicitacoes" style={tabAtual === 'Solicitacoes' ? { color: '#7c3aed' } : {}}
@@ -916,7 +923,7 @@ export default function PerfilEmpresa() {
                             </li>
 
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Notificacoes" style={tabAtual === 'Notificacoes' ? { color: '#7c3aed' } : {}}
@@ -925,7 +932,7 @@ export default function PerfilEmpresa() {
                                 </button>
                             </li>
                             <li>
-                                <button className="tab-button relative inline-block p-4 text-professional-subtitle hover:text-gray-300
+                                <button className="tab-button relative inline-block p-4  text-dark-900 dark:text-professional-subtitle hover:text-dark-500
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5
                             after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
                             after:transition-all after:duration-300 after:ease-out" data-tab="Favoritos" style={tabAtual === 'vagas' ? { color: '#7c3aed' } : {}}
@@ -936,23 +943,22 @@ export default function PerfilEmpresa() {
                         </ul>
 
                         <button id="scrollRight"
-                            className="absolute right-0 top-1/2 -translate-y-1/2 bg-professional-card/90 text-white px-2 py-3 rounded-l-md z-10 hover:bg-professional-accent transition">
+                            className="absolute right-0 top-1/2 -translate-y-1/2  bg-dark-300 dark:bg-professional-card/90 text-dark-900 dark:text-white px-2 py-3 rounded-l-md z-10 hover:bg-professional-accent transition">
                             <FontAwesomeIcon icon={faChevronRight} />
                         </button>
                     </div>
 
                     {/* <!--TODO: Conteúdo das abas --> */}
                     <div id="tab-content">
-                        {/* <!--* Aba vagas --> */}
                         {tabAtual === 'vagas' && (
                             <div id="vagas" className="tab-pane active">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bodyBottom">
                                     <div id="boxCriar"
-                                        className="bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
+                                        className="bg-dark-50 dark:bg-professional-card rounded-xl border-2 border-dashed border-professional-card p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent"
                                         onClick={() => navigate('/vagas/criar')}>
                                         <Link to="/vagas/criar" className="flex flex-col items-center text-center">
                                             <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-accent mb-3" />
-                                            <p id="textCriar" className="text-professional-subtitle">Adicionar nova experiência
+                                            <p id="textCriar" className="text-dark-900 dark:text-professional-subtitle">Adicionar nova experiência
                                                 profissional</p>
                                         </Link>
                                     </div>
@@ -1300,16 +1306,16 @@ export default function PerfilEmpresa() {
                     <div id="modalInput"
                         className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
                         <div id="modalInput-content"
-                            className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
-                            <h3 className="text-lg font-semibold mb-4">Adicionar Habilidade</h3>
+                            className="bg-dark-50 dark:bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
+                            <h3 className="text-lg font-semibold mb-4 text-dark-900 dark:text-white">Adicionar Habilidade</h3>
                             <input type="text" id="inputTag" placeholder="Digite a habilidade" onChange={(e) => setTagToAdd(e.target.value)} autoFocus onKeyDown={(e) => handleKeyDownInputTag(e)}
-                                className="w-full bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" value={tagToAdd} />
+                                className="w-full bg-dark-50 dark:bg-professional-gray border border-professional-card rounded-lg px-4 py-3 mb-4 text-dark-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-professional-accent" value={tagToAdd} />
                             <div className="flex justify-end space-x-3">
                                 <button id="btnCancelar" onClick={() => {
                                     setTagToAdd('');
                                     setMostrarModalAddTag(false);
                                 }}
-                                    className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
+                                    className="text-dark-900 dark:bg-professional-card text-dark-900 dark:text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-primary-300 cursor-pointer">Cancelar</button>
                                 <button id="btnConfirmar" onClick={async () => {
                                     try {
                                         const tagNome = tagToAdd;
@@ -1373,7 +1379,7 @@ export default function PerfilEmpresa() {
                 )}
 
                 {/* <ThemeToggle />  */}
-                {/* <!--* Modais tags fim --> */}
+                {/* Modais tags fim*/}
             </div>
         </div>
     )
