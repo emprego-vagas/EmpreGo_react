@@ -1,13 +1,13 @@
-import { faGithub, faInstagram, faXTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faGithub, faInstagram, faLinkedin, faTwitter, faXTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import {
   faBriefcase, faCodeBranch, faBuilding,
   faChevronLeft, faChevronRight, faEnvelope,
   faGlobe, faHandshake, faMapMarkerAlt,
-  faProjectDiagram, faUser,
+  faProjectDiagram,
   faChartLine
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { DadosUsuario } from "../utils/globalFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useState, useMemo } from "react";
@@ -26,6 +26,14 @@ import "../App.css";
 // };
 
 export default function PerfilEmpresaPublico() {
+  const navigate = useNavigate();
+    const [usuario] = useState(DadosUsuario.getUsuario(true));
+    if (!usuario) {
+        setTimeout(() => {
+            navigate('/')
+        }, 3000);
+    };
+
   const params = useParams<{ empresaId?: string; id?: string }>();
   const empresaId = params.empresaId ?? params.id;
   const [empPerfil, setEmpPerfil] = useState<Empresa | null>(null);
@@ -33,46 +41,85 @@ export default function PerfilEmpresaPublico() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('sobre');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMoreTags, setIsLoadingMoreTags] = useState(false);
+  const [allTagsLoaded, setAllTagsLoaded] = useState(false);
+  const [isLoadingMoreFiliais, setIsLoadingMoreFiliais] = useState(false);
+  const [allFiliaisLoaded, setAllFiliaisLoaded] = useState(false);
 
-
-  const [tagsCarregadasCompletas, setTagsCarregadasCompletas] = useState(false);
-  const [tagsPerPage] = useState(15);
-  const carregarTodasTagsAutomatico = async () => {
-    if (tagsCarregadasCompletas) return;
+  const carregarRestoDasFiliais = async () => {
+    if (
+      !customPerfil ||
+      allFiliaisLoaded ||
+      isLoadingMoreFiliais ||
+      customPerfil.filiais.length >= customPerfil.filiais_count
+    ) return;
 
     try {
-      if (!customPerfil) return;
+      setIsLoadingMoreFiliais(true);
 
-      if (customPerfil.tags_empresas.length >= customPerfil.tags_count) {
-        setTagsCarregadasCompletas(true);
-        return;
-      }
-
-      const response = await axiosWe(`/tags/empresas?offset=${customPerfil.tags_empresas.length}`) as { data: Tag[] };
+      const response = await axiosWe(
+        `/filial?offset=${customPerfil.filiais.length}&empresa_id=${empPerfil.id}`
+      ) as { data: typeof customPerfil.filiais };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          tags_empresas: [...prev.tags_empresas, ...response.data]
+          filiais: [...prev.filiais, ...response.data],
         };
       });
 
-      setTagsCarregadasCompletas(true);
-    } catch (erro) {
-      console.error("Erro ao carregar todas as tags automaticamente:", erro);
+      setAllFiliaisLoaded(true);
+    } catch (err) {
+      console.error('Erro ao carregar filiais', err);
+    } finally {
+      setIsLoadingMoreFiliais(false);
+    }
+  };
+
+  const [tagsPerPage] = useState(15);
+  const carregarRestoDasTags = async () => {
+    if (
+      !customPerfil ||
+      allTagsLoaded ||
+      isLoadingMoreTags ||
+      customPerfil.tags_empresas.length >= customPerfil.tags_count
+    ) return;
+
+    try {
+      setIsLoadingMoreTags(true);
+
+      const response = await axiosWe(
+        `/tags/empresas?offset=${customPerfil.tags_empresas.length}&empresa_id=${empPerfil.id}`
+      ) as { data: Tag[] };
+
+      setCustomPerfil(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          tags_empresas: [...prev.tags_empresas, ...response.data],
+        };
+      });
+
+      setAllTagsLoaded(true);
+    } catch (err) {
+      console.error('Erro ao carregar resto das tags', err);
+    } finally {
+      setIsLoadingMoreTags(false);
     }
   };
 
 
   useEffect(() => {
     async function loadEmp() {
+      if(!usuario) return;
       try {
         setLoading(true);
         if (empresaId) {
-          const response = await axiosWe(`/empresa/public/${empresaId}`) as {
+          const response = await axiosWe(`/perfil/empresa/${empresaId}`) as {
             data: { usua: Empresa, custom: CustomEmp }
           };
+          console.log(response)
           const data = response.data;
           const { usua, custom } = data;
           setEmpPerfil(usua);
@@ -80,8 +127,7 @@ export default function PerfilEmpresaPublico() {
           return;
         }
 
-        const user = DadosUsuario.getUsuario(false, 'empresa');
-        if (user) {
+        if (usuario.tipo==='empresa') {
           const response = await axiosWe(`/custom/perfil-empresa`) as { data: { usua: Empresa, custom: CustomEmp } };
           const data = response.data;
           const { usua, custom } = data;
@@ -112,6 +158,9 @@ export default function PerfilEmpresaPublico() {
           email: '',
           telefone: '',
           cnpj: '',
+          missao: '',
+          visao: '',
+          valores: ''
         };
         setEmpPerfil(fallbackEmpresa);
         setCustomPerfil({ tags_empresas: [], tags_count: 0, filiais: [], filiais_count: 0 });
@@ -122,20 +171,12 @@ export default function PerfilEmpresaPublico() {
       }
     };
     loadEmp();
-  }, [empresaId]);
-  useEffect(() => {
-    if (
-      !customPerfil ||
-      tagsCarregadasCompletas ||
-      customPerfil.tags_empresas.length !== 6
-    ) return;
-
-    carregarTodasTagsAutomatico();
-  }, [customPerfil, tagsCarregadasCompletas]);
+  }, [empresaId, usuario]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, customPerfil?.tags_empresas]);
+    setAllFiliaisLoaded(false);
+  }, [activeTab, empresaId]);
 
   const currentTags = useMemo(() => {
     if (!customPerfil?.tags_empresas || customPerfil.tags_empresas.length === 0) {
@@ -147,20 +188,29 @@ export default function PerfilEmpresaPublico() {
   }, [customPerfil?.tags_empresas, currentPage, tagsPerPage]);
 
   const totalPages = useMemo(() => {
-    if (!customPerfil?.tags_empresas) return 0;
-    return Math.ceil(customPerfil.tags_empresas.length / tagsPerPage);
-  }, [customPerfil?.tags_empresas, tagsPerPage]);
+    if (!customPerfil) return 0;
+    return Math.ceil(customPerfil.tags_count / tagsPerPage);
+  }, [customPerfil, tagsPerPage]);
 
   const handlePageChange = (pageNumber: number) => {
+    const precisaCarregarMais =
+      pageNumber > 1 &&
+      customPerfil &&
+      customPerfil.tags_empresas.length < customPerfil.tags_count;
+
+    if (precisaCarregarMais) {
+      carregarRestoDasTags();
+    }
+
     setCurrentPage(pageNumber);
   };
 
   const goToPreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    handlePageChange(Math.max(currentPage - 1, 1));
   };
 
   const goToNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    handlePageChange(Math.min(currentPage + 1, totalPages));
   };
 
   const getPageNumbers = () => {
@@ -317,6 +367,57 @@ export default function PerfilEmpresaPublico() {
                     <FontAwesomeIcon icon={faInstagram} className="mr-1" /> Instagram
                   </a>
                 )}
+
+                {empPerfil.youtube && (
+                  <a
+                    href={empPerfil.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faYoutube} className="mr-1" /> YouTube
+                  </a>
+                )}
+                {empPerfil.facebook && (
+                  <a
+                    href={empPerfil.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faFacebook} className="mr-1" /> Facebook
+                  </a>
+                )}
+                {empPerfil.linkedin && (
+                  <a
+                    href={empPerfil.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faLinkedin} className="mr-1" /> Linkedin
+                  </a>
+                )}
+                {empPerfil.github && (
+                  <a
+                    href={empPerfil.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faGithub} className="mr-1" /> GitHub
+                  </a>
+                )}
+                {empPerfil.twitter && (
+                  <a
+                    href={empPerfil.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faTwitter} className="mr-1" /> Twitter/X
+                  </a>
+                )}
               </div>
             </div>
 
@@ -445,11 +546,17 @@ export default function PerfilEmpresaPublico() {
                           ))}
                         </div>
 
+                        {isLoadingMoreTags && (
+                          <div className="text-sm italic text-dark-700 dark:text-professional-subtitle mt-3">
+                            Carregando mais especializações...
+                          </div>
+                        )}
+
                         {totalPages > 1 && (
                           <div className="pt-4 border-t border-professional-card">
                             <div className="flex flex-col items-center justify-between space-y-3 sm:flex-row sm:space-y-0">
                               <div className="text-sm text-dark-700 dark:text-professional-subtitle">
-                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.tags_empresas.length)} de {customPerfil.tags_empresas.length} especializações
+                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.tags_empresas.length)} de {customPerfil.tags_count} especializações
                               </div>
 
                               {renderPagination()}
@@ -458,7 +565,7 @@ export default function PerfilEmpresaPublico() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-dark-700 dark:text-professional-subtitle italic">Não há informação neste campo: Especializações</p>
+                      <p className="text-dark-700 dark:text-professional-subtitle italic">Especializações nao fornecidas</p>
                     )}
                   </div>
                 </div>
@@ -498,19 +605,19 @@ export default function PerfilEmpresaPublico() {
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Missão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          Missão não informado
+                          {empPerfil.missao || 'Missão não informada'}
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Visão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          Visão não informado
+                          {empPerfil.visao || 'Visão não informada'}
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Valores</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          Valores não informado
+                          {empPerfil.valores || 'Valores não informados'}
                         </p>
                       </div>
                     </div>
@@ -523,7 +630,7 @@ export default function PerfilEmpresaPublico() {
                     <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                       <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-3" />
                       <div>
-                        <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Email</div>
+                        <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Email de Contato</div>
                         <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.contato, "Email")}</div>
                       </div>
                     </div>
@@ -561,13 +668,13 @@ export default function PerfilEmpresaPublico() {
                       </div>
                     </div>
 
-                    <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
+                    {/* <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                       <FontAwesomeIcon icon={faUser} className="text-professional-accent mr-3" />
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Contato</div>
                         <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.contato, "Pessoa de Contato")}</div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -681,6 +788,66 @@ export default function PerfilEmpresaPublico() {
                         </div>
                       </div>
                     )}
+
+                    {empPerfil.facebook ? (
+                      <a
+                        href={empPerfil.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4 hover:bg-professional-accent/20 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faFacebook} className="text-professional-accent mr-3 text-xl" />
+                        <div>
+                          <div className="text-dark-700 dark:text-white font-medium">Facebook</div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle">
+                            {empPerfil.facebook.replace(
+                              /^https?:\/\/(www\.)?facebook\.com\//,
+                              ''
+                            )}
+                          </div>
+                        </div>
+                      </a>
+                    ) : (
+                      <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
+                        <FontAwesomeIcon icon={faFacebook} className="text-professional-accent mr-3 text-xl" />
+                        <div>
+                          <div className="text-dark-700 dark:text-white font-medium">Facebook</div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle italic">
+                            Facebook não informado
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {empPerfil.linkedin ? (
+                      <a
+                        href={empPerfil.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4 hover:bg-professional-accent/20 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faLinkedin} className="text-professional-accent mr-3 text-xl" />
+                        <div>
+                          <div className="text-dark-700 dark:text-white font-medium">LinkedIn</div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle">
+                            {empPerfil.linkedin.replace(
+                              /^https?:\/\/(www\.)?linkedin\.com\/(company|in)\//,
+                              ''
+                            )}
+                          </div>
+                        </div>
+                      </a>
+                    ) : (
+                      <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
+                        <FontAwesomeIcon icon={faLinkedin} className="text-professional-accent mr-3 text-xl" />
+                        <div>
+                          <div className="text-dark-700 dark:text-white font-medium">LinkedIn</div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle italic">
+                            LinkedIn não informado
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -738,7 +905,9 @@ export default function PerfilEmpresaPublico() {
                             </h3>
                             <p className="text-dark-700 dark:text-professional-subtitle">{filial.estado}</p>
                             {filial.tipo && (
-                              <p className="text-sm text-dark-700 dark:text-professional-subtitle">Tipo: {filial.tipo}</p>
+                              <p className="text-sm text-dark-700 dark:text-professional-subtitle">
+                                Tipo: {filial.tipo}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -749,6 +918,24 @@ export default function PerfilEmpresaPublico() {
                       <FontAwesomeIcon icon={faMapMarkerAlt} className="text-2xl mb-2 opacity-50" />
                       <p className="italic">Não há informação neste campo: Filiais</p>
                     </div>
+                  )}
+                  {customPerfil &&
+                    customPerfil.filiais.length < customPerfil.filiais_count && (
+                      <div className="flex justify-center pt-4">
+                        <button
+                          onClick={carregarRestoDasFiliais}
+                          disabled={isLoadingMoreFiliais}
+                          className={`px-6 py-2 rounded-lg font-medium transition-colors
+                            ${isLoadingMoreFiliais
+                              ? 'bg-dark-300 dark:bg-professional-card cursor-not-allowed'
+                              : 'bg-professional-accent text-white hover:bg-professional-lightaccent'}
+                          `}
+                        >
+                          {isLoadingMoreFiliais
+                            ? 'Carregando filiais...'
+                            : `Ver mais filiais (${customPerfil.filiais_count - customPerfil.filiais.length})`}
+                        </button>
+                      </div>
                   )}
                 </div>
               </div>

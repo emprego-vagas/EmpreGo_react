@@ -91,9 +91,9 @@ export interface Empresa {
     email: string;
     telefone: string;
     cnpj: string;
-    missao?: string;
-    visao?: string;
-    valores?: string;
+    missao: string | null;
+    visao: string | null;
+    valores: string | null;
 }
 
 export interface CustomEmp {

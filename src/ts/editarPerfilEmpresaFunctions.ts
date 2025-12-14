@@ -18,7 +18,8 @@ export async function salvarEdicaoEmpresa(
     nomeFantInfo: CampoEditEmpFace, descricaoInfo: CampoEditEmpFace, instagramInfo: CampoEditEmpFace, githubInfo: CampoEditEmpFace,
     twitterInfo: CampoEditEmpFace, setorInfo: CampoEditEmpFace, porteInfo: CampoEditEmpFace, contatoInfo: CampoEditEmpFace,
     siteInfo: CampoEditEmpFace, youtubeInfo: CampoEditEmpFace, linkedinInfo: CampoEditEmpFace, linkEnderecoInfo: CampoEditEmpFace,
-    facebookInfo: CampoEditEmpFace, fotoInfo: FileEditEmpFace
+    facebookInfo: CampoEditEmpFace, fotoInfo: FileEditEmpFace, missaoInfo: CampoEditEmpFace, visaoInfo: CampoEditEmpFace, 
+    valoresInfo: CampoEditEmpFace
 ): Promise<boolean>{
     const formData = new FormData();
     if(!nomeFantInfo.disabled && nomeFantInfo.value && nomeFantInfo.value!==nomeFantInfo.cached) {
@@ -87,6 +88,15 @@ export async function salvarEdicaoEmpresa(
     if(fotoInfo.value || (fotoInfo.cached!=='/assets/imgs/genPfp.png' && fotoInfo.truncate)) {
         formData.append('foto', fotoInfo.value || null);
     };
+    if (!missaoInfo.disabled && (missaoInfo.value || missaoInfo.cached) && missaoInfo.value!==missaoInfo.cached) {
+        formData.append('missao', missaoInfo.value);
+    }
+    if (!visaoInfo.disabled && (visaoInfo.value || visaoInfo.cached) && visaoInfo.value!==visaoInfo.cached) {
+        formData.append('visao', visaoInfo.value);
+    }
+    if (!valoresInfo.disabled && (valoresInfo.value || valoresInfo.cached) && valoresInfo.value!==valoresInfo.cached) {
+        formData.append('valores', valoresInfo.value);
+    }
 
     if (formData.entries().next().done) return true;
 

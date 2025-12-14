@@ -374,24 +374,26 @@ export default function PerfilEmpresa() {
                                 <h2 className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                                    Cultura e Valores</h2>
+                                    Objetivos e Valores</h2>
 
                                 <div className="space-y-3">
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Missão</h3>
-                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">[Missão da empresa -
-                                            propósito fundamental]
+                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
+                                            {empPerfil.missao || '[Missão da empresa - propósito fundamental]'}
                                         </p>
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Visão
                                         </h3>
-                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">Descrição
+                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
+                                            {empPerfil.visao || '[Visão da empresa]'}
                                         </p>
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Valores</h3>
-                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">Descrição
+                                        <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
+                                            {empPerfil.valores || '[Valores da empresa]'}
                                         </p>
                                     </div>
                                 </div>

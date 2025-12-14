@@ -64,7 +64,7 @@ function App() {
         <Route path='/projetos/criar'element={<CriarProjetos/>} />
         <Route path='/empresas' element={<CandVagas />} />
         <Route path='/candidatos' element={<ViewCandidatos />} />
-        <Route path='/empresa/:id' element={<Index />} />
+        <Route path='/empresa/:id' element={<EmpresasPF />} />
         <Route path='/candidato/:id' element={<Index />} />
         <Route path='/EmpresasPF' element={<EmpresasPF />} />
       </Routes>
