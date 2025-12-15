@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
+// import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
@@ -491,8 +491,8 @@ const Main: React.FC = () => {
             texto: "Trabalhar com esta equipe foi uma experiência transformadora para nosso negócio. A qualidade do serviço superou todas as expectativas e os resultados foram visíveis já no primeiro mês de colaboração.",
             autor: "Carlos Mendes",
             data: "15 de Março, 2023",
-            background: JoaoAzevedo,
-            fotoEmpresa: JoaoAzevedo
+            background: undefined,
+            fotoEmpresa: undefined
         },
         {
             empresa: "Global Innovations",
@@ -500,7 +500,7 @@ const Main: React.FC = () => {
             texto: "Recomendo fortemente os serviços prestados. A equipe demonstrou um nível de profissionalismo raro no mercado, com atenção aos detalhes e prazos rigorosamente cumpridos. Uma parceria que certamente continuaremos no futuro.",
             autor: "Ana Beatriz Silva",
             data: "2 de Abril, 2023",
-            background: JoaoAzevedo
+            background: undefined
         },
         {
             empresa: "Digital Ventures",
@@ -508,7 +508,7 @@ const Main: React.FC = () => {
             texto: "Em menos de 6 meses, nossa presença online cresceu 300% graças ao trabalho meticuloso desta equipe. A abordagem estratégica e a capacidade de adaptação às necessidades do nosso setor foram impressionantes.",
             autor: "Ricardo Almeida",
             data: "22 de Maio, 2023",
-            background: JoaoAzevedo
+            background: undefined
         },
         {
             empresa: "Future Labs",
@@ -516,7 +516,7 @@ const Main: React.FC = () => {
             texto: "O que mais impressiona é a capacidade de inovar constantemente, trazendo soluções que não apenas resolvem problemas imediatos, mas preparam nossa empresa para os desafios futuros. Uma relação de confiança construída ao longo de anos.",
             autor: "Fernanda Oliveira",
             data: "10 de Junho, 2023",
-            background: JoaoAzevedo
+            background: undefined
         }
     ];
 
@@ -526,7 +526,7 @@ const Main: React.FC = () => {
     const [empresasSemLabel, setEmpresasSemLabel] = useState([
         {
             id: '1',
-            logo: JoaoAzevedo,
+            logo: undefined,
             nome: 'Alpha Tech',
             descricao: 'Soluções inovadoras em tecnologia e consultoria digital.',
             favoritada: false,
@@ -537,7 +537,7 @@ const Main: React.FC = () => {
         },
         {
             id: '2',
-            logo: JoaoAzevedo,
+            logo: undefined,
             nome: 'Beta Systems',
             descricao: 'Desenvolvimento de sistemas corporativos personalizados.',
             favoritada: false,

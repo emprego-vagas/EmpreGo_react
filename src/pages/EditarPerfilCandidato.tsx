@@ -8,7 +8,6 @@ import axiosWe from "../utils/axiosInstance";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { salvarEdicaoCandidato, type CampoEditCandFace, type FileEditCandFace } from "../ts/editarPerfilCandidatoFunctions";
 import genPfp from '../assets/imgs/genPfp.png';
-
 import defaultIconFile from '../assets/imgs/arquivo-de-link.png';
 import pdfIconFile from '../assets/imgs/PDF.png';
 import docxIconFile from '../assets/imgs/DOCXINCON.png';
@@ -249,9 +248,7 @@ export default function EditarPerfilCandidato () {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* <!-- Coluna esquerda - Informações pessoais --> */}
                 <div className="lg:col-span-8 space-y-6">
-                    {/* <!-- Informações Básicas --> */}
                     <div
                         className="bg-gray-100 dark:bg-professional-dark rounded-2xl p-8 border border-professional-dark dark:border-professional-card shadow-xl transition-all duration-300 ease-in-out dark:hover:border-professional-accent/50 animate-fade-in">
                         <h2 className="text-2xl text-center font-semibold mb-8 text-professional-dark dark:text-professional-subtitle relative pb-4
