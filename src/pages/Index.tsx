@@ -390,7 +390,7 @@ export default function Index() {
                             <p className="text-primary-500 dark:text-primary-400 text-center mb-4">Back-end</p>
                             <p className="text-gray-600 dark:text-gray-400 text-center">
                                 João Azevedo é um desenvolvedor back-end, responsável por criar a lógica do servidor e gerenciar
-                                bancos de dados. Ele é proficiente em postegreSQL, Axios e Node.js.
+                                bancos de dados. Ele é proficiente em PostgreSQL, Axios, Prisma e Node.js.
                             </p>
                         </div>
 
