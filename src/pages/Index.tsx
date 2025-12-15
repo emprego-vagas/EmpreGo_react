@@ -13,9 +13,9 @@ import Footer from '../components/Footer';
 import JoaoAzevedoPrime from '../assets/members/JoaoAzevedoPrime.jpeg';
 import CarolinaKaippert from '../assets/members/CarolinaKaippert.jpeg';
 import JoaoSouza from '../assets/members/JoaoSouza.jpeg';
-import MateusRicardo from '../assets/members/MateusRicardo.jpeg';
+import MateusRicardo from '../assets/members/MateusRicardo.webp';
 import AlecVinicius from '../assets/members/AlecVinicius.jpeg';
-// import JoaoAzevedo from '../assets/members/JoaoAzevedo.jpeg';
+import AthonFernandes from '../assets/members/AthonFernandes.jpeg';
 
 
 export default function Index(){
@@ -405,7 +405,7 @@ export default function Index(){
                     <div className="bg-white dark:bg-dark-900 rounded-xl p-6 shadow-lg card-hover opacity-0 profile-card" data-delay="500">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
-                                <img src={teste} alt="Perfil"
+                                <img src={AthonFernandes} alt="Perfil"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-primary-500"/>
                                 <div
                                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center">

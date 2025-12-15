@@ -15,7 +15,7 @@ export interface FileEditCandFace {
     truncate: boolean;
 }
 
-export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo: CampoEditCandFace, pronomesInfo: CampoEditCandFace, pronomesPersonalizadosInfo: CampoEditCandFace, portfolioInfo: CampoEditCandFace, githubInfo: CampoEditCandFace, curriculoInfo: CampoEditCandFace, instagramInfo: CampoEditCandFace, site_pessoalInfo: CampoEditCandFace, twitterInfo: CampoEditCandFace, cidadeInfo: CampoEditCandFace, estadoInfo: CampoEditCandFace, cargo_atualInfo: CampoEditCandFace, empresa_atualInfo: CampoEditCandFace, descricaoInfo: CampoEditCandFace, fotoInfo: FileEditCandFace, curriculo_fileInfo: FileEditCandFace): Promise<boolean> {
+export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo: CampoEditCandFace, pronomesInfo: CampoEditCandFace, pronomesPersonalizadosInfo: CampoEditCandFace, portfolioInfo: CampoEditCandFace, githubInfo: CampoEditCandFace, curriculoInfo: CampoEditCandFace, instagramInfo: CampoEditCandFace, site_pessoalInfo: CampoEditCandFace, twitterInfo: CampoEditCandFace, cidadeInfo: CampoEditCandFace, estadoInfo: CampoEditCandFace, cargo_atualInfo: CampoEditCandFace, empresa_atualInfo: CampoEditCandFace, descricaoInfo: CampoEditCandFace, fotoInfo: FileEditCandFace, curriculo_fileInfo: FileEditCandFace, bannerInfo: FileEditCandFace): Promise<boolean> {
     const formData = new FormData();
     if(!nomeInfo.disabled && nomeInfo.value && nomeInfo.value!==nomeInfo.cached) {
         const newName = nomeInfo.value;
@@ -114,6 +114,9 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     };
     if(curriculo_fileInfo.value || (curriculo_fileInfo.cached && curriculo_fileInfo.truncate)) {
         formData.append('curriculo_file', curriculo_fileInfo.value || null);
+    };
+    if(bannerInfo.value || (bannerInfo.cached!=='fundoroxo' && bannerInfo.truncate)) {
+        formData.append('banner', bannerInfo.value || null);
     };
     
     if (formData.entries().next().done) return true; // * Valida se nada foi editado

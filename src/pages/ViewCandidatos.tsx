@@ -15,6 +15,7 @@ import SinoNotificacoes from '../components/SinoNotificacoes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight, faComment, faSliders, faStar } from '@fortawesome/free-solid-svg-icons';
 import { AnimatedItem } from '../animation/favoritoAnimation';
+import FundoRoxo from '../assets/imgs/FundoRoxo.png';
 
 interface Slide {
     empresa: string;
@@ -37,6 +38,7 @@ interface CandidatoCardProps {
     onClickVerMais?: () => void;
     idioma: string;
     estado: string;
+    banner: string;
 }
 
 interface Candidato {
@@ -48,6 +50,7 @@ interface Candidato {
     estado: string;
     idioma: string;
     tags: string[];
+    banner: string;
 }
 
 interface CandidatosPorCategoria {
@@ -102,7 +105,7 @@ const estadosFilter = [
     "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais, favoritada, idioma, estado }) => {
+const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, tags, onClickFavorito, onClickVerMais, favoritada, idioma, estado, banner }) => {
     const [favorito, setFavorito] = useState(favoritada);
 
     const handleFavorito = () => {
@@ -118,12 +121,37 @@ const CandidatoCard: React.FC<CandidatoCardProps> = ({ logo, nome, descricao, ta
             className={"empresa-card  bg-dark-50 dark:bg-twitch-gray rounded-lg overflow-hidden shadow-md transition-all relative border border-gray-700 h-full flex flex-col hover:-translate-y-1 hover:shadow-lg hover:border-twitch-purple min-h-[400px]"}>
 
             {/* Header com logo e botão favorito */}
-            <div className="card-header relative h-40 bg-dark-700 flex items-center justify-center overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-gradient-to-br before:from-twitch-purple/30 before:to-transparent">
-                <img src={logo} alt={nome} className="empresa-logo w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md z-10 transition-transform" />
+            <div className="card-header relative h-36 flex items-center justify-center overflow-hidden">
 
-                <button onClick={handleFavorito} className="favorite-btn absolute top-3 right-3 bg-black/40 border-none w-10 h-10 rounded-full flex items-center justify-center cursor-pointer text-gray-300 transition-all z-20 backdrop-blur-sm hover:bg-black/60 hover:scale-110">
+                {/* Background */}
+                <img
+                    src={banner === 'fundoroxo' ? FundoRoxo: banner||FundoRoxo}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+
+                {/* Gradiente por cima */}
+                <div className="absolute inset-0 bg-gradient-to-br from-twitch-purple/30 to-transparent" />
+
+                {/* Logo da empresa */}
+                <img
+                    src={logo}
+                    alt={nome}
+                    className="empresa-logo relative z-10 w-28 h-28 rounded-full object-cover border-4 border-gray-800 bg-white shadow-md transition-transform"
+                />
+
+                {/* Botão favorito */}
+                <button
+                    onClick={handleFavorito}
+                    className="favorite-btn absolute top-3 right-3 z-20
+                            bg-black/40 w-10 h-10 rounded-full
+                            flex items-center justify-center
+                            text-gray-300 backdrop-blur-sm
+                            transition-all hover:bg-black/60 hover:scale-110"
+                >
                     <i className={favorito ? 'bx bxs-star text-xl text-yellow-400' : 'bx bx-star text-xl'} />
                 </button>
+
             </div>
 
             {/* Corpo do card */}
@@ -263,6 +291,7 @@ const Main: React.FC = () => {
                 candidatos: [...prev.candidatos, ...candidatos.map(cand => ({
                     id: cand.id,
                     logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
                     favoritada: isFavoritada(cand.id),
@@ -314,6 +343,7 @@ const Main: React.FC = () => {
                         candidatos: data.candidatosRecomendados.map(cand => ({
                             id: cand.id,
                             logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
                             tags: cand.tags.map(t => t.nome),
@@ -332,6 +362,7 @@ const Main: React.FC = () => {
                         candidatos: data.candidatosRecentes.map(cand => ({
                             id: cand.id,
                             logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
                             tags: cand.tags.map(t => t.nome),
@@ -350,6 +381,7 @@ const Main: React.FC = () => {
                         candidatos: data.candidatosPrincipais.map(cand => ({
                             id: cand.id,
                             logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
                             tags: cand.tags.map(t => t.nome),
@@ -362,6 +394,7 @@ const Main: React.FC = () => {
                 setCandidatosSemLabel(data.candidatosSemLabel.map(cand => ({
                     id: cand.id,
                     logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
                     tags: cand.tags.map(t => t.nome),
@@ -380,7 +413,7 @@ const Main: React.FC = () => {
                         month: 'long',
                         year: 'numeric'
                     }),
-                    background: 'Black',
+                    background: e.background,
                     fotoCandidato: e.candidato_foto,
                     candidato_id: e.candidato_id
                 })))
@@ -511,7 +544,8 @@ const Main: React.FC = () => {
             favoritada: false,
             tags: ['Tecnologia', 'Inovação', 'Remoto'],
             estado: 'SE',
-            idioma: 'Português'
+            idioma: 'Português',
+            banner: FundoRoxo
         },
         {
             id: '2',
@@ -521,7 +555,8 @@ const Main: React.FC = () => {
             favoritada: false,
             tags: ['Sistemas', 'Corporate', 'Híbrido'],
             estado: 'SE',
-            idioma: 'Português'
+            idioma: 'Português',
+            banner: FundoRoxo
         },
     ]);
     const candidatosSemLabelRef = useRef(null);
@@ -633,6 +668,7 @@ const Main: React.FC = () => {
                 [...prev, ...novasCandidatos.map(cand => ({
                     id: cand.id,
                     logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
                     favoritada: isFavoritada(cand.id),
@@ -696,6 +732,7 @@ const Main: React.FC = () => {
                     cand => ({
                         id: cand.id,
                         logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                        banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                         nome: cand.nome,
                         descricao: cand.descricao,
                         tags: cand.tags.map(t => t.nome),
@@ -811,6 +848,7 @@ const Main: React.FC = () => {
                     candidatos: emps.map(cand => ({
                         id: cand.id,
                         logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                        banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                         nome: cand.nome,
                         descricao: cand.descricao,
                         tags: cand.tags.map(t => t.nome),
@@ -1433,6 +1471,7 @@ const Main: React.FC = () => {
                                                             onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                             idioma={candidato.idioma}
                                                             estado={candidato.estado}
+                                                            banner={candidato.banner}
                                                         />
                                                     )
                                                 })}
@@ -1483,7 +1522,7 @@ const Main: React.FC = () => {
                                             key={index}
                                             style={
                                                 slide.background
-                                                    ? { backgroundImage: `url(${slide.background})` }
+                                                    ? { backgroundImage: `url(${slide.background==='fundoroxo'?FundoRoxo:slide.background})` }
                                                     : undefined
                                             }
                                             className={`absolute inset-0 w-full h-full transition-opacity duration-300 bg-cover bg-center bg-no-repeat rounded-xl overflow-hidden ${!slide.background ? 'bg-primary-400 dark:bg-primary-500' : ''} ${index === currentSlide ? 'opacity-100 pointer-events-auto z-20' : 'opacity-0 pointer-events-none z-10'}`}>
@@ -1561,6 +1600,7 @@ const Main: React.FC = () => {
                                                             onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                             idioma={candidato.idioma}
                                                             estado={candidato.estado}
+                                                            banner={candidato.banner}
                                                         />
                                                     )
                                                 })}
@@ -1605,6 +1645,7 @@ const Main: React.FC = () => {
                                                     onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                     idioma={candidato.idioma}
                                                     estado={candidato.estado}
+                                                    banner={candidato.banner}
                                                 />
                                             )
                                         })}
@@ -1671,6 +1712,7 @@ const Main: React.FC = () => {
                                                         onClickVerMais={() => navigate(`/candidato/${candidato.id}`)}
                                                         idioma={candidato.idioma}
                                                         estado={candidato.estado}
+                                                        banner={candidato.banner}
                                                     />
                                                 )
                                             })}

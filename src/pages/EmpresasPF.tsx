@@ -16,6 +16,7 @@ import type { CustomEmp, Empresa, Tag } from "../utils/utilsInterfaces";
 import Loader from "../components/Loader";
 import genPfp from '../assets/imgs/genPfp.png';
 import "../App.css";
+import FundoRoxo from '../assets/imgs/FundoRoxo.png';
 
 // Função auxiliar para renderizar campos com verificação
 // const renderField = (value: string | null | undefined, fieldTitle: string) => {
@@ -160,7 +161,8 @@ export default function PerfilEmpresaPublico() {
           cnpj: '',
           missao: '',
           visao: '',
-          valores: ''
+          valores: '',
+          banner: 'fundoroxo'
         };
         setEmpPerfil(fallbackEmpresa);
         setCustomPerfil({ tags_empresas: [], tags_count: 0, filiais: [], filiais_count: 0 });
@@ -328,8 +330,7 @@ export default function PerfilEmpresaPublico() {
       <HeaderProfiles />
       <div id="main" className="container mx-auto px-4 pt-6 pb-10">
         <div className="relative mb-6">
-          <div className="w-full h-48 bg-gradient-to-r from-professional-accent to-professional-lightaccent rounded-xl">
-          </div>
+          <img src={empPerfil.banner==='fundoroxo' ? FundoRoxo : empPerfil.banner} alt="Fundo Roxo" className="w-full h-56 rounded-xl"/>
           <div className="absolute -bottom-12 left-6">
             <div className="flex items-end">
               <img

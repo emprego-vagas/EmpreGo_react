@@ -1,5 +1,5 @@
 import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFile, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFile, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faImage, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
@@ -16,6 +16,7 @@ import jpgIconFile from '../assets/imgs/jpg.png';
 import pngIconFile from '../assets/imgs/png.png';
 import Loader from "../components/Loader";
 import type { Candidato } from "../utils/utilsInterfaces";
+import FundoRoxo from '../assets/imgs/FundoRoxo.png';
 
 export default function EditarPerfilCandidato () {
     const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function EditarPerfilCandidato () {
                 const { 
                     nome, foto, descricao, cpf, estado, cidade, instagram, github,
                     twitter, pronomes, site_pessoal, curriculo, cargo_atual,
-                    portifolio, empresa_atual, curriculo_file
+                    portifolio, empresa_atual, curriculo_file, banner
                 } = usua;
                 setNomeInfo({cached: nome, value: nome, disabled: true});
                 if(cpf) setCpfInfo({cached: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), value: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), disabled: true});
@@ -64,6 +65,7 @@ export default function EditarPerfilCandidato () {
                 if(empresa_atual) setEmpresa_atualInfo({cached: empresa_atual, value: empresa_atual, disabled: true});
                 if(descricao) setDescricaoInfo({cached: descricao, value: descricao, disabled: true});
                 if(curriculo_file) setCurriculo_fileInfo({cached: curriculo_file, value: null, disabled: true, truncate: false});
+                if (banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
 
                 setDataLoaded(true);
             } catch (erro) {
@@ -92,25 +94,56 @@ export default function EditarPerfilCandidato () {
     const descricaoLength = descricaoInfo.value.length;
     const [fotoInfo, setFotoInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
     const [curriculo_fileInfo, setCurriculo_fileInfo] = useState<FileEditCandFace>({cached: '', value: null, disabled: false, truncate: false});
+    const [previewSrcBanner, setPreviewSrcBanner] = useState(FundoRoxo);
+    const inputBannerOcultRef = useRef<HTMLInputElement>(null);
+    const [bannerInfo, setBannerInfo] = useState<FileEditCandFace>({
+        cached: '',
+        value: null,
+        disabled: false,
+        truncate: false
+    });
 
     const [previewSrcFoto, setPreviewSrcFoto] = useState(genPfp);
     const inputFotoPerfilOcultRef = useRef(null);
     useEffect(() => {
         if(fotoInfo.truncate) {
             setPreviewSrcFoto(genPfp);
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
         else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
             setPreviewSrcFoto(fotoInfo.cached);
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
         else if (fotoInfo.value as File) {
             const reader = new FileReader();
-            reader.onload = (e) => setPreviewSrcFoto(e.target.result as string);
-            reader.readAsDataURL(fotoInfo.value);
+            reader.onload = (e) => setPreviewSrcFoto(e.target?.result as string);
+            reader.readAsDataURL(fotoInfo.value as File);
         }
         else {
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
             setPreviewSrcFoto(genPfp);
         }
     }, [fotoInfo]);
+
+    useEffect(() => {
+        if (bannerInfo.truncate) {
+            setPreviewSrcBanner(FundoRoxo);
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+        }
+        else if (!bannerInfo.value && bannerInfo.cached !== 'fundoroxo') {
+            setPreviewSrcBanner(bannerInfo.cached);
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+        }
+        else if (bannerInfo.value as File) {
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewSrcBanner(e.target?.result as string);
+            reader.readAsDataURL(bannerInfo.value as File);
+        }
+        else {
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+            setPreviewSrcBanner(FundoRoxo);
+        }
+    }, [bannerInfo]);
 
     const [previewCurriculoFile, setPreviewCurriculoFile] = useState({name: '', size: '', src: defaultIconFile});
     const inputCurriculoFileOcultRef = useRef(null);
@@ -158,6 +191,61 @@ export default function EditarPerfilCandidato () {
                 <h1 className="text-4xl font-bold gradient-text mb-2 text-professional-dark dark:text-white">Editar Perfil</h1>
                 <p className="text-professional-gray dark:text-professional-subtitle text-lg max-w-2xl mx-auto">Atualize suas informações profissionais e
                     pessoais para destacar seu perfil no mercado</p>
+            </div>
+            <h2 className="text-2xl text-center font-semibold mb-4 text-professional-subtitle">
+                <FontAwesomeIcon icon={faImage} className="text-professional-accent mr-2" />
+                Banner do Perfil
+            </h2>
+            <div className="relative w-full h-56 overflow-hidden rounded-xl mb-4">
+                <img
+                    src={previewSrcBanner || FundoRoxo}
+                    alt="Banner do perfil"
+                    className="w-full h-full object-cover"
+                />
+
+                {/* Input oculto */}
+                <input
+                    type="file"
+                    accept="image/*"
+                    ref={inputBannerOcultRef}
+                    className="hidden"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setBannerInfo(prev => ({ ...prev, value: file, truncate: false }));
+                    }}
+                />
+
+                {/* Botão alterar */}
+                <button
+                    onClick={() => inputBannerOcultRef.current?.click()}
+                    className="absolute bottom-4 right-4 bg-professional-accent text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                    title="Alterar banner"
+                >
+                    <FontAwesomeIcon icon={faCamera} />
+                </button>
+
+                {/* Remover */}
+                {(!bannerInfo.truncate && (bannerInfo.value || bannerInfo.cached !== 'fundoroxo')) && (
+                    <button
+                        onClick={() => setBannerInfo(prev => ({ ...prev, value: null, truncate: true }))}
+                        className="absolute top-4 right-4 bg-red-500 text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                        title="Remover banner"
+                    >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                    </button>
+                )}
+
+                {/* Cancelar */}
+                {(bannerInfo.truncate || bannerInfo.value) && (
+                    <button
+                        onClick={() => setBannerInfo(prev => ({ ...prev, value: null, truncate: false }))}
+                        className="absolute top-4 left-4 bg-blue-500 text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                        title="Cancelar edição"
+                    >
+                        <FontAwesomeIcon icon={faUndo} />
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -627,7 +715,7 @@ export default function EditarPerfilCandidato () {
                     className="flex items-center gap-2 px-10 py-4 text-lg font-semibold rounded-xl transition-all bg-linear-to-r bg-primary-700 from-professional-accent to-professional-lightaccent text-white shadow-lg shadow-professional-accent/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-professional-accent/40 cursor-pointer"
                     onClick={async()=>{
                         setSalvandoEdicao(true);
-                        const editou = await salvarEdicaoCandidato(nomeInfo, cpfInfo, pronomesInfo, pronomesPersonalizadosInfo, portfolioInfo, githubInfo, curriculoInfo, instagramInfo, site_pessoalInfo, twitterInfo, cidadeInfo, estadoInfo, cargo_atualInfo, empresa_atualInfo, descricaoInfo, fotoInfo, curriculo_fileInfo);
+                        const editou = await salvarEdicaoCandidato(nomeInfo, cpfInfo, pronomesInfo, pronomesPersonalizadosInfo, portfolioInfo, githubInfo, curriculoInfo, instagramInfo, site_pessoalInfo, twitterInfo, cidadeInfo, estadoInfo, cargo_atualInfo, empresa_atualInfo, descricaoInfo, fotoInfo, curriculo_fileInfo, bannerInfo);
                         if(!editou) setSalvandoEdicao(false);
                         else {
                             mostrarSucessoTopo('Perfil editado com sucesso!');
