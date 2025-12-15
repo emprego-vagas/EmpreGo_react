@@ -67,7 +67,7 @@ export default function Login() {
             {/* Botão de voltar à tela inicial */}
             <button
                 onClick={() => navigate('/')}
-                className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-gray-800 backdrop-blur-md border border-white/20 rounded-lg text-white hover:bg-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                 title="Voltar à tela inicial"
             >
                 <FontAwesomeIcon icon={faArrowLeft} />
