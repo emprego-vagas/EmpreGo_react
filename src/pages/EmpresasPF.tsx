@@ -523,15 +523,15 @@ export default function PerfilEmpresaPublico() {
 
             <div className="flex space-x-6 mt-4 md:mt-0">
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">12</div>
+                <div className="text-2xl font-bold text-professional-accent">0</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Vagas</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">15</div>
+                <div className="text-2xl font-bold text-professional-accent">0</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Projetos</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">4</div>
+                <div className="text-2xl font-bold text-professional-accent">0</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Certificações</div>
               </div>
             </div>

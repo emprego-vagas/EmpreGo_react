@@ -474,23 +474,23 @@ export default function PerfilEmpresa() {
                                 <div
                                     className="bg-linear-to-br from-dark-50 dark:from-professional-gray to-professional-card rounded-lg p-5 text-center ">
                                     <div id="vagasCount" className="text-[2rem] font-bold text-professional-accent mb-1">
-                                        12</div>
+                                        0</div>
                                     <div className="text-sm text-dark-900 dark:text-professional-subtitle">Vagas Ativas</div>
                                 </div>
                                 <div
                                     className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center ">
-                                    <div id="colaboradoresCount" className="text-[2rem] font-bold text-professional-accent mb-1">15</div>
+                                    <div id="colaboradoresCount" className="text-[2rem] font-bold text-professional-accent mb-1">0</div>
                                     <div className="text-sm text-dark-900 dark:text-professional-subtitle">Colaboradores</div>
                                 </div>
                                 <div
                                     className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center ">
-                                    <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">15
+                                    <div id="projetosCount" className="text-[2rem] font-bold text-professional-accent mb-1">0
                                     </div>
                                     <div className="text-sm text-dark-900 dark:text-professional-subtitle">Projetos Ativos</div>
                                 </div>
                                 <div
                                     className="bg-linear-to-br from-professional-gray to-professional-card rounded-lg p-5 text-center ">
-                                    <div id="certificacoesCount" className="text-[2rem] font-bold text-professional-accent mb-1">4</div>
+                                    <div id="certificacoesCount" className="text-[2rem] font-bold text-professional-accent mb-1">0</div>
                                     <div className="text-sm text-dark-900 dark:text-professional-subtitle">Certificações Empresariais</div>
                                 </div>
                             </div>
