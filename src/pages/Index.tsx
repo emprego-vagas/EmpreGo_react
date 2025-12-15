@@ -1,6 +1,5 @@
 import HeaderInit from '../components/HeaderInit'
 import ThemeTogle from '../components/ThemeTogle'
-import teste from '../assets/imgs/BIGSlogo.png'
 import { useEffect } from "react";
 import { animate } from 'animejs';
 import '../ts/indexFunctions'

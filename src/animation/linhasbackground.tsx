@@ -2,8 +2,33 @@ import { useEffect, useRef, type FC } from 'react';
 import * as THREE from 'three';
 import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from 'postprocessing';
 
+interface SMAAAssets {
+  search: HTMLImageElement;
+  area: HTMLImageElement;
+}
+
+interface Assets {
+  smaa?: Partial<SMAAAssets>;
+}
+
+type UniformValue =
+  | number
+  | THREE.Vector2
+  | THREE.Vector3
+  | THREE.Vector4
+  | THREE.Color
+  | number[]
+  | [number, number]
+  | [number, number, number]
+  | null
+  | undefined;
+
+interface Uniform<T = UniformValue> {
+  value: T;
+}
+
 interface Distortion {
-  uniforms: Record<string, { value: any }>;
+  uniforms: Record<string, Uniform>;
   getDistortion: string;
   getJS?: (progress: number, time: number) => THREE.Vector3;
 }
@@ -99,27 +124,27 @@ function nsin(val: number) {
   return Math.sin(val) * 0.5 + 0.5;
 }
 
-const mountainUniforms = {
+const mountainUniforms: Record<string, Uniform> = {
   uFreq: { value: new THREE.Vector3(3, 6, 10) },
   uAmp: { value: new THREE.Vector3(30, 30, 20) }
 };
 
-const xyUniforms = {
+const xyUniforms: Record<string, Uniform> = {
   uFreq: { value: new THREE.Vector2(5, 2) },
   uAmp: { value: new THREE.Vector2(25, 15) }
 };
 
-const LongRaceUniforms = {
+const LongRaceUniforms: Record<string, Uniform> = {
   uFreq: { value: new THREE.Vector2(2, 3) },
   uAmp: { value: new THREE.Vector2(35, 10) }
 };
 
-const turbulentUniforms = {
+const turbulentUniforms: Record<string, Uniform> = {
   uFreq: { value: new THREE.Vector4(4, 8, 8, 1) },
   uAmp: { value: new THREE.Vector4(25, 5, 10, 10) }
 };
 
-const deepUniforms = {
+const deepUniforms: Record<string, Uniform> = {
   uFreq: { value: new THREE.Vector2(4, 8) },
   uAmp: { value: new THREE.Vector2(10, 20) },
   uPowY: { value: new THREE.Vector2(20, 2) }
@@ -146,8 +171,8 @@ const distortions: Distortions = {
     `,
     getJS: (progress: number, time: number) => {
       const movementProgressFix = 0.02;
-      const uFreq = mountainUniforms.uFreq.value;
-      const uAmp = mountainUniforms.uAmp.value;
+      const uFreq = (mountainUniforms.uFreq.value as THREE.Vector3);
+      const uAmp = (mountainUniforms.uAmp.value as THREE.Vector3);
       const distortion = new THREE.Vector3(
         Math.cos(progress * Math.PI * uFreq.x + time) * uAmp.x -
           Math.cos(movementProgressFix * Math.PI * uFreq.x + time) * uAmp.x,
@@ -178,8 +203,8 @@ const distortions: Distortions = {
     `,
     getJS: (progress: number, time: number) => {
       const movementProgressFix = 0.02;
-      const uFreq = xyUniforms.uFreq.value;
-      const uAmp = xyUniforms.uAmp.value;
+      const uFreq = xyUniforms.uFreq.value as THREE.Vector2;
+      const uAmp = xyUniforms.uAmp.value as THREE.Vector2;
       const distortion = new THREE.Vector3(
         Math.cos(progress * Math.PI * uFreq.x + time) * uAmp.x -
           Math.cos(movementProgressFix * Math.PI * uFreq.x + time) * uAmp.x,
@@ -209,8 +234,8 @@ const distortions: Distortions = {
     `,
     getJS: (progress: number, time: number) => {
       const camProgress = 0.0125;
-      const uFreq = LongRaceUniforms.uFreq.value;
-      const uAmp = LongRaceUniforms.uAmp.value;
+      const uFreq = LongRaceUniforms.uFreq.value as THREE.Vector2;
+      const uAmp = LongRaceUniforms.uAmp.value as THREE.Vector2;
       const distortion = new THREE.Vector3(
         Math.sin(progress * Math.PI * uFreq.x + time) * uAmp.x -
           Math.sin(camProgress * Math.PI * uFreq.x + time) * uAmp.x,
@@ -253,8 +278,8 @@ const distortions: Distortions = {
       }
     `,
     getJS: (progress: number, time: number) => {
-      const uFreq = turbulentUniforms.uFreq.value;
-      const uAmp = turbulentUniforms.uAmp.value;
+      const uFreq = turbulentUniforms.uFreq.value as THREE.Vector4;
+      const uAmp = turbulentUniforms.uAmp.value as THREE.Vector4;
 
       const getX = (p: number) =>
         Math.cos(Math.PI * p * uFreq.x + time) * uAmp.x +
@@ -362,9 +387,9 @@ const distortions: Distortions = {
       }
     `,
     getJS: (progress: number, time: number) => {
-      const uFreq = deepUniforms.uFreq.value;
-      const uAmp = deepUniforms.uAmp.value;
-      const uPowY = deepUniforms.uPowY.value;
+      const uFreq = deepUniforms.uFreq.value as THREE.Vector2;
+      const uAmp = deepUniforms.uAmp.value as THREE.Vector2;
+      const uPowY = deepUniforms.uPowY.value as THREE.Vector2;
 
       const getX = (p: number) => Math.sin(p * Math.PI * uFreq.x + time) * uAmp.x;
       const getY = (p: number) => Math.pow(p * uPowY.x, uPowY.y) + Math.sin(p * Math.PI * uFreq.y + time) * uAmp.y;
@@ -381,7 +406,7 @@ const distortions: Distortions = {
   }
 };
 
-const distortion_uniforms = {
+const distortion_uniforms: Record<string, Uniform> = {
   uDistortionX: { value: new THREE.Vector2(80, 3) },
   uDistortionY: { value: new THREE.Vector2(-40, 2.5) }
 };
@@ -429,13 +454,17 @@ function lerp(current: number, target: number, speed = 0.1, limit = 0.001): numb
   return change;
 }
 
+type ShaderMaterialWithUniforms = THREE.ShaderMaterial & {
+  uniforms: Uniform[];
+};
+
 class CarLights {
   webgl: App;
   options: HyperspeedOptions;
   colors: number[] | THREE.Color;
   speed: [number, number];
   fade: THREE.Vector2;
-  mesh!: THREE.Mesh<THREE.InstancedBufferGeometry, THREE.ShaderMaterial>;
+  mesh!: THREE.Mesh<THREE.InstancedBufferGeometry, ShaderMaterialWithUniforms>;
 
   constructor(
     webgl: App,
@@ -456,7 +485,7 @@ class CarLights {
     const curve = new THREE.LineCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1));
     const geometry = new THREE.TubeGeometry(curve, 40, 1, 8, false);
 
-    const instanced = new THREE.InstancedBufferGeometry().copy(geometry as any) as THREE.InstancedBufferGeometry;
+    const instanced = new THREE.InstancedBufferGeometry().copy(geometry as THREE.BufferGeometry) as THREE.InstancedBufferGeometry;
     instanced.instanceCount = options.lightPairsPerRoadWay * 2;
 
     const laneWidth = options.roadWidth / options.lanesPerRoad;
@@ -529,8 +558,8 @@ class CarLights {
         },
         this.webgl.fogUniforms,
         (typeof this.options.distortion === 'object' ? this.options.distortion.uniforms : {}) || {}
-      )
-    });
+      ) as Record<string, Uniform>
+    }) as ShaderMaterialWithUniforms;
 
     material.onBeforeCompile = shader => {
       shader.vertexShader = shader.vertexShader.replace(
@@ -542,7 +571,7 @@ class CarLights {
     const mesh = new THREE.Mesh(instanced, material);
     mesh.frustumCulled = false;
     this.webgl.scene.add(mesh);
-    this.mesh = mesh;
+    this.mesh = mesh as THREE.Mesh<THREE.InstancedBufferGeometry, ShaderMaterialWithUniforms>;
   }
 
   update(time: number) {
@@ -604,7 +633,7 @@ const carLightsVertex = `
 class LightsSticks {
   webgl: App;
   options: HyperspeedOptions;
-  mesh!: THREE.Mesh<THREE.InstancedBufferGeometry, THREE.ShaderMaterial>;
+  mesh!: THREE.Mesh<THREE.InstancedBufferGeometry, ShaderMaterialWithUniforms>;
 
   constructor(webgl: App, options: HyperspeedOptions) {
     this.webgl = webgl;
@@ -614,7 +643,7 @@ class LightsSticks {
   init() {
     const options = this.options;
     const geometry = new THREE.PlaneGeometry(1, 1);
-    const instanced = new THREE.InstancedBufferGeometry().copy(geometry as any) as THREE.InstancedBufferGeometry;
+    const instanced = new THREE.InstancedBufferGeometry().copy(geometry as THREE.BufferGeometry) as THREE.InstancedBufferGeometry;
     const totalSticks = options.totalSideLightSticks;
     instanced.instanceCount = totalSticks;
 
@@ -659,8 +688,8 @@ class LightsSticks {
         },
         this.webgl.fogUniforms,
         (typeof options.distortion === 'object' ? options.distortion.uniforms : {}) || {}
-      )
-    });
+      ) as Record<string, Uniform>
+    }) as ShaderMaterialWithUniforms;
 
     material.onBeforeCompile = shader => {
       shader.vertexShader = shader.vertexShader.replace(
@@ -672,7 +701,7 @@ class LightsSticks {
     const mesh = new THREE.Mesh(instanced, material);
     mesh.frustumCulled = false;
     this.webgl.scene.add(mesh);
-    this.mesh = mesh;
+    this.mesh = mesh as THREE.Mesh<THREE.InstancedBufferGeometry, ShaderMaterialWithUniforms>;
   }
 
   update(time: number) {
@@ -694,9 +723,9 @@ const sideSticksVertex = `
   mat4 rotationY( in float angle ) {
     return mat4(
       cos(angle),		0,		sin(angle),	0,
-      0,		        1.0,	0,			0,
+      0,		        1.0,		0,			0,
       -sin(angle),	    0,		cos(angle),	0,
-      0, 		        0,		0,			1
+      0,	 	        0,		0,			1
     );
   }
   #include <getDistortion_vertex>
@@ -748,7 +777,7 @@ class Road {
     this.uTime = { value: 0 };
   }
 
-  createPlane(side: number, width: number, isRoad: boolean) {
+  createPlane(side: number, _width: number, isRoad: boolean) {
     const options = this.options;
     const segments = 100;
     const geometry = new THREE.PlaneGeometry(
@@ -758,7 +787,7 @@ class Road {
       segments
     );
 
-    let uniforms: Record<string, { value: any }> = {
+    let uniforms: Record<string, Uniform> = {
       uTravelLength: { value: options.length },
       uColor: {
         value: new THREE.Color(isRoad ? options.colors.roadColor : options.colors.islandColor)
@@ -795,8 +824,8 @@ class Road {
         uniforms,
         this.webgl.fogUniforms,
         (typeof options.distortion === 'object' ? options.distortion.uniforms : {}) || {}
-      )
-    });
+      ) as Record<string, Uniform>
+    }) as ShaderMaterialWithUniforms;
 
     material.onBeforeCompile = shader => {
       shader.vertexShader = shader.vertexShader.replace(
@@ -923,13 +952,13 @@ class App {
   renderPass!: RenderPass;
   bloomPass!: EffectPass;
   clock: THREE.Clock;
-  assets: Record<string, any>;
+  assets: Assets;
   disposed: boolean;
   road: Road;
   leftCarLights: CarLights;
   rightCarLights: CarLights;
   leftSticks: LightsSticks;
-  fogUniforms: Record<string, { value: any }>;
+  fogUniforms: Record<string, Uniform>;
   fovTarget: number;
   speedUpTarget: number;
   speedUp: number;
@@ -1054,15 +1083,15 @@ class App {
 
       const searchImage = new Image();
       const areaImage = new Image();
-      assets.smaa = {};
+      assets.smaa = {} as Partial<SMAAAssets>;
 
       searchImage.addEventListener('load', function () {
-        assets.smaa.search = this;
+        assets.smaa!.search = this;
         manager.itemEnd('smaa-search');
       });
 
       areaImage.addEventListener('load', function () {
-        assets.smaa.area = this;
+        assets.smaa!.area = this;
         manager.itemEnd('smaa-area');
       });
 
@@ -1259,228 +1288,228 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
 
 export default Hyperspeed;
 
-export const hyperspeedPresets = {
-  one: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'turbulentDistortion',
-    length: 400,
-    roadWidth: 10,
-    islandWidth: 2,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 20,
-    lightPairsPerRoadWay: 40,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [400 * 0.03, 400 * 0.2],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.8, 0.8],
-    carFloorSeparation: [0, 5],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0xd856bf, 0x6750a2, 0xc247ac],
-      rightCars: [0x03b3c3, 0x0e5ea5, 0x324555],
-      sticks: 0x03b3c3
-    }
-  },
-  two: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'mountainDistortion',
-    length: 400,
-    roadWidth: 9,
-    islandWidth: 2,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 50,
-    lightPairsPerRoadWay: 50,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
+// export const hyperspeedPresets: Record<string, Partial<HyperspeedOptions>> = {
+//   one: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'turbulentDistortion',
+//     length: 400,
+//     roadWidth: 10,
+//     islandWidth: 2,
+//     lanesPerRoad: 3,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 2,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 20,
+//     lightPairsPerRoadWay: 40,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.12, 0.5],
+//     lightStickHeight: [1.3, 1.7],
+//     movingAwaySpeed: [60, 80],
+//     movingCloserSpeed: [-120, -160],
+//     carLightsLength: [400 * 0.03, 400 * 0.2],
+//     carLightsRadius: [0.05, 0.14],
+//     carWidthPercentage: [0.3, 0.5],
+//     carShiftX: [-0.8, 0.8],
+//     carFloorSeparation: [0, 5],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0xd856bf, 0x6750a2, 0xc247ac],
+//       rightCars: [0x03b3c3, 0x0e5ea5, 0x324555],
+//       sticks: 0x03b3c3
+//     }
+//   },
+//   two: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'mountainDistortion',
+//     length: 400,
+//     roadWidth: 9,
+//     islandWidth: 2,
+//     lanesPerRoad: 3,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 2,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 50,
+//     lightPairsPerRoadWay: 50,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.12, 0.5],
+//     lightStickHeight: [1.3, 1.7],
 
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [400 * 0.05, 400 * 0.15],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.2, 0.2],
-    carFloorSeparation: [0.05, 1],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0xff102a, 0xeb383e, 0xff102a],
-      rightCars: [0xdadafa, 0xbebae3, 0x8f97e4],
-      sticks: 0xdadafa
-    }
-  },
-  three: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'xyDistortion',
-    length: 400,
-    roadWidth: 9,
-    islandWidth: 2,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 3,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 50,
-    lightPairsPerRoadWay: 30,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.02, 0.05],
-    lightStickHeight: [0.3, 0.7],
-    movingAwaySpeed: [20, 50],
-    movingCloserSpeed: [-150, -230],
-    carLightsLength: [400 * 0.05, 400 * 0.2],
-    carLightsRadius: [0.03, 0.08],
-    carWidthPercentage: [0.1, 0.5],
-    carShiftX: [-0.5, 0.5],
-    carFloorSeparation: [0, 0.1],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0x7d0d1b, 0xa90519, 0xff102a],
-      rightCars: [0xf1eece, 0xe6e2b1, 0xdfd98a],
-      sticks: 0xf1eece
-    }
-  },
-  four: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'LongRaceDistortion',
-    length: 400,
-    roadWidth: 10,
-    islandWidth: 5,
-    lanesPerRoad: 2,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 50,
-    lightPairsPerRoadWay: 70,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [400 * 0.05, 400 * 0.15],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.2, 0.2],
-    carFloorSeparation: [0.05, 1],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0xff5f73, 0xe74d60, 0xff102a],
-      rightCars: [0xa4e3e6, 0x80d1d4, 0x53c2c6],
-      sticks: 0xa4e3e6
-    }
-  },
-  five: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'turbulentDistortion',
-    length: 400,
-    roadWidth: 9,
-    islandWidth: 2,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 50,
-    lightPairsPerRoadWay: 50,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [400 * 0.05, 400 * 0.15],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.2, 0.2],
-    carFloorSeparation: [0.05, 1],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0xdc5b20, 0xdca320, 0xdc2020],
-      rightCars: [0x334bf7, 0xe5e6ed, 0xbfc6f3],
-      sticks: 0xc5e8eb
-    }
-  },
-  six: {
-    onSpeedUp: () => {},
-    onSlowDown: () => {},
-    distortion: 'deepDistortion',
-    length: 400,
-    roadWidth: 18,
-    islandWidth: 2,
-    lanesPerRoad: 3,
-    fov: 90,
-    fovSpeedUp: 150,
-    speedUp: 2,
-    carLightsFade: 0.4,
-    totalSideLightSticks: 50,
-    lightPairsPerRoadWay: 50,
-    shoulderLinesWidthPercentage: 0.05,
-    brokenLinesWidthPercentage: 0.1,
-    brokenLinesLengthPercentage: 0.5,
-    lightStickWidth: [0.12, 0.5],
-    lightStickHeight: [1.3, 1.7],
-    movingAwaySpeed: [60, 80],
-    movingCloserSpeed: [-120, -160],
-    carLightsLength: [400 * 0.05, 400 * 0.15],
-    carLightsRadius: [0.05, 0.14],
-    carWidthPercentage: [0.3, 0.5],
-    carShiftX: [-0.2, 0.2],
-    carFloorSeparation: [0.05, 1],
-    colors: {
-      roadColor: 0x080808,
-      islandColor: 0x0a0a0a,
-      background: 0x000000,
-      shoulderLines: 0x131318,
-      brokenLines: 0x131318,
-      leftCars: [0xff322f, 0xa33010, 0xa81508],
-      rightCars: [0xfdfdf0, 0xf3dea0, 0xe2bb88],
-      sticks: 0xfdfdf0
-    }
-  }
-};
+//     movingAwaySpeed: [60, 80],
+//     movingCloserSpeed: [-120, -160],
+//     carLightsLength: [400 * 0.05, 400 * 0.15],
+//     carLightsRadius: [0.05, 0.14],
+//     carWidthPercentage: [0.3, 0.5],
+//     carShiftX: [-0.2, 0.2],
+//     carFloorSeparation: [0.05, 1],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0xff102a, 0xeb383e, 0xff102a],
+//       rightCars: [0xdadafa, 0xbebae3, 0x8f97e4],
+//       sticks: 0xdadafa
+//     }
+//   },
+//   three: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'xyDistortion',
+//     length: 400,
+//     roadWidth: 9,
+//     islandWidth: 2,
+//     lanesPerRoad: 3,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 3,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 50,
+//     lightPairsPerRoadWay: 30,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.02, 0.05],
+//     lightStickHeight: [0.3, 0.7],
+//     movingAwaySpeed: [20, 50],
+//     movingCloserSpeed: [-150, -230],
+//     carLightsLength: [400 * 0.05, 400 * 0.2],
+//     carLightsRadius: [0.03, 0.08],
+//     carWidthPercentage: [0.1, 0.5],
+//     carShiftX: [-0.5, 0.5],
+//     carFloorSeparation: [0, 0.1],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0x7d0d1b, 0xa90519, 0xff102a],
+//       rightCars: [0xf1eece, 0xe6e2b1, 0xdfd98a],
+//       sticks: 0xf1eece
+//     }
+//   },
+//   four: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'LongRaceDistortion',
+//     length: 400,
+//     roadWidth: 10,
+//     islandWidth: 5,
+//     lanesPerRoad: 2,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 2,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 50,
+//     lightPairsPerRoadWay: 70,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.12, 0.5],
+//     lightStickHeight: [1.3, 1.7],
+//     movingAwaySpeed: [60, 80],
+//     movingCloserSpeed: [-120, -160],
+//     carLightsLength: [400 * 0.05, 400 * 0.15],
+//     carLightsRadius: [0.05, 0.14],
+//     carWidthPercentage: [0.3, 0.5],
+//     carShiftX: [-0.2, 0.2],
+//     carFloorSeparation: [0.05, 1],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0xff5f73, 0xe74d60, 0xff102a],
+//       rightCars: [0xa4e3e6, 0x80d1d4, 0x53c2c6],
+//       sticks: 0xa4e3e6
+//     }
+//   },
+//   five: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'turbulentDistortion',
+//     length: 400,
+//     roadWidth: 9,
+//     islandWidth: 2,
+//     lanesPerRoad: 3,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 2,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 50,
+//     lightPairsPerRoadWay: 50,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.12, 0.5],
+//     lightStickHeight: [1.3, 1.7],
+//     movingAwaySpeed: [60, 80],
+//     movingCloserSpeed: [-120, -160],
+//     carLightsLength: [400 * 0.05, 400 * 0.15],
+//     carLightsRadius: [0.05, 0.14],
+//     carWidthPercentage: [0.3, 0.5],
+//     carShiftX: [-0.2, 0.2],
+//     carFloorSeparation: [0.05, 1],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0xdc5b20, 0xdca320, 0xdc2020],
+//       rightCars: [0x334bf7, 0xe5e6ed, 0xbfc6f3],
+//       sticks: 0xc5e8eb
+//     }
+//   },
+//   six: {
+//     onSpeedUp: () => {},
+//     onSlowDown: () => {},
+//     distortion: 'deepDistortion',
+//     length: 400,
+//     roadWidth: 18,
+//     islandWidth: 2,
+//     lanesPerRoad: 3,
+//     fov: 90,
+//     fovSpeedUp: 150,
+//     speedUp: 2,
+//     carLightsFade: 0.4,
+//     totalSideLightSticks: 50,
+//     lightPairsPerRoadWay: 50,
+//     shoulderLinesWidthPercentage: 0.05,
+//     brokenLinesWidthPercentage: 0.1,
+//     brokenLinesLengthPercentage: 0.5,
+//     lightStickWidth: [0.12, 0.5],
+//     lightStickHeight: [1.3, 1.7],
+//     movingAwaySpeed: [60, 80],
+//     movingCloserSpeed: [-120, -160],
+//     carLightsLength: [400 * 0.05, 400 * 0.15],
+//     carLightsRadius: [0.05, 0.14],
+//     carWidthPercentage: [0.3, 0.5],
+//     carShiftX: [-0.2, 0.2],
+//     carFloorSeparation: [0.05, 1],
+//     colors: {
+//       roadColor: 0x080808,
+//       islandColor: 0x0a0a0a,
+//       background: 0x000000,
+//       shoulderLines: 0x131318,
+//       brokenLines: 0x131318,
+//       leftCars: [0xff322f, 0xa33010, 0xa81508],
+//       rightCars: [0xfdfdf0, 0xf3dea0, 0xe2bb88],
+//       sticks: 0xfdfdf0
+//     }
+//   }
+// };
