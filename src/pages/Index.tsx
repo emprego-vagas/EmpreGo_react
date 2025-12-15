@@ -1,5 +1,7 @@
 import HeaderInit from '../components/HeaderInit'
-import ThemeTogle from '../components/ThemeTogle'
+// import ThemeTogle from '../components/ThemeTogle'
+import ThemeTogles from '../components/ThemeTogles'
+// import teste from '../assets/imgs/BIGSlogo.png'
 import { useEffect } from "react";
 import { animate } from 'animejs';
 import '../ts/indexFunctions'
@@ -17,6 +19,7 @@ import AlecVinicius from '../assets/members/AlecVinicius.jpeg';
 // import JoaoAzevedo from '../assets/members/JoaoAzevedo.jpeg';
 import Hyperspeed from '../animation/linhasbackground';
 import AthonFernandes from '../assets/members/AthonFernandes.jpeg';
+import { lockTheme, unlockTheme } from '../components/ThemeTogleLock';
 
 
 export default function Index() {
@@ -122,11 +125,44 @@ export default function Index() {
         window.scrollTo(0, 0);
     }, []);
 
+    useEffect(() => {
+    // 🔒 Sempre inicia travado no dark
+    lockTheme();
+
+    const servicesObserver = new IntersectionObserver(
+        ([entry]) => {
+        if (entry.isIntersecting) {
+            unlockTheme();
+        }
+        },
+        { threshold: 0.3 }
+    );
+
+    const homeObserver = new IntersectionObserver(
+        ([entry]) => {
+        if (entry.isIntersecting) {
+            lockTheme(); 
+        }
+        },
+        { threshold: 0.6 }
+    );
+
+    const services = document.querySelector('#servicos');
+    const home = document.querySelector('#home');
+
+    if (services) servicesObserver.observe(services);
+    if (home) homeObserver.observe(home);
+
+    return () => {
+        servicesObserver.disconnect();
+        homeObserver.disconnect();
+    };
+    }, []);
+
     return (
         <>
             <HeaderInit />
             <section id="home" className="min-h-screen flex items-center pt-20 relative overflow-hidden">
-                {/* Background Hyperspeed */}
                 <div className="absolute inset-0 z-0">
                     <Hyperspeed
                         effectOptions={{
@@ -488,7 +524,7 @@ export default function Index() {
                 </div>
             </section>
             <Footer />
-            <ThemeTogle />
+            <ThemeTogles />
         </>
     )
 }
