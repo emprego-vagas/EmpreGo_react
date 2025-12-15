@@ -4,10 +4,12 @@ import { logout, DadosUsuario } from '../utils/globalFunctions';
 import '../css/headerTW.css';
 import { interacaoUI } from "../ts/indexFunctions";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 export default function HeaderInit(){
     interacaoUI();
     const User = DadosUsuario.getUsuario();
+    const [mobileOpen, setMobileOpen] = useState(false);
     return (
         <header className="fixed w-full bg-light-100 dark:bg-dark-900 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-md z-[100] transition-colors duration-300 dark:dark:border-professional-card">
 
@@ -56,13 +58,20 @@ export default function HeaderInit(){
                     </nav>
 
                     {/* Mobile Menu Button */}
-                    <button id="mobile-menu-button" className="md:hidden text-gray-600 dark:text-gray-300 focus:outline-none">
-                        <i className='bx bx-menu text-3xl'></i>
+                    <button
+                    className="md:hidden text-gray-600 dark:text-gray-300"
+                    onClick={() => setMobileOpen(!mobileOpen)}
+                    >
+                    <i className='bx bx-menu text-3xl'></i>
                     </button>
                 </div>
 
                 {/* Mobile Menu */}
-                <div id="mobile-menu" className="hidden md:hidden mt-4 space-y-4 pb-4">
+                <div
+                className={`md:hidden mt-4 space-y-4 pb-4 transition-all duration-300 ${
+                    mobileOpen ? "block" : "hidden"
+                }`}
+                >
                     <Link to="#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
                     <Link to="#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</Link>
                     <Link to="#biografias"
@@ -78,7 +87,7 @@ export default function HeaderInit(){
                     </Link>
                     
                     {/* Foto de Perfil (inicialmente oculta) */}
-                    <Link to={`/perfil${User?User.tipo:'candidato'}`}
+                    <Link to={`/perfil/${User?User.tipo:'candidato'}`}
                         className="block w-12 h-12 mx-auto rounded-full overflow-hidden border-2 border-primary-500 hidden"
                         id="mobileFotoPerfil">
                         <img src="/assets/imgs/genPfp.png" alt="Foto de perfil do usuário" id="mobileFotoPerfilImg"
