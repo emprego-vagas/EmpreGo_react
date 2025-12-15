@@ -118,7 +118,9 @@ export default function Index() {
         profilesObserver.observe(document.querySelector("#biografias"));
     }, []);
 
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <>

@@ -1,7 +1,7 @@
 // * Pacotes
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
 import ParticlesBackgroundComponent from './ParticlesBackground';
 // import backgroundroxo from '../assets/imgs/purpleBG.png'
@@ -63,6 +63,17 @@ export default function Login() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 flex justify-center items-center p-5">
             <ParticlesBackgroundComponent />
+            
+            {/* Botão de voltar à tela inicial */}
+            <button
+                onClick={() => navigate('/')}
+                className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                title="Voltar à tela inicial"
+            >
+                <FontAwesomeIcon icon={faArrowLeft} />
+                <span className="hidden sm:inline">Voltar</span>
+            </button>
+
             <div className="w-full max-w-md bg-gray-800/95 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
                 {/* Abas de navegação */}
                 <div className="flex bg-black/30 border-b border-white/10">
@@ -182,18 +193,17 @@ export default function Login() {
                     {/* Cadastro de Usuário */}
                     {activeTab === "user-register" && (
                         <div className="animate-fade-in">
-                            <h2 className="text-2xl font-semibold text-white text-center mb-6">Cadastre-se como candidato</h2>
+                            <h2 className="text-2xl font-semibold text-white text-center mb-6">Cadastro de candidato</h2>
 
                             <form id="registerForm" action="#">
                                 <div className="mb-4">
-                                    <label htmlFor="regUsername" className="block text-white text-sm font-medium mb-2">Nome</label>
+                                    <label htmlFor="registerName" className="block text-white text-sm font-medium mb-2">Nome</label>
                                     <input
                                         type="text"
-                                        id="regUsername"
+                                        id="registerName"
                                         className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
                                         placeholder="Seu nome"
                                         required
-                                        maxLength={100}
                                         value={userRegister.nome}
                                         onChange={(e) => { limparErroCand(); setUserRegister({ ...userRegister, nome: e.target.value }) }}
                                     />
@@ -205,14 +215,13 @@ export default function Login() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="regUsernameSobre" className="block text-white text-sm font-medium mb-2">Sobrenome</label>
+                                    <label htmlFor="registerSurname" className="block text-white text-sm font-medium mb-2">Sobrenome</label>
                                     <input
                                         type="text"
-                                        id="regUsernameSobre"
+                                        id="registerSurname"
                                         className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
                                         placeholder="Seu sobrenome"
                                         required
-                                        maxLength={100}
                                         value={userRegister.sobrenome}
                                         onChange={(e) => { limparErroCand(); setUserRegister({ ...userRegister, sobrenome: e.target.value }) }}
                                     />
@@ -224,14 +233,13 @@ export default function Login() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="email" className="block text-white text-sm font-medium mb-2">Email</label>
+                                    <label htmlFor="registerEmail" className="block text-white text-sm font-medium mb-2">Email</label>
                                     <input
                                         type="email"
-                                        id="email"
+                                        id="registerEmail"
                                         className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
                                         placeholder="seu@email.com"
                                         required
-                                        maxLength={254}
                                         value={userRegister.email}
                                         onChange={(e) => { limparErroCand(); setUserRegister({ ...userRegister, email: e.target.value }) }}
                                     />
@@ -297,13 +305,12 @@ export default function Login() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="dob" className="block text-white text-sm font-medium mb-2">Data de nascimento</label>
+                                    <label htmlFor="birthDate" className="block text-white text-sm font-medium mb-2">Data de nascimento</label>
                                     <input
                                         type="text"
-                                        id="dob"
+                                        id="birthDate"
                                         className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
                                         placeholder="DD/MM/AAAA"
-                                        maxLength={10}
                                         required
                                         value={userRegister.data_nasc}
                                         onChange={(e) => { limparErroCand(); formatarData(e); setUserRegister({ ...userRegister, data_nasc: e.target.value }) }}
@@ -316,62 +323,64 @@ export default function Login() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="genderSelect" className="block text-white text-sm font-medium mb-2">Gênero</label>
+                                    <label htmlFor="gender" className="block text-white text-sm font-medium mb-2">Gênero</label>
                                     <select
-                                        id="genderSelect"
-                                        className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
+                                        id="gender"
+                                        className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors cursor-pointer"
                                         required
                                         value={userRegister.genero}
                                         onChange={(e) => {
                                             limparErroCand();
-                                            const value = e.target.value;
-                                            setUserRegister({ ...userRegister, genero: value });
-                                            setShowOtherGender(value === "Outro");
+                                            setUserRegister({ ...userRegister, genero: e.target.value });
+                                            setShowOtherGender(e.target.value === "outro");
                                         }}
                                     >
-                                        <option value="" disabled>Selecione</option>
-                                        <option value="Masculino">Masculino</option>
-                                        <option value="Feminino">Feminino</option>
-                                        <option value="Não-binário">Não-binário</option>
-                                        <option value="Outro">Outro</option>
-                                        <option value="Prefiro não dizer">Prefiro não dizer</option>
+                                        <option value="" disabled>Selecione...</option>
+                                        <option value="masculino">Masculino</option>
+                                        <option value="feminino">Feminino</option>
+                                        <option value="outro">Outro</option>
+                                        <option value="nao-informar">Prefiro não informar</option>
                                     </select>
                                     {errorInputCand.campo === "genero" && (
                                         <div className="flex items-center gap-2 text-red-400 text-sm mt-2 p-2 bg-red-400/10 rounded-lg animate-fade-in">
                                             <FontAwesomeIcon icon={faExclamationCircle} /> {errorInputCand.mensagem}
                                         </div>
                                     )}
-                                    {showOtherGender && (
-                                        <div className="mt-3 transition-all duration-300 animate-fade-in">
-                                            <input
-                                                type="text"
-                                                id="outroGeneroInput"
-                                                className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
-                                                placeholder="Especifique seu gênero"
-                                                maxLength={30}
-                                                value={userRegister.outroGenero}
-                                                onChange={(e) => { limparErroCand(); setUserRegister({ ...userRegister, outroGenero: e.target.value }) }}
-                                            />
-                                            {errorInputCand.campo === "outroGenero" && (
-                                                <div className="flex items-center gap-2 text-red-400 text-sm mt-2 p-2 bg-red-400/10 rounded-lg animate-fade-in">
-                                                    <FontAwesomeIcon icon={faExclamationCircle} /> {errorInputCand.mensagem}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
+
+                                {showOtherGender && (
+                                    <div className="mb-4 animate-fade-in">
+                                        <label htmlFor="otherGender" className="block text-white text-sm font-medium mb-2">Especifique seu gênero</label>
+                                        <input
+                                            type="text"
+                                            id="otherGender"
+                                            className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors"
+                                            placeholder="Digite aqui..."
+                                            value={userRegister.outroGenero}
+                                            onChange={(e) => { limparErroCand(); setUserRegister({ ...userRegister, outroGenero: e.target.value }) }}
+                                        />
+                                        {errorInputCand.campo === "outroGenero" && (
+                                            <div className="flex items-center gap-2 text-red-400 text-sm mt-2 p-2 bg-red-400/10 rounded-lg animate-fade-in">
+                                                <FontAwesomeIcon icon={faExclamationCircle} /> {errorInputCand.mensagem}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <button
                                     type="submit"
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
-                                        const emailRedirect = userRegister.email;
                                         const registro = await candidatoRegister(e, userRegister);
                                         if (!registro.success) {
                                             if (registro.inputError?.campo === 'general') return;
                                             setErrorInputCand({ campo: registro.inputError?.campo || "", mensagem: registro.inputError?.mensagem || "" });
                                             return;
-                                        } else navigate(`/confirmar?email=${emailRedirect}`);
+                                        } else {
+                                            setTimeout(() => {
+                                                window.location.href = '/';
+                                            }, 1000);
+                                        }
                                     }}
                                 >
                                     Cadastrar
@@ -395,7 +404,7 @@ export default function Login() {
                         <div className="animate-fade-in">
                             <h2 className="text-2xl font-semibold text-white text-center mb-6">Entrar como empresa</h2>
 
-                            <form id="loginEmpresaForm" action="#">
+                            <form id="empresaLoginForm" action="#">
                                 <div className="mb-4">
                                     <label htmlFor="empresaCNPJ" className="block text-white text-sm font-medium mb-2">CNPJ</label>
                                     <input
@@ -410,11 +419,11 @@ export default function Login() {
                                 </div>
 
                                 <div className="mb-4">
-                                    <label htmlFor="empresaSenha" className="block text-white text-sm font-medium mb-2">Senha</label>
+                                    <label htmlFor="empresaPassword" className="block text-white text-sm font-medium mb-2">Senha</label>
                                     <div className="relative">
                                         <input
                                             type={showPasswordLoginEmp ? "text" : "password"}
-                                            id="empresaSenha"
+                                            id="empresaPassword"
                                             className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-purple-500 focus:bg-black/50 transition-colors pr-12"
                                             placeholder="Digite sua senha"
                                             required
@@ -450,7 +459,7 @@ export default function Login() {
                                     className="w-full py-3.5 bg-gradient-to-br from-purple-600 to-purple-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-purple-500/25 mb-4 cursor-pointer"
                                     onClick={async (e) => {
                                         const logado = await empresaLogin(e, companyLogin);
-                                        if (logado) window.location.href = '/';
+                                        if (logado) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                                     }}
                                 >
                                     Entrar
@@ -460,7 +469,7 @@ export default function Login() {
                             <div className="text-center">
                                 <Link
                                     to="#"
-                                    className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+                                    className="text-purple-600 hover:text-purple-300 text-sm transition-colors font-bold"
                                     onClick={(e) => { e.preventDefault(); switchTab("company-register") }}
                                 >
                                     Não tem uma conta? Cadastre-se
@@ -472,9 +481,9 @@ export default function Login() {
                     {/* Cadastro de Empresa */}
                     {activeTab === "company-register" && (
                         <div className="animate-fade-in">
-                            <h2 className="text-2xl font-semibold text-white text-center mb-6">Cadastre-se como empresa</h2>
+                            <h2 className="text-2xl font-semibold text-white text-center mb-6">Cadastro de empresa</h2>
 
-                            <form id="registerEmpresaForm" action="#">
+                            <form id="empresaRegisterForm" action="#">
                                 <div className="mb-4">
                                     <label htmlFor="empresaEmail" className="block text-white text-sm font-medium mb-2">Email</label>
                                     <input
@@ -843,3 +852,4 @@ export default function Login() {
         </div>
     )
 }
+    
