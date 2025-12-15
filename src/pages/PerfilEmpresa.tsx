@@ -1,5 +1,5 @@
 import { faFacebook, faGithub, faInstagram, faLinkedin, faXTwitter, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { faAward, faBell, faBriefcase, faTimes, faCity, faFlag, faCodeBranch, faSearch, faBuilding, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEdit, faEnvelope, faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone, faPlus, faPlusCircle, faProjectDiagram, faStar, faUserPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faAward, faBell, faBriefcase, faTimes, faCity, faFlag, faCodeBranch, faSearch, faBuilding, faChevronLeft, faChevronRight, faCogs, faCommentAlt, faEdit, faEnvelope, faGlobe, faHandshake, faIdCard, faIndustry, faMap, faMapMarkerAlt, faPhone, faPlus, faPlusCircle, faProjectDiagram, faStar, faUserPlus, faUsers, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from "react-router-dom"
 import HeaderProfiles from "../components/HeaderProfiles";
@@ -253,6 +253,26 @@ export default function PerfilEmpresa() {
                                 className="bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out hover:bg-professional-lightaccent cursor-pointer"
                                 title="Editar Perfil">
                                 <FontAwesomeIcon icon={faEdit} className="mr-2" />Editar Perfil
+                            </button>
+                            <button
+                                id="btnVerPerfilPublico"
+                                onClick={() => navigate(`/empresa/${usuario?.id}`)}
+                                className="group flex items-center justify-center gap-2
+                                            bg-transparent border border-professional-card
+                                            dark:border-professional-accent
+                                            text-professional-gray dark:text-white
+                                            font-medium py-2.5 px-5 rounded-lg w-full mt-3
+                                            transition-all duration-200 ease-in-out
+                                            hover:bg-professional-card
+                                            dark:hover:bg-professional-accent
+                                            hover:text-white"
+                                title="Ver perfil público"
+                                >
+                                <FontAwesomeIcon
+                                    icon={faEye}
+                                    className="text-sm opacity-80 group-hover:opacity-100 transition-opacity"
+                                />
+                                <span>Ver perfil</span>
                             </button>
                         </div>
 

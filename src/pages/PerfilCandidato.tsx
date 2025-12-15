@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { DadosUsuario, fileDownload, mostrarErroTopo } from "../utils/globalFunctions";
 import axiosWe from "../utils/axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faFileInvoice, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBirthdayCake, faBook, faBriefcase, faBuilding, faCertificate, faDownload, faEdit, faEnvelope, faEye, faFileInvoice, faGlobe, faIdCard, faMagic, faMapMarkerAlt, faPlus, faPlusCircle, faProjectDiagram, faStar, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faInstagram, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
@@ -180,6 +180,26 @@ export default function PerfilCandidato() {
                             className="hover:bg-gray-700 bg-professional-dark dark:bg-professional-accent text-white font-medium py-2.5 px-5 rounded-lg w-full transition-all duration-200 ease-in-out dark:hover:bg-professional-lightaccent cursor-pointer"
                             title="Editar Perfil">
                             <FontAwesomeIcon icon={faEdit} className="mr-2" />Editar Perfil
+                        </button>
+                        <button
+                            id="btnVerPerfilPublico"
+                            onClick={() => navigate(`/candidato/${usuario?.id}`)}
+                            className="group flex items-center justify-center gap-2
+                                        bg-transparent border border-professional-card
+                                        dark:border-professional-accent
+                                        text-professional-gray dark:text-white
+                                        font-medium py-2.5 px-5 rounded-lg w-full mt-3
+                                        transition-all duration-200 ease-in-out
+                                        hover:bg-professional-card
+                                        dark:hover:bg-professional-accent
+                                        hover:text-white"
+                            title="Ver perfil público"
+                            >
+                            <FontAwesomeIcon
+                                icon={faEye}
+                                className="text-sm opacity-80 group-hover:opacity-100 transition-opacity"
+                            />
+                            <span>Ver perfil</span>
                         </button>
                     </div>
 

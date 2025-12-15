@@ -5,7 +5,10 @@ import {
   faGlobe, faHandshake, faMapMarkerAlt,
   faProjectDiagram,
   faChartLine,
-  faComment
+  faComment,
+  faHome,
+  faHeadset,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useParams } from "react-router-dom"
@@ -320,11 +323,85 @@ export default function PerfilEmpresaPublico() {
   };
 
   if (loading) return <Loader />;
-  if (!empPerfil) return (
-    <div className="container mx-auto px-4 pt-10 pb-10 text-center">
-      <h2 className="text-2xl font-bold text-professional-accent">Empresa não encontrada</h2>
-    </div>
-  );
+  if (!empPerfil) {
+      return (
+        <div className="bg-dark-50 dark:bg-dark-900 min-h-screen flex flex-col">
+          <HeaderProfiles />
+          <div className="flex-1 flex items-center justify-center px-4 py-10">
+            <div className="max-w-md w-full text-center">
+              {/* Ícone/Ilustração */}
+              <div className="mb-8">
+                <div className="w-32 h-32 mx-auto relative">
+                  <div className="absolute inset-0 bg-professional-accent/10 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-4 bg-professional-accent/20 rounded-full flex items-center justify-center">
+                    <FontAwesomeIcon 
+                      icon={faUser} 
+                      className="text-5xl text-professional-accent/60" 
+                    />
+                  </div>
+                </div>
+              </div>
+  
+              {/* Título */}
+              <h1 className="text-3xl font-bold text-dark-700 dark:text-white mb-4">
+                Empresa não encontrada
+              </h1>
+  
+              {/* Mensagem */}
+              <p className="text-lg text-dark-700 dark:text-professional-subtitle mb-8">
+                O perfil que você está procurando não existe ou foi removido.
+              </p>
+  
+              {/* Ações */}
+              <div className="space-y-4">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="w-full px-6 py-3 bg-professional-accent text-white rounded-lg hover:bg-professional-lightaccent transition-colors font-medium"
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
+                  Voltar para página anterior
+                </button>
+  
+                <button
+                  onClick={() => navigate('/')}
+                  className="w-full px-6 py-3 border border-professional-accent text-professional-accent rounded-lg hover:bg-professional-accent/10 transition-colors font-medium"
+                >
+                  <FontAwesomeIcon icon={faHome} className="mr-2" />
+                  Ir para a tela inicial
+                </button>
+              </div>
+  
+              {/* Informações adicionais */}
+              <div className="mt-10 pt-8 border-t border-professional-card">
+                <p className="text-sm text-dark-700 dark:text-professional-subtitle">
+                  Se você acredita que isso é um erro, entre em contato com o suporte.
+                </p>
+                <button
+                  onClick={() => navigate('/suporte')}
+                  className="mt-3 inline-flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors text-sm font-medium"
+                >
+                  <FontAwesomeIcon icon={faHeadset} className="mr-1" />
+                  Suporte
+                </button>
+              </div>
+  
+              {/* Animação sutil */}
+              <div className="mt-8">
+                <div className="flex items-center justify-center space-x-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 bg-professional-accent/40 rounded-full animate-bounce"
+                      style={{ animationDelay: `${i * 0.1}s` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
 
   return (
     <div className="bg-dark-50 dark:bg-dark-900">

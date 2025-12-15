@@ -48,6 +48,9 @@ axiosWe.interceptors.response.use(function (config) {
       }
 
       break;
+    case 404:
+      if(msg.includes('Candidato não encontrado')||msg.includes('Empresa não encontrada')) erroTopo = false;
+      break;
     case 409:
 
       erroTopo = false;
