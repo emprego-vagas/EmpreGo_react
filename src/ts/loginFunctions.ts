@@ -2,7 +2,6 @@ import type { MouseEvent, FormEvent } from 'react';
 import axiosWe from '../utils/axiosInstance';
 import type {AxiosWeError} from '../utils/axiosInstance';
 import { DadosUsuario, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
-import axios from 'axios';
 
 export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin: {email: string, senha: string, lembreMe: boolean}): Promise<boolean> {
     e.preventDefault();
