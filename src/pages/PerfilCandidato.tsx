@@ -124,9 +124,7 @@ export default function PerfilCandidato() {
             {candPerfil && (
             <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* <!-- Coluna esquerda - Informações principais --> */}
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
-                    {/* <!-- Informações importantes --> */}
                     <div id="impInfo"
                         className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <img id="fotoUsuario" src={candPerfil.foto==='/assets/imgs/genPfp.png'?genPfp:candPerfil.foto} alt="Foto de perfil"
@@ -578,7 +576,7 @@ export default function PerfilCandidato() {
                                     </p>
                                 </Link>
                             </div>
-                            <div
+                            {/* <div
                                 className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-lg font-semibold text-professional-dark dark:text-white">PMP - Project Management Professional
@@ -616,7 +614,7 @@ export default function PerfilCandidato() {
                                 <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação em análise de dados e
                                     métricas
                                     digitais.</p>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     )}
@@ -704,7 +702,7 @@ export default function PerfilCandidato() {
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
                                 </Link>
                             </div>
-                            <div
+                            {/* <div
                                 className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Sistema de Gestão Empresarial</h3>
@@ -725,9 +723,9 @@ export default function PerfilCandidato() {
                                     <span
                                         className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">PostgreSQL</span>
                                 </div>
-                            </div>
+                            </div> */}
 
-                            <div
+                            {/* <div
                                 className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Plataforma de E-learning</h3>
@@ -747,7 +745,7 @@ export default function PerfilCandidato() {
                                     <span
                                         className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">MongoDB</span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     )}
