@@ -4,7 +4,8 @@ import {
   faChevronLeft, faChevronRight, faEnvelope,
   faGlobe, faHandshake, faMapMarkerAlt,
   faProjectDiagram,
-  faChartLine
+  faChartLine,
+  faComment
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useParams } from "react-router-dom"
@@ -346,7 +347,28 @@ export default function PerfilEmpresaPublico() {
         <div className="ml-40 pt-4 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div>
-              <h1 id="nomUsuario" className="text-3xl font-bold text-dark-700 dark:text-dark-50">{empPerfil.nome_fant}</h1>
+              <div className="flex items-center gap-4">
+                <h1
+                  id="nomUsuario"
+                  className="text-3xl font-bold text-dark-700 dark:text-dark-50"
+                >
+                  {empPerfil.nome_fant}
+                </h1>
+
+                {/* BOTÃO CHAT */}
+                {usuario.tipo!=='empresa' && (
+                  <button
+                    onClick={() => navigate(`/chats?id=${empPerfil.id}`)}
+                    className="flex items-center gap-2 px-2 py-2 rounded-full
+                              bg-professional-accent text-white
+                              hover:bg-professional-lightaccent
+                              transition-colors"
+                    title="Iniciar conversa"
+                  >
+                    <FontAwesomeIcon icon={faComment} className="h-[15px] w-[15px]"/>
+                  </button>
+                )}
+              </div>
               <div className="flex items-center mt-2 space-x-4">
                 {empPerfil.site && (
                   <a

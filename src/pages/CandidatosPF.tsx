@@ -1,5 +1,5 @@
 import {faGithub, faInstagram, faXTwitter} from "@fortawesome/free-brands-svg-icons";
-import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faDownload} from "@fortawesome/free-solid-svg-icons";
+import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faDownload, faComment} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useParams } from "react-router-dom";
 import { DadosUsuario, fileDownload } from "../utils/globalFunctions";
@@ -436,9 +436,28 @@ export default function PerfilCandidatoPF() {
         <div className="ml-40 pt-4 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div>
-              <h1 id="nomUsuario" className="text-3xl font-bold text-dark-700 dark:text-dark-50">
-                {candPerfil.nome}
-              </h1>
+              <div className="flex items-center gap-4">
+                <h1
+                  id="nomUsuario"
+                  className="text-3xl font-bold text-dark-700 dark:text-dark-50"
+                >
+                  {candPerfil.nome}
+                </h1>
+
+                {/* BOTÃO CHAT */}
+                {usuario.tipo!=='candidato' && (
+                  <button
+                    onClick={() => navigate(`/chats?id=${candPerfil.id}`)}
+                    className="flex items-center gap-2 px-2 py-2 rounded-full
+                              bg-professional-accent text-white
+                              hover:bg-professional-lightaccent
+                              transition-colors"
+                    title="Iniciar conversa"
+                  >
+                    <FontAwesomeIcon icon={faComment} className="h-[15px] w-[15px]"/>
+                  </button>
+                )}
+              </div>
               <div className="flex flex-wrap items-center mt-2 space-x-4">
                 {candPerfil.cargo_atual && (
                   <span className="text-lg font-medium text-professional-accent">
@@ -772,22 +791,13 @@ export default function PerfilCandidatoPF() {
                       </div>
                     )} */}
 
-                    {candPerfil.portifolio && (
-                      <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
-                        <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
-                        <div>
-                          <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
-                          <a
-                            href={candPerfil.portifolio}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-dark-700 dark:text-white hover:text-professional-accent transition-colors"
-                          >
-                            Visualizar Portfólio
-                          </a>
-                        </div>
+                    <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
+                      <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
+                      <div>
+                        <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
+                        <div className="text-dark-700 dark:text-white">{renderField(candPerfil.portifolio, "Portfólio")}</div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
