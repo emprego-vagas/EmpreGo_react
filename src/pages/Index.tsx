@@ -126,37 +126,36 @@ export default function Index() {
     }, []);
 
     useEffect(() => {
-    // 🔒 Sempre inicia travado no dark
-    lockTheme();
+        lockTheme();
 
-    const servicesObserver = new IntersectionObserver(
-        ([entry]) => {
-        if (entry.isIntersecting) {
-            unlockTheme();
-        }
-        },
-        { threshold: 0.3 }
-    );
+        const servicesObserver = new IntersectionObserver(
+            ([entry]) => {
+            if (entry.isIntersecting) {
+                unlockTheme();
+            }
+            },
+            { threshold: 0.3 }
+        );
 
-    const homeObserver = new IntersectionObserver(
-        ([entry]) => {
-        if (entry.isIntersecting) {
-            lockTheme(); 
-        }
-        },
-        { threshold: 0.6 }
-    );
+        const homeObserver = new IntersectionObserver(
+            ([entry]) => {
+            if (entry.isIntersecting) {
+                lockTheme(); 
+            }
+            },
+            { threshold: 0.6 }
+        );
 
-    const services = document.querySelector('#servicos');
-    const home = document.querySelector('#home');
+        const services = document.querySelector('#servicos');
+        const home = document.querySelector('#home');
 
-    if (services) servicesObserver.observe(services);
-    if (home) homeObserver.observe(home);
+        if (services) servicesObserver.observe(services);
+        if (home) homeObserver.observe(home);
 
-    return () => {
-        servicesObserver.disconnect();
-        homeObserver.disconnect();
-    };
+        return () => {
+            servicesObserver.disconnect();
+            homeObserver.disconnect();
+        };
     }, []);
 
     return (
