@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faFileAlt, faBuilding, faSign, faIdCard, faIndustry, faChartBar,
     faCamera, faShareAlt, faGlobe, faMap, faSave, faTimes, faUndo,
-    faTrashAlt, faEdit, faCancel, faBullseye, faEye, faHandshake
+    faTrashAlt, faEdit, faCancel, faBullseye, faEye, faHandshake,
+    faImage
 } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram, faGithub, faTwitter, faYoutube, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import axiosWe from '../utils/axiosInstance';
@@ -15,6 +16,7 @@ import type { Empresa } from '../utils/utilsInterfaces';
 import { salvarEdicaoEmpresa, type CampoEditEmpFace, type FileEditEmpFace } from '../ts/editarPerfilEmpresaFunctions';
 import Loader from '../components/Loader';
 import genPfp from '../assets/imgs/genPfp.png';
+import FundoRoxo from '../assets/imgs/FundoRoxo.png';
 
 export default function EditarPerfilEmpresa() {
     const navigate = useNavigate();
@@ -39,7 +41,7 @@ export default function EditarPerfilEmpresa() {
                 const {
                     foto, descricao, instagram, github, twitter, nome_fant, facebook,
                     setor, porte, contato, site, youtube, linkedin, link_endereco,
-                    missao, visao, valores  // Novos campos
+                    missao, visao, valores, banner
                 } = usua;
                 setNomeFantInfo({ cached: nome_fant, value: nome_fant, disabled: true });
                 if (foto) setFotoInfo({ cached: foto, value: null, disabled: true, truncate: false });
@@ -60,6 +62,7 @@ export default function EditarPerfilEmpresa() {
                 if (missao) setMissaoInfo({ cached: missao, value: missao, disabled: true });
                 if (visao) setVisaoInfo({ cached: visao, value: visao, disabled: true });
                 if (valores) setValoresInfo({ cached: valores, value: valores, disabled: true });
+                if (banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
 
                 setDataLoaded(true);
             } catch (erro) {
@@ -91,6 +94,14 @@ export default function EditarPerfilEmpresa() {
     const [missaoLength, setMissaoLength] = useState(0);
     const [visaoLength, setVisaoLength] = useState(0);
     const [valoresLength, setValoresLength] = useState(0);
+    const [previewSrcBanner, setPreviewSrcBanner] = useState(FundoRoxo);
+    const inputBannerOcultRef = useRef<HTMLInputElement>(null);
+    const [bannerInfo, setBannerInfo] = useState<FileEditEmpFace>({
+        cached: '',
+        value: null,
+        disabled: false,
+        truncate: false
+    });
 
     const [previewSrcFoto, setPreviewSrcFoto] = useState(genPfp);
 
@@ -98,9 +109,11 @@ export default function EditarPerfilEmpresa() {
     useEffect(() => {
         if (fotoInfo.truncate) {
             setPreviewSrcFoto(genPfp);
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
         else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
             setPreviewSrcFoto(fotoInfo.cached);
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
         else if (fotoInfo.value as File) {
             const reader = new FileReader();
@@ -108,9 +121,30 @@ export default function EditarPerfilEmpresa() {
             reader.readAsDataURL(fotoInfo.value as File);
         }
         else {
+            if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
             setPreviewSrcFoto(genPfp);
         }
     }, [fotoInfo]);
+
+    useEffect(() => {
+        if (bannerInfo.truncate) {
+            setPreviewSrcBanner(FundoRoxo);
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+        }
+        else if (!bannerInfo.value && bannerInfo.cached !== 'fundoroxo') {
+            setPreviewSrcBanner(bannerInfo.cached);
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+        }
+        else if (bannerInfo.value as File) {
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewSrcBanner(e.target?.result as string);
+            reader.readAsDataURL(bannerInfo.value as File);
+        }
+        else {
+            if(inputBannerOcultRef.current) inputBannerOcultRef.current.value = '';
+            setPreviewSrcBanner(FundoRoxo);
+        }
+    }, [bannerInfo]);
 
     useEffect(() => {
         if (dataLoaded) {
@@ -129,6 +163,61 @@ export default function EditarPerfilEmpresa() {
                 <div className="page-header text-center mb-10 ">
                     <h1 className="text-4xl font-bold text-dark-900 dark:text-dark-50 mb-2 ">Editar Perfil Empresarial</h1>
                     <p className="text-dark-900 dark:text-professional-subtitle text-lg max-w-2xl mx-auto">Atualize as informações da sua empresa para atrair os melhores talentos e oportunidades</p>
+                </div>
+                <h2 className="text-2xl text-center font-semibold mb-4 text-professional-subtitle">
+                    <FontAwesomeIcon icon={faImage} className="text-professional-accent mr-2" />
+                    Banner do Perfil
+                </h2>
+                <div className="relative w-full h-56 overflow-hidden rounded-xl mb-4">
+                    <img
+                        src={previewSrcBanner || FundoRoxo}
+                        alt="Banner do perfil"
+                        className="w-full h-full object-cover"
+                    />
+
+                    {/* Input oculto */}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={inputBannerOcultRef}
+                        className="hidden"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setBannerInfo(prev => ({ ...prev, value: file, truncate: false }));
+                        }}
+                    />
+
+                    {/* Botão alterar */}
+                    <button
+                        onClick={() => inputBannerOcultRef.current?.click()}
+                        className="absolute bottom-4 right-4 bg-professional-accent text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                        title="Alterar banner"
+                    >
+                        <FontAwesomeIcon icon={faCamera} />
+                    </button>
+
+                    {/* Remover */}
+                    {(!bannerInfo.truncate && (bannerInfo.value || bannerInfo.cached !== 'fundoroxo')) && (
+                        <button
+                            onClick={() => setBannerInfo(prev => ({ ...prev, value: null, truncate: true }))}
+                            className="absolute top-4 right-4 bg-red-500 text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                            title="Remover banner"
+                        >
+                            <FontAwesomeIcon icon={faTrashAlt} />
+                        </button>
+                    )}
+
+                    {/* Cancelar */}
+                    {(bannerInfo.truncate || bannerInfo.value) && (
+                        <button
+                            onClick={() => setBannerInfo(prev => ({ ...prev, value: null, truncate: false }))}
+                            className="absolute top-4 left-4 bg-blue-500 text-white w-11 h-11 rounded-full shadow-lg hover:scale-110 transition"
+                            title="Cancelar edição"
+                        >
+                            <FontAwesomeIcon icon={faUndo} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 ">
@@ -511,7 +600,7 @@ export default function EditarPerfilEmpresa() {
                                 nomeFantInfo, descricaoInfo, instagramInfo, githubInfo,
                                 twitterInfo, setorInfo, porteInfo, contatoInfo,
                                 siteInfo, youtubeInfo, linkedinInfo, linkEnderecoInfo,
-                                facebookInfo, fotoInfo, missaoInfo, visaoInfo, valoresInfo
+                                facebookInfo, fotoInfo, missaoInfo, visaoInfo, valoresInfo, bannerInfo
                             );
                             if (!editou) setSalvandoEdicao(false);
                             else {

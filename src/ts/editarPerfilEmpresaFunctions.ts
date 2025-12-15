@@ -19,7 +19,7 @@ export async function salvarEdicaoEmpresa(
     twitterInfo: CampoEditEmpFace, setorInfo: CampoEditEmpFace, porteInfo: CampoEditEmpFace, contatoInfo: CampoEditEmpFace,
     siteInfo: CampoEditEmpFace, youtubeInfo: CampoEditEmpFace, linkedinInfo: CampoEditEmpFace, linkEnderecoInfo: CampoEditEmpFace,
     facebookInfo: CampoEditEmpFace, fotoInfo: FileEditEmpFace, missaoInfo: CampoEditEmpFace, visaoInfo: CampoEditEmpFace, 
-    valoresInfo: CampoEditEmpFace
+    valoresInfo: CampoEditEmpFace, bannerInfo: FileEditEmpFace
 ): Promise<boolean>{
     const formData = new FormData();
     if(!nomeFantInfo.disabled && nomeFantInfo.value && nomeFantInfo.value!==nomeFantInfo.cached) {
@@ -97,6 +97,9 @@ export async function salvarEdicaoEmpresa(
     if (!valoresInfo.disabled && (valoresInfo.value || valoresInfo.cached) && valoresInfo.value!==valoresInfo.cached) {
         formData.append('valores', valoresInfo.value);
     }
+    if(bannerInfo.value || (bannerInfo.cached!=='fundoroxo' && bannerInfo.truncate)) {
+        formData.append('banner', bannerInfo.value || null);
+    };
 
     if (formData.entries().next().done) return true;
 

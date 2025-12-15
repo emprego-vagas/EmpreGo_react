@@ -20,6 +20,7 @@ export interface Candidato {
     portifolio: string | null;
     empresa_atual: string | null;
     curriculo_file: string | null;
+    banner: string | null;
 }
 
 export interface CustomCand {
@@ -94,6 +95,7 @@ export interface Empresa {
     missao: string | null;
     visao: string | null;
     valores: string | null;
+    banner: string | null;
 }
 
 export interface CustomEmp {

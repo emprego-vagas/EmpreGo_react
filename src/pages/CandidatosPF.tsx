@@ -1,5 +1,5 @@
 import {faGithub, faInstagram, faXTwitter} from "@fortawesome/free-brands-svg-icons";
-import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faPhone, faDownload} from "@fortawesome/free-solid-svg-icons";
+import {faBriefcase, faCodeBranch, faChevronLeft, faChevronRight, faEnvelope, faGlobe, faProjectDiagram, faChartLine, faUser, faGraduationCap, faCertificate, faLanguage, faFileAlt, faCalendarAlt, faDownload, faComment} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate, useParams } from "react-router-dom";
 import { DadosUsuario, fileDownload } from "../utils/globalFunctions";
@@ -10,6 +10,7 @@ import type { Candidato, CustomCand, Tag, Experiencia, ProjetoCand, Idioma } fro
 import Loader from "../components/Loader";
 import genPfp from '../assets/imgs/genPfp.png';
 import "../App.css";
+import FundoRoxo from '../assets/imgs/FundoRoxo.png';
 
 export default function PerfilCandidatoPF() {
   const navigate = useNavigate();
@@ -219,6 +220,7 @@ export default function PerfilCandidatoPF() {
           portifolio: '',
           curriculo: '',
           curriculo_file: '',
+          banner: 'fundoroxo'
           // curriculo_filename: ''
         };
         setCandPerfil(fallbackCandidato);
@@ -418,7 +420,7 @@ export default function PerfilCandidatoPF() {
       <HeaderProfiles />
       <div id="main" className="container mx-auto px-4 pt-6 pb-10">
         <div className="relative mb-6">
-          <div className="w-full h-48 bg-gradient-to-r from-professional-accent to-professional-lightaccent rounded-xl"></div>
+          <img src={candPerfil.banner==='fundoroxo' ? FundoRoxo : candPerfil.banner} alt="Fundo Roxo" className="w-full h-48 rounded-xl"/>
           <div className="absolute -bottom-12 left-6">
             <div className="flex items-end">
               <img
@@ -434,9 +436,28 @@ export default function PerfilCandidatoPF() {
         <div className="ml-40 pt-4 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div>
-              <h1 id="nomUsuario" className="text-3xl font-bold text-dark-700 dark:text-dark-50">
-                {candPerfil.nome}
-              </h1>
+              <div className="flex items-center gap-4">
+                <h1
+                  id="nomUsuario"
+                  className="text-3xl font-bold text-dark-700 dark:text-dark-50"
+                >
+                  {candPerfil.nome}
+                </h1>
+
+                {/* BOTÃO CHAT */}
+                {usuario.tipo!=='candidato' && (
+                  <button
+                    onClick={() => navigate(`/chats?id=${candPerfil.id}`)}
+                    className="flex items-center gap-2 px-2 py-2 rounded-full
+                              bg-professional-accent text-white
+                              hover:bg-professional-lightaccent
+                              transition-colors"
+                    title="Iniciar conversa"
+                  >
+                    <FontAwesomeIcon icon={faComment} className="h-[15px] w-[15px]"/>
+                  </button>
+                )}
+              </div>
               <div className="flex flex-wrap items-center mt-2 space-x-4">
                 {candPerfil.cargo_atual && (
                   <span className="text-lg font-medium text-professional-accent">
@@ -770,22 +791,13 @@ export default function PerfilCandidatoPF() {
                       </div>
                     )} */}
 
-                    {candPerfil.portifolio && (
-                      <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
-                        <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
-                        <div>
-                          <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
-                          <a
-                            href={candPerfil.portifolio}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-dark-700 dark:text-white hover:text-professional-accent transition-colors"
-                          >
-                            Visualizar Portfólio
-                          </a>
-                        </div>
+                    <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
+                      <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
+                      <div>
+                        <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
+                        <div className="text-dark-700 dark:text-white">{renderField(candPerfil.portifolio, "Portfólio")}</div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
@@ -1165,7 +1177,7 @@ export default function PerfilCandidatoPF() {
               <div className="space-y-6">
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-6 text-professional-accent">Formações Acadêmicas</h2>
-                  {customPerfil?.formacoes && customPerfil.formacoes.length > 0 ? (
+                  {/* {customPerfil?.formacoes && customPerfil.formacoes.length > 0 ? (
                     <div className="space-y-6">
                       {customPerfil.formacoes.map((form) => (
                         <div key={form.id} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-6 border border-professional-card">
@@ -1201,7 +1213,11 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faGraduationCap} className="text-4xl mb-3 opacity-50" />
                       <p>Nenhuma formação acadêmica cadastrada.</p>
                     </div>
-                  )}
+                  )} */}
+                  <div className="text-center py-10 text-dark-700 dark:text-professional-subtitle">
+                      <FontAwesomeIcon icon={faGraduationCap} className="text-4xl mb-3 opacity-50" />
+                      <p>Nenhuma formação acadêmica cadastrada.</p>
+                    </div>
                 </div>
               </div>
             )}
@@ -1210,7 +1226,7 @@ export default function PerfilCandidatoPF() {
               <div className="space-y-6">
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-6 text-professional-accent">Certificações</h2>
-                  {customPerfil?.certificacoes && customPerfil.certificacoes.length > 0 ? (
+                  {/* {customPerfil?.certificacoes && customPerfil.certificacoes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {customPerfil.certificacoes.map((cert) => (
                         <div key={cert.id} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-6 border border-professional-card">
@@ -1250,7 +1266,11 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faCertificate} className="text-4xl mb-3 opacity-50" />
                       <p>Nenhuma certificação cadastrada.</p>
                     </div>
-                  )}
+                  )} */}
+                  <div className="text-center py-10 text-dark-700 dark:text-professional-subtitle">
+                    <FontAwesomeIcon icon={faCertificate} className="text-4xl mb-3 opacity-50" />
+                    <p>Nenhuma certificação cadastrada.</p>
+                  </div>
                 </div>
               </div>
             )}
