@@ -1073,7 +1073,7 @@ export default function Chats() {
                                             <div id="menu-dropdown"
                                                 className="absolute right-0 mt-2 w-64 bg-dark-800 shadow-lg rounded-lg overflow-hidden border border-gray-700 z-50">
                                                 <ul className="py-2 text-sm text-gray-200">
-                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                                    <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center space-x-2" onClick={()=>navigate(`/${usuario.tipo==='candidato'?'empresa':'candidato'}/${conversa.remetente}`)}>
                                                         <FontAwesomeIcon icon={faCircleInfo} className='text-gray-400' />
                                                         <span>Dados do contato</span>
                                                     </li>
