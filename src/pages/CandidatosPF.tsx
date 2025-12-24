@@ -866,7 +866,16 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
-                        <div className="text-dark-700 dark:text-white">{renderField(candPerfil.portifolio, "Portfólio")}</div>
+                        {candPerfil.portifolio ? (
+                          <div className="text-dark-700 dark:text-white">
+                            <a href={candPerfil.portifolio}>
+                              {renderField(candPerfil.portifolio, "Portfólio")}
+                            </a>
+                          </div>
+                        ):(
+                          <span className="text-dark-700 dark:text-professional-subtitle italic">Não informado</span>
+                        )}
+                        
                       </div>
                     </div>
                   </div>
