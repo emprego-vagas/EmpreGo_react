@@ -1,5 +1,6 @@
 import axios from "axios";
 import { mostrarErroTopo, DadosUsuario } from "./globalFunctions";
+import { getFingerprint } from "./fingerprint";
 
 // * Configurando axios
 const axiosWe = axios.create();
@@ -7,6 +8,12 @@ axiosWe.defaults.withCredentials = true;
 
 const hostName = window.location.hostname;
 axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:3002' : 'https://api.emprego-vagas.com.br';
+
+axiosWe.interceptors.request.use(async (config) => {
+  const fingerprint = await getFingerprint();
+  config.headers['X-Fingerprint-VisitorId'] = fingerprint;
+  return config;
+});
 
 axiosWe.interceptors.response.use(function (config) {
   return config;
