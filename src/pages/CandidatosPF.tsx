@@ -186,58 +186,58 @@ export default function PerfilCandidatoPF() {
           return;
         }
 
-        if (usuario.tipo === 'candidato') {
-          const response = await axiosWe(`/custom/perfil-candidato`) as { data: { usua: Candidato, custom: CustomCand } };
-          const data = response.data;
-          const { usua, custom } = data;
-          setCandPerfil(usua);
-          setCustomPerfil(custom);
-          return;
-        }
+        // if (usuario.tipo === 'candidato') {
+        //   const response = await axiosWe(`/custom/perfil-candidato`) as { data: { usua: Candidato, custom: CustomCand } };
+        //   const data = response.data;
+        //   const { usua, custom } = data;
+        //   setCandPerfil(usua);
+        //   setCustomPerfil(custom);
+        //   return;
+        // }
 
-        const fallbackCandidato: Candidato = {
-          id: '',
-          foto: genPfp,
-          descricao: '',
-          instagram: '',
-          github: '',
-          twitter: '',
-          data_criacao: new Date(0),
-          nome: 'Nome do Candidato',
-          cargo_atual: '',
-          empresa_atual: '',
-          site_pessoal: '',
-          genero: 'Masculino',
-          // youtube: '',
-          // linkedin: '',
-          // facebook: '',
-          cidade: '',
-          estado: '',
-          email: '',
-          cpf: '',
-          data_nasc: '',
-          pronomes: '',
-          portifolio: '',
-          curriculo: '',
-          curriculo_file: '',
-          banner: 'fundoroxo'
-          // curriculo_filename: ''
-        };
-        setCandPerfil(fallbackCandidato);
-        setCustomPerfil({
-          tags: [],
-          tags_count: 0,
-          experiencias: [],
-          experiencias_count: 0,
-          projetos_cand: [],
-          projetos_count: 0,
-          idiomas: [],
-          idiomas_count: 0,
-          // formacoes: [],
-          // formacoes_count: 0,
-          // certificacoes: [],
-          // certificacoes_count: 0
-        });
+        // const fallbackCandidato: Candidato = {
+        //   id: '',
+        //   foto: genPfp,
+        //   descricao: '',
+        //   instagram: '',
+        //   github: '',
+        //   twitter: '',
+        //   data_criacao: new Date(0),
+        //   nome: 'Nome do Candidato',
+        //   cargo_atual: '',
+        //   empresa_atual: '',
+        //   site_pessoal: '',
+        //   genero: 'Masculino',
+        //   // youtube: '',
+        //   // linkedin: '',
+        //   // facebook: '',
+        //   cidade: '',
+        //   estado: '',
+        //   email: '',
+        //   cpf: '',
+        //   data_nasc: '',
+        //   pronomes: '',
+        //   portifolio: '',
+        //   curriculo: '',
+        //   curriculo_file: '',
+        //   banner: 'fundoroxo'
+        //   // curriculo_filename: ''
+        // };
+        // setCandPerfil(fallbackCandidato);
+        // setCustomPerfil({
+        //   tags: [],
+        //   tags_count: 0,
+        //   experiencias: [],
+        //   experiencias_count: 0,
+        //   projetos_cand: [],
+        //   projetos_count: 0,
+        //   idiomas: [],
+        //   idiomas_count: 0,
+        //   formacoes: [],
+        //   formacoes_count: 0,
+        //   certificacoes: [],
+        //   certificacoes_count: 0
+        // });
       } catch (erro) {
         console.error("Erro ao carregar perfil público do candidato:", erro);
         setCandPerfil(null);
