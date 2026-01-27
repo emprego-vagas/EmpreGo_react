@@ -347,7 +347,7 @@ function hojeOntem(data: Date){
     } else if (dataNormalizada.getTime() === ontemNormalizada.getTime()) {
         return "Ontem";
     } else {
-        return `${data.getDate().toString().padStart(2, '0')}/${data.getMonth().toString().padStart(2, '0')}/${data.getFullYear()}`
+        return `${data.getDate().toString().padStart(2, '0')}/${(data.getMonth()+1).toString().padStart(2, '0')}/${data.getFullYear()}`
     }
 }
 
