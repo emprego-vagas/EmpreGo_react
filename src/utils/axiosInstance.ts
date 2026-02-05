@@ -7,7 +7,7 @@ const axiosWe = axios.create();
 axiosWe.defaults.withCredentials = true;
 
 const hostName = window.location.hostname;
-axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:3002' : 'https://api.emprego-vagas.com.br';
+axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:2923' : 'https://api.emprego-vagas.com.br';
 
 axiosWe.interceptors.request.use(async (config) => {
   const fingerprint = await getFingerprint();
@@ -16,7 +16,11 @@ axiosWe.interceptors.request.use(async (config) => {
 });
 
 axiosWe.interceptors.response.use(function (config) {
-  return config;
+  const { data, message, meta } = config.data;
+  return {
+    ...config,
+    data, message, meta
+  };
 }, function (erro) {
   const status = erro.response?.status || erro.status;
   const originalError = erro.response?.data?.error || erro.message;

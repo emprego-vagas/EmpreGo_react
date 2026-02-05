@@ -107,8 +107,8 @@ export function logout(){
 
 export class DadosUsuario {
     
-    static setarUsuario(id: string, nome: string, tipo: string, nivel: string, foto: string){
-        const userJson = {id, nome, tipo, nivel, foto};
+    static setarUsuario(id: string, nome: string, tipo: string, nivel: string, foto: string, email: string){
+        const userJson = {id, nome, tipo, nivel, foto, email};
         const userString = JSON.stringify(userJson);
         localStorage.setItem('dadosUsuario', userString);
     }
@@ -155,7 +155,7 @@ export class DadosUsuario {
 }
 
 export async function fileDownload(url: string, tipo: string){
-    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:3002' : 'https://api.emprego-vagas.com.br';
+    const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:2923' : 'https://api.emprego-vagas.com.br';
     const link = document.createElement('a');   // * Cria um link temporário
     link.href = `${hostName}/mensagens/download?link=${encodeURIComponent(url)}&tipo=${tipo}`;   // * Seta a rota de download como href do link
     document.body.appendChild(link);   // * Insere o link temporário na Árvore DOM

@@ -12,8 +12,9 @@ import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, forma
 // * CSS
 import '../css/login.css'
 import axiosWe from '../utils/axiosInstance';
-import { mostrarErroTopo } from '../utils/globalFunctions';
+import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import { useGoogleLogin } from '@react-oauth/google';
+import { getFingerprint } from '../utils/fingerprint';
 // import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 // import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
@@ -76,6 +77,15 @@ export default function Login() {
         state: googleState,
     });
 
+    async function googleLoginPost(code: string){
+        const visitorId = await getFingerprint();
+        const res = await axiosWe.post('/auth/google', {code, visitorId});
+        console.log("Login Google OK:", res.data);
+        const user = res.data.user;
+        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+        window.location.href = '/';
+    }
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
@@ -86,7 +96,7 @@ export default function Login() {
         const savedState = localStorage.getItem("google_state");
 
         if (state !== savedState) {
-            mostrarErroTopo("Login inválido.");
+            // mostrarErroTopo("Login inválido.");
             return;
         }
 
@@ -95,6 +105,7 @@ export default function Login() {
 
         localStorage.removeItem("google_state");
 
+        googleLoginPost(code)
         // enviar para o backend
         // axiosWe.post("/auth/google", { code })
         // .then(res => {

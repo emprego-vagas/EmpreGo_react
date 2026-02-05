@@ -25,7 +25,7 @@ export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin
     try {
         const response = await axiosWe.post("/login", { email, senha, lembreMe: candLogin.lembreMe });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'candidato', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
 
         return true;
     } catch (erro) {
@@ -129,7 +129,7 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
         const cnpjClean = cnpj.replace(/[^\d]/g, "");
         const response = await axiosWe.post('/login-empresa', { cnpj: cnpjClean, senha, lembreMe: empLogin.lembreMe });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 
         return true;
     } catch (erro) {
@@ -189,7 +189,7 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
 
         const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha, lembreMe: true });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 
         mostrarSucessoTopo("Empresa cadastrada com SUCESSO!");
         return {success: true};
