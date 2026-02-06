@@ -129,7 +129,8 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
 
     try {
         const cnpjClean = cnpj.replace(/[^\d]/g, "");
-        const response = await axiosWe.post('/login-empresa', { cnpj: cnpjClean, senha, lembreMe: empLogin.lembreMe });
+        const visitorId = await getFingerprint();
+        const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: empLogin.lembreMe, visitorId });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 
@@ -175,21 +176,24 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
     target.disabled = true;
 
     try {
-        await axiosWe.post("/empresas", {
-            cnpj: cnpj.replace(/[^\d]/g, ""),
-            nome_fant,
-            telefone,
+        const cnpjClean = cnpj.replace(/[^\d]/g, "");
+        const visitorId = await getFingerprint();
+
+        await axiosWe.post("/company", {
+            cnpj: cnpjClean,
+            name: nome_fant,
+            phone: telefone,
             email,
-            senha,
-            razao_soci,
-            cep,
-            complemento,
-            numero,
-            estado,
-            cidade
+            password: senha,
+            legal_name: razao_soci,
+            zip_code: cep,
+            address_complement: complemento,
+            address_number: numero,
+            state: estado,
+            city: cidade
         });
 
-        const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha, lembreMe: true });
+        const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: true, visitorId });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 

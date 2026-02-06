@@ -95,7 +95,7 @@ export function mostrarAvisoTopo(mensagem: string) {
 }
 
 export function logout(){
-  axiosWe.post('/logout')
+  axiosWe.post('/auth/logout')
   .then(()=>{
     // ? alert('Você foi desconectado.'); Se achar necessario bota um alert pro logout
     DadosUsuario.clearUsuario();
