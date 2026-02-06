@@ -106,16 +106,6 @@ export default function Login() {
         localStorage.removeItem("google_state");
 
         googleLoginPost(code)
-        // enviar para o backend
-        // axiosWe.post("/auth/google", { code })
-        // .then(res => {
-        //     console.log("Login Google OK:", res.data);
-        //     window.location.href = "/";
-        // })
-        // .catch(err => {
-        //     console.error("Erro Google login:", err);
-        //     mostrarErroTopo("Erro ao autenticar com Google");
-        // });
     }, []);
 
     const handleGoogleLogin = () => {
@@ -920,7 +910,7 @@ export default function Login() {
 
                                         try {
                                             setEnviandoEmailTroca(true);
-                                            await axiosWe.post('/candidatos/senha/solicitar', {email: forgotEmail.email});
+                                            await axiosWe.post('/auth/password/request', {email: forgotEmail.email});
                                             setSucessoInputCand({
                                                 campo: "forgotEmail",
                                                 mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,

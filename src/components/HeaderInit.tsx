@@ -50,7 +50,9 @@ export default function HeaderInit(){
                         <Link to={`/perfil/${User?User.tipo:'candidato'}`} className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
                             id="fotoPerfil">
                             <img src={User ? User.foto!=="/assets/imgs/genPfp.png" ? User.foto : genPfp : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
-                                className="w-full h-full object-cover rounded-full" />
+                                className="w-full h-full object-cover rounded-full" onError={(e) => {
+                                e.currentTarget.src = genPfp;
+                            }}/>
                         </Link>
 
                         {/* Botão de Logout (inicialmente oculto) */}

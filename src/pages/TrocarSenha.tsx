@@ -75,9 +75,9 @@ export default function TrocarSenha() {
         try {
             setEnviando(true);
             const {t, p, c, i} = params;
-            await axiosWe.post('/candidatos/senha/redefinir', {
+            await axiosWe.post('/auth/password/change', {
                 t, p, c, i,
-                novaSenha: senhaData.senha
+                newPassword: senhaData.senha
             });
 
             setSucessoInput({ 

@@ -2,6 +2,23 @@ import axios from "axios";
 import { mostrarErroTopo, DadosUsuario } from "./globalFunctions";
 import { getFingerprint } from "./fingerprint";
 
+declare module 'axios' {
+  export interface AxiosResponse {
+    message?: string;
+    meta?: {
+      total?: number;
+      page?: number;
+      perPage?: number;
+      skip?: number;
+      take?: number;
+      totalPages?: number;
+      cached?: boolean;
+      hasNextPage?: boolean;
+      words?: string[];
+    };
+  }
+}
+
 // * Configurando axios
 const axiosWe = axios.create();
 axiosWe.defaults.withCredentials = true;

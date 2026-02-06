@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { reenviarCodigo, validarCodigo } from "../ts/confirmEmailFunctions";
+import { DadosUsuario, mostrarErroTopo } from "../utils/globalFunctions";
+import axiosWe from "../utils/axiosInstance";
+import { getFingerprint } from "../utils/fingerprint";
 
 export default function ConfirmEmail(){
     const navigate = useNavigate();
@@ -44,7 +47,7 @@ export default function ConfirmEmail(){
                     O Código expira em <span className="text-gradient" id="timer">15 minutos</span>.
                 </p>
 
-                <input name="inputCodigo" id="inputCodigo" type="text" placeholder="Digite aqui o seu código" maxLength={4} className="relative z-10 mb-4 p-2 border rounded text-black" value={codigo}
+                <input name="inputCodigo" id="inputCodigo" type="text" placeholder="Digite aqui o seu código" maxLength={6} className="relative z-10 mb-4 p-2 border rounded text-black" value={codigo}
                     onChange={async(e)=>{
                         setCodigo(e.target.value.replace(/[^0-9]/g, ''));
                         const validado = await validarCodigo(e, email);
@@ -52,7 +55,21 @@ export default function ConfirmEmail(){
                             setTimeout(()=>{
                                 navigate('/');
                             }, 3000);
-                        } else if(validado.sucesso) window.location.href = '/'; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
+                        } else if(validado.sucesso) {
+                            try {
+                                const visitorId = await getFingerprint();
+                                const response = await axiosWe.post('/auth/login', {email, visitorId, firstAccessToken: validado.firstAccess });
+                                const user = response.data.user;
+                                console.log(user);
+                                DadosUsuario.setarUsuario(user.id, user.name, user.type, user.level, user.image, user.email);
+                            } catch {
+                                mostrarErroTopo('Erro ao fazer login automático, use seu email e senha na tela de Login.');
+                                setTimeout(()=>{
+                                    window.location.href = '/login';
+                                })
+                            }
+                            window.location.href = '/'
+                        }; // * Importante deixar o location.href para direcionar corretamente o usuário para a tela de ver empresas
                     }}/>
 
                 <p><a id="reenvio" className="text-primary-100">Não recebeu o email?<span className="text-primary-500 cursor-pointer" onClick={async()=>{
