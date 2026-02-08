@@ -298,7 +298,7 @@ const Main: React.FC = () => {
                     descricao: emp.description,
                     setor: emp.sector,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.name),
+                    tags: emp.comp_tags.map(t => t.name),
                     estado: emp.state
                 }))]
             }))

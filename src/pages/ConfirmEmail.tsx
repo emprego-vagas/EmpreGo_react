@@ -60,7 +60,6 @@ export default function ConfirmEmail(){
                                 const visitorId = await getFingerprint();
                                 const response = await axiosWe.post('/auth/login', {email, visitorId, firstAccessToken: validado.firstAccess, rememberMe: true });
                                 const user = response.data.user;
-                                console.log(user);
                                 DadosUsuario.setarUsuario(user.id, user.name, user.type, user.level, user.image, user.email);
                             } catch {
                                 mostrarErroTopo('Erro ao fazer login automático, use seu email e senha na tela de Login.');

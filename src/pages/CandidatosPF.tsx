@@ -46,7 +46,7 @@ export default function PerfilCandidatoPF() {
       !customPerfil ||
       !candPerfil ||
       isLoadingMoreExperiencias ||
-      customPerfil.experiencias.length >= customPerfil.experiencias_count
+      customPerfil.experiences.length >= customPerfil.experiencesTotal
     ) return;
 
     try {
@@ -55,14 +55,14 @@ export default function PerfilCandidatoPF() {
       const nextPage = pageExperiencias + 1;
 
       const response = await axiosWe(
-        `/experiencias/candidato/${candPerfil.id}?page=${nextPage}`
+        `/experience/candidate/${candPerfil.id}?page=${nextPage}`
       ) as { data: Experiencia[] };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          experiencias: [...prev.experiencias, ...response.data],
+          experiences: [...prev.experiences, ...response.data],
         };
       });
 
@@ -79,7 +79,7 @@ export default function PerfilCandidatoPF() {
       !customPerfil ||
       !candPerfil ||
       isLoadingMoreProjetos ||
-      customPerfil.projetos_cand.length >= customPerfil.projetos_count
+      customPerfil.candProjects.length >= customPerfil.candProjectsTotal
     ) return;
 
     try {
@@ -88,14 +88,14 @@ export default function PerfilCandidatoPF() {
       const nextPage = pageProjetos + 1;
 
       const response = await axiosWe(
-        `/projeto/${candPerfil.id}?page=${nextPage}`
+        `/candproject/candidate/${candPerfil.id}?page=${nextPage}`
       ) as { data: ProjetoCand[] };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          projetos_cand: [...prev.projetos_cand, ...response.data],
+          candProjects: [...prev.candProjects, ...response.data],
         };
       });
 
@@ -113,21 +113,21 @@ export default function PerfilCandidatoPF() {
       !candPerfil ||
       allIdiomasLoaded ||
       isLoadingMoreIdiomas ||
-      customPerfil.idiomas.length >= customPerfil.idiomas_count
+      customPerfil.languages.length >= customPerfil.languagesTotal
     ) return;
 
     try {
       setIsLoadingMoreIdiomas(true);
 
       const response = await axiosWe(
-        `/idioma?offset=${customPerfil.idiomas.length}&candidato_id=${candPerfil.id}`
+        `/language/candidate/${candPerfil.id}?skip=${customPerfil.languages.length}`
       ) as { data: Idioma[] };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          idiomas: [...prev.idiomas, ...response.data],
+          languages: [...prev.languages, ...response.data],
         };
       });
 
@@ -144,20 +144,20 @@ export default function PerfilCandidatoPF() {
       !customPerfil ||
       allTagsLoaded ||
       isLoadingMoreTags ||
-      customPerfil.tags.length >= customPerfil.tags_count
+      customPerfil.candTags.length >= customPerfil.candTagsTotal
     ) return;
 
     try {
       setIsLoadingMoreTags(true);
       const response = await axiosWe(
-        `/tags?offset=${customPerfil.tags.length}&candidato_id=${candPerfil?.id}`
+        `/tag/cand/candidate/${candPerfil?.id}?skip=${customPerfil.candTags.length}`
       ) as { data: Tag[] };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          tags: [...prev.tags, ...response.data],
+          candTags: [...prev.candTags, ...response.data],
         };
       });
 
@@ -175,12 +175,12 @@ export default function PerfilCandidatoPF() {
       try {
         setLoading(true);
         if (candidatoId) {
-          const response = await axiosWe(`/perfil/candidato/${candidatoId}`) as {
-            data: { usua: Candidato, custom: CustomCand }
+          const response = await axiosWe(`/candidate/id/${candidatoId}/profile`) as {
+            data: { user: Candidato, custom: CustomCand }
           };
           const data = response.data;
-          const { usua, custom } = data;
-          setCandPerfil(usua);
+          const { user, custom } = data;
+          setCandPerfil(user);
           setCustomPerfil(custom);
           console.log(data)
           return;
@@ -226,13 +226,13 @@ export default function PerfilCandidatoPF() {
         // setCandPerfil(fallbackCandidato);
         // setCustomPerfil({
         //   tags: [],
-        //   tags_count: 0,
+        //   candTagsTotal: 0,
         //   experiencias: [],
-        //   experiencias_count: 0,
+        //   experiencesTotal: 0,
         //   projetos_cand: [],
-        //   projetos_count: 0,
+        //   candProjectsTotal: 0,
         //   idiomas: [],
-        //   idiomas_count: 0,
+        //   languagesTotal: 0,
         //   formacoes: [],
         //   formacoes_count: 0,
         //   certificacoes: [],
@@ -256,24 +256,24 @@ export default function PerfilCandidatoPF() {
   }, [activeTab, candidatoId]);
 
   const currentTags = useMemo(() => {
-    if (!customPerfil?.tags || customPerfil.tags.length === 0) {
+    if (!customPerfil?.candTags || customPerfil.candTags.length === 0) {
       return [];
     }
     const startIndex = (currentPage - 1) * tagsPerPage;
     const endIndex = startIndex + tagsPerPage;
-    return customPerfil.tags.slice(startIndex, endIndex);
-  }, [customPerfil?.tags, currentPage, tagsPerPage]);
+    return customPerfil.candTags.slice(startIndex, endIndex);
+  }, [customPerfil?.candTags, currentPage, tagsPerPage]);
 
   const totalPages = useMemo(() => {
     if (!customPerfil) return 0;
-    return Math.ceil(customPerfil.tags_count / tagsPerPage);
+    return Math.ceil(customPerfil.candTagsTotal / tagsPerPage);
   }, [customPerfil, tagsPerPage]);
 
   const handlePageChange = (pageNumber: number) => {
     const precisaCarregarMais =
       pageNumber > 1 &&
       customPerfil &&
-      customPerfil.tags.length < customPerfil.tags_count;
+      customPerfil.candTags.length < customPerfil.candTagsTotal;
 
     if (precisaCarregarMais) {
       carregarRestoDasTags();
@@ -387,23 +387,23 @@ export default function PerfilCandidatoPF() {
     return <span className="text-dark-700 dark:text-white">{value}</span>;
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  };
+  // const formatDate = (dateString: string) => {
+  //   if (!dateString) return '';
+  //   const date = new Date(dateString);
+  //   return date.toLocaleDateString('pt-BR');
+  // };
 
-  const calcularIdade = (dataNasc: string) => {
-    if (!dataNasc) return '';
-    const nasc = new Date(dataNasc);
-    const hoje = new Date();
-    let idade = hoje.getFullYear() - nasc.getFullYear();
-    const mes = hoje.getMonth() - nasc.getMonth();
-    if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) {
-      idade--;
-    }
-    return `${idade} anos`;
-  };
+  // const calcularIdade = (dataNasc: string) => {
+  //   if (!dataNasc) return '';
+  //   const nasc = new Date(dataNasc);
+  //   const hoje = new Date();
+  //   let idade = hoje.getFullYear() - nasc.getFullYear();
+  //   const mes = hoje.getMonth() - nasc.getMonth();
+  //   if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) {
+  //     idade--;
+  //   }
+  //   return `${idade} anos`;
+  // };
 
   if (loading) return <Loader />;
   if (!candPerfil) {
@@ -496,7 +496,7 @@ export default function PerfilCandidatoPF() {
             <div className="flex items-end">
               <img
                 id="fotoUsuario"
-                src={candPerfil.foto === '/assets/imgs/genPfp.png' ? genPfp : candPerfil.foto}
+                src={candPerfil.image === '/assets/imgs/genPfp.png' ? genPfp : candPerfil.image}
                 alt="Foto do candidato"
                 className="w-32 h-32 rounded-full border-4 border-professional-card bg-professional-card object-cover"
               />
@@ -512,7 +512,7 @@ export default function PerfilCandidatoPF() {
                   id="nomUsuario"
                   className="text-3xl font-bold text-dark-700 dark:text-dark-50"
                 >
-                  {candPerfil.nome}
+                  {candPerfil.name}
                 </h1>
 
                 {/* BOTÃO CHAT */}
@@ -530,21 +530,21 @@ export default function PerfilCandidatoPF() {
                 )}
               </div>
               <div className="flex flex-wrap items-center mt-2 space-x-4">
-                {candPerfil.cargo_atual && (
+                {candPerfil.current_position && (
                   <span className="text-lg font-medium text-professional-accent">
-                    {candPerfil.cargo_atual}
+                    {candPerfil.current_position}
                   </span>
                 )}
-                {candPerfil.empresa_atual && (
+                {candPerfil.current_company && (
                   <span className="text-dark-700 dark:text-professional-subtitle">
-                    na {candPerfil.empresa_atual}
+                    na {candPerfil.current_company}
                   </span>
                 )}
               </div>
               <div className="flex items-center mt-2 space-x-4">
-                {candPerfil.site_pessoal && (
+                {candPerfil.personal_site && (
                   <a
-                    href={candPerfil.site_pessoal}
+                    href={candPerfil.personal_site}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
@@ -592,9 +592,9 @@ export default function PerfilCandidatoPF() {
                     <FontAwesomeIcon icon={faLinkedin} className="mr-1" /> LinkedIn
                   </a>
                 )} */}
-                {candPerfil.portifolio && (
+                {candPerfil.portfolio && (
                   <a
-                    href={candPerfil.portifolio}
+                    href={candPerfil.portfolio}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-dark-700 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
@@ -607,11 +607,11 @@ export default function PerfilCandidatoPF() {
 
             <div className="flex space-x-6 mt-4 md:mt-0">
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.experiencias_count || 0}</div>
+                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.experiencesTotal || 0}</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Experiências</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.projetos_count || 0}</div>
+                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.candProjectsTotal || 0}</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Projetos</div>
               </div>
               <div className="text-center">
@@ -619,7 +619,7 @@ export default function PerfilCandidatoPF() {
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Certificações</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.idiomas_count || 0}</div>
+                <div className="text-2xl font-bold text-professional-accent">{customPerfil?.languagesTotal || 0}</div>
                 <div className="text-sm text-dark-700 dark:text-professional-subtitle">Idiomas</div>
               </div>
             </div>
@@ -668,7 +668,7 @@ export default function PerfilCandidatoPF() {
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-4 text-professional-accent">Sobre Mim</h2>
                   <p className="text-dark-700 dark:text-professional-subtitle whitespace-pre-line">
-                    {candPerfil.descricao || "Não há informação neste campo: Descrição"}
+                    {candPerfil.description || "Não há informação neste campo: Descrição"}
                   </p>
                 </div>
 
@@ -679,37 +679,45 @@ export default function PerfilCandidatoPF() {
                       Informações Pessoais
                     </h2>
                     <div className="space-y-4">
-                      {candPerfil.data_nasc && (
+                      {/* {candPerfil.birth_date && (
                         <div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Idade</div>
                           <div className="text-dark-700 dark:text-white">
-                            {calcularIdade(candPerfil.data_nasc)} ({formatDate(candPerfil.data_nasc)})
+                            {calcularIdade(candPerfil.birth_date)} ({formatDate(candPerfil.birth_date)})
                           </div>
                         </div>
-                      )}
-                      {candPerfil.pronomes && (
+                      )} */}
+                      {candPerfil.pronouns && (
                         <div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Pronomes</div>
-                          <div className="text-dark-700 dark:text-white">{candPerfil.pronomes}</div>
+                          <div className="text-dark-700 dark:text-white">{candPerfil.pronouns}</div>
                         </div>
                       )}
-                      {candPerfil.cargo_atual && (
+                      {candPerfil.current_position && (
                         <div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Cargo Atual</div>
-                          <div className="text-dark-700 dark:text-white">{candPerfil.cargo_atual}</div>
+                          <div className="text-dark-700 dark:text-white">{candPerfil.current_position}</div>
                         </div>
                       )}
-                      {candPerfil.empresa_atual && (
+                      {candPerfil.current_company && (
                         <div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Empresa Atual</div>
-                          <div className="text-dark-700 dark:text-white">{candPerfil.empresa_atual}</div>
+                          <div className="text-dark-700 dark:text-white">{candPerfil.current_company}</div>
                         </div>
                       )}
-                      {(candPerfil.cidade || candPerfil.estado) && (
+                      {/* {(candPerfil.city || candPerfil.estado) && (
                         <div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Localização</div>
                           <div className="text-dark-700 dark:text-white">
-                            {candPerfil.cidade && candPerfil.estado ? `${candPerfil.cidade}, ${candPerfil.estado}` : candPerfil.cidade || candPerfil.estado}
+                            {candPerfil.city && candPerfil.estado ? `${candPerfil.city}, ${candPerfil.estado}` : candPerfil.city || candPerfil.estado}
+                          </div>
+                        </div>
+                      )} */}
+                      {(candPerfil.state) && (
+                        <div>
+                          <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Localização</div>
+                          <div className="text-dark-700 dark:text-white">
+                            {candPerfil.state}
                           </div>
                         </div>
                       )}
@@ -721,7 +729,7 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faCodeBranch} className="mr-2" />
                       Habilidades & Competências
                     </h2>
-                    {customPerfil?.tags && customPerfil.tags.length > 0 ? (
+                    {customPerfil?.candTags && customPerfil.candTags.length > 0 ? (
                       <div className="space-y-4">
                         <div className="flex flex-wrap gap-3">
                           {currentTags.map((tag) => (
@@ -729,7 +737,7 @@ export default function PerfilCandidatoPF() {
                               key={tag.id}
                               className="inline-flex items-center gap-1.5 py-2 px-4 bg-dark-100 dark:bg-professional-gray text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                             >
-                              {tag.nome}
+                              {tag.name}
                             </span>
                           ))}
                         </div>
@@ -744,7 +752,7 @@ export default function PerfilCandidatoPF() {
                           <div className="pt-4 border-t border-professional-card">
                             <div className="flex flex-col items-center justify-between space-y-3 sm:flex-row sm:space-y-0">
                               <div className="text-sm text-dark-700 dark:text-professional-subtitle">
-                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.tags.length)} de {customPerfil.tags_count} habilidades
+                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.candTags.length)} de {customPerfil.candTagsTotal} habilidades
                               </div>
                               {renderPagination()}
                             </div>
@@ -765,11 +773,11 @@ export default function PerfilCandidatoPF() {
                     </h2>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.experiencias_count || 0}</div>
+                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.experiencesTotal || 0}</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Experiências</div>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.projetos_count || 0}</div>
+                        <div className="text-2xl font-bold text-professional-accent">{customPerfil?.candProjectsTotal || 0}</div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle">Projetos</div>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4 text-center">
@@ -789,13 +797,13 @@ export default function PerfilCandidatoPF() {
                       Idiomas
                     </h2>
                     <div className="space-y-4">
-                      {customPerfil?.idiomas && customPerfil.idiomas.length > 0 ? (
-                        customPerfil.idiomas.map((idioma) => (
+                      {customPerfil?.languages && customPerfil.languages.length > 0 ? (
+                        customPerfil.languages.map((idioma) => (
                           <div key={idioma.id} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                             <div className="flex justify-between items-center mb-2">
-                              <h3 className="font-medium text-dark-700 dark:text-white">{idioma.nome}</h3>
+                              <h3 className="font-medium text-dark-700 dark:text-white">{idioma.name}</h3>
                               <span className="text-sm text-dark-700 dark:text-professional-subtitle">
-                                {idioma.nivel}
+                                {idioma.level}
                               </span>
                             </div>
 
@@ -804,11 +812,7 @@ export default function PerfilCandidatoPF() {
                                 className="bg-professional-accent h-2 rounded-full"
                                 style={{
                                   width:
-                                    idioma.nivel === 'A1' ? '20%' :
-                                    idioma.nivel === 'A2' ? '40%' :
-                                    idioma.nivel === 'B1' ? '60%' :
-                                    idioma.nivel === 'B2' ? '80%' :
-                                    idioma.nivel === 'C1' ? '90%' : '100%'
+                                    `${idioma.percentage}%`
                                 }}
                               />
                             </div>
@@ -820,7 +824,7 @@ export default function PerfilCandidatoPF() {
                         </p>
                       )}
                       {customPerfil &&
-                        customPerfil.idiomas.length < customPerfil.idiomas_count && (
+                        customPerfil.languages.length < customPerfil.languagesTotal && (
                           <div className="flex justify-center pt-4">
                             <button
                               onClick={carregarRestoDosIdiomas}
@@ -833,7 +837,7 @@ export default function PerfilCandidatoPF() {
                             >
                               {isLoadingMoreIdiomas
                                 ? 'Carregando idiomas...'
-                                : `Ver mais idiomas (${customPerfil.idiomas_count - customPerfil.idiomas.length})`}
+                                : `Ver mais idiomas (${customPerfil.languagesTotal - customPerfil.languages.length})`}
                             </button>
                           </div>
                       )}
@@ -846,10 +850,10 @@ export default function PerfilCandidatoPF() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3">
                       <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-3" />
-                      <div>
+                      {/* <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Email</div>
                         <div className="text-dark-700 dark:text-white">{renderField(candPerfil.email, "Email")}</div>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* {candPerfil.telefone && (
@@ -866,10 +870,10 @@ export default function PerfilCandidatoPF() {
                       <FontAwesomeIcon icon={faFileAlt} className="text-professional-accent mr-3" />
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Portfólio</div>
-                        {candPerfil.portifolio ? (
+                        {candPerfil.portfolio ? (
                           <div className="text-dark-700 dark:text-white">
-                            <a href={candPerfil.portifolio}>
-                              {renderField(candPerfil.portifolio, "Portfólio")}
+                            <a href={candPerfil.portfolio}>
+                              {renderField(candPerfil.portfolio, "Portfólio")}
                             </a>
                           </div>
                         ):(
@@ -882,7 +886,7 @@ export default function PerfilCandidatoPF() {
                 </div>
 
                 {/* Card de Currículo */}
-                {(candPerfil.curriculo || candPerfil.curriculo_file) && (
+                {(candPerfil.resume || candPerfil.resume_file) && (
                   <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                     <h2 className="text-xl font-bold mb-4 text-professional-accent">
                       <FontAwesomeIcon icon={faFileAlt} className="mr-2" />
@@ -896,15 +900,15 @@ export default function PerfilCandidatoPF() {
                         <div>
                           <h3 className="font-medium text-dark-700 dark:text-white">Currículo Profissional</h3>
                           <p className="text-sm text-dark-700 dark:text-professional-subtitle">
-                            {candPerfil.curriculo_file ? `${(parseFloat(candPerfil.curriculo_file.split('|')[1])/1024).toFixed(2)} MB` : 'Documento'}
+                            {candPerfil.resume_file ? `${(parseFloat(candPerfil.resume_file.split('|')[1])/1024).toFixed(2)} MB` : 'Documento'}
                           </p>
                         </div>
                       </div>
                       
                       <div className="flex space-x-3">
-                        {candPerfil.curriculo && (
+                        {candPerfil.resume && (
                           <a
-                            href={candPerfil.curriculo}
+                            href={candPerfil.resume}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-4 py-2 rounded-lg border border-professional-accent text-professional-accent hover:bg-professional-accent hover:text-white transition-colors"
@@ -915,8 +919,8 @@ export default function PerfilCandidatoPF() {
                         )}
                         
                         
-                        {candPerfil.curriculo_file && (() => {
-                          const curriculo_fileSplited = candPerfil.curriculo_file.split('|');
+                        {candPerfil.resume_file && (() => {
+                          const curriculo_fileSplited = candPerfil.resume_file.split('|');
                           return (
                             <button
                               onClick={() => fileDownload(curriculo_fileSplited[0], 'raw')}
@@ -989,9 +993,9 @@ export default function PerfilCandidatoPF() {
                       </div>
                     )} */}
 
-                    {candPerfil.portifolio ? (
+                    {candPerfil.portfolio ? (
                       <a
-                        href={candPerfil.portifolio}
+                        href={candPerfil.portfolio}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4 hover:bg-professional-accent/20 transition-colors"
@@ -1000,7 +1004,7 @@ export default function PerfilCandidatoPF() {
                         <div>
                           <div className="text-dark-700 dark:text-white font-medium">Portfólio</div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle">
-                            {candPerfil.portifolio.replace(/^https?:\/\//, '')}
+                            {candPerfil.portfolio.replace(/^https?:\/\//, '')}
                           </div>
                         </div>
                       </a>
@@ -1070,9 +1074,9 @@ export default function PerfilCandidatoPF() {
                       </div>
                     )}
 
-                    {candPerfil.site_pessoal ? (
+                    {candPerfil.personal_site ? (
                       <a
-                        href={candPerfil.site_pessoal}
+                        href={candPerfil.personal_site}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-4 hover:bg-professional-accent/20 transition-colors"
@@ -1081,7 +1085,7 @@ export default function PerfilCandidatoPF() {
                         <div>
                           <div className="text-dark-700 dark:text-white font-medium">Site Pessoal</div>
                           <div className="text-sm text-dark-700 dark:text-professional-subtitle">
-                            {candPerfil.site_pessoal.replace(/^https?:\/\//, '')}
+                            {candPerfil.personal_site.replace(/^https?:\/\//, '')}
                           </div>
                         </div>
                       </a>
@@ -1105,33 +1109,33 @@ export default function PerfilCandidatoPF() {
               <div className="space-y-6">
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-6 text-professional-accent">Experiências Profissionais</h2>
-                  {customPerfil?.experiencias && customPerfil.experiencias.length > 0 ? (
+                  {customPerfil?.experiences && customPerfil.experiences.length > 0 ? (
                     <div className="space-y-6">
-                      {customPerfil.experiencias.map((exp) => (
+                      {customPerfil.experiences.map((exp) => (
                         <div key={exp.id} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-6 border border-professional-card">
                           <div className="flex justify-between items-start mb-4">
                             <div>
-                              <h3 className="text-lg font-bold text-dark-700 dark:text-white">{exp.titulo}</h3>
-                              <p className="text-professional-accent font-medium">{exp.nome}</p>
+                              <h3 className="text-lg font-bold text-dark-700 dark:text-white">{exp.title}</h3>
+                              <p className="text-professional-accent font-medium">{exp.name}</p>
                             </div>
-                            {exp.periodo && (
+                            {exp.period && (
                               <div className="flex items-center text-dark-700 dark:text-professional-subtitle">
                                 <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                                <span>{exp.periodo}</span>
+                                <span>{exp.period}</span>
                               </div>
                             )}
                           </div>
                           <p className="text-dark-700 dark:text-professional-subtitle mb-4 whitespace-pre-line">
-                            {exp.descricao}
+                            {exp.description}
                           </p>
-                          {exp.tags_experiencias && exp.tags_experiencias.length > 0 && (
+                          {exp.experiences_tags && exp.experiences_tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-4">
-                              {exp.tags_experiencias.map((tag, idx) => (
+                              {exp.experiences_tags.map(tag => (
                                 <span
-                                  key={idx}
+                                  key={tag.id}
                                   className="inline-flex items-center gap-1.5 py-1 px-3 bg-dark-200 dark:bg-professional-card text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                                 >
-                                  {tag.nome}
+                                  {tag.name}
                                 </span>
                               ))}
                             </div>
@@ -1146,7 +1150,7 @@ export default function PerfilCandidatoPF() {
                     </div>
                   )}
                   {customPerfil &&
-                    customPerfil.experiencias.length < customPerfil.experiencias_count && (
+                    customPerfil.experiences.length < customPerfil.experiencesTotal && (
                       <div className="flex justify-center pt-6">
                         <button
                           onClick={carregarMaisExperiencias}
@@ -1171,14 +1175,14 @@ export default function PerfilCandidatoPF() {
               <div className="space-y-6">
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500 transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-6 text-professional-accent">Projetos</h2>
-                  {customPerfil?.projetos_cand && customPerfil.projetos_cand.length > 0 ? (
+                  {customPerfil?.candProjects && customPerfil.candProjects.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {customPerfil.projetos_cand.map((proj) => (
+                      {customPerfil.candProjects.map((proj) => (
                         <div key={proj.id} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-6 border border-professional-card">
                           <div className="flex justify-between items-start mb-4">
                             <div>
-                              <h3 className="text-lg font-bold text-dark-700 dark:text-white">{proj.titulo}</h3>
-                              <p className="text-professional-accent font-medium">{proj.nome}</p>
+                              <h3 className="text-lg font-bold text-dark-700 dark:text-white">{proj.title}</h3>
+                              <p className="text-professional-accent font-medium">{proj.name}</p>
                             </div>
                             {proj.status && (
                               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -1190,14 +1194,14 @@ export default function PerfilCandidatoPF() {
                               </span>
                             )}
                           </div>
-                          {proj.periodo && (
+                          {proj.period && (
                             <div className="flex items-center text-dark-700 dark:text-professional-subtitle mb-3">
                               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                              <span>{proj.periodo}</span>
+                              <span>{proj.period}</span>
                             </div>
                           )}
                           <p className="text-dark-700 dark:text-professional-subtitle mb-4 line-clamp-3">
-                            {proj.descricao}
+                            {proj.description}
                           </p>
                           {proj.link && (
                             <a
@@ -1210,14 +1214,14 @@ export default function PerfilCandidatoPF() {
                               Ver projeto
                             </a>
                           )}
-                          {proj.tags_projetos_cand && proj.tags_projetos_cand.length > 0 && (
+                          {proj.cand_projects_tags && proj.cand_projects_tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-4">
-                              {proj.tags_projetos_cand.map((tag, idx) => (
+                              {proj.cand_projects_tags.map(tag => (
                                 <span
-                                  key={idx}
+                                  key={tag.id}
                                   className="inline-flex items-center gap-1.5 py-1 px-3 bg-dark-200 dark:bg-professional-card text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                                 >
-                                  {tag.nome}
+                                  {tag.name}
                                 </span>
                               ))}
                             </div>
@@ -1232,7 +1236,7 @@ export default function PerfilCandidatoPF() {
                     </div>
                   )}
                   {customPerfil &&
-                    customPerfil.projetos_cand.length < customPerfil.projetos_count && (
+                    customPerfil.candProjects.length < customPerfil.candProjectsTotal && (
                       <div className="flex justify-center pt-6">
                         <button
                           onClick={carregarMaisProjetos}

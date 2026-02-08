@@ -1,118 +1,114 @@
 export interface Candidato {
-    email: string;
+    resume: string | null;
+    name: string;
+    gender: string;
     id: string;
-    nome: string;
-    genero: string;
-    data_nasc: string;
-    foto: string | null;
-    descricao: string | null;
-    cpf: string | null;
-    estado: string | null;
-    cidade: string | null;
+    image: string;
+    resume_file: string | null;
+    banner: string;
+    description: string | null;
+    state: string | null;
     instagram: string | null;
     github: string | null;
+    portfolio: string | null;
     twitter: string | null;
-    pronomes: string | null;
-    data_criacao: Date | null;
-    site_pessoal: string | null;
-    curriculo: string | null;
-    cargo_atual: string | null;
-    portifolio: string | null;
-    empresa_atual: string | null;
-    curriculo_file: string | null;
-    banner: string | null;
+    pronouns: string | null;
+    personal_site: string | null;
+    current_position: string | null;
+    current_company: string | null;
+    created_at: Date;
 }
 
 export interface CustomCand {
-    experiencias: Experiencia[];
-    experiencias_count: number;
-    projetos_cand: ProjetoCand[];
-    projetos_count: number;
-    tags: Tag[];
-    tags_count: number;
-    idiomas: Idioma[];
-    idiomas_count: number;
+    experiences: Experiencia[];
+    experiencesTotal: number;
+    candProjects: ProjetoCand[];
+    candProjectsTotal: number;
+    candTags: Tag[];
+    candTagsTotal: number;
+    languages: Idioma[];
+    languagesTotal: number;
 }
 
 export interface Experiencia {
+    name: string;
     id: string;
-    nome: string;
-    descricao: string;
-    titulo: string;
-    periodo: string;
-    tags_experiencias: {
-        nome: string;
+    description: string;
+    experiences_tags: {
+        name: string;
+        id: string;
     }[];
+    title: string;
+    period: string;
 };
 
 export interface ProjetoCand {
+    name: string;
     id: string;
-    nome: string;
-    descricao: string;
-    link: string | null;
-    titulo: string;
-    periodo: string;
-    status: string;
-    imagem: string;
-    tags_projetos_cand: {
-        nome: string;
+    image: string | null;
+    description: string;
+    cand_projects_tags: {
+        name: string;
+        id: string;
     }[];
+    link: string | null;
+    title: string;
+    status: string;
+    period: string;
 };
 
 export interface Tag {
     id: string;
-    nome: string;
+    name: string;
 };
 
 export interface Idioma {
+    name: string;
     id: string;
-    nome: string;
-    nivel: string;
+    level: string;
+    percentage: number;
 }
 
 export interface Empresa {
+    name: string;
     id: string;
-    foto: string;
-    descricao: string | null;
+    created_at: Date;
+    image: string;
+    description: string | null;
+    state: string;
+    city: string;
     instagram: string | null;
     github: string | null;
     twitter: string | null;
-    data_criacao: Date | null;
-    nome_fant: string;
-    setor: string | null;
-    porte: string | null;
-    contato: string | null;
+    banner: string;
+    values: string | null;
+    sector: string | null;
+    company_size: string | null;
+    contact: string | null;
     site: string | null;
     youtube: string | null;
     linkedin: string | null;
-    link_endereco: string | null;
+    address_link: string | null;
     facebook: string | null;
-    cidade: string | null;
-    estado: string | null;
-    email: string;
-    telefone: string;
-    cnpj: string;
-    missao: string | null;
-    visao: string | null;
-    valores: string | null;
-    banner: string | null;
+    mission: string | null;
+    vision: string | null;
 }
 
 export interface CustomEmp {
-    tags_empresas: Tag_empresa[];
-    tags_count: number;
-    filiais: Filial[];
-    filiais_count: number;
+    compTags: Tag_empresa[];
+    compTagsTotal: number;
+    branches: Filial[];
+    branchesTotal: number;
 }
 
 export interface Tag_empresa {
     id: string;
-    nome: string;
+    name: string;
 }
 
 export interface Filial { 
-    cidade: string;
-    estado: string;
-    tipo: string;
-    id: string
+    id: string;
+    category: string | null;
+    state: string;
+    city: string;
 }
