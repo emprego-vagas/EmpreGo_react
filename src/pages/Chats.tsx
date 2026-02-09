@@ -112,7 +112,7 @@ export default function Chats() {
                     setTimeout(() => {
                         container.scrollTop = container.scrollHeight;
                     }, 50);
-                    axiosWe.patch(`/mensagens/vizualizar/${message.room}`).catch(console.error);
+                    axiosWe.patch(`/message/chat/${message.room}/view`).catch(console.error);
                 }
 
                 return novasConversasSorted;
@@ -384,7 +384,7 @@ export default function Chats() {
         sol.id === id ? { ...sol, status: 'aceita' } : sol
         ));
         try {
-            const response = await axiosWe.post('/chats', {solicitacaoId: id});
+            const response = await axiosWe.post('/chat', {requestId: id});
             const novaConversa: Conversa = conversaConstructor(usuario.tipo, response.data);
             setDadosConversas([novaConversa, ...dadosConversas]);
             socket.emit('joinChat', novaConversa.id, callback=>{
@@ -410,8 +410,8 @@ export default function Chats() {
         sol.id === id ? { ...sol, status: 'recusada' } : sol
         ));
         try {
-            if(usuario.tipo==='candidato') await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
-            else await axiosWe.delete(`/empresas/conversa/remover/${id}`);
+            if(usuario.tipo==='candidato') await axiosWe.delete(`/chat/request/${id}/candidate`);
+            else await axiosWe.delete(`/chat/request/${id}/company`);
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
@@ -427,8 +427,8 @@ export default function Chats() {
     const cancelarSolicitacao = async(id: string, destinatarioid: string) => {
         setSolicitacoes(prev => prev.filter(sol => sol.id !== id));
         try {
-            if(usuario.tipo==='candidato') await axiosWe.delete(`/empresas/conversa/remover/${id}`);
-            else await axiosWe.delete(`/candidatos/conversa/remover/${id}`);
+            if(usuario.tipo==='candidato') await axiosWe.delete(`/chat/request/${id}/company`);
+            else await axiosWe.delete(`/chat/request/${id}/candidate`);
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
@@ -471,7 +471,7 @@ export default function Chats() {
 
                     return prev.map(conversa => {
                         if(conversa.id === conversaAtualId) {
-                            if(conversa.naoLidas>0) axiosWe.patch(`/mensagens/vizualizar/${conversaAtualId}`).catch(console.error);
+                            if(conversa.naoLidas>0) axiosWe.patch(`/message/chat/${conversaAtualId}/view`).catch(console.error);
                             return {...conversa, naoLidas: 0 };
                         } else {
                             return conversa;
@@ -739,7 +739,7 @@ export default function Chats() {
                                 if(!desabilitadasData.searched){
                                     setDesabilitadasData(prev=>({...prev, loading: true}));
                                     try {
-                                        const response = await axiosWe(`/chats/${usuario.tipo}/disabled`);
+                                        const response = await axiosWe(`/chat/${usuario.tipo==='candidato'?'candidate':'company'}/disabled`);
                                         const chats = response.data;
                                         setDesabilitadasData({loading: false, searched: true, chats: chats.map(chat=>
                                             conversaDesabilitadaConstructor(usuario.tipo, chat)
@@ -804,7 +804,7 @@ export default function Chats() {
                                                 const valorAtual = contadorFavoritos;
                                                 setContadorFavoritos(valorAtual - 1);
                                                 try {
-                                                    await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                                    await axiosWe.delete(`/favorited/chat/${conversa.id}`);
                                                 } catch (erro) {
                                                     console.error(erro);
                                                     setDadosConversas(prev=>{
@@ -831,7 +831,7 @@ export default function Chats() {
                                                 const valorAtual = contadorFavoritos;
                                                 setContadorFavoritos(valorAtual + 1);
                                                 try {
-                                                    await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                                    await axiosWe.post(`/favorited/chat/${conversa.id}`);
                                                 } catch (erro) {
                                                     console.error(erro);
                                                     setDadosConversas(prev=>{
@@ -897,7 +897,7 @@ export default function Chats() {
                                                 const valorAtual = contadorFavoritos;
                                                 setContadorFavoritos(valorAtual - 1);
                                                 try {
-                                                    await axiosWe.delete(`/favoritos/chat/${conversa.id}`);
+                                                    await axiosWe.delete(`/favorited/chat/${conversa.id}`);
                                                 } catch (erro) {
                                                     console.error(erro);
                                                     setDadosConversas(prev=>{
@@ -924,7 +924,7 @@ export default function Chats() {
                                                 const valorAtual = contadorFavoritos;
                                                 setContadorFavoritos(valorAtual + 1);
                                                 try {
-                                                    await axiosWe.post('/favoritos/chat', {chatId: conversa.id});
+                                                    await axiosWe.post(`/favorited/chat/${conversa.id}`);
                                                 } catch (erro) {
                                                     console.error(erro);
                                                     setDadosConversas(prev=>{
@@ -1315,28 +1315,26 @@ export default function Chats() {
                                                 const arquivoSelecionado = fileDataTipo === 'documento' ? inputDocRef.current.files[0] : fileDataTipo === 'foto' ? inputImgRef.current.files[0] : inputCamRef.current.files[0];
                                                 const formData = new FormData();
                                                 formData.append('file', arquivoSelecionado);
-                                                formData.append('autor', usuario.nome);
-                                                formData.append('chat', conversa.id);
-                                                formData.append('de', usuario.tipo);
+                                                formData.append('chatId', conversa.id);
                                                 try {
-                                                    const response = await axiosWe.post(`/mensagens/upload${fileData.tipo!=='documento'?'/image':''}`, formData);
-                                                    const {newFile, idFile} = response.data;
+                                                    const response = await axiosWe.post(`/message/upload/${fileData.tipo!=='documento'?'image':'raw'}`, formData);
+                                                    const {message, id} = response.data;
                                                     const agora = new Date();
                                                     const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
 
                                                     socket.emit('sendMessage', {
                                                         author: usuario.nome,
-                                                        message: newFile,
+                                                        message: message,
                                                         room: conversaAtualId,
                                                         type: usuario.tipo,
-                                                        idMsg: idFile
+                                                        idMsg: id
                                                     });
                                                     
                                                     setDadosConversas(prev=>{
                                                         const conversasAtualizadas = prev.map(con=>
                                                             con.id === conversa.id ?
-                                                            {...con, mensagens: [...con.mensagens, {texto: newFile, remetente: 'usuario', hora: hora, id: idFile} as Mensagem],
-                                                            ultimaMensagem: newFile, hora: hora, contadorMensagens: con.contadorMensagens + 1}
+                                                            {...con, mensagens: [...con.mensagens, {texto: message, remetente: 'usuario', hora: hora, id: id} as Mensagem],
+                                                            ultimaMensagem: message, hora: hora, contadorMensagens: con.contadorMensagens + 1}
                                                             : con
                                                         );
                                                         const conversaAtual = conversasAtualizadas.find(con=>con.id === conversa.id);

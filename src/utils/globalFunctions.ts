@@ -157,7 +157,7 @@ export class DadosUsuario {
 export async function fileDownload(url: string, tipo: string){
     const hostName = window.location.hostname.includes('localhost') ? 'http://localhost:2923' : 'https://api.emprego-vagas.com.br';
     const link = document.createElement('a');   // * Cria um link temporário
-    link.href = `${hostName}/mensagens/download?link=${encodeURIComponent(url)}&tipo=${tipo}`;   // * Seta a rota de download como href do link
+    link.href = `${hostName}/custom/download?url=${encodeURIComponent(url)}&type=${tipo}`;   // * Seta a rota de download como href do link
     document.body.appendChild(link);   // * Insere o link temporário na Árvore DOM
     link.click();   // * Clica no link temporário automaticamente para iniciar o download
     document.body.removeChild(link);   // * Remove o link temporário da Árvore DOM (OBS: fui eu q comentei isso tá? foi chat nn)
