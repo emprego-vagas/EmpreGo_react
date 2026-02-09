@@ -11,10 +11,10 @@ export async function cadastrarExperiencia(titulo: string, nome: string, dataIni
         return false;
     }
 
-    const experiencia = {titulo, nome, periodo: `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`, descricao, tags};
+    const experiencia = {title: titulo, name: nome, period: `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`, description: descricao, tags};
 
     try {
-        await axiosWe.post('/experiencias', experiencia);
+        await axiosWe.post('/experience', experiencia);
         return true;
     } catch (erro) {
         console.error('Erro ao cadastrar experiência:',erro);

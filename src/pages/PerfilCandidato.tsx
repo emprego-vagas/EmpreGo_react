@@ -127,7 +127,7 @@ export default function PerfilCandidato() {
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     <div id="impInfo"
                         className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <img id="fotoUsuario" src={candPerfil.image==='/assets/imgs/genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
+                        <img id="fotoUsuario" src={candPerfil.image==='genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
                             className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
@@ -986,7 +986,7 @@ export default function PerfilCandidato() {
                                     if(mostrarMaisIdiomas) await handleMostrarTodosIdiomas();
                                     await axiosWe.delete(`/language/${idiomaId}`);
                                     setCustomPerfil(prev=>{
-                                        return {...prev, idiomas: prev.languages.filter(idi=>idi.id!==idiomaId), languagesTotal: prev.languagesTotal-1};
+                                        return {...prev, languages: prev.languages.filter(idi=>idi.id!==idiomaId), languagesTotal: prev.languagesTotal-1};
                                     })
                                 } catch (erro) {
                                     console.error(erro);

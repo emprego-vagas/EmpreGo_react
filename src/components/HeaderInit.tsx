@@ -49,7 +49,7 @@ export default function HeaderInit(){
                         {/* Foto de Perfil (inicialmente oculta) */}
                         <Link to={`/perfil/${User?User.tipo:'candidato'}`} className={User?"rounded-full w-10 h-10 border-2 border-primary-500":"hidden"}
                             id="fotoPerfil">
-                            <img src={User ? User.foto!=="/assets/imgs/genPfp.png" ? User.foto : genPfp : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
+                            <img src={User ? User.foto!=="genPfp.png" ? User.foto : genPfp : genPfp} alt="Foto de perfil do usuário" id="fotoPerfilImg"
                                 className="w-full h-full object-cover rounded-full" onError={(e) => {
                                 e.currentTarget.src = genPfp;
                             }}/>
@@ -92,7 +92,7 @@ export default function HeaderInit(){
                     <Link to={`/perfil/${User?User.tipo:'candidato'}`}
                         className="block w-12 h-12 mx-auto rounded-full overflow-hidden border-2 border-primary-500 hidden"
                         id="mobileFotoPerfil">
-                        <img src="/assets/imgs/genPfp.png" alt="Foto de perfil do usuário" id="mobileFotoPerfilImg"
+                        <img src={genPfp} alt="Foto de perfil do usuário" id="mobileFotoPerfilImg"
                             className="w-full h-full rounded-full object-cover" />
                     </Link>
 

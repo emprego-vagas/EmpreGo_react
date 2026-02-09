@@ -413,7 +413,7 @@ export default function PerfilEmpresaPublico() {
             <div className="flex items-end">
               <img
                 id="fotoUsuario"
-                src={empPerfil.image === '/assets/imgs/genPfp.png' ? genPfp : empPerfil.image}
+                src={empPerfil.image === 'genPfp.png' ? genPfp : empPerfil.image}
                 alt="Logo da empresa"
                 className="w-32 h-32 rounded-full border-4 border-professional-card bg-professional-card object-cover"
               />

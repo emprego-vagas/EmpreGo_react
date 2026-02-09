@@ -560,7 +560,7 @@ export default function Chats() {
             <aside className="w-16 bg-dark-800 border-r border-gray-800 flex flex-col h-full items-center py-4">
                 {/* <!-- Foto de perfil do usuário --> */}
                 <Link to={`/perfil/${usuario.tipo}`} className="relative mb-8" title='Perfil do Usuário'>
-                    <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
+                    <img src={usuario.foto==='genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
                         className="w-8 h-8 object-cover rounded-full cursor-pointer" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-dark-800"
                         id="bolaSemMexer"></div>
@@ -611,7 +611,7 @@ export default function Chats() {
                                 <div key={solicitacao.id} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
                                     <div className="flex items-center gap-3">
                                     <img 
-                                        src={solicitacao.usuario_foto === '/assets/imgs/genPfp.png' ? genPfp : solicitacao.usuario_foto} 
+                                        src={solicitacao.usuario_foto === 'genPfp.png' ? genPfp : solicitacao.usuario_foto} 
                                         alt={solicitacao.usuario_nome}
                                         className="w-10 h-10 rounded-full object-cover"
                                         onError={(e) => {
@@ -659,7 +659,7 @@ export default function Chats() {
                                 <div key={solicitacao.id} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
                                     <div className="flex items-center gap-3">
                                     <img 
-                                        src={solicitacao.usuario_foto === '/assets/imgs/genPfp.png' ? genPfp : solicitacao.usuario_foto} 
+                                        src={solicitacao.usuario_foto === 'genPfp.png' ? genPfp : solicitacao.usuario_foto} 
                                         alt={solicitacao.usuario_nome}
                                         className="w-10 h-10 rounded-full object-cover"
                                         onError={(e) => {
@@ -765,7 +765,7 @@ export default function Chats() {
                                 <div className="flex items-center w-full">
                                     <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
                                         <img
-                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            src={conversa.avatar === 'genPfp.png' ? genPfp : conversa.avatar}
                                             className="w-full h-full object-cover rounded-full"
                                         />
                                         {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
@@ -859,7 +859,7 @@ export default function Chats() {
                                 <div className="flex items-center w-full">
                                     <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
                                         <img
-                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            src={conversa.avatar === 'genPfp.png' ? genPfp : conversa.avatar}
                                             className="w-full h-full object-cover rounded-full"
                                         />
                                         {conversa.statusRemetente === 'Online' && <span className={`absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full`}></span>}
@@ -963,7 +963,7 @@ export default function Chats() {
                                 <div className="flex items-center w-full">
                                     <div className="relative w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold shrink-0">
                                         <img
-                                            src={conversa.avatar === '/assets/imgs/genPfp.png' ? genPfp : conversa.avatar}
+                                            src={conversa.avatar === 'genPfp.png' ? genPfp : conversa.avatar}
                                             className="w-full h-full object-cover rounded-full"
                                         />
                                     </div>
@@ -1046,7 +1046,7 @@ export default function Chats() {
                                 <div className="flex items-center space-x-4">
                                     <div
                                         className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
-                                        <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
+                                        <img src={conversa.avatar==='genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
                                             className="w-full h-full object-cover rounded-full"/>
                                     </div>
                                     <div>
@@ -1439,7 +1439,7 @@ export default function Chats() {
                                 <div className="flex items-center space-x-4">
                                     <div
                                         className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
-                                        <img src={conversa.avatar==='/assets/imgs/genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
+                                        <img src={conversa.avatar==='genPfp.png'?genPfp:conversa.avatar} id="current-chat-avatar"
                                             className="w-full h-full object-cover rounded-full"/>
                                     </div>
                                     <div>
@@ -1811,7 +1811,7 @@ export default function Chats() {
                             {/* Informações da empresa */}
                             <div className="bg-dark-700 rounded-xl p-4 mb-4 flex items-center">
                                 <img 
-                                    src={novaSolicitacao.imagem === '/assets/imgs/genPfp.png' ? genPfp : novaSolicitacao.imagem} 
+                                    src={novaSolicitacao.imagem === 'genPfp.png' ? genPfp : novaSolicitacao.imagem} 
                                     alt={novaSolicitacao.nome}
                                     className="w-12 h-12 rounded-full object-cover mr-4"
                                     onError={(e) => {

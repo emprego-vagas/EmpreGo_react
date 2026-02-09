@@ -496,7 +496,7 @@ export default function PerfilCandidatoPF() {
             <div className="flex items-end">
               <img
                 id="fotoUsuario"
-                src={candPerfil.image === '/assets/imgs/genPfp.png' ? genPfp : candPerfil.image}
+                src={candPerfil.image === 'genPfp.png' ? genPfp : candPerfil.image}
                 alt="Foto do candidato"
                 className="w-32 h-32 rounded-full border-4 border-professional-card bg-professional-card object-cover"
               />

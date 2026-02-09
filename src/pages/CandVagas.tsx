@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-// import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
+// import JoaoAzevedo from './..JoaoAzevedo.jpeg';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
@@ -292,7 +292,7 @@ const Main: React.FC = () => {
                 limit: empresas.length < 9,
                 empresas: [...prev.empresas, ...empresas.map(emp => ({
                     id: emp.id,
-                    logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                     nome: emp.name,
                     descricao: emp.description,
@@ -350,7 +350,7 @@ const Main: React.FC = () => {
                         },
                         empresas: data.recommendedHighCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                             nome: emp.name,
                             descricao: emp.description,
@@ -369,7 +369,7 @@ const Main: React.FC = () => {
                         },
                         empresas: data.recentCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                             nome: emp.name,
                             descricao: emp.description,
@@ -388,7 +388,7 @@ const Main: React.FC = () => {
                         },
                         empresas: data.mainCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                             nome: emp.name,
                             descricao: emp.description,
@@ -401,7 +401,7 @@ const Main: React.FC = () => {
                 })
                 setEmpresasSemLabel(data.recommendedLowCompanies.map(emp => ({
                     id: emp.id,
-                    logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                     nome: emp.name,
                     descricao: emp.description,
@@ -668,7 +668,7 @@ const Main: React.FC = () => {
             setEmpresasSemLabel(prev =>
                 [...prev, ...novasEmpresas.map(emp => ({
                     id: emp.id,
-                    logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                     nome: emp.name,
                     descricao: emp.description,
@@ -738,7 +738,7 @@ const Main: React.FC = () => {
                 empresas: [...prev.empresas, ...emps.map(
                     emp => ({
                         id: emp.id,
-                        logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                        logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                         banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                         nome: emp.name,
                         descricao: emp.description,
@@ -856,7 +856,7 @@ const Main: React.FC = () => {
                     loadingMore: false,
                     empresas: emps.map(emp => ({
                         id: emp.id,
-                        logo: emp.image === '/assets/imgs/genPfp.png' ? genPfp : emp.image,
+                        logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                         banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
                         nome: emp.name,
                         descricao: emp.description,
@@ -1169,7 +1169,7 @@ const Main: React.FC = () => {
                                             onClick={() => navigate(`/empresa/${fav.id}`)}
                                             title={fav.nome_fant}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
-                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
+                                            <img src={fav.foto === "genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
                                         </button>
                                     ))}
                                 </div>
@@ -1184,7 +1184,7 @@ const Main: React.FC = () => {
                                             <div className="flex-shrink-0">
                                                 <div className="relative" onClick={()=>navigate(`/empresa/${e.id}`)}>
                                                     <img
-                                                        src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
+                                                        src={e.foto === "genPfp.png" ? genPfp : e.foto}
                                                         alt={e.nome_fant}
                                                         className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm" />
                                                     {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
@@ -1395,7 +1395,7 @@ const Main: React.FC = () => {
                         <div className="relative " ref={profileRef}>
 
                             <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                                <img src={usuario.foto === '/assets/imgs/genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
+                                <img src={usuario.foto === 'genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
                             </div>
 
                             {/* {isProfileOpen && ( */}

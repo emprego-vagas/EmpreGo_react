@@ -290,7 +290,7 @@ const Main: React.FC = () => {
                 limit: candidatos.length < 9,
                 candidatos: [...prev.candidatos, ...candidatos.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
@@ -342,7 +342,7 @@ const Main: React.FC = () => {
                         },
                         candidatos: data.candidatosRecomendados.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
@@ -361,7 +361,7 @@ const Main: React.FC = () => {
                         },
                         candidatos: data.candidatosRecentes.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
@@ -380,7 +380,7 @@ const Main: React.FC = () => {
                         },
                         candidatos: data.candidatosPrincipais.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                             nome: cand.nome,
                             descricao: cand.descricao,
@@ -393,7 +393,7 @@ const Main: React.FC = () => {
                 })
                 setCandidatosSemLabel(data.candidatosSemLabel.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
@@ -667,7 +667,7 @@ const Main: React.FC = () => {
             setCandidatosSemLabel(prev =>
                 [...prev, ...novasCandidatos.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                     nome: cand.nome,
                     descricao: cand.descricao,
@@ -731,7 +731,7 @@ const Main: React.FC = () => {
                 candidatos: [...prev.candidatos, ...emps.map(
                     cand => ({
                         id: cand.id,
-                        logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                        logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                         banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                         nome: cand.nome,
                         descricao: cand.descricao,
@@ -847,7 +847,7 @@ const Main: React.FC = () => {
                     loadingMore: false, 
                     candidatos: emps.map(cand => ({
                         id: cand.id,
-                        logo: cand.foto === '/assets/imgs/genPfp.png' ? genPfp : cand.foto,
+                        logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
                         banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
                         nome: cand.nome,
                         descricao: cand.descricao,
@@ -1152,7 +1152,7 @@ const Main: React.FC = () => {
                                             onClick={() => navigate(`/candidato/${fav.id}`)}
                                             title={fav.nome}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
-                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome} className="w-full h-full object-cover"/>
+                                            <img src={fav.foto === "genPfp.png" ? genPfp : fav.foto} alt={fav.nome} className="w-full h-full object-cover"/>
                                         </button>
                                     ))}
                                 </div>
@@ -1378,7 +1378,7 @@ const Main: React.FC = () => {
                         <div className="relative " ref={profileRef}>
 
                             <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                                <img src={usuario.foto === '/assets/imgs/genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
+                                <img src={usuario.foto === 'genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
                             </div>
 
                             {/* {isProfileOpen && ( */}
@@ -1543,7 +1543,7 @@ const Main: React.FC = () => {
                                                     <div className="flex items-center gap-3">
                                                         {slide.fotoCandidato && (
                                                             <img onClick={()=> navigate(`/candidato/${slide.candidato_id}`)}
-                                                                src={slide.fotoCandidato === '/assets/imgs/genPfp.png' ? genPfp : slide.fotoCandidato}
+                                                                src={slide.fotoCandidato === 'genPfp.png' ? genPfp : slide.fotoCandidato}
                                                                 alt={slide.empresa}
                                                                 className="w-10 h-10 rounded-full object-cover shadow-md z-50 cursor-pointer"
                                                             />
