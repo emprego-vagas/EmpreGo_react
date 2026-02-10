@@ -389,9 +389,9 @@ export function transformarLinksEmAnchors(mensagem: string): string{
 
 export async function enviarSolicitacaoConversa(userTipo: 'candidato'|'empresa', paraId: string): Promise<{foi: boolean, solicitacaoId?: string}> {
     try {
-        const response = userTipo === 'candidato' ? await axiosWe.post(`empresas/conversa/solicitar`, {idEmp: paraId}) : await axiosWe.post(`candidatos/conversa/solicitar`, {idCand: paraId});
+        const response = userTipo === 'candidato' ? await axiosWe.post(`/chat/request/company/${paraId}`) : await axiosWe.post(`/chat/request/candidate/${paraId}`);
         console.log(response.data);
-        return {foi: true, solicitacaoId: response.data.solicitacaoId};
+        return {foi: true, solicitacaoId: response.data.requestId};
     } catch (erro) {
         console.error('Erro ao enviar solicitação de conversa:', erro);
         return {foi: false};

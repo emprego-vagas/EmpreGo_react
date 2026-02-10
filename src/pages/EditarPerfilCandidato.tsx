@@ -33,37 +33,37 @@ export default function EditarPerfilCandidato () {
         async function loadCand(){
             if(!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {usua: Candidato}};
-                const usua = response.data.usua;
-                DadosUsuario.setarFoto(usua.foto);
-                DadosUsuario.setarNome(usua.nome);
+                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {user: Candidato & {cpf?: string; city?: string;}}};
+                const user = response.data.user;
+                DadosUsuario.setarFoto(user.image);
+                DadosUsuario.setarNome(user.name);
                 const { 
-                    nome, foto, descricao, cpf, estado, cidade, instagram, github,
-                    twitter, pronomes, site_pessoal, curriculo, cargo_atual,
-                    portifolio, empresa_atual, curriculo_file, banner
-                } = usua;
-                setNomeInfo({cached: nome, value: nome, disabled: true});
+                    name, image, description, cpf, state, city, instagram, github,
+                    twitter, pronouns, personal_site, resume, current_position,
+                    portfolio, current_company, resume_file, banner
+                } = user;
+                setNomeInfo({cached: name, value: name, disabled: true});
                 if(cpf) setCpfInfo({cached: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), value: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), disabled: true});
-                if(pronomes) {
+                if(pronouns) {
                     const pronomesDoSelect = ["Ela/Dela", "Ele/Dele", "Elu/Delu", "Prefiro não informar"];
-                    if(!pronomesDoSelect.includes(pronomes)){
+                    if(!pronomesDoSelect.includes(pronouns)){
                         setPronomesInfo({cached: 'Outro', value: 'Outro', disabled: true});
-                        setPronomesPersonalizadosInfo({cached: pronomes, value: pronomes, disabled: true});
-                    } else setPronomesInfo({cached: pronomes, value: pronomes, disabled: true})
+                        setPronomesPersonalizadosInfo({cached: pronouns, value: pronouns, disabled: true});
+                    } else setPronomesInfo({cached: pronouns, value: pronouns, disabled: true})
                 };
-                if(portifolio) setPortfolioInfo({cached: portifolio, value: portifolio, disabled: true});
-                if(curriculo) setCurriculoInfo({cached: curriculo, value: curriculo, disabled: true});
-                if(site_pessoal) setSite_pessoalInfo({cached: site_pessoal, value: site_pessoal, disabled: true});
+                if(portfolio) setPortfolioInfo({cached: portfolio, value: portfolio, disabled: true});
+                if(resume) setCurriculoInfo({cached: resume, value: resume, disabled: true});
+                if(personal_site) setSite_pessoalInfo({cached: personal_site, value: personal_site, disabled: true});
                 if(github) setGithubInfo({cached: github, value: github, disabled: true});
                 if(instagram) setInstagramInfo({cached: instagram, value: instagram, disabled: true});
                 if(twitter) setTwitterInfo({cached: twitter, value: twitter, disabled: true});
-                if(cidade) setCidadeInfo({cached: cidade, value: cidade, disabled: true});
-                if(estado) setEstadoInfo({cached: estado, value: estado, disabled: true});
-                if(foto) setFotoInfo({cached: foto, value: null, disabled: true, truncate: false});
-                if(cargo_atual) setCargo_atualInfo({cached: cargo_atual, value: cargo_atual, disabled: true});
-                if(empresa_atual) setEmpresa_atualInfo({cached: empresa_atual, value: empresa_atual, disabled: true});
-                if(descricao) setDescricaoInfo({cached: descricao, value: descricao, disabled: true});
-                if(curriculo_file) setCurriculo_fileInfo({cached: curriculo_file, value: null, disabled: true, truncate: false});
+                if(city) setCidadeInfo({cached: city, value: city, disabled: true});
+                if(state) setEstadoInfo({cached: state, value: state, disabled: true});
+                if(image) setFotoInfo({cached: image, value: null, disabled: true, truncate: false});
+                if(current_position) setCargo_atualInfo({cached: current_position, value: current_position, disabled: true});
+                if(current_company) setEmpresa_atualInfo({cached: current_company, value: current_company, disabled: true});
+                if(description) setDescricaoInfo({cached: description, value: description, disabled: true});
+                if(resume_file) setCurriculo_fileInfo({cached: resume_file, value: null, disabled: true, truncate: false});
                 if (banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
 
                 setDataLoaded(true);
@@ -109,7 +109,7 @@ export default function EditarPerfilCandidato () {
             setPreviewSrcFoto(genPfp);
             if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
-        else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
+        else if (!fotoInfo.value && fotoInfo.cached !== 'genPfp.png') {
             setPreviewSrcFoto(fotoInfo.cached);
             if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
@@ -539,7 +539,7 @@ export default function EditarPerfilCandidato () {
                                     <FontAwesomeIcon icon={faCamera} />
                                 </button>
 
-                                {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached!=='/assets/imgs/genPfp.png')) && (
+                                {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached!=='genPfp.png')) && (
                                     <button id="btnRemoverFoto" onClick={()=>setFotoInfo(prev=>({...prev, value: null, truncate: true}))}
                                         title="Remover Foto"
                                         className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">

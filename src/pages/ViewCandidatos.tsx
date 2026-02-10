@@ -277,7 +277,7 @@ const Main: React.FC = () => {
                 loading: pagina === 1 ? true : false,
                 loadingMore: pagina === 1 ? false : true
             }));
-            const response = await axiosWe(`/candidatos/categoria/${categoria}?page=${pagina}`);
+            const response = await axiosWe(`/candidate/list/category/${categoria}?page=${pagina}`);
             const candidatos = response.data;
             const isFavoritada = (id: string) => {
                 return candidatosFavoritadas.some((e) => e.id === id);
@@ -290,14 +290,14 @@ const Main: React.FC = () => {
                 limit: candidatos.length < 9,
                 candidatos: [...prev.candidatos, ...candidatos.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                    nome: cand.nome,
-                    descricao: cand.descricao,
+                    nome: cand.name,
+                    descricao: cand.description,
                     favoritada: isFavoritada(cand.id),
-                    tags: cand.tags.map(t => t.nome),
-                    estado: cand.estado,
-                    idioma: cand.idiomas[0]?.nome
+                    tags: cand.cand_tags.map(t => t.name),
+                    estado: cand.state,
+                    idioma: cand.languages[0]?.name
                 }))]
             }))
             console.log(response.data)
@@ -321,16 +321,20 @@ const Main: React.FC = () => {
         async function carregarDados() {
             try {
                 const response = await axiosWe('/custom/vizualizar-candidatos');
-                const data = response.data;
+                const {data, meta} = response;
                 console.log(data);
 
-                console.log(data.palavrasPraBusca)
-                setPalavrasBusca(data.palavrasPraBusca);
-                palavrasBuscaRef.current = data.palavrasPraBusca;
-                setCandidatosFavoritadas(data.candidatosFavoritados.map(e => e.candidatos));
+                setPalavrasBusca(meta.words);
+                palavrasBuscaRef.current = meta.words;
+                setCandidatosFavoritadas(data.favoritedCandidates.map(fc=>({
+                    id: fc.id,
+                    nome: fc.name,
+                    tag: fc.cand_tags?.[0]?.name ?? '',
+                    foto: fc.image,
+                })));
 
                 const isFavoritada = (id: string) => {
-                    return data.candidatosFavoritados.some((e) => e.candidatos.id === id);
+                    return data.favoritedCandidates.some((e) => e.id === id);
                 };
                 setCandidatosPorCategoria({
                     ["Candidatos Recomendados"]: {
@@ -340,16 +344,16 @@ const Main: React.FC = () => {
                         candidatosRecolhidos() {
                             return this.candidatos.slice(0, 3)
                         },
-                        candidatos: data.candidatosRecomendados.map(cand => ({
+                        candidatos: data.recommendedHighCandidates.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                            nome: cand.nome,
-                            descricao: cand.descricao,
-                            tags: cand.tags.map(t => t.nome),
+                            nome: cand.name,
+                            descricao: cand.description,
+                            tags: cand.cand_tags.map(t => t.name),
                             favoritada: isFavoritada(cand.id),
-                            estado: cand.estado,
-                            idioma: cand.idiomas[0]?.nome
+                            estado: cand.state,
+                            idioma: cand.languages[0]?.name
                         }))
                     },
                     ["Candidatos Recentes"]: {
@@ -359,16 +363,16 @@ const Main: React.FC = () => {
                         candidatosRecolhidos() {
                             return this.candidatos.slice(0, 3)
                         },
-                        candidatos: data.candidatosRecentes.map(cand => ({
+                        candidatos: data.recentCandidates.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                            nome: cand.nome,
-                            descricao: cand.descricao,
-                            tags: cand.tags.map(t => t.nome),
+                            nome: cand.name,
+                            descricao: cand.description,
+                            tags: cand.cand_tags.map(t => t.name),
                             favoritada: isFavoritada(cand.id),
-                            estado: cand.estado,
-                            idioma: cand.idiomas[0]?.nome
+                            estado: cand.state,
+                            idioma: cand.languages[0]?.name
                         }))
                     },
                     ["Candidatos Principais"]: {
@@ -378,44 +382,44 @@ const Main: React.FC = () => {
                         candidatosRecolhidos() {
                             return this.candidatos.slice(0, 3)
                         },
-                        candidatos: data.candidatosPrincipais.map(cand => ({
+                        candidatos: data.mainCandidates.map(cand => ({
                             id: cand.id,
-                            logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                            logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                             banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                            nome: cand.nome,
-                            descricao: cand.descricao,
-                            tags: cand.tags.map(t => t.nome),
+                            nome: cand.name,
+                            descricao: cand.description,
+                            tags: cand.cand_tags.map(t => t.name),
                             favoritada: isFavoritada(cand.id),
-                            estado: cand.estado,
-                            idioma: cand.idiomas[0]?.nome
+                            estado: cand.state,
+                            idioma: cand.languages[0]?.name
                         }))
                     }
                 })
-                setCandidatosSemLabel(data.candidatosSemLabel.map(cand => ({
+                setCandidatosSemLabel(data.recommendedLowCandidates.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                    nome: cand.nome,
-                    descricao: cand.descricao,
-                    tags: cand.tags.map(t => t.nome),
+                    nome: cand.name,
+                    descricao: cand.description,
+                    tags: cand.cand_tags.map(t => t.name),
                     favoritada: isFavoritada(cand.id),
-                    estado: cand.estado,
-                    idioma: cand.idiomas[0]?.nome
+                    estado: cand.state,
+                    idioma: cand.languages[0]?.name
                 })));
-                setFiltrosRecomendados(data.categoriasAleatorias.map((c,i)=>({id: i, nome: formatarCategoria(c), categoria: c})));
-                setSlides(data.experienciasSlide.map(e=>({
-                    empresa: e.empresa,
-                    titulo: e.titulo,
-                    texto: e.descricao,
-                    autor: e.candidato_nome,
-                    data: new Date(e.data_criacao).toLocaleDateString('pt-BR', {
+                setFiltrosRecomendados(data.randomCategories.map((c,i)=>({id: i, nome: formatarCategoria(c), categoria: c})));
+                setSlides(data.experiences.map(e=>({
+                    empresa: e.company,
+                    titulo: e.title,
+                    texto: e.description,
+                    autor: e.candidate_name,
+                    data: new Date(e.created_at).toLocaleDateString('pt-BR', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
                     }),
                     background: e.background,
-                    fotoCandidato: e.candidato_foto,
-                    candidato_id: e.candidato_id
+                    fotoCandidato: e.candidate_image,
+                    candidato_id: e.candidate_id
                 })))
                 setCarregandoDados(false);
             } catch (erro) {
@@ -612,7 +616,7 @@ const Main: React.FC = () => {
             setCandidatosFavoritadas(prev => prev.filter(e => e.id !== candidato.id));
             atualizarStatus();
             try {
-                await axiosWe.delete(`/favoritos/candidato/${candidato.id}`);
+                await axiosWe.delete(`/favorited/candidate/${candidato.id}`);
             } catch (erro) {
                 console.error("Erro ao remover candidato dos favoritos: ", erro);
             };
@@ -632,9 +636,7 @@ const Main: React.FC = () => {
                 });
                 atualizarStatus();
                 try {
-                    await axiosWe.post(`/favoritos/candidato`, {
-                        cd: candidato.id,
-                    });
+                    await axiosWe.post(`/favorited/candidate/${candidato.id}`);
                 } catch (erro) {
                     console.error("Erro ao favoritar candidato:", erro);
                 };
@@ -657,7 +659,7 @@ const Main: React.FC = () => {
         setCarregando(true);
         try {
             console.log("Buscando no back")
-            const response = await axiosWe.post(`/candidatos/recommendedlow?page=${semLabelPage + 1}`, { palavras: palavrasBuscaRef.current });
+            const response = await axiosWe.post(`/candidate/list/recommendedlow?page=${semLabelPage + 1}`, { words: palavrasBuscaRef.current });
             setSemLabelPage(prev => prev + 1);
             const novasCandidatos = response.data;
             if(novasCandidatos.length<9) limitCandidatosSemLabelRef.current = true;
@@ -667,14 +669,14 @@ const Main: React.FC = () => {
             setCandidatosSemLabel(prev =>
                 [...prev, ...novasCandidatos.map(cand => ({
                     id: cand.id,
-                    logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                    logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                     banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                    nome: cand.nome,
-                    descricao: cand.descricao,
+                    nome: cand.name,
+                    descricao: cand.description,
                     favoritada: isFavoritada(cand.id),
-                    tags: cand.tags.map(t => t.nome),
-                    estado: cand.estado,
-                    idioma: cand.idiomas[0]?.nome
+                    tags: cand.cand_tags.map(t => t.name),
+                    estado: cand.state,
+                    idioma: cand.languages[0]?.name
                 }))]
             );
             setCarregando(false);
@@ -702,7 +704,7 @@ const Main: React.FC = () => {
             const nextPage = searchPageRef.current;
             console.log('Carregando página:', nextPage, 'Query:', searchData.query);
             
-            const response = await axiosWe(`/candidatos/search?page=${nextPage}&${searchData.query}`);
+            const response = await axiosWe(`/candidate/list/search?page=${nextPage}&${searchData.query}`);
             const emps = response.data;
             console.log('Resultados da página', nextPage, ':', emps.length);
 
@@ -799,9 +801,9 @@ const Main: React.FC = () => {
 
         window.scrollTo(0, 0);
         const queryParts: string[] = [];
-        if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa}`);
-        if(estadosString) queryParts.push(`estado=${estadosString}`);
-        if(idiomasString) queryParts.push(`idioma=${idiomasString}`);
+        if(buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa.trim()}`);
+        if(estadosString) queryParts.push(`states=${estadosString}`);
+        if(idiomasString) queryParts.push(`languages=${idiomasString}`);
         
         const queryJoin = queryParts.join('&');
 
@@ -821,7 +823,7 @@ const Main: React.FC = () => {
                     candidatos: []
                 });
 
-                const response = await axiosWe(`/candidatos/search?page=1&${queryJoin}`);
+                const response = await axiosWe(`/candidate/list/search?page=1&${queryJoin}`);
                 console.log('Busca inicial - Página 1:', response.data.length, 'resultados');
                 const emps = response.data;
                 
@@ -847,14 +849,14 @@ const Main: React.FC = () => {
                     loadingMore: false, 
                     candidatos: emps.map(cand => ({
                         id: cand.id,
-                        logo: cand.foto === 'genPfp.png' ? genPfp : cand.foto,
+                        logo: cand.image === 'genPfp.png' ? genPfp : cand.image,
                         banner: cand.banner === 'fundoroxo' ? FundoRoxo : cand.banner || FundoRoxo,
-                        nome: cand.nome,
-                        descricao: cand.descricao,
-                        tags: cand.tags.map(t => t.nome),
+                        nome: cand.name,
+                        descricao: cand.description,
+                        tags: cand.cand_tags.map(t => t.name),
                         favoritada: isFavoritada(cand.id),
-                        estado: cand.estado,
-                        idioma: cand.idiomas[0]?.nome
+                        estado: cand.state,
+                        idioma: cand.languages[0]?.name
                     }))
                 });
 

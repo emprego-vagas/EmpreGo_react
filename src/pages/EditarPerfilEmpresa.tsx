@@ -34,34 +34,34 @@ export default function EditarPerfilEmpresa() {
         async function loadEmp() {
             if (!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-empresa-editar') as { data: { usua: Empresa } };
-                const { usua } = response.data;
-                DadosUsuario.setarFoto(usua.foto);
-                DadosUsuario.setarNome(usua.nome_fant);
+                const response = await axiosWe('/custom/perfil-empresa-editar') as { data: { user: Empresa } };
+                const { user } = response.data;
+                DadosUsuario.setarFoto(user.image);
+                DadosUsuario.setarNome(user.name);
                 const {
-                    foto, descricao, instagram, github, twitter, nome_fant, facebook,
-                    setor, porte, contato, site, youtube, linkedin, link_endereco,
-                    missao, visao, valores, banner
-                } = usua;
-                setNomeFantInfo({ cached: nome_fant, value: nome_fant, disabled: true });
-                if (foto) setFotoInfo({ cached: foto, value: null, disabled: true, truncate: false });
-                if (descricao) setDescricaoInfo({ cached: descricao, value: descricao, disabled: true });
+                    image, description, instagram, github, twitter, name, facebook,
+                    sector, company_size, contact, site, youtube, linkedin, address_link,
+                    mission, vision, values, banner
+                } = user;
+                setNomeFantInfo({ cached: name, value: name, disabled: true });
+                if (image) setFotoInfo({ cached: image, value: null, disabled: true, truncate: false });
+                if (description) setDescricaoInfo({ cached: description, value: description, disabled: true });
                 if (instagram) setInstagramInfo({ cached: instagram, value: instagram, disabled: true });
                 if (github) setGithubInfo({ cached: github, value: github, disabled: true });
                 if (twitter) setTwitterInfo({ cached: twitter, value: twitter, disabled: true });
                 if (facebook) setFacebookInfo({ cached: facebook, value: facebook, disabled: true });
-                if (setor) setSetorInfo({ cached: setor, value: setor, disabled: true });
-                if (porte) setPorteInfo({ cached: porte, value: porte, disabled: true });
-                if (contato) setContatoInfo({ cached: contato, value: contato, disabled: true });
+                if (sector) setSetorInfo({ cached: sector, value: sector, disabled: true });
+                if (company_size) setPorteInfo({ cached: company_size, value: company_size, disabled: true });
+                if (contact) setContatoInfo({ cached: contact, value: contact, disabled: true });
                 if (site) setSiteInfo({ cached: site, value: site, disabled: true });
                 if (youtube) setYoutubeInfo({ cached: youtube, value: youtube, disabled: true });
                 if (linkedin) setLinkedinInfo({ cached: linkedin, value: linkedin, disabled: true });
-                if (link_endereco) setLinkEnderecoInfo({ cached: link_endereco, value: link_endereco, disabled: true });
+                if (address_link) setLinkEnderecoInfo({ cached: address_link, value: address_link, disabled: true });
 
                 // Novos campos
-                if (missao) setMissaoInfo({ cached: missao, value: missao, disabled: true });
-                if (visao) setVisaoInfo({ cached: visao, value: visao, disabled: true });
-                if (valores) setValoresInfo({ cached: valores, value: valores, disabled: true });
+                if (mission) setMissaoInfo({ cached: mission, value: mission, disabled: true });
+                if (vision) setVisaoInfo({ cached: vision, value: vision, disabled: true });
+                if (values) setValoresInfo({ cached: values, value: values, disabled: true });
                 if (banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
 
                 setDataLoaded(true);
@@ -111,7 +111,7 @@ export default function EditarPerfilEmpresa() {
             setPreviewSrcFoto(genPfp);
             if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
-        else if (!fotoInfo.value && fotoInfo.cached !== '/assets/imgs/genPfp.png') {
+        else if (!fotoInfo.value && fotoInfo.cached !== 'genPfp.png') {
             setPreviewSrcFoto(fotoInfo.cached);
             if(inputFotoPerfilOcultRef.current) inputFotoPerfilOcultRef.current.value = '';
         }
@@ -327,7 +327,7 @@ export default function EditarPerfilEmpresa() {
                                         <FontAwesomeIcon icon={faCamera} />
                                     </button>
 
-                                    {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached !== '/assets/imgs/genPfp.png')) && (
+                                    {(!fotoInfo.truncate && (fotoInfo.value || fotoInfo.cached !== 'genPfp.png')) && (
                                         <button id="btnRemoverFoto" onClick={() => setFotoInfo(prev => ({ ...prev, value: null, truncate: true }))}
                                             title="Remover Foto"
                                             className="absolute top-2 right-2 bg-red-500 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-110 cursor-pointer">
