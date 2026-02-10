@@ -56,21 +56,21 @@ export default function PerfilEmpresaPublico() {
       !customPerfil ||
       allFiliaisLoaded ||
       isLoadingMoreFiliais ||
-      customPerfil.filiais.length >= customPerfil.filiais_count
+      customPerfil.branches.length >= customPerfil.branchesTotal
     ) return;
 
     try {
       setIsLoadingMoreFiliais(true);
 
       const response = await axiosWe(
-        `/filial?offset=${customPerfil.filiais.length}&empresa_id=${empPerfil.id}`
-      ) as { data: typeof customPerfil.filiais };
+        `/branch/company/${empPerfil.id}?skip=${customPerfil.branches.length}`
+      ) as { data: typeof customPerfil.branches };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          filiais: [...prev.filiais, ...response.data],
+          branches: [...prev.branches, ...response.data],
         };
       });
 
@@ -88,21 +88,21 @@ export default function PerfilEmpresaPublico() {
       !customPerfil ||
       allTagsLoaded ||
       isLoadingMoreTags ||
-      customPerfil.tags_empresas.length >= customPerfil.tags_count
+      customPerfil.compTags.length >= customPerfil.compTagsTotal
     ) return;
 
     try {
       setIsLoadingMoreTags(true);
 
       const response = await axiosWe(
-        `/tags/empresas?offset=${customPerfil.tags_empresas.length}&empresa_id=${empPerfil.id}`
+        `/tag/comp/company/${empPerfil.id}?skip=${customPerfil.compTags.length}`
       ) as { data: Tag[] };
 
       setCustomPerfil(prev => {
         if (!prev) return prev;
         return {
           ...prev,
-          tags_empresas: [...prev.tags_empresas, ...response.data],
+          compTags: [...prev.compTags, ...response.data],
         };
       });
 
@@ -121,55 +121,55 @@ export default function PerfilEmpresaPublico() {
       try {
         setLoading(true);
         if (empresaId) {
-          const response = await axiosWe(`/perfil/empresa/${empresaId}`) as {
-            data: { usua: Empresa, custom: CustomEmp }
+          const response = await axiosWe(`/company/id/${empresaId}/profile`) as {
+            data: { user: Empresa, custom: CustomEmp }
           };
-          console.log(response)
+          // console.log(response)
           const data = response.data;
-          const { usua, custom } = data;
-          setEmpPerfil(usua);
+          const { user, custom } = data;
+          setEmpPerfil(user);
           setCustomPerfil(custom);
           return;
         }
 
-        if (usuario.tipo==='empresa') {
-          const response = await axiosWe(`/custom/perfil-empresa`) as { data: { usua: Empresa, custom: CustomEmp } };
-          const data = response.data;
-          const { usua, custom } = data;
-          setEmpPerfil(usua);
-          setCustomPerfil(custom);
-          return;
-        }
+        // if (usuario.tipo==='empresa') {
+        //   const response = await axiosWe(`/custom/perfil-empresa`) as { data: { usua: Empresa, custom: CustomEmp } };
+        //   const data = response.data;
+        //   const { usua, custom } = data;
+        //   setEmpPerfil(usua);
+        //   setCustomPerfil(custom);
+        //   return;
+        // }
 
-        const fallbackEmpresa: Empresa = {
-          id: '',
-          foto: genPfp,
-          descricao: '',
-          instagram: '',
-          github: '',
-          twitter: '',
-          data_criacao: new Date(0),
-          nome_fant: 'Nome da Empresa',
-          setor: '',
-          porte: '',
-          contato: '',
-          site: '',
-          youtube: '',
-          linkedin: '',
-          link_endereco: '',
-          facebook: '',
-          cidade: '',
-          estado: '',
-          email: '',
-          telefone: '',
-          cnpj: '',
-          missao: '',
-          visao: '',
-          valores: '',
-          banner: 'fundoroxo'
-        };
-        setEmpPerfil(fallbackEmpresa);
-        setCustomPerfil({ tags_empresas: [], tags_count: 0, filiais: [], filiais_count: 0 });
+        // const fallbackEmpresa: Empresa = {
+        //   id: '',
+        //   foto: genPfp,
+        //   descricao: '',
+        //   instagram: '',
+        //   github: '',
+        //   twitter: '',
+        //   data_criacao: new Date(0),
+        //   nome_fant: 'Nome da Empresa',
+        //   setor: '',
+        //   porte: '',
+        //   contato: '',
+        //   site: '',
+        //   youtube: '',
+        //   linkedin: '',
+        //   link_endereco: '',
+        //   facebook: '',
+        //   cidade: '',
+        //   estado: '',
+        //   email: '',
+        //   telefone: '',
+        //   cnpj: '',
+        //   missao: '',
+        //   visao: '',
+        //   valores: '',
+        //   banner: 'fundoroxo'
+        // };
+        // setEmpPerfil(fallbackEmpresa);
+        // setCustomPerfil({ compTags: [], compTagsTotal: 0, filiais: [], branchesTotal: 0 });
       } catch (erro) {
         console.error("Erro ao carregar perfil público da empresa:", erro);
       } finally {
@@ -185,24 +185,24 @@ export default function PerfilEmpresaPublico() {
   }, [activeTab, empresaId]);
 
   const currentTags = useMemo(() => {
-    if (!customPerfil?.tags_empresas || customPerfil.tags_empresas.length === 0) {
+    if (!customPerfil?.compTags || customPerfil.compTags.length === 0) {
       return [];
     }
     const startIndex = (currentPage - 1) * tagsPerPage;
     const endIndex = startIndex + tagsPerPage;
-    return customPerfil.tags_empresas.slice(startIndex, endIndex);
-  }, [customPerfil?.tags_empresas, currentPage, tagsPerPage]);
+    return customPerfil.compTags.slice(startIndex, endIndex);
+  }, [customPerfil?.compTags, currentPage, tagsPerPage]);
 
   const totalPages = useMemo(() => {
     if (!customPerfil) return 0;
-    return Math.ceil(customPerfil.tags_count / tagsPerPage);
+    return Math.ceil(customPerfil.compTagsTotal / tagsPerPage);
   }, [customPerfil, tagsPerPage]);
 
   const handlePageChange = (pageNumber: number) => {
     const precisaCarregarMais =
       pageNumber > 1 &&
       customPerfil &&
-      customPerfil.tags_empresas.length < customPerfil.tags_count;
+      customPerfil.compTags.length < customPerfil.compTagsTotal;
 
     if (precisaCarregarMais) {
       carregarRestoDasTags();
@@ -233,8 +233,8 @@ export default function PerfilEmpresaPublico() {
     return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
   };
   // useEffect(() => {
-  //   console.log("TOTAL TAGS:", customPerfil?.tags_empresas?.length);
-  //   console.log("TAGS:", customPerfil?.tags_empresas);
+  //   console.log("TOTAL TAGS:", customPerfil?.compTags?.length);
+  //   console.log("TAGS:", customPerfil?.compTags);
   // }, [customPerfil]);
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -413,7 +413,7 @@ export default function PerfilEmpresaPublico() {
             <div className="flex items-end">
               <img
                 id="fotoUsuario"
-                src={empPerfil.foto === '/assets/imgs/genPfp.png' ? genPfp : empPerfil.foto}
+                src={empPerfil.image === 'genPfp.png' ? genPfp : empPerfil.image}
                 alt="Logo da empresa"
                 className="w-32 h-32 rounded-full border-4 border-professional-card bg-professional-card object-cover"
               />
@@ -429,7 +429,7 @@ export default function PerfilEmpresaPublico() {
                   id="nomUsuario"
                   className="text-3xl font-bold text-dark-700 dark:text-dark-50"
                 >
-                  {empPerfil.nome_fant}
+                  {empPerfil.name}
                 </h1>
 
                 {/* BOTÃO CHAT */}
@@ -574,7 +574,7 @@ export default function PerfilEmpresaPublico() {
                 <div className="card-hover bg-dark-50 dark:bg-professional-card rounded-xl p-6 border border-professional-card hover:border-primary-500  transition-all duration-500 ease-out">
                   <h2 className="text-xl font-bold mb-4 text-professional-accent">Sobre a Empresa</h2>
                   <p className="text-dark-700 dark:text-professional-subtitle whitespace-pre-line">
-                    {empPerfil.descricao || "Não há informação neste campo: Descrição da Empresa"}
+                    {empPerfil.description || "Não há informação neste campo: Descrição da Empresa"}
                   </p>
                 </div>
 
@@ -587,12 +587,12 @@ export default function PerfilEmpresaPublico() {
                     <div className="space-y-4 ">
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Setor</div>
-                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.setor, "Setor")}</div>
+                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.sector, "Setor")}</div>
                       </div>
 
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Porte</div>
-                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.porte, "Porte")}</div>
+                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.company_size, "Porte")}</div>
                       </div>
 
                       {/* <div>
@@ -619,8 +619,8 @@ export default function PerfilEmpresaPublico() {
 
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Localização Sede</div>
-                        {empPerfil.cidade && empPerfil.estado ? (
-                          <div className="text-dark-700 dark:text-professional-subtitle">{empPerfil.cidade}, {empPerfil.estado}</div>
+                        {empPerfil.city && empPerfil.state ? (
+                          <div className="text-dark-700 dark:text-professional-subtitle">{empPerfil.city}, {empPerfil.state}</div>
                         ) : (
                           <span className="text-dark-700 dark:text-professional-subtitle italic">Não há informação neste campo: Localização</span>
                         )}
@@ -633,7 +633,7 @@ export default function PerfilEmpresaPublico() {
                       <FontAwesomeIcon icon={faCodeBranch} className="mr-2" />
                       Especializações
                     </h2>
-                    {customPerfil?.tags_empresas && customPerfil.tags_empresas.length > 0 ? (
+                    {customPerfil?.compTags && customPerfil.compTags.length > 0 ? (
                       <div className="space-y-4">
                         <div className="flex flex-wrap gap-3">
                           {currentTags.map((tag) => (
@@ -641,7 +641,7 @@ export default function PerfilEmpresaPublico() {
                               key={tag.id}
                               className="inline-flex items-center gap-1.5 py-2 px-4 bg-dark-100 dark:bg-professional-gray text-dark-700 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card"
                             >
-                              {tag.nome}
+                              {tag.name}
                             </span>
                           ))}
                         </div>
@@ -656,7 +656,7 @@ export default function PerfilEmpresaPublico() {
                           <div className="pt-4 border-t border-professional-card">
                             <div className="flex flex-col items-center justify-between space-y-3 sm:flex-row sm:space-y-0">
                               <div className="text-sm text-dark-700 dark:text-professional-subtitle">
-                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.tags_empresas.length)} de {customPerfil.tags_count} especializações
+                                Mostrando {((currentPage - 1) * tagsPerPage) + 1} - {Math.min(currentPage * tagsPerPage, customPerfil.compTags.length)} de {customPerfil.compTagsTotal} especializações
                               </div>
 
                               {renderPagination()}
@@ -705,19 +705,19 @@ export default function PerfilEmpresaPublico() {
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Missão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          {empPerfil.missao || 'Missão não informada'}
+                          {empPerfil.mission || 'Missão não informada'}
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Visão</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          {empPerfil.visao || 'Visão não informada'}
+                          {empPerfil.vision || 'Visão não informada'}
                         </p>
                       </div>
                       <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <h3 className="font-medium text-dark-700 dark:text-white mb-2">Valores</h3>
                         <p className="text-dark-700 dark:text-professional-subtitle text-sm italic">
-                          {empPerfil.valores || 'Valores não informados'}
+                          {empPerfil.values || 'Valores não informados'}
                         </p>
                       </div>
                     </div>
@@ -731,7 +731,7 @@ export default function PerfilEmpresaPublico() {
                       <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-3" />
                       <div>
                         <div className="text-sm text-dark-700 dark:text-professional-subtitle font-medium">Email de Contato</div>
-                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.contato, "Email")}</div>
+                        <div className="text-dark-700 dark:text-professional-subtitle">{renderField(empPerfil.contact, "Email")}</div>
                       </div>
                     </div>
 
@@ -983,9 +983,9 @@ export default function PerfilEmpresaPublico() {
                       <div>
                         <h3 className="font-bold text-white">Sede Principal</h3>
 
-                        {empPerfil.cidade && empPerfil.estado ? (
+                        {empPerfil.city && empPerfil.state ? (
                           <p className="text-dark-700 dark:text-professional-subtitle">
-                            {empPerfil.cidade}, {empPerfil.estado}
+                            {empPerfil.city}, {empPerfil.state}
                           </p>
                         ) : (
                           <p className="text-dark-700 dark:text-professional-subtitle italic">
@@ -993,9 +993,9 @@ export default function PerfilEmpresaPublico() {
                           </p>
                         )}
 
-                        {empPerfil.link_endereco ? (
+                        {empPerfil.address_link ? (
                           <a
-                            href={empPerfil.link_endereco}
+                            href={empPerfil.address_link}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center mt-2 text-sm text-professional-accent hover:underline"
@@ -1012,19 +1012,19 @@ export default function PerfilEmpresaPublico() {
                     </div>
                   </div>
 
-                  {customPerfil?.filiais && customPerfil.filiais.length > 0 ? (
-                    customPerfil.filiais.map((filial, idx) => (
+                  {customPerfil?.branches && customPerfil.branches.length > 0 ? (
+                    customPerfil.branches.map((filial, idx) => (
                       <div key={idx} className="bg-dark-100 dark:bg-professional-gray rounded-lg p-4">
                         <div className="flex items-start">
                           <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-3 mt-1" />
                           <div>
                             <h3 className="font-bold text-white">
-                              {filial.tipo || 'Unidade'} - {filial.cidade}
+                              {filial.category || 'Unidade'} - {filial.city}
                             </h3>
-                            <p className="text-dark-700 dark:text-professional-subtitle">{filial.estado}</p>
-                            {filial.tipo && (
+                            <p className="text-dark-700 dark:text-professional-subtitle">{filial.state}</p>
+                            {filial.category && (
                               <p className="text-sm text-dark-700 dark:text-professional-subtitle">
-                                Tipo: {filial.tipo}
+                                Tipo: {filial.category}
                               </p>
                             )}
                           </div>
@@ -1038,7 +1038,7 @@ export default function PerfilEmpresaPublico() {
                     </div>
                   )}
                   {customPerfil &&
-                    customPerfil.filiais.length < customPerfil.filiais_count && (
+                    customPerfil.branches.length < customPerfil.branchesTotal && (
                       <div className="flex justify-center pt-4">
                         <button
                           onClick={carregarRestoDasFiliais}
@@ -1051,7 +1051,7 @@ export default function PerfilEmpresaPublico() {
                         >
                           {isLoadingMoreFiliais
                             ? 'Carregando filiais...'
-                            : `Ver mais filiais (${customPerfil.filiais_count - customPerfil.filiais.length})`}
+                            : `Ver mais filiais (${customPerfil.branchesTotal - customPerfil.branches.length})`}
                         </button>
                       </div>
                   )}

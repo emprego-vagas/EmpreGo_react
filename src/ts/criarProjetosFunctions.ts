@@ -21,17 +21,17 @@ export async function cadastrarProjeto(titulo: string, nome: string, dataInicio:
     }
 
     const formData = new FormData();
-    formData.append('titulo', titulo);
-    formData.append('nome', nome);
-    formData.append('periodo', `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`);
-    formData.append('descricao', descricao);
+    formData.append('title', titulo);
+    formData.append('name', nome);
+    formData.append('period', `${formatarData(dataInicio)} - ${checkAtual?'Presente':formatarData(dataFim)}`);
+    formData.append('description', descricao);
     formData.append('status', status);
     if(tags.length>0) formData.append('tags', JSON.stringify(tags));
     if(linkProjeto) formData.append('link', linkProjeto);
-    if(imagem) formData.append('imagem', imagem);
+    if(imagem) formData.append('image', imagem);
 
     try {
-        await axiosWe.post('/projeto', formData);
+        await axiosWe.post('/candproject', formData);
         return true;
     } catch (erro) {
         console.error('Erro ao cadastrar projeto:',erro);

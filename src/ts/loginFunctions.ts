@@ -2,6 +2,7 @@ import type { MouseEvent, FormEvent } from 'react';
 import axiosWe from '../utils/axiosInstance';
 import type {AxiosWeError} from '../utils/axiosInstance';
 import { DadosUsuario, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
+import { getFingerprint } from '../utils/fingerprint';
 
 export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin: {email: string, senha: string, lembreMe: boolean}): Promise<boolean> {
     e.preventDefault();
@@ -23,9 +24,10 @@ export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin
     target.textContent = "Entrando...";
 
     try {
-        const response = await axiosWe.post("/login", { email, senha, lembreMe: candLogin.lembreMe });
+        const visitorId = await getFingerprint();
+        const response = await axiosWe.post("/auth/login", { email, password: senha, rememberMe: candLogin.lembreMe, visitorId });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'candidato', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
 
         return true;
     } catch (erro) {
@@ -89,7 +91,7 @@ export async function candidatoRegister(e: MouseEvent<HTMLButtonElement>, candRe
     target.disabled = true;
     target.textContent = "Cadastrando...";
     try {
-        await axiosWe.post('/candidatos', { nome: nomeFormat, email, senha, genero, data_nasc: data_nascFormat });
+        await axiosWe.post('/candidate', { name: nomeFormat, email, password: senha, gender: genero, birth_date: data_nascFormat });
         return {success: true}
     } catch (erro: unknown) {
         const err = erro as AxiosWeError;
@@ -127,9 +129,10 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
 
     try {
         const cnpjClean = cnpj.replace(/[^\d]/g, "");
-        const response = await axiosWe.post('/login-empresa', { cnpj: cnpjClean, senha, lembreMe: empLogin.lembreMe });
+        const visitorId = await getFingerprint();
+        const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: empLogin.lembreMe, visitorId });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 
         return true;
     } catch (erro) {
@@ -173,23 +176,26 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
     target.disabled = true;
 
     try {
-        await axiosWe.post("/empresas", {
-            cnpj: cnpj.replace(/[^\d]/g, ""),
-            nome_fant,
-            telefone,
+        const cnpjClean = cnpj.replace(/[^\d]/g, "");
+        const visitorId = await getFingerprint();
+
+        await axiosWe.post("/company", {
+            cnpj: cnpjClean,
+            name: nome_fant,
+            phone: telefone,
             email,
-            senha,
-            razao_soci,
-            cep,
-            complemento,
-            numero,
-            estado,
-            cidade
+            password: senha,
+            legal_name: razao_soci,
+            zip_code: cep,
+            address_complement: complemento,
+            address_number: numero,
+            state: estado,
+            city: cidade
         });
 
-        const response = await axiosWe.post("/login-empresa", { cnpj: cnpj.replace(/[^\d]/g, ""), senha, lembreMe: true });
+        const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: true, visitorId });
         const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, 'empresa', user.nivel, user.foto);
+        DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
 
         mostrarSucessoTopo("Empresa cadastrada com SUCESSO!");
         return {success: true};

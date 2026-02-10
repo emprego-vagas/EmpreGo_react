@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
-// import JoaoAzevedo from './../assets/imgs/JoaoAzevedo.jpeg';
+// import JoaoAzevedo from './..JoaoAzevedo.jpeg';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DadosUsuario, formatarCategoria, formatarEstado, logout, mostrarAvisoTopo } from '../utils/globalFunctions';
 import axiosWe from '../utils/axiosInstance';
@@ -278,7 +278,7 @@ const Main: React.FC = () => {
                 loading: pagina === 1 ? true : false,
                 loadingMore: pagina === 1 ? false : true
             }));
-            const response = await axiosWe(`/empresas/categoria/${categoria}?page=${pagina}`);
+            const response = await axiosWe(`/company/list/category/${categoria}?page=${pagina}`);
             const empresas = response.data;
             const isFavoritada = (id: string) => {
                 return empresasFavoritadas.some((e) => e.id === id);
@@ -292,14 +292,14 @@ const Main: React.FC = () => {
                 limit: empresas.length < 9,
                 empresas: [...prev.empresas, ...empresas.map(emp => ({
                     id: emp.id,
-                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                    nome: emp.nome_fant,
-                    descricao: emp.descricao,
-                    setor: emp.setor,
+                    nome: emp.name,
+                    descricao: emp.description,
+                    setor: emp.sector,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome),
-                    estado: emp.estado
+                    tags: emp.comp_tags.map(t => t.name),
+                    estado: emp.state
                 }))]
             }))
             console.log(response.data)
@@ -323,17 +323,22 @@ const Main: React.FC = () => {
         async function carregarDados() {
             try {
                 const response = await axiosWe('/custom/vizualizar-empresas');
-                const data = response.data;
+                const {data, meta} = response;
                 console.log(data);
-                console.log('Setores recomendados:', data.empresasRecomendadas.map(e => e.setor));
+                console.log('Setores recomendados:', data.recommendedHighCompanies.map(e => e.sector));
 
-                console.log(data.palavrasPraBusca)
-                setPalavrasBusca(data.palavrasPraBusca);
-                palavrasBuscaRef.current = data.palavrasPraBusca;
-                setEmpresasFavoritadas(data.empresasFavoritadas.map(e => e.empresas));
+                console.log(meta.words)
+                setPalavrasBusca(meta.words);
+                palavrasBuscaRef.current = meta.words;
+                setEmpresasFavoritadas(data.favoritedCompanies.map(e => ({
+                    id: e.id,
+                    nome_fant: e.name,
+                    setor: e.sector,
+                    foto: e.image
+                })));
 
                 const isFavoritada = (id: string) => {
-                    return data.empresasFavoritadas.some((e) => e.empresas.id === id);
+                    return data.favoritedCompanies.some((e) => e.id === id);
                 };
                 setEmpresasPorCategoria({
                     ["Empresas Recomendadas"]: {
@@ -343,16 +348,16 @@ const Main: React.FC = () => {
                         empresasRecolhidas() {
                             return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasRecomendadas.map(emp => ({
+                        empresas: data.recommendedHighCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t => t.nome),
-                            setor: emp.setor,
+                            nome: emp.name,
+                            descricao: emp.description,
+                            tags: emp.comp_tags.map(t => t.name),
+                            setor: emp.sector,
                             favoritada: isFavoritada(emp.id),
-                            estado: emp.estado
+                            estado: emp.state
                         }))
                     },
                     ["Empresas Recentes"]: {
@@ -362,16 +367,16 @@ const Main: React.FC = () => {
                         empresasRecolhidas() {
                             return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasRecentes.map(emp => ({
+                        empresas: data.recentCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t => t.nome),
-                            setor: emp.setor,
+                            nome: emp.name,
+                            descricao: emp.description,
+                            tags: emp.comp_tags.map(t => t.name),
+                            setor: emp.sector,
                             favoritada: isFavoritada(emp.id),
-                            estado: emp.estado
+                            estado: emp.state
                         }))
                     },
                     ["Empresas Principais"]: {
@@ -381,31 +386,31 @@ const Main: React.FC = () => {
                         empresasRecolhidas() {
                             return this.empresas.slice(0, 3)
                         },
-                        empresas: data.empresasPrincipais.map(emp => ({
+                        empresas: data.mainCompanies.map(emp => ({
                             id: emp.id,
-                            logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                            logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                             banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                            nome: emp.nome_fant,
-                            descricao: emp.descricao,
-                            tags: emp.tags_empresas.map(t => t.nome),
-                            setor: emp.setor,
+                            nome: emp.name,
+                            descricao: emp.description,
+                            tags: emp.comp_tags.map(t => t.name),
+                            setor: emp.sector,
                             favoritada: isFavoritada(emp.id),
-                            estado: emp.estado
+                            estado: emp.state
                         }))
                     }
                 })
-                setEmpresasSemLabel(data.empresasSemLabel.map(emp => ({
+                setEmpresasSemLabel(data.recommendedLowCompanies.map(emp => ({
                     id: emp.id,
-                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                    nome: emp.nome_fant,
-                    descricao: emp.descricao,
-                    setor: emp.setor,
+                    nome: emp.name,
+                    descricao: emp.description,
+                    tags: emp.comp_tags.map(t => t.name),
+                    setor: emp.sector,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome),
-                    estado: emp.estado
+                    estado: emp.state
                 })));
-                setFiltrosRecomendados(data.categoriasAleatorias.map((c, i) => ({ id: i, nome: formatarCategoria(c), categoria: c })));
+                setFiltrosRecomendados(data.randomCategories.map((c, i) => ({ id: i, nome: formatarCategoria(c), categoria: c })));
                 setCarregandoDados(false);
             } catch (erro) {
                 console.error("Erro ao carregar empresas:", erro)
@@ -600,7 +605,7 @@ const Main: React.FC = () => {
             setEmpresasFavoritadas(prev => prev.filter(e => e.id !== empresa.id));
             atualizarStatus();
             try {
-                await axiosWe.delete(`/favoritos/empresa/${empresa.id}`);
+                await axiosWe.delete(`/favorited/company/${empresa.id}`);
             } catch (erro) {
                 console.error("Erro ao remover empresa dos favoritos: ", erro);
             };
@@ -620,9 +625,7 @@ const Main: React.FC = () => {
                 });
                 atualizarStatus();
                 try {
-                    await axiosWe.post(`/favoritos/empresa`, {
-                        id: empresa.id,
-                    });
+                    await axiosWe.post(`/favorited/company/${empresa.id}`);
                 } catch (erro) {
                     console.error("Erro ao favoritar empresa:", erro);
                 };
@@ -655,7 +658,7 @@ const Main: React.FC = () => {
         }
         setCarregando(true);
         try {
-            const response = await axiosWe.post(`/empresas/recommendedlow?page=${semLabelPage + 1}`, { palavras: palavrasBuscaRef.current });
+            const response = await axiosWe.post(`/company/list/recommendedlow?page=${semLabelPage + 1}`, { words: palavrasBuscaRef.current });
             setSemLabelPage(prev => prev + 1);
             const novasEmpresas = response.data;
             if (novasEmpresas.length < 9) limitEmpresasSemLabelRef.current = true;
@@ -665,14 +668,14 @@ const Main: React.FC = () => {
             setEmpresasSemLabel(prev =>
                 [...prev, ...novasEmpresas.map(emp => ({
                     id: emp.id,
-                    logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                    logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                     banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                    nome: emp.nome_fant,
-                    descricao: emp.descricao,
-                    setor: emp.setor,
+                    nome: emp.name,
+                    descricao: emp.description,
+                    setor: emp.sector,
                     favoritada: isFavoritada(emp.id),
-                    tags: emp.tags_empresas.map(t => t.nome),
-                    estado: emp.estado
+                    tags: emp.comp_tags.map(t => t.name),
+                    estado: emp.state
                 }))]
             );
             setCarregando(false);
@@ -707,7 +710,7 @@ const Main: React.FC = () => {
             const nextPage = searchPageRef.current;
             console.log('Carregando página:', nextPage, 'Query:', searchData.query);
 
-            const response = await axiosWe(`/empresas/search?page=${nextPage}&${searchData.query}`);
+            const response = await axiosWe(`/company/list/search?page=${nextPage}&${searchData.query}`);
             const emps = response.data;
 
             if (emps.length === 0) {
@@ -735,14 +738,14 @@ const Main: React.FC = () => {
                 empresas: [...prev.empresas, ...emps.map(
                     emp => ({
                         id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                         banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t => t.nome),
-                        setor: emp.setor,
+                        nome: emp.name,
+                        descricao: emp.description,
+                        tags: emp.comp_tags.map(t => t.name),
+                        setor: emp.sector,
                         favoritada: isFavoritada(emp.id),
-                        estado: emp.estado
+                        estado: emp.state
                     })
                 )]
             }));
@@ -805,9 +808,9 @@ const Main: React.FC = () => {
         window.scrollTo(0, 0);
         const queryParts: string[] = [];
         if (buscaPesquisa) queryParts.push(`keyword=${buscaPesquisa.trim()}`);
-        if (setoresString) queryParts.push(`setor=${setoresString}`);
-        if (estadosString) queryParts.push(`estado=${estadosString}`);
-        if (portesString) queryParts.push(`porte=${portesString}`);
+        if (setoresString) queryParts.push(`sectors=${setoresString}`);
+        if (estadosString) queryParts.push(`states=${estadosString}`);
+        if (portesString) queryParts.push(`company_sizes=${portesString}`);
 
         const queryJoin = queryParts.join('&');
 
@@ -827,7 +830,7 @@ const Main: React.FC = () => {
                     empresas: []
                 });
 
-                const response = await axiosWe(`/empresas/search?page=1&${queryJoin}`);
+                const response = await axiosWe(`/company/list/search?page=1&${queryJoin}`);
                 console.log('Busca inicial - Página 1:', response.data.length, 'resultados');
                 const emps = response.data;
 
@@ -853,14 +856,14 @@ const Main: React.FC = () => {
                     loadingMore: false,
                     empresas: emps.map(emp => ({
                         id: emp.id,
-                        logo: emp.foto === '/assets/imgs/genPfp.png' ? genPfp : emp.foto,
+                        logo: emp.image === 'genPfp.png' ? genPfp : emp.image,
                         banner: emp.banner === 'fundoroxo' ? FundoRoxo : (emp.banner || FundoRoxo),
-                        nome: emp.nome_fant,
-                        descricao: emp.descricao,
-                        tags: emp.tags_empresas.map(t => t.nome),
-                        setor: emp.setor,
+                        nome: emp.name,
+                        descricao: emp.description,
+                        tags: emp.comp_tags.map(t => t.name),
+                        setor: emp.sector,
                         favoritada: isFavoritada(emp.id),
-                        estado: emp.estado
+                        estado: emp.state
                     }))
                 });
 
@@ -1166,7 +1169,7 @@ const Main: React.FC = () => {
                                             onClick={() => navigate(`/empresa/${fav.id}`)}
                                             title={fav.nome_fant}
                                             className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-dark-700 shadow-sm bg-white flex items-center justify-center">
-                                            <img src={fav.foto === "/assets/imgs/genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
+                                            <img src={fav.foto === "genPfp.png" ? genPfp : fav.foto} alt={fav.nome_fant} className="w-full h-full object-cover"/>
                                         </button>
                                     ))}
                                 </div>
@@ -1181,7 +1184,7 @@ const Main: React.FC = () => {
                                             <div className="flex-shrink-0">
                                                 <div className="relative" onClick={()=>navigate(`/empresa/${e.id}`)}>
                                                     <img
-                                                        src={e.foto === "/assets/imgs/genPfp.png" ? genPfp : e.foto}
+                                                        src={e.foto === "genPfp.png" ? genPfp : e.foto}
                                                         alt={e.nome_fant}
                                                         className="w-7 h-7 rounded-full object-cover border-2 border-white dark:border-dark-700 shadow-sm" />
                                                     {/* <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border border-white dark:border-dark-700 rounded-full"></div> */}
@@ -1392,7 +1395,7 @@ const Main: React.FC = () => {
                         <div className="relative " ref={profileRef}>
 
                             <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 cursor-pointer px-1 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 ">
-                                <img src={usuario.foto === '/assets/imgs/genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
+                                <img src={usuario.foto === 'genPfp.png' ? genPfp : usuario.foto} alt="Foto" className="w-9 h-9 rounded-full object-cover" />
                             </div>
 
                             {/* {isProfileOpen && ( */}

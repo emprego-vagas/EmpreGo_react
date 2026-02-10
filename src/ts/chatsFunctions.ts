@@ -80,22 +80,22 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
     const response = usuarioTipo === 'candidato' ? await axiosWe('/custom/chats-candidatos'): await axiosWe('/custom/chats-empresas');
     console.log(response.data)
     const data = response.data.chats;
-    const { solicitacoes_chat_p_candidatos, solicitacoes_chat_p_empresas } = response.data;
+    const { chat_requests_to_cand, chat_requests_to_comp } = response.data;
 
     const ehCandidato = usuarioTipo === 'candidato';
-    let solicitacoes: SolicitacaoConversa[] = solicitacoes_chat_p_candidatos.map(sol=>({
+    let solicitacoes: SolicitacaoConversa[] = chat_requests_to_cand.map(sol=>({
         id: sol.id,
-        usuario_id: ehCandidato ? sol.empresas.id : sol.candidatos.id,
-        usuario_nome: ehCandidato ? sol.empresas.nome_fant : sol.candidatos.nome,
-        usuario_foto: ehCandidato ? sol.empresas.foto : sol.candidatos.foto,
+        usuario_id: ehCandidato ? sol.companies.id : sol.candidates.id,
+        usuario_nome: ehCandidato ? sol.companies.name : sol.candidates.name,
+        usuario_foto: ehCandidato ? sol.companies.image : sol.candidates.image,
         tipo: ehCandidato ? 'recebida': 'enviada',
         status: 'pendente'
     }));
-    solicitacoes = [...solicitacoes, ...(solicitacoes_chat_p_empresas.map(sol=>({
+    solicitacoes = [...solicitacoes, ...(chat_requests_to_comp.map(sol=>({
         id: sol.id,
-        usuario_id: ehCandidato ? sol.empresas.id : sol.candidatos.id,
-        usuario_nome: ehCandidato ? sol.empresas.nome_fant : sol.candidatos.nome,
-        usuario_foto: ehCandidato ? sol.empresas.foto : sol.candidatos.foto,
+        usuario_id: ehCandidato ? sol.companies.id : sol.candidates.id,
+        usuario_nome: ehCandidato ? sol.companies.name : sol.candidates.name,
+        usuario_foto: ehCandidato ? sol.companies.image : sol.candidates.image,
         tipo: ehCandidato ? 'enviada': 'recebida',
         status: 'pendente'
     })))];
@@ -112,17 +112,26 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
         const atual = conversas.find(cvs => cvs.remetente === idAtual)?.id;
         if(!atual){
             try {
-                const empOuCand =  usuarioTipo === 'candidato' ? 'empresas' : 'candidatos';
-                const response = await axiosWe(`/${empOuCand}/single/${idAtual}?use_myid=true`);
-                const solicitacao = response.data;
-                console.log(solicitacao);
-
-                if(solicitacao.solicitacoes_chat_p_empresas?.length > 0 || solicitacao.solicitacoes_chat_p_candidatos?.length > 0){
-                    mostrarAvisoTopo(`Você já possui uma solicitação de conversa para ${solicitacao.nome || solicitacao.nome_fant}.`)
+                let alreadyExists = false;
+                let solName: string;
+                solicitacoes.forEach(sol=>{
+                    if(sol.usuario_id===idAtual) {
+                        alreadyExists=true;
+                        solName = sol.usuario_nome;
+                        return;
+                    }
+                })
+                if(alreadyExists){
+                    mostrarAvisoTopo(`Você já possui uma solicitação de conversa para ${solName}.`);
                 } else {
+                    const empOuCand =  usuarioTipo === 'candidato' ? 'company' : 'candidate';
+                    const response = await axiosWe(`/${empOuCand}/id/${idAtual}`);
+                    const solicitacao = response.data;
+                    console.log(solicitacao);
+
                     novaSolicitacao = {
-                        imagem: solicitacao.foto,
-                        nome: usuarioTipo === 'candidato' ? solicitacao.nome_fant : solicitacao.nome,
+                        imagem: solicitacao.image,
+                        nome: solicitacao.name,
                         id: idAtual,
                         tipo: usuarioTipo === 'candidato' ? 'Empresa' : 'Candidato'
                     };
@@ -161,23 +170,23 @@ export async function carregarConversasBack(usuario: {tipo: string, nome: string
 export function conversaConstructor(usuarioTipo: string, chat) {
     return {
         id: chat.id,
-        bloqueadoStatus: chat.bloqueado,
-        bloqueador: chat.bloqueador_tipo,
-        remetente: usuarioTipo === 'candidato' ? chat.empresas.id : String(chat.candidatos.id),
+        bloqueadoStatus: chat.blocked,
+        bloqueador: chat.blocker_type,
+        remetente: usuarioTipo === 'candidato' ? chat.companies.id : chat.candidates.id,
         statusRemetente: 'Offline',
-        nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
-        ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
-        ultimaMensagemId: chat.mensagens.toReversed()[0]?.id,
-        data_criacao: chat.data_criacao,
+        nome: usuarioTipo === 'candidato' ? chat.companies.name : chat.candidates.name,
+        ultimaMensagem: chat.messages.toReversed()[0]?.message || '',
+        ultimaMensagemId: chat.messages.toReversed()[0]?.id,
+        data_criacao: chat.created_at,
         hora: (() => {
-            const msg = chat.mensagens.toReversed()[0]?.data_criacao
+            const msg = chat.messages.toReversed()[0]?.created_at
             if(!msg) return '';
             const horario = new Date(msg);
             const txtData = hojeOntem(horario);
             return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
         })(),
         naoLidas: (()=>{
-            const naoLidas = chat.mensagens.reduce((ac, msg)=>{
+            const naoLidas = chat.messages.reduce((ac, msg)=>{
                 if(msg.de !== usuarioTipo && !msg.status){
                     ac++
                 }
@@ -185,54 +194,54 @@ export function conversaConstructor(usuarioTipo: string, chat) {
             }, 0);
             return naoLidas;
         })(),
-        avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
-        favoritada: (usuarioTipo === 'candidato' ? chat.favoritos_chats_cand[0] : chat.favoritos_chats_emp[0]) ? true : false,
-        mensagens: chat.mensagens.map(msg=>{
+        avatar: usuarioTipo === 'candidato' ? chat.companies.image : chat.candidates.image,
+        favoritada: (usuarioTipo === 'candidato' ? chat.favorited_cand_chats[0] : chat.favorited_comp_chats[0]) ? true : false,
+        mensagens: chat.messages.map(msg=>{
             return {
-                texto: msg.mensagem,
-                remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
+                texto: msg.message,
+                remetente: msg.by === usuarioTipo ? 'usuario' : 'eles',
                 hora: (()=>{
-                    const horario = new Date(msg.data_criacao);
+                    const horario = new Date(msg.created_at);
                     const txtData = hojeOntem(horario);
                     return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
                 })(),
-                datetime: new Date(msg.data_criacao),
+                datetime: new Date(msg.created_at),
                 id: msg.id
             }
         }),
-        contadorMensagens: chat.mensagens.length
+        contadorMensagens: chat.messages.length
     }
 }
 
 export function conversaDesabilitadaConstructor(usuarioTipo: string, chat): ConversaDesabilitada{
     return {
         id: chat.id,
-        desabilitador_tipo: chat.desabilitador_tipo,
-        data_desabilitacao: new Date(chat.data_desabilitacao),
-        remetente: usuarioTipo === 'candidato' ? chat.empresas.id : chat.candidatos.id,
-        nome: usuarioTipo === 'candidato' ? chat.empresas.nome_fant : chat.candidatos.nome,
-        ultimaMensagem: chat.mensagens.toReversed()[0]?.mensagem || '',
+        desabilitador_tipo: chat.disabler_type,
+        data_desabilitacao: new Date(chat.disabled_at),
+        remetente: usuarioTipo === 'candidato' ? chat.companies.id : chat.candidates.id,
+        nome: usuarioTipo === 'candidato' ? chat.companies.name : chat.candidates.name,
+        ultimaMensagem: chat.messages.toReversed()[0]?.message || '',
         hora: (() => {
-            const msg = chat.mensagens.toReversed()[0]?.data_criacao
+            const msg = chat.messages.toReversed()[0]?.created_at
             if(!msg) return '';
             const horario = new Date(msg);
             const txtData = hojeOntem(horario);
             return `${txtData==='Hoje' ? `${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}` : `${txtData}`}`;
         })(),
-        avatar: usuarioTipo === 'candidato' ? chat.empresas.foto : chat.candidatos.foto,
-        mensagens: chat.mensagens.map(msg=>{
+        avatar: usuarioTipo === 'candidato' ? chat.companies.image : chat.candidates.image,
+        mensagens: chat.messages.map(msg=>{
             return {
-                texto: msg.mensagem,
-                remetente: msg.de === usuarioTipo ? 'usuario' : 'eles',
+                texto: msg.message,
+                remetente: msg.by === usuarioTipo ? 'usuario' : 'eles',
                 hora: (()=>{
-                    const horario = new Date(msg.data_criacao);
+                    const horario = new Date(msg.created_at);
                     const txtData = hojeOntem(horario);
                     return `${txtData==='Hoje' ? '' : `${txtData} `}${String(horario.getHours()).padStart(2, "0")}:${String(horario.getMinutes()).padStart(2, "0")}`
                 })(),
                 id: msg.id
             }
         }),
-        contadorMensagens: chat.mensagens.length
+        contadorMensagens: chat.messages.length
     }
 }
 
@@ -245,21 +254,19 @@ interface EnviarMensagemResponse {
 }
 export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string): Promise<EnviarMensagemResponse> {
     try {
-        const response = await axiosWe.post('/mensagens', {
-                autor: usuario.nome,
-                mensagem,
-                chat: conversaAtualId,
-                de: usuario.tipo
-            })
+        const response = await axiosWe.post('/message', {
+            message: mensagem,
+            chatId: conversaAtualId,
+        })
         const agora = new Date();
         const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.idMsg };
+        const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.id };
         const messageObject = {
             author: usuario.nome,
             message: mensagem,
             room: conversaAtualId,
             type: usuario.tipo,
-            idMsg: response.data.idMsg
+            idMsg: response.data.id
         };
         socket.emit('sendMessage', messageObject);
         return novaMensagem;
@@ -281,7 +288,7 @@ export async function modalActions(action: string, id: string, valor?: string, r
         case 'block': {
             try {
                 const status = valor === 'true' ? true : false;
-                await axiosWe.patch(`/chats/block/${id}`, { bloqueado: status});
+                await axiosWe.patch(`/chat/${id}/block`, { blockStatus: status});
                 return {success: true}
             } catch (erro) {
                 console.error(erro);
@@ -290,7 +297,7 @@ export async function modalActions(action: string, id: string, valor?: string, r
         }
         case 'clean': {
             try {
-                await axiosWe.delete(`/mensagens/limpar/${id}`);
+                await axiosWe.patch(`/message/chat/${id}/clean`);
                 return {success: true};
             } catch (erro) {
                 console.error(erro);
@@ -299,9 +306,9 @@ export async function modalActions(action: string, id: string, valor?: string, r
         }
         case 'remove': {
             try {
-                await axiosWe.patch(`/chats/disable/${id}`, {
-                    receberMensagens: removeOptions.receberEmail,
-                    quantidadeReceber: removeOptions.quantidadeReceber
+                await axiosWe.patch(`/chat/${id}/disable`, {
+                    recieveMessages: removeOptions.receberEmail,
+                    messagesAmount: removeOptions.quantidadeReceber
                 });
                 return {success: true};
             } catch (erro) {
@@ -311,7 +318,7 @@ export async function modalActions(action: string, id: string, valor?: string, r
         }
         case 'save':
             try {
-                await axiosWe.post(`/chats/save/${id}`, {quantidade: removeOptions.quantidadeReceber})
+                await axiosWe.post(`/chat/${id}/save`, {amount: removeOptions.quantidadeReceber})
                 return {success: true};
             } catch (erro) {
                 console.error(erro);
@@ -319,7 +326,7 @@ export async function modalActions(action: string, id: string, valor?: string, r
             }
         case 'delete':
             try {
-                await axiosWe.delete(`/chats/${id}`);
+                await axiosWe.delete(`/chat/${id}`);
                 return {success: true};
             } catch (erro) {
                 console.error(erro);
@@ -382,9 +389,9 @@ export function transformarLinksEmAnchors(mensagem: string): string{
 
 export async function enviarSolicitacaoConversa(userTipo: 'candidato'|'empresa', paraId: string): Promise<{foi: boolean, solicitacaoId?: string}> {
     try {
-        const response = userTipo === 'candidato' ? await axiosWe.post(`empresas/conversa/solicitar`, {idEmp: paraId}) : await axiosWe.post(`candidatos/conversa/solicitar`, {idCand: paraId});
+        const response = userTipo === 'candidato' ? await axiosWe.post(`/chat/request/company/${paraId}`) : await axiosWe.post(`/chat/request/candidate/${paraId}`);
         console.log(response.data);
-        return {foi: true, solicitacaoId: response.data.solicitacaoId};
+        return {foi: true, solicitacaoId: response.data.requestId};
     } catch (erro) {
         console.error('Erro ao enviar solicitação de conversa:', erro);
         return {foi: false};

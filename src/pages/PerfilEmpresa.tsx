@@ -22,10 +22,10 @@ export default function PerfilEmpresa() {
         }, 3000);
     };
 
-    const [empPerfil, setEmpPerfil] = useState<Empresa | null>(null);
+    const [empPerfil, setEmpPerfil] = useState<Empresa & {cnpj?: string; phone?: string; email?: string;} | null>(null);
     const [customPerfil, setCustomPerfil] = useState<CustomEmp | null>(null);
     const [mostrarModalRmvTag, setMostrarModalRmvTag] = useState(false);
-    const [tagToRemove, setTagToRemove] = useState({ nome: '', id: '' });
+    const [tagToRemove, setTagToRemove] = useState({ name: '', id: '' });
     const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
     const mostrarMaisTagsRef = useRef(null);
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
@@ -34,10 +34,10 @@ export default function PerfilEmpresa() {
     const [mostrarModalAddFilial, setMostrarModalAddFilial] = useState(false);
     const [editingFilialId, setEditingFilialId] = useState<string | null>(null);
     const [novaFilial, setNovaFilial] = useState({
-        cidade: '',
-        estado: '',
-        tipo: '',
-        tipo_outro: ''
+        city: '',
+        state: '',
+        category: '',
+        other_category: ''
     });
     const [buscaEstado, setBuscaEstado] = useState('');
     const [mostrarListaEstados, setMostrarListaEstados] = useState(false);
@@ -81,28 +81,28 @@ export default function PerfilEmpresa() {
                 setMostrarMaisFiliaisExib(false);
                 return;
             }
-            if (customPerfil.filiais_count && (customPerfil.filiais?.length ?? 0) >= customPerfil.filiais_count) {
+            if (customPerfil.branchesTotal && (customPerfil.branches?.length ?? 0) >= customPerfil.branchesTotal) {
                 setMostrarMaisFiliaisExib(false);
                 return;
             }
-            const response = await axiosWe(`/filial?offset=${customPerfil.filiais?.length ?? 0}`);
-            setCustomPerfil(prev => ({ ...prev, filiais: [...(prev.filiais || []), ...response.data] }));
+            const response = await axiosWe(`/branch/company/${usuario.id}?skip=${customPerfil.branches?.length ?? 0}`);
+            setCustomPerfil(prev => ({ ...prev, branches: [...(prev.branches || []), ...response.data] }));
             setMostrarMaisFiliaisExib(false);
         } catch (erro) {
-            console.error('Erro ao buscar mais filiais', erro);
+            console.error('Erro ao buscar mais branches', erro);
         }
     };
 
     const handleMostrarTodasTags = async () => {
         try {
-            if (customPerfil.tags_count <= 6) {
+            if (customPerfil.compTagsTotal <= 6) {
                 setMostrarMaisTags(false);
                 setMostrarMaisTagsExib(false);
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tags/empresas?offset=6`) as { data: Tag[] };
-            setCustomPerfil(prev => ({ ...prev, tags_empresas: [...prev.tags_empresas, ...response.data] }));
+            const response = await axiosWe(`/tag/comp/company/${usuario.id}?skip=6`) as { data: Tag[] };
+            setCustomPerfil(prev => ({ ...prev, compTags: [...prev.compTags, ...response.data] }));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
             setMostrarMaisTags(true);
@@ -122,12 +122,12 @@ export default function PerfilEmpresa() {
         async function loadEmp() {
             if (!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-empresa') as { data: { usua: Empresa, custom: CustomEmp } };
+                const response = await axiosWe('/custom/meu-perfil-empresa') as { data: { user: Empresa, custom: CustomEmp } };
                 const data = response.data;
-                const { usua, custom } = data;
-                DadosUsuario.setarFoto(usua.foto);
-                DadosUsuario.setarNome(usua.nome_fant);
-                setEmpPerfil(usua);
+                const { user, custom } = data;
+                DadosUsuario.setarFoto(user.image);
+                DadosUsuario.setarNome(user.name);
+                setEmpPerfil(user);
                 setCustomPerfil(custom);
 
                 console.log(data);
@@ -148,8 +148,8 @@ export default function PerfilEmpresa() {
 
     // ! Dps validar se precisa mesmo desse effect
     // useEffect(() => {
-    //     if (customPerfil.filiais && customPerfil) {
-    //         setCustomPerfil(prev => ({ ...prev, filiais: customPerfil.filiais, filiais_count: customPerfil.filiais_count }));
+    //     if (customPerfil.branches && customPerfil) {
+    //         setCustomPerfil(prev => ({ ...prev, branches: customPerfil.branches, branchesTotal: customPerfil.branchesTotal }));
     //     }
     // }, [customPerfil]);
     useEffect(() => {
@@ -170,7 +170,7 @@ export default function PerfilEmpresa() {
                     <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                         <div id="impInfo"
                             className="bg-dark-50 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                            <img id="fotoUsuario" src={empPerfil.foto === '/assets/imgs/genPfp.png' ? genPfp : empPerfil.foto} alt="Foto de perfil"
+                            <img id="fotoUsuario" src={empPerfil.image === 'genPfp.png' ? genPfp : empPerfil.image} alt="Foto de perfil"
                                 className="w-40 h-40 rounded-full border-4 border-professional-accent object-cover mb-4"
                                 title="Foto de Perfil" />
                             <div className="w-full space-y-2 mb-6">
@@ -181,7 +181,7 @@ export default function PerfilEmpresa() {
 
                                 <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Telefone">
                                     <FontAwesomeIcon icon={faPhone} className="text-professional-accent mr-2" />
-                                    <span id="telefoneEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.telefone.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4')}</span>
+                                    <span id="telefoneEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.phone.replace(/^(\d{2})(\d{2})(\d{5})(\d{4})$/, '+$1 ($2) $3-$4')}</span>
                                 </div>
 
                                 {/* {empPerfil.data_fund && (
@@ -203,10 +203,10 @@ export default function PerfilEmpresa() {
                                     <span id="setuacaoEmpresa" className="text-sm">Ativo</span>
                                 </div> */}
 
-                                {empPerfil.setor && (
+                                {empPerfil.sector && (
                                     <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Setor de Atuação">
                                         <FontAwesomeIcon icon={faBriefcase} className="text-professional-accent mr-2" />
-                                        <span id="setorEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.setor}</span>
+                                        <span id="setorEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.sector}</span>
                                     </div>
                                 )}
 
@@ -218,29 +218,29 @@ export default function PerfilEmpresa() {
                                     <span id="naturezaEmpresa" className="text-sm">Natureza jurídica</span>
                                 </div> */}
 
-                                {empPerfil.porte && (
+                                {empPerfil.company_size && (
                                     <div className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Porte da empresa">
                                         <FontAwesomeIcon icon={faIndustry} className="text-professional-accent mr-2" />
-                                        <span id="porteEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.porte}</span>
+                                        <span id="porteEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{empPerfil.company_size}</span>
                                     </div>
                                 )}
 
                                 <div id="divLocalizacaoSede" className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Localização Sede">
                                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
                                     <span id="localizacaoSedeEmpresa" className="text-sm text-dark-900 dark:text-dark-50">Endereço da Sede</span><br />
-                                    <span id="estadoEmpresaSede" className="text-sm text-dark-900 dark:text-dark-50 text-center">Estado: ({empPerfil.estado})</span><br />
-                                    <span id="cidadeEmpresaSede" className="text-sm text-dark-900 dark:text-dark-50 text-center">Cidade: {empPerfil.cidade}</span>
+                                    <span id="estadoEmpresaSede" className="text-sm text-dark-900 dark:text-dark-50 text-center">Estado: ({empPerfil.city})</span><br />
+                                    <span id="cidadeEmpresaSede" className="text-sm text-dark-900 dark:text-dark-50 text-center">Cidade: {empPerfil.state}</span>
                                 </div>
-                                {customPerfil.filiais && customPerfil.filiais_count > 0 && (
+                                {customPerfil.branches && customPerfil.branchesTotal > 0 && (
                                     <div id="divLocalizacaoFilial" className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3 mt-3" title="Localização Filial">
                                         <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
-                                        <span id="localizacaoFilialEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{`${customPerfil.filiais[0].cidade} (${customPerfil.filiais[0].estado})`}</span><br />
-                                        <span id="tipoEmpresaFilial" className="text-sm text-dark-900 dark:text-dark-50">{`Tipo: ${customPerfil.filiais[0].tipo ?? 'Não informado'}`}</span>
+                                        <span id="localizacaoFilialEmpresa" className="text-sm text-dark-900 dark:text-dark-50">{`${customPerfil.branches[0].state} (${customPerfil.branches[0].state})`}</span><br />
+                                        <span id="tipoEmpresaFilial" className="text-sm text-dark-900 dark:text-dark-50">{`Tipo: ${customPerfil.branches[0].category ?? 'Não informado'}`}</span>
                                     </div>
                                 )}
 
                                 {/* 
-                            // ? Acredito que não vai mais ter esse ngç de filiais, por isso comentei, mas qualquer bota dnv
+                            // ? Acredito que não vai mais ter esse ngç de branches, por isso comentei, mas qualquer bota dnv
                             <div id="divLocalizacaoFilial" className="bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Localização Filial">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-2" />
                                 <span id="localizacaoFilialEmpresa" className="text-sm">Endereço de Filiais</span>
@@ -279,7 +279,7 @@ export default function PerfilEmpresa() {
                         {/* <!-- Informações centrais --> */}
                         <div id="bodyMid"
                             className="bg-dark-50 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                            <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left text-dark-900 dark:text-dark-50 ">{empPerfil.nome_fant}</h1>
+                            <h1 id="nomUsuario" className="text-3xl font-bold mb-2 text-center lg:text-left text-dark-900 dark:text-dark-50 ">{empPerfil.name}</h1>
                             <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
                                 <FontAwesomeIcon icon={faEnvelope} className="text-professional-accent mr-2" />
                                 <a id="emailUsuario"
@@ -294,7 +294,7 @@ export default function PerfilEmpresa() {
                                 </h2>
 
                                 <p id="descUsuario" className="text-dark-900 dark:text-professional-subtitle text-center">
-                                    {empPerfil.descricao}
+                                    {empPerfil.description}
                                 </p>
                             </div>
 
@@ -302,7 +302,7 @@ export default function PerfilEmpresa() {
                             <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="flex items-center bg-dark-100 dark:bg-professional-gray rounded-lg p-3" title="Mapa">
                                     <FontAwesomeIcon icon={faMap} className="text-professional-accent mr-3 text-xl" />
-                                    <a id="mapaEmpresa" href={empPerfil.link_endereco}
+                                    <a id="mapaEmpresa" href={empPerfil.address_link}
                                         className="nomeRedeSoc text-dark-900 dark:text-professional-subtitle hover:text-professional-accent transition-colors"
                                         target="_blank">
                                         Mapa ou link para Google Maps
@@ -400,20 +400,20 @@ export default function PerfilEmpresa() {
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Missão</h3>
                                         <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
-                                            {empPerfil.missao || '[Missão da empresa - propósito fundamental]'}
+                                            {empPerfil.mission || '[Missão da empresa - propósito fundamental]'}
                                         </p>
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Visão
                                         </h3>
                                         <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
-                                            {empPerfil.visao || '[Visão da empresa]'}
+                                            {empPerfil.vision || '[Visão da empresa]'}
                                         </p>
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-dark-900 dark:text-dark-50 text-center">Valores</h3>
                                         <p className="text-dark-900 dark:text-professional-subtitle text-sm text-center">
-                                            {empPerfil.valores || '[Valores da empresa]'}
+                                            {empPerfil.values || '[Valores da empresa]'}
                                         </p>
                                     </div>
                                 </div>
@@ -427,22 +427,22 @@ export default function PerfilEmpresa() {
                             <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
-                                {`Áreas de Especialização${customPerfil.tags_count > 0 ? ` (${customPerfil.tags_count})` : ''}`}</h1>
+                                {`Áreas de Especialização${customPerfil.compTagsTotal > 0 ? ` (${customPerfil.compTagsTotal})` : ''}`}</h1>
                             <div id="boxTags"
                                 className="bg-dark-50 dark:bg-professional-gray rounded-lg p-4 border border-professional-card min-h-[120px]">
                                 <div id="Tags" className="flex flex-wrap gap-3">
-                                    {customPerfil.tags_count > 0 && customPerfil.tags_empresas.map(tag => {
+                                    {customPerfil.compTagsTotal > 0 && customPerfil.compTags.map(tag => {
                                         return (
                                             <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-dark-50 dark:from-professional-gray to-professional-card text-dark-900 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
-                                                key={tag.id} title={`Tag: ${tag.nome}`} onClick={() => {
-                                                    setTagToRemove({ nome: tag.nome, id: tag.id });
+                                                key={tag.id} title={`Tag: ${tag.name}`} onClick={() => {
+                                                    setTagToRemove({ name: tag.name, id: tag.id });
                                                     setMostrarModalRmvTag(true);
                                                 }}>
-                                                <span>{tag.nome}</span>
+                                                <span>{tag.name}</span>
                                             </div>
                                         )
                                     })}
-                                    {(mostrarMaisTagsExib && customPerfil.tags_count > 6) && (
+                                    {(mostrarMaisTagsExib && customPerfil.compTagsTotal > 6) && (
                                         <button id="maisTags"
                                             className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                             title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async () => {
@@ -503,23 +503,23 @@ export default function PerfilEmpresa() {
                                 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                                 after:w-10 after:h-0.5 after:bg-professional-accent after:rounded">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
-                                Unidades: {customPerfil.filiais_count}
+                                Unidades: {customPerfil.branchesTotal}
                             </h2>
 
                             <div id="divFiliaisExib" className="space-y-3 min-h-[100px] mb-4">
-                                {(customPerfil.filiais && customPerfil.filiais.length > 0) ? customPerfil.filiais.map((filial, idx) => (
+                                {(customPerfil.branches && customPerfil.branches.length > 0) ? customPerfil.branches.map((filial, idx) => (
                                     <div key={filial.id} className="inline-flex items-center gap-2 py-2 px-4 bg-linear-to-br from-dark-50 dark:from-professional-gray to-professional-card text-dark-900 dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer group"
-                                        title={`Filial ${filial.cidade} (${filial.estado}) - ${filial.tipo ?? 'Tipo não informado'}`}
-                                        onClick={() => console.log(`Editar filial ${filial.estado}`)}>
+                                        title={`Filial ${filial.city} (${filial.state}) - ${filial.category ?? 'Tipo não informado'}`}
+                                        onClick={() => console.log(`Editar filial ${filial.state}`)}>
                                         <FontAwesomeIcon icon={faBuilding} className="text-professional-accent" />
-                                        <span>{`${filial.cidade} (${filial.estado}) ${filial.tipo ? `- ${filial.tipo}` : ''}`}</span>
+                                        <span>{`${filial.city} (${filial.state}) ${filial.category ? `- ${filial.category}` : ''}`}</span>
                                         <button className="ml-2 text-dark-900 dark:text-professional-subtitleText hover:text-professional-accent opacity-0 group-hover:opacity-100 transition-opacity"
                                             title="Editar filial"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const knownTypes = ['Sede', 'Filial', 'Escritório', 'Centro de Operações', 'Depósito / Logística'];
 
-                                                const filialTipoNormalizado = String(filial.tipo || '').toLowerCase().trim();
+                                                const filialTipoNormalizado = String(filial.category || '').toLowerCase().trim();
 
                                                 const matchedType = knownTypes.find(t =>
                                                     String(t).toLowerCase().trim() === filialTipoNormalizado
@@ -527,29 +527,29 @@ export default function PerfilEmpresa() {
 
                                                 if (matchedType) {
                                                     setNovaFilial({
-                                                        cidade: filial.cidade ?? '',
-                                                        estado: filial.estado ?? '',
-                                                        tipo: matchedType,
-                                                        tipo_outro: ''
+                                                        city: filial.city ?? '',
+                                                        state: filial.state ?? '',
+                                                        category: matchedType,
+                                                        other_category: ''
                                                     });
-                                                } else if (filial.tipo) {
+                                                } else if (filial.category) {
                                                     setNovaFilial({
-                                                        cidade: filial.cidade ?? '',
-                                                        estado: filial.estado ?? '',
-                                                        tipo: 'outro',
-                                                        tipo_outro: filial.tipo ?? ''
+                                                        city: filial.city ?? '',
+                                                        state: filial.state ?? '',
+                                                        category: 'outro',
+                                                        other_category: filial.category ?? ''
                                                     });
                                                 } else {
                                                     setNovaFilial({
-                                                        cidade: filial.cidade ?? '',
-                                                        estado: filial.estado ?? '',
-                                                        tipo: '',
-                                                        tipo_outro: ''
+                                                        city: filial.city ?? '',
+                                                        state: filial.state ?? '',
+                                                        category: '',
+                                                        other_category: ''
                                                     });
                                                 }
 
-                                                setEditingFilialId(filial.id ?? `${filial.cidade}-${filial.estado}-${idx}`);
-                                                setBuscaEstado(filial.estado ?? '');
+                                                setEditingFilialId(filial.id ?? `${filial.city}-${filial.state}-${idx}`);
+                                                setBuscaEstado(filial.state ?? '');
                                                 setMostrarModalAddFilial(true);
                                             }}>
                                             <FontAwesomeIcon icon={faEdit} size="sm" />
@@ -559,11 +559,11 @@ export default function PerfilEmpresa() {
                                                 e.stopPropagation();
                                                 setCustomPerfil(prev => {
                                                     if (!prev) return prev;
-                                                    const current = prev.filiais ?? [];
+                                                    const current = prev.branches ?? [];
                                                     const newList = current.filter((f, i) => (filial.id ? f.id !== filial.id : i !== idx));
-                                                    return { ...prev, filiais: newList, filiais_count: prev.filiais_count - 1 };
+                                                    return { ...prev, branches: newList, branchesTotal: prev.branchesTotal - 1 };
                                                 });
-                                                await axiosWe.delete(`/filial/${filial.id}`)
+                                                await axiosWe.delete(`/branch/${filial.id}`)
                                             }}>
                                             <FontAwesomeIcon icon={faTimes} size="xs" />
                                         </button>
@@ -575,7 +575,7 @@ export default function PerfilEmpresa() {
                                     </div>
                                 )}
 
-                                {mostrarMaisFiliaisExib && (customPerfil.filiais_count ?? 0) > (customPerfil.filiais.length ?? 0) && (
+                                {mostrarMaisFiliaisExib && (customPerfil.branchesTotal ?? 0) > (customPerfil.branches.length ?? 0) && (
                                     <button id="maisFiliais"
                                         className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-dark-50 dark:from-professional-gray to-professional-card text-professional-text text-sm font-medium rounded-lg border border-professional-card cursor-default transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                         title="Carregar mais filiais"
@@ -588,7 +588,7 @@ export default function PerfilEmpresa() {
                             <button id="btnAddFilial"
                                 className="mt-2 flex items-center justify-center text-professional-accent hover:text-professional-lightaccent transition-colors cursor-pointer w-full py-2"
                                 title="Adicionar nova filial"
-                                onClick={() => { setEditingFilialId(null); setNovaFilial({ cidade: '', estado: '', tipo: '', tipo_outro: '' }); setMostrarModalAddFilial(true); }}>
+                                onClick={() => { setEditingFilialId(null); setNovaFilial({ city: '', state: '', category: '', other_category: '' }); setMostrarModalAddFilial(true); }}>
                                 <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                                 Adicionar Filial
                             </button>
@@ -621,8 +621,8 @@ export default function PerfilEmpresa() {
                                                         type="text"
                                                         id="inputCidadeFilial"
                                                         placeholder="Ex: Rio de Janeiro"
-                                                        value={novaFilial.cidade}
-                                                        onChange={(e) => setNovaFilial({ ...novaFilial, cidade: e.target.value })}
+                                                        value={novaFilial.city}
+                                                        onChange={(e) => setNovaFilial({ ...novaFilial, city: e.target.value })}
                                                         autoFocus
                                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-lg text-dark-900 dark:text-white placeholder-professional-subtitleText focus:outline-none focus:ring-2 focus:ring-professional-accent pointer-events-auto"
                                                     />
@@ -665,12 +665,12 @@ export default function PerfilEmpresa() {
                                                                 .map((estado) => (
                                                                     <div
                                                                         key={estado.sigla}
-                                                                        className={`px-4 py-3 cursor-pointer transition-colors hover:bg-dark-300 hover:text-dark-50 ${novaFilial.estado === estado.sigla
+                                                                        className={`px-4 py-3 cursor-pointer transition-colors hover:bg-dark-300 hover:text-dark-50 ${novaFilial.state === estado.sigla
                                                                                 ? 'border-l-2 border-professional-accent bg-professional-accent/20'
                                                                                 : ''
                                                                             } pointer-events-auto`}
                                                                         onClick={() => {
-                                                                            setNovaFilial({ ...novaFilial, estado: estado.sigla });
+                                                                            setNovaFilial({ ...novaFilial, state: estado.sigla });
                                                                             setBuscaEstado(`${estado.nome} (${estado.sigla})`);
                                                                             setMostrarListaEstados(false);
                                                                         }}
@@ -697,12 +697,12 @@ export default function PerfilEmpresa() {
                                                                     <button
                                                                         key={sigla}
                                                                         type="button"
-                                                                        className={`px-3 py-1 text-sm rounded-lg transition-colors pointer-events-auto ${novaFilial.estado === sigla
+                                                                        className={`px-3 py-1 text-sm rounded-lg transition-colors pointer-events-auto ${novaFilial.state === sigla
                                                                                 ? 'bg-professional-accent text-white'
                                                                                 : 'bg-dark-100 dark:bg-professional-gray text-dark-900 dark:text-professional-text hover:bg-professional-accent/20'
                                                                             }`}
                                                                         onClick={() => {
-                                                                            setNovaFilial({ ...novaFilial, estado: sigla });
+                                                                            setNovaFilial({ ...novaFilial, state: sigla });
                                                                             setBuscaEstado(`${estado?.nome} (${sigla})`);
                                                                         }}
                                                                     >
@@ -722,11 +722,11 @@ export default function PerfilEmpresa() {
                                                     </label>
                                                     <select
                                                         id="tipoFilial"
-                                                        value={novaFilial.tipo}
+                                                        value={novaFilial.category}
                                                         onChange={(e) => setNovaFilial({
                                                             ...novaFilial,
-                                                            tipo: e.target.value,
-                                                            tipo_outro: e.target.value === 'outro' ? novaFilial.tipo_outro : ''
+                                                            category: e.target.value,
+                                                            other_category: e.target.value === 'outro' ? novaFilial.other_category : ''
                                                         })}
                                                         className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-lg text-dark-900 dark:text-dark-50 focus:outline-none focus:ring-2 focus:ring-professional-accent pointer-events-auto"
                                                     >
@@ -740,7 +740,7 @@ export default function PerfilEmpresa() {
                                                     </select>
 
                                                     {/* Campo para "Outro" */}
-                                                    {String(novaFilial.tipo).toLowerCase() === 'outro' && (
+                                                    {String(novaFilial.category).toLowerCase() === 'outro' && (
                                                         <div className="mt-3 pointer-events-auto">
                                                             <label htmlFor="tipoFilialOutro" className="block mb-2 font-medium text-dark-900 dark:text-professional-subtitle">
                                                                 Especifique o tipo
@@ -748,8 +748,8 @@ export default function PerfilEmpresa() {
                                                             <input
                                                                 id="tipoFilialOutro"
                                                                 type="text"
-                                                                value={novaFilial.tipo_outro}
-                                                                onChange={(e) => setNovaFilial({ ...novaFilial, tipo_outro: e.target.value })}
+                                                                value={novaFilial.other_category}
+                                                                onChange={(e) => setNovaFilial({ ...novaFilial, other_category: e.target.value })}
                                                                 placeholder="Ex: Centro de Distribuição"
                                                                 className="w-full px-4 py-3 bg-dark-50 dark:bg-professional-dark border border-professional-card rounded-lg text-dark-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-professional-accent pointer-events-auto"
                                                             />
@@ -765,7 +765,7 @@ export default function PerfilEmpresa() {
                                                 <button
                                                     onClick={() => {
                                                         setMostrarModalAddFilial(false);
-                                                        setNovaFilial({ cidade: '', estado: '', tipo: '', tipo_outro: '' });
+                                                        setNovaFilial({ city: '', state: '', category: '', other_category: '' });
                                                         setEditingFilialId(null);
                                                         setBuscaEstado('');
                                                     }}
@@ -776,62 +776,62 @@ export default function PerfilEmpresa() {
                                                 <button
                                                     disabled={carregandoFilial}
                                                     onClick={async () => {
-                                                        if (!novaFilial.cidade || !novaFilial.estado) {
+                                                        if (!novaFilial.city || !novaFilial.state) {
                                                             return;
                                                         }
-                                                        if (String(novaFilial.tipo).toLowerCase() === 'outro' && !novaFilial.tipo_outro) {
+                                                        if (String(novaFilial.category).toLowerCase() === 'outro' && !novaFilial.other_category) {
                                                             return mostrarErroTopo('Por favor, especifique o tipo da filial.');
                                                         }
                                                         try {
                                                             setCarregandoFilial(true);
                                                             if (editingFilialId) {
-                                                                const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
+                                                                const resolvedTipo = String(novaFilial.category).toLowerCase() === 'outro' && novaFilial.other_category ? novaFilial.other_category : novaFilial.category;
 
-                                                                const filialDataBefore = customPerfil.filiais.find(c => c.id === editingFilialId);
-                                                                const alterouCidade = filialDataBefore.cidade !== novaFilial.cidade;
-                                                                const alterouEstado = filialDataBefore.estado !== novaFilial.estado;
-                                                                const alterouTipo = filialDataBefore.tipo !== resolvedTipo;
+                                                                const filialDataBefore = customPerfil.branches.find(c => c.id === editingFilialId);
+                                                                const alterouCidade = filialDataBefore.city !== novaFilial.city;
+                                                                const alterouEstado = filialDataBefore.state !== novaFilial.state;
+                                                                const alterouTipo = filialDataBefore.category !== resolvedTipo;
                                                                 const modifiedData = {
-                                                                    ...(alterouCidade ? { cidade: novaFilial.cidade } : {}),
-                                                                    ...(alterouEstado ? { estado: novaFilial.estado } : {}),
-                                                                    ...(alterouTipo ? { tipo: resolvedTipo === '' ? null : resolvedTipo } : {}),
+                                                                    ...(alterouCidade ? { city: novaFilial.city } : {}),
+                                                                    ...(alterouEstado ? { state: novaFilial.state } : {}),
+                                                                    ...(alterouTipo ? { category: resolvedTipo === '' ? null : resolvedTipo } : {}),
                                                                 };
 
                                                                 if (Object.keys(modifiedData).length !== 0) {
-                                                                    await axiosWe.patch(`/filial/${editingFilialId}`, modifiedData);
+                                                                    await axiosWe.patch(`/branch/${editingFilialId}`, modifiedData);
 
                                                                     setCustomPerfil(prev => {
                                                                         if (!prev) return prev;
-                                                                        const current = prev.filiais ?? [];
+                                                                        const current = prev.branches ?? [];
 
                                                                         const newList = current.map(f => {
-                                                                            const fid = f.id ?? `${f.cidade}-${f.estado}`;
+                                                                            const fid = f.id ?? `${f.city}-${f.state}`;
                                                                             if (fid === editingFilialId) {
                                                                                 return { ...f, ...(modifiedData) };
                                                                             }
                                                                             return f;
                                                                         });
-                                                                        return { ...prev, filiais: newList };
+                                                                        return { ...prev, branches: newList };
                                                                     });
                                                                 };
 
                                                                 console.log('Editando filial:', novaFilial);
                                                                 setEditingFilialId(null);
                                                             } else {
-                                                                const resolvedTipo = String(novaFilial.tipo).toLowerCase() === 'outro' && novaFilial.tipo_outro ? novaFilial.tipo_outro : novaFilial.tipo;
-                                                                const newFilial = { cidade: novaFilial.cidade, estado: novaFilial.estado, tipo: resolvedTipo };
-                                                                const response = await axiosWe.post('/filial', newFilial);
+                                                                const resolvedTipo = String(novaFilial.category).toLowerCase() === 'outro' && novaFilial.other_category ? novaFilial.other_category : novaFilial.category;
+                                                                const newFilial = { city: novaFilial.city, state: novaFilial.state, category: resolvedTipo };
+                                                                const response = await axiosWe.post('/branch', newFilial);
                                                                 const newFilialId = response.data.id;
                                                                 setCustomPerfil(prev => {
                                                                     if (!prev) return prev;
-                                                                    const current = prev.filiais ?? [];
+                                                                    const current = prev.branches ?? [];
                                                                     const newList = [{ ...newFilial, id: newFilialId }, ...current];
-                                                                    return { ...prev, filiais: newList, filiais_count: prev.filiais_count + 1 };
+                                                                    return { ...prev, branches: newList, branchesTotal: prev.branchesTotal + 1 };
                                                                 });
                                                                 console.log('Adicionando filial:', novaFilial);
                                                             }
                                                             setMostrarModalAddFilial(false);
-                                                            setNovaFilial({ cidade: '', estado: '', tipo: '', tipo_outro: '' });
+                                                            setNovaFilial({ city: '', state: '', category: '', other_category: '' });
                                                             setBuscaEstado('');
                                                         } catch (erro) {
                                                             console.error('Erro ao adicionar filial:', erro);
@@ -1211,7 +1211,7 @@ export default function PerfilEmpresa() {
                                     <div className="divide-y divide-professional-card">
                                         <div className="p-6">
                                             <div className="flex items-start">
-                                                <img src="/assets/imgs/genPfp.png" alt="User"
+                                                <img src={genPfp} alt="User"
                                                     className="w-12 h-12 rounded-full mr-4" />
                                                 <div>
                                                     <h4 className="font-medium text-white">Maria Silva</h4>
@@ -1235,7 +1235,7 @@ export default function PerfilEmpresa() {
 
                                         <div className="p-6">
                                             <div className="flex items-start">
-                                                <img src="/assets/imgs/genPfp.png" alt="User"
+                                                <img src={genPfp} alt="User"
                                                     className="w-12 h-12 rounded-full mr-4" />
                                                 <div>
                                                     <h4 className="font-medium text-white">João Santos</h4>
@@ -1271,7 +1271,7 @@ export default function PerfilEmpresa() {
                                     <div className="divide-y divide-professional-card">
                                         <div className="p-6">
                                             <div className="flex items-start">
-                                                <img src="/assets/imgs/genPfp.png" alt="User"
+                                                <img src={genPfp} alt="User"
                                                     className="w-12 h-12 rounded-full mr-4" />
                                                 <div>
                                                     <h4 className="font-medium text-white">Maria Silva</h4>
@@ -1295,7 +1295,7 @@ export default function PerfilEmpresa() {
 
                                         <div className="p-6">
                                             <div className="flex items-start">
-                                                <img src="/assets/imgs/genPfp.png" alt="User"
+                                                <img src={genPfp} alt="User"
                                                     className="w-12 h-12 rounded-full mr-4" />
                                                 <div>
                                                     <h4 className="font-medium text-white">João Santos</h4>
@@ -1345,10 +1345,10 @@ export default function PerfilEmpresa() {
                                         setTagToAdd('');
                                         setMostrarModalAddTag(false);
                                         if (mostrarMaisTags) await handleMostrarTodasTags();
-                                        const tagsExistentes = customPerfil.tags_empresas.map(tag => tag.nome.toLowerCase());
+                                        const tagsExistentes = customPerfil.compTags.map(tag => tag.name.toLowerCase());
                                         if (tagsExistentes.includes(tagNome.toLowerCase())) return mostrarErroTopo('A empresa não pode ter tags repetidas.');
-                                        const response = await axiosWe.post('/tags/empresas', { nome: tagNome }) as { data: { id: string } };
-                                        setCustomPerfil(prev => ({ ...prev, tags_empresas: [{ nome: tagNome, id: response.data.id }, ...prev.tags_empresas], tags_count: prev.tags_count + 1 }));
+                                        const response = await axiosWe.post('/tag/comp', { name: tagNome }) as { data: { id: string } };
+                                        setCustomPerfil(prev => ({ ...prev, compTags: [{ name: tagNome, id: response.data.id }, ...prev.compTags], compTagsTotal: prev.compTagsTotal + 1 }));
                                     } catch (erro) {
                                         console.error(erro);
                                         if (erro.status === 409) mostrarErroTopo(erro.message);
@@ -1368,10 +1368,10 @@ export default function PerfilEmpresa() {
                             className="bg-professional-card p-6 rounded-xl w-11/12 max-w-md border border-professional-card">
                             <h3 className="text-lg font-semibold mb-4 text-center">Confirmar exclusão</h3>
                             <p className="text-professional-subtitle text-center mb-6">{`Tem certeza que deseja remover esta
-                            habilidade? `}<br /><strong>{`(${tagToRemove.nome})`}</strong>
+                            habilidade? `}<br /><strong>{`(${tagToRemove.name})`}</strong>
                             </p>
                             <div className="flex justify-center space-x-3">
-                                <button id="btnCancelarDel" onClick={() => { setMostrarModalRmvTag(false); setTagToRemove({ nome: '', id: '' }); }}
+                                <button id="btnCancelarDel" onClick={() => { setMostrarModalRmvTag(false); setTagToRemove({ name: '', id: '' }); }}
                                     className="bg-professional-card text-professional-subtitle font-medium py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out hover:bg-professional-gray cursor-pointer">Cancelar</button>
                                 <button id="btnConfirmarDel" onClick={async (e) => {
                                     const target = e.target as HTMLButtonElement;
@@ -1380,14 +1380,14 @@ export default function PerfilEmpresa() {
                                         target.disabled = true;
                                         target.textContent = 'Removendo...'
                                         if (mostrarMaisTags) await handleMostrarTodasTags();
-                                        await axiosWe.delete(`/tags/empresas/${tagId}`);
+                                        await axiosWe.delete(`/tag/comp/${tagId}`);
                                         setCustomPerfil(prev => {
-                                            return { ...prev, tags_empresas: prev.tags_empresas.filter(tag => tag.id !== tagId), tags_count: prev.tags_count - 1 };
+                                            return { ...prev, compTags: prev.compTags.filter(tag => tag.id !== tagId), compTagsTotal: prev.compTagsTotal - 1 };
                                         })
                                     } catch (erro) {
                                         console.error(erro);
                                     } finally {
-                                        setTagToRemove({ nome: '', id: '' });
+                                        setTagToRemove({ name: '', id: '' });
                                         setMostrarModalRmvTag(false);
                                         target.disabled = false;
                                         target.textContent = 'Confirmar';

@@ -19,11 +19,11 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     const formData = new FormData();
     if(!nomeInfo.disabled && nomeInfo.value && nomeInfo.value!==nomeInfo.cached) {
         const newName = nomeInfo.value;
-        if (newName.length < 3){
-            mostrarErroTopo('O seu nome deve ter no mínimo 3 caracteres');
+        if (newName.length < 2){
+            mostrarErroTopo('O seu nome deve ter no mínimo 2 caracteres');
             return false;
         }
-        formData.append('nome', newName);
+        formData.append('name', newName);
     };
     if(!cpfInfo.disabled && cpfInfo.value && cpfInfo.value!==cpfInfo.cached) {
         const newCpf = cpfInfo.value
@@ -44,13 +44,13 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
                 return false;
             }
             // Se tem valor personalizado, envia; se não, envia null para remover
-            formData.append('pronomes', pronPersnlzd?.trim() || null);
+            formData.append('pronouns', pronPersnlzd?.trim() || null);
         } else if (pronSelect) {
             // Para opções do select
-            formData.append('pronomes', pronSelect);
+            formData.append('pronouns', pronSelect);
         } else {
             // Se não selecionou nada (para remover pronome)
-            formData.append('pronomes', null);
+            formData.append('pronouns', null);
         }
     }
     if(!portfolioInfo.disabled && (portfolioInfo.value || portfolioInfo.cached) && portfolioInfo.value!==portfolioInfo.cached) {
@@ -58,17 +58,17 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
         // * valor do input, se não funcionar manda como null para resetar o campo (pois significa que o usuário tinha mas quis tirar)
         const valor = portfolioInfo.value?.trim() || null;
         if (valor !== null && !validarLink(valor)) return false;
-        formData.append('portifolio', valor);
+        formData.append('portfolio', valor);
     };
     if(!curriculoInfo.disabled && (curriculoInfo.value || curriculoInfo.cached) && curriculoInfo.value!==curriculoInfo.cached) {
         const valor = curriculoInfo.value?.trim() || null;
         if (valor !== null && !validarLink(valor)) return false;
-        formData.append('curriculo', valor);
+        formData.append('resume', valor);
     };
     if(!site_pessoalInfo.disabled && (site_pessoalInfo.value || site_pessoalInfo.cached) && site_pessoalInfo.value!==site_pessoalInfo.cached) {
         const valor = site_pessoalInfo.value?.trim() || null;
         if (valor !== null && !validarLink(valor)) return false;
-        formData.append('site_pessoal', valor);
+        formData.append('personal_site', valor);
     };
     if(!githubInfo.disabled && (githubInfo.value || githubInfo.cached) && githubInfo.value!==githubInfo.cached) {
         const valor = githubInfo.value?.trim() || null;
@@ -86,7 +86,7 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
         formData.append('twitter', valor);
     };
     if(!estadoInfo.disabled && (estadoInfo.value || estadoInfo.cached) && estadoInfo.value!==estadoInfo.cached) {
-        formData.append('estado', estadoInfo.value || null);
+        formData.append('state', estadoInfo.value || null);
     };
     if(!cidadeInfo.disabled && (cidadeInfo.value || cidadeInfo.cached) && cidadeInfo.value!==cidadeInfo.cached) {
         const valor = cidadeInfo.value?.trim() || null;
@@ -98,22 +98,22 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
             const cidadeValida = await validarCidadePorEstado(valor, estadoInfo.value);
             if(!cidadeValida) return false;
         };
-        formData.append('cidade', valor);
+        formData.append('city', valor);
     };
-    if(fotoInfo.value || (fotoInfo.cached!=='/assets/imgs/genPfp.png' && fotoInfo.truncate)) {
-        formData.append('foto', fotoInfo.value || null);
+    if(fotoInfo.value || (fotoInfo.cached!=='genPfp.png' && fotoInfo.truncate)) {
+        formData.append('image', fotoInfo.value || null);
     };
     if(!cargo_atualInfo.disabled && (cargo_atualInfo.value || cargo_atualInfo.cached) && cargo_atualInfo.value!==cargo_atualInfo.cached) {
-        formData.append('cargo_atual', cargo_atualInfo.value?.trim() || null);
+        formData.append('current_position', cargo_atualInfo.value?.trim() || null);
     };
     if(!empresa_atualInfo.disabled && (empresa_atualInfo.value || empresa_atualInfo.cached) && empresa_atualInfo.value!==empresa_atualInfo.cached) {
-        formData.append('empresa_atual', empresa_atualInfo.value?.trim() || null);
+        formData.append('current_company', empresa_atualInfo.value?.trim() || null);
     };
     if(!descricaoInfo.disabled && (descricaoInfo.value || descricaoInfo.cached) && descricaoInfo.value!==descricaoInfo.cached) {
-        formData.append('descricao', descricaoInfo.value?.trim() || null);
+        formData.append('description', descricaoInfo.value?.trim() || null);
     };
     if(curriculo_fileInfo.value || (curriculo_fileInfo.cached && curriculo_fileInfo.truncate)) {
-        formData.append('curriculo_file', curriculo_fileInfo.value || null);
+        formData.append('resume_file', curriculo_fileInfo.value || null);
     };
     if(bannerInfo.value || (bannerInfo.cached!=='fundoroxo' && bannerInfo.truncate)) {
         formData.append('banner', bannerInfo.value || null);
@@ -122,7 +122,7 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     if (formData.entries().next().done) return true; // * Valida se nada foi editado
 
     try {
-        await axiosWe.post('/perfil/candidato', formData);
+        await axiosWe.post('/candidate/profile', formData);
         return true;
     } catch (erro) {
         console.error('Erro ao salvar edição do perfil:', erro);

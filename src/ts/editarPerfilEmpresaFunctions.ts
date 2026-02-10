@@ -24,14 +24,14 @@ export async function salvarEdicaoEmpresa(
     const formData = new FormData();
     if(!nomeFantInfo.disabled && nomeFantInfo.value && nomeFantInfo.value!==nomeFantInfo.cached) {
         const newName = nomeFantInfo.value;
-        if (newName.length < 3){
-            mostrarErroTopo('O seu nome deve ter no mínimo 3 caracteres');
+        if (newName.length < 1){
+            mostrarErroTopo('O seu nome deve ter no mínimo 1 caractere');
             return false;
         }
-        formData.append('nome', newName);
+        formData.append('name', newName);
     };
     if(!descricaoInfo.disabled && (descricaoInfo.value || descricaoInfo.cached) && descricaoInfo.value!==descricaoInfo.cached) {
-        formData.append('descricao', descricaoInfo.value?.trim() || null);
+        formData.append('description', descricaoInfo.value?.trim() || null);
     };
     if(!instagramInfo.disabled && (instagramInfo.value || instagramInfo.cached) && instagramInfo.value!==instagramInfo.cached) {
         const valor = instagramInfo.value?.trim() || null;
@@ -49,15 +49,15 @@ export async function salvarEdicaoEmpresa(
         formData.append('twitter', valor);
     };
     if(!setorInfo.disabled && (setorInfo.value || setorInfo.cached) && setorInfo.value!==setorInfo.cached) {
-        formData.append('setor', setorInfo.value?.trim() || null);
+        formData.append('sector', setorInfo.value?.trim() || null);
     };
     if(!porteInfo.disabled && (porteInfo.value || porteInfo.cached) && porteInfo.value!==porteInfo.cached) {
-        formData.append('porte', porteInfo.value?.trim() || null);
+        formData.append('company_size', porteInfo.value?.trim() || null);
     };
     if(!contatoInfo.disabled && (contatoInfo.value || contatoInfo.cached) && contatoInfo.value!==contatoInfo.cached) {
         const valor = contatoInfo.value?.trim() || null;
         if (valor !== null && !validarEmail(valor)) return false;
-        formData.append('contato', valor);
+        formData.append('contact', valor);
     };
     if(!siteInfo.disabled && (siteInfo.value || siteInfo.cached) && siteInfo.value!==siteInfo.cached) {
         const valor = siteInfo.value?.trim() || null;
@@ -77,7 +77,7 @@ export async function salvarEdicaoEmpresa(
     if(!linkEnderecoInfo.disabled && (linkEnderecoInfo.value || linkEnderecoInfo.cached) && linkEnderecoInfo.value!==linkEnderecoInfo.cached) {
         const valor = linkEnderecoInfo.value?.trim() || null;
         if (valor !== null && !validarLink(valor)) return false;
-        formData.append('link_endereco', valor);
+        formData.append('address_link', valor);
     };
     if(!facebookInfo.disabled && (facebookInfo.value || facebookInfo.cached) && facebookInfo.value!==facebookInfo.cached) {
         const valor = facebookInfo.value?.trim() || null;
@@ -85,17 +85,17 @@ export async function salvarEdicaoEmpresa(
         console.log(valor)
         formData.append('facebook', valor);
     };
-    if(fotoInfo.value || (fotoInfo.cached!=='/assets/imgs/genPfp.png' && fotoInfo.truncate)) {
-        formData.append('foto', fotoInfo.value || null);
+    if(fotoInfo.value || (fotoInfo.cached!=='genPfp.png' && fotoInfo.truncate)) {
+        formData.append('image', fotoInfo.value || null);
     };
     if (!missaoInfo.disabled && (missaoInfo.value || missaoInfo.cached) && missaoInfo.value!==missaoInfo.cached) {
-        formData.append('missao', missaoInfo.value);
+        formData.append('mission', missaoInfo.value);
     }
     if (!visaoInfo.disabled && (visaoInfo.value || visaoInfo.cached) && visaoInfo.value!==visaoInfo.cached) {
-        formData.append('visao', visaoInfo.value);
+        formData.append('vision', visaoInfo.value);
     }
     if (!valoresInfo.disabled && (valoresInfo.value || valoresInfo.cached) && valoresInfo.value!==valoresInfo.cached) {
-        formData.append('valores', valoresInfo.value);
+        formData.append('values', valoresInfo.value);
     }
     if(bannerInfo.value || (bannerInfo.cached!=='fundoroxo' && bannerInfo.truncate)) {
         formData.append('banner', bannerInfo.value || null);
@@ -104,7 +104,7 @@ export async function salvarEdicaoEmpresa(
     if (formData.entries().next().done) return true;
 
     try {
-        await axiosWe.post('/perfil/empresa', formData);
+        await axiosWe.post('/company/profile', formData);
         return true;
     } catch (erro) {
         console.error('Erro ao salvar edição do perfil:', erro);

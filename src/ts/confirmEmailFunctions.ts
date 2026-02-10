@@ -1,22 +1,20 @@
 import type { ChangeEvent } from "react";
 import axiosWe from "../utils/axiosInstance";
-import { DadosUsuario } from "../utils/globalFunctions";
 
 interface ValidarCodigoResponse {
     sucesso: boolean;
-    notFound?: boolean
+    notFound?: boolean;
+    firstAccess?: string;
 }
 export async function validarCodigo(e: ChangeEvent<HTMLInputElement>, email: string): Promise<ValidarCodigoResponse>{
     const target = e.target as HTMLInputElement;
     const codigo = target.value;
-    if(codigo.length < 4) return;
+    if(codigo.length < 6) return;
     target.disabled = true;
 
     try{
-        const response = await axiosWe.post('/candidatos/confirmar', { codigo, email });
-        const user = response.data.user;
-        DadosUsuario.setarUsuario(user.id, user.nome, user.tipo, user.nivel, user.foto);
-        return {sucesso: true};
+        const response = await axiosWe.post('/candidate/confirm', { code: codigo, email });
+        return {sucesso: true, firstAccess: response.data.firstAccessToken};
     } 
     catch(erro){
         console.error(erro);
@@ -37,8 +35,9 @@ interface ReenviarCodigoResponse{
 }
 export async function reenviarCodigo(email: string): Promise<ReenviarCodigoResponse>{
     try{
-        const response = await axiosWe.post('/candidatos/reenviar', { email });
-        return {sucesso: true, mensagem: response.data.message};
+        const response = await axiosWe.post('/candidate/resend', { email });
+        console.log(response);
+        return {sucesso: true, mensagem: response.message ?? 'Sucesso'};
     }
     catch(erro){
         let mensagem = erro.message;

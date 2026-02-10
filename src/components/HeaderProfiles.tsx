@@ -60,7 +60,7 @@ export default function HeaderProfiles(){
                 id="profile-toggle" ref={profileToggleRef}>
                 <div
                 className="user-avatar bg-twitch-purple text-white font-bold text-base w-9 h-9 rounded-full flex justify-center items-center select-none shadow-x1">
-                <img src={usuario.foto==='/assets/imgs/genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
+                <img src={usuario.foto==='genPfp.png'?genPfp:usuario.foto} alt="Foto de perfil do usuário" id="FotoDePerfil"
                     className="w-full h-full object-cover rounded-full" onClick={()=>setMostrarDropDown(e=>!e)} />
                 </div>
 

@@ -29,9 +29,17 @@ export async function carregarNotificacoes(): Promise<NotificationEG[]>{
         const notifCachedJson: {updatedAt: number, ownerId: string, notifs: NotificationEG[]} = JSON.parse(notifCachedString);
         console.log(notifCachedJson);
         const { updatedAt, notifs, ownerId } = notifCachedJson;
-        const response = await axiosWe(`/notificacao?skiptime=${updatedAt}`);
+        const response = await axiosWe(`/notification?skiptime=${updatedAt}`);
         console.log(response);
-        const notifsBack: NotificationEG[] = response.data;
+        const notifsBack: NotificationEG[] = response.data.map(nt=>({
+            id: nt.id,
+            titulo: nt.title,
+            tipo: nt.category,
+            texto: nt.text,
+            lida: nt.read,
+            imagem: nt.image,
+            data_criacao: nt.created_at,
+        }));
         notifCachedJson.updatedAt = new Date(notifsBack[0]?.data_criacao).getTime() || 0;
         const notifsIds = notifs?.map(n=>n.id) || '';
         notifCachedJson.notifs = [ ...notifsBack.filter(n=>!notifsIds.includes(n.id)), ...(ownerId===user.id ? notifs : []) ];
@@ -42,8 +50,16 @@ export async function carregarNotificacoes(): Promise<NotificationEG[]>{
         return notifCachedJson.notifs;
     } else {
         console.log('Buscando pela primeira vez.');
-        const response = await axiosWe('/notificacao');
-        const notifsBack: NotificationEG[] = response.data;
+        const response = await axiosWe('/notification');
+        const notifsBack: NotificationEG[] = response.data.map(nt=>({
+            id: nt.id,
+            titulo: nt.title,
+            tipo: nt.category,
+            texto: nt.text,
+            lida: nt.read,
+            imagem: nt.image,
+            data_criacao: nt.created_at,
+        }));;
         console.log(notifsBack)
         const notifCachedJson = {
             updatedAt: new Date(notifsBack[0]?.data_criacao).getTime() || 0,
@@ -64,7 +80,7 @@ export async function lerNotificacao(idNotif: string): Promise<void> {
         const notifJsonUpdated = {...notifJson, notifs: notifJson.notifs.map(n=> n.id===idNotif ? {...n, lida: true} : n)};
         const newNotifString = JSON.stringify(notifJsonUpdated);
         localStorage.setItem('NotificacoesEmpreGo', newNotifString);
-        await axiosWe.post('/notificacao/ler', {ids: [idNotif]});
+        await axiosWe.post('/notification/read', {ids: [idNotif]});
     } catch (erro) {
         console.error('Erro ao ler notificação:',erro);
     }
@@ -78,7 +94,7 @@ export async function lerTodasNotificacoes(): Promise<void> {
         const notifJsonUpdated = {...notifJson, notifs: notifJson.notifs.map(n=> ({...n, lida: true}))};
         const newNotifString = JSON.stringify(notifJsonUpdated);
         localStorage.setItem('NotificacoesEmpreGo', newNotifString);
-        await axiosWe.post('/notificacao/ler', {ids: idsToRead});
+        await axiosWe.post('/notification/read', {ids: idsToRead});
     } catch (erro) {
         console.error('Erro ao ler notificações:',erro);
     }

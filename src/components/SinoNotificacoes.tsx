@@ -143,7 +143,7 @@ export default function SinoNotificacoes() {
                                     {/* Container da imagem */}
                                     <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-700 flex items-center justify-center">
                                         <img 
-                                            src={n.imagem==='/assets/imgs/genPfp.png'?genPfp:n.imagem} 
+                                            src={n.imagem==='genPfp.png'?genPfp:n.imagem} 
                                             alt=""
                                             className="w-full h-full object-cover"
                                             onError={(e) => {

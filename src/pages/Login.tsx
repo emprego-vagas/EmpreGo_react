@@ -1,5 +1,5 @@
 // * Pacotes
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +12,10 @@ import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, forma
 // * CSS
 import '../css/login.css'
 import axiosWe from '../utils/axiosInstance';
-import { mostrarErroTopo } from '../utils/globalFunctions';
+import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
+import { useGoogleLogin } from '@react-oauth/google';
+import { getFingerprint } from '../utils/fingerprint';
+// import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 // import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
 export default function Login() {
@@ -58,7 +61,62 @@ export default function Login() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const [enviandoEmailTroca, setEnviandoEmailTroca] = useState(false);
+
+    const [googleState, setGoogleState] = useState("");
    
+    const loginComGoogle = useGoogleLogin({
+        flow: "auth-code",
+        redirect_uri: window.location.origin + "/login", // volta pra mesma tela
+        ux_mode: "redirect",
+        // onSuccess: (tokenResponse) => {
+        //     console.log("Resultado do Google:", tokenResponse);
+        // },
+        onError: () => {
+            mostrarErroTopo("Falha no login com Google");
+        },
+        state: googleState,
+    });
+
+    async function googleLoginPost(code: string){
+        const visitorId = await getFingerprint();
+        const res = await axiosWe.post('/auth/google', {code, visitorId});
+        console.log("Login Google OK:", res.data);
+        const user = res.data.user;
+        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+        window.location.href = '/';
+    }
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+
+        if (!code) return;
+
+        const savedState = localStorage.getItem("google_state");
+
+        if (state !== savedState) {
+            // mostrarErroTopo("Login inválido.");
+            return;
+        }
+
+        // console.log('Google code:', code)
+        // console.log('Google state:', state)
+
+        localStorage.removeItem("google_state");
+
+        googleLoginPost(code)
+    }, []);
+
+    const handleGoogleLogin = () => {
+        const state = crypto.randomUUID();
+        localStorage.setItem("google_state", state);
+        setGoogleState(state);
+
+        setTimeout(() => {
+            loginComGoogle();
+        }, 100);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 flex justify-center items-center p-5">
@@ -162,6 +220,20 @@ export default function Login() {
                                     }}
                                 >
                                     Entrar
+                                </button>
+
+                                <button
+                                type="button"
+                                onClick={handleGoogleLogin}
+                                className="w-full flex items-center justify-center gap-3 py-3 bg-white text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-md cursor-pointer"
+                                >
+                                {/* <FontAwesomeIcon icon={faGoogle} className="w-5 h-5" /> */}
+                                <img
+                                    src="https://static.vecteezy.com/system/resources/thumbnails/072/677/661/small/google-search-logo-icon-free-png.png"
+                                    alt="Google"
+                                    className="w-5 h-5"
+                                />
+                                Iniciar com o Google
                                 </button>
                             </form>
                             
@@ -386,6 +458,18 @@ export default function Login() {
                                 >
                                     Cadastrar
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={handleGoogleLogin}
+                                    className="w-full flex items-center justify-center gap-3 py-3 bg-white text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-md cursor-pointer"
+                                    >
+                                    <img
+                                        src="https://static.vecteezy.com/system/resources/thumbnails/072/677/661/small/google-search-logo-icon-free-png.png"
+                                        alt="Google"
+                                        className="w-5 h-5"
+                                    />
+                                    Iniciar com o Google
+                                    </button>
                             </form>
 
                             <div className="text-center">
@@ -826,7 +910,7 @@ export default function Login() {
 
                                         try {
                                             setEnviandoEmailTroca(true);
-                                            await axiosWe.post('/candidatos/senha/solicitar', {email: forgotEmail.email});
+                                            await axiosWe.post('/auth/password/request', {email: forgotEmail.email});
                                             setSucessoInputCand({
                                                 campo: "forgotEmail",
                                                 mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,
