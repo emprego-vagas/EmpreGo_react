@@ -187,7 +187,7 @@ export function conversaConstructor(usuarioTipo: string, chat) {
         })(),
         naoLidas: (()=>{
             const naoLidas = chat.messages.reduce((ac, msg)=>{
-                if(msg.de !== usuarioTipo && !msg.status){
+                if(msg.by !== usuarioTipo && !msg.status){
                     ac++
                 }
                 return ac;
