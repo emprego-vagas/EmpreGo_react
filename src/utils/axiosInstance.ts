@@ -29,6 +29,7 @@ axiosWe.defaults.baseURL = hostName.includes('localhost') ? 'http://localhost:29
 axiosWe.interceptors.request.use(async (config) => {
   const fingerprint = await getFingerprint();
   config.headers['X-Fingerprint-VisitorId'] = fingerprint;
+  config.headers['X-Login-Key'] = DadosUsuario.getLoginKey();
   return config;
 });
 

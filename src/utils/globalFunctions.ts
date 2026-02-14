@@ -152,6 +152,15 @@ export class DadosUsuario {
         localStorage.removeItem('dadosUsuario');
     }
 
+    static setarLoginKey(loginKey: string){
+        localStorage.setItem('VSLoginKey', loginKey);
+    }
+
+    static getLoginKey(): string{
+        const loginKey = localStorage.getItem('VSLoginKey');
+        return loginKey;
+    }
+
 }
 
 export async function fileDownload(url: string, tipo: string){
