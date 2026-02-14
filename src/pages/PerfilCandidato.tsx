@@ -45,7 +45,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisIdiomas(false);
-            const response = await axiosWe(`/language/candidate/${usuario.id}?offset=3`) as {data: Idioma[]};
+            const response = await axiosWe(`/language/candidate/${usuario.id}?skip=3`) as {data: Idioma[]};
             setCustomPerfil(prev=>({...prev, languages: [...prev.languages, ...response.data]}));
             setMostrarMaisIdiomasExib(false);
         } catch (erro) {
