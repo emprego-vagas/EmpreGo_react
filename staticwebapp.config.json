@@ -7,13 +7,6 @@
           "/assets/*"
         ]
       }
-    },
-    {
-      "route": "/*",
-      "methods": [
-        "get"
-      ],
-      "rewrite": "/index.html"
     }
   ]
 }
