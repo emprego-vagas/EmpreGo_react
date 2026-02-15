@@ -6,10 +6,6 @@
         "exclude": [
           "/assets/*"
         ]
-      },
-      "mimeTypes": {
-        ".js": "application/javascript",
-        ".css": "text/css"
       }
     }
   ]
