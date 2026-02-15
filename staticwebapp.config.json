@@ -7,6 +7,13 @@
           "/assets/*"
         ]
       }
+    },
+    {
+      "route": "/*",
+      "methods": [
+        "get"
+      ],
+      "redirect": "/index.html"
     }
   ]
 }
