@@ -41,7 +41,6 @@ function App() {
       socket.off('receivedNotification', receivedNotification);
     };
   }, [])
-  console.log("CLIENT ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
   
   return (
     <BrowserRouter>
