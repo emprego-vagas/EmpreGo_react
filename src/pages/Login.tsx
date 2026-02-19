@@ -79,7 +79,7 @@ export default function Login() {
         const res = await axiosWe.post('/auth/google', {code, visitorId});
         console.log("Login Google OK:", res.data);
         const user = res.data.user;
-        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image);
+        DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
         DadosUsuario.setarLoginKey(res.data.loginKey);
         window.location.href = '/';
     }
