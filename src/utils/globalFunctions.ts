@@ -150,6 +150,7 @@ export class DadosUsuario {
 
     static clearUsuario(){
         localStorage.removeItem('dadosUsuario');
+        localStorage.removeItem('VSLoginKey');
     }
 
     static setarLoginKey(loginKey: string){
