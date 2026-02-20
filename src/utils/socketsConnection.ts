@@ -6,7 +6,12 @@ const server = hostName.includes('localhost') ? 'http://localhost:2923' : 'https
 
 const socket = io(server, {
     withCredentials: true,
-    transports: ["websocket"]
+    transports: ['websocket']
 });
+
+// ! Ainda em desenvolvimento, pode ignorar por enquanto
+socket.on('yourSocketKey', (opa)=>{
+    console.log(opa)
+})
 
 export default socket;
