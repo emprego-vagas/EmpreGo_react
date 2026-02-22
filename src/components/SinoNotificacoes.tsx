@@ -22,9 +22,7 @@ export default function SinoNotificacoes() {
             try {
                 const notificacoes = await carregarNotificacoes();
                 
-                setNotifications(notificacoes);
-
-                socket.emit('joinNotifications', usuario);
+                setNotifications(prev=>[...notificacoes, ...(prev?prev:[])]);
             } catch (erro) {
                 console.error("Erro ao carregar as notificações:", erro);
             }

@@ -13,7 +13,7 @@ import TXTAZUL from '../assets/imgs/TXTAZUL.png'
 import { carregarConversasBack, conversaConstructor, enviarMensagem, enviarSolicitacaoConversa, modalActions, validarSeEhArquivo } from '../ts/chatsFunctions';
 import { conversaDesabilitadaConstructor, type ConversaDesabilitada, type NovaSolicitacaoConversa, type SolicitacaoConversa } from '../ts/chatsFunctions';
 import axiosWe from '../utils/axiosInstance';
-import socket from '../utils/socketsConnection';
+import socket, { socketAuthEmit } from '../utils/socketsConnection';
 import Loader from '../components/Loader';
 import type { Conversa, Mensagem, MessageSocket, UserStatusSocket } from "../ts/chatsFunctions";
 import SinoNotificacoes from '../components/SinoNotificacoes';
@@ -55,78 +55,66 @@ export default function Chats() {
                     setConversaAtualId('0');
                 }
 
-                socket.emit('joinChats', (res)=>{
-                    if (res.status==='error'){
-                        socket.emit('joinChats', (res)=>{
-                            if (res.status==='error'){
-                                mostrarErroTopo('Erro ao entrar nas conversas, tente recarregar a página.')
-                            } else {
-                                setCarregando(false);
-                            }
-                        })
-                    } else {
-                        setCarregando(false);
-                    }
-                })
+                socketAuthEmit('joinChats', ()=>setCarregando(false), ()=>mostrarErroTopo('Erro ao entrar nas conversas, tente recarregar a página.'));
             } catch (erro) {
                 console.error("Erro ao carregar conversas:", erro);
             }
         }
         carregarConversas();
         const intervalId = setInterval(()=>{
-            socket.emit('refreshStatus');
+            socketAuthEmit('refreshStatus', ()=>{}, ()=>window.location.reload(), true);
         }, 5000);
 
         const receivedMessage = async(message: MessageSocket)=>{
-            if (message.type === usuario.tipo) return;
+            if (message.userType === usuario.tipo) return;
 
             const agora = new Date();
             const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-            const messageFormat: Mensagem = { texto: message.message, remetente: 'eles', hora, id: message.idMsg };
+            const messageFormat: Mensagem = { texto: message.text, remetente: 'eles', hora, id: message.id };
 
             setDadosConversas(prev => {
-                const conversaExiste = prev.some(c => c.id === message.room);
+                const conversaExiste = prev.some(c => c.id === message.chatId);
                 if (!conversaExiste) return prev;
 
                 const novasConversas = prev.map(conversa =>
-                    conversa.id === message.room
+                    conversa.id === message.chatId
                         ? {
                             ...conversa,
                             mensagens: [...conversa.mensagens, messageFormat],
                             contadorMensagens: conversa.mensagens.length + 1,
-                            ultimaMensagem: message.message,
+                            ultimaMensagem: message.text,
                             naoLidas:
-                                conversaAtualIdRef.current === message.room
+                                conversaAtualIdRef.current === message.chatId
                                     ? 0
                                     : conversa.naoLidas + 1,
                         }
                         : conversa
                 );
 
-                const conversaMensagem = novasConversas.find(con=>con.id===message.room);
-                const outrasConversas = novasConversas.filter(con=>con.id!==message.room);
+                const conversaMensagem = novasConversas.find(con=>con.id===message.chatId);
+                const outrasConversas = novasConversas.filter(con=>con.id!==message.chatId);
                 const novasConversasSorted = [conversaMensagem, ...outrasConversas];
 
-                if (conversaAtualIdRef.current === message.room) {
+                if (conversaAtualIdRef.current === message.chatId) {
                     const container = messagesContainerRef.current;
                     setTimeout(() => {
                         container.scrollTop = container.scrollHeight;
                     }, 50);
-                    axiosWe.patch(`/message/chat/${message.room}/view`).catch(console.error);
+                    axiosWe.patch(`/message/chat/${message.chatId}/view`).catch(console.error);
                 }
 
                 return novasConversasSorted;
             });
         }
         const userStatus = (user: UserStatusSocket)=>{
-            if(user.socket===socket.id) return;
+            if(user.userId===usuario.id) return;
             
             setDadosConversas(prev => {
-                const conversaExiste = prev.some(c => c.id === user.room);
+                const conversaExiste = prev.some(c => c.id === user.chatId);
                 if (!conversaExiste) return prev;
 
                 return prev.map(conversa =>
-                    conversa.id === user.room
+                    conversa.id === user.chatId
                         ? {
                             ...conversa,
                             statusRemetente: user.status,
@@ -197,11 +185,7 @@ export default function Chats() {
                     };
                     setTimeout(()=>{
                         setDadosConversas(prev=>[novaConversa, ...prev]);
-                        socket.emit('joinChat', newChatId, callback=>{
-                            if(callback.status==='error') {
-                                mostrarErroTopo(callback.message);
-                            }
-                        });
+                        socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:',newChatId), ()=>mostrarErroTopo('Erro ao entrar no chat.'), newChatId);
                     }, 500)
                 }
             } else if(notif.tipo==='Conversa'){
@@ -241,6 +225,7 @@ export default function Chats() {
       
         return () => {
             clearInterval(intervalId);
+            socket.emit('refreshStatus', false);
             socket.off('receivedMessage', receivedMessage);
             socket.off('userStatus', userStatus);
             socket.off('receivedNotification', receivedNotification);
@@ -387,11 +372,7 @@ export default function Chats() {
             const response = await axiosWe.post('/chat', {requestId: id});
             const novaConversa: Conversa = conversaConstructor(usuario.tipo, response.data);
             setDadosConversas([novaConversa, ...dadosConversas]);
-            socket.emit('joinChat', novaConversa.id, callback=>{
-                if(callback.status==='error') {
-                    mostrarErroTopo(callback.message);
-                }
-            });
+            socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:',novaConversa.id), ()=>mostrarErroTopo('Erro ao entrar no chat.'), novaConversa.id);
             const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
             sendNotification({id: destinatarioid, type: recipientType}, {
                 solicitacao_conversa: {
@@ -1322,13 +1303,13 @@ export default function Chats() {
                                                     const agora = new Date();
                                                     const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
 
-                                                    socket.emit('sendMessage', {
-                                                        author: usuario.nome,
-                                                        message: message,
-                                                        room: conversaAtualId,
-                                                        type: usuario.tipo,
-                                                        idMsg: id
-                                                    });
+                                                    // socket.emit('sendMessage', {
+                                                    //     author: usuario.nome,
+                                                    //     message: message,
+                                                    //     room: conversaAtualId,
+                                                    //     type: usuario.tipo,
+                                                    //     idMsg: id
+                                                    // });
                                                     
                                                     setDadosConversas(prev=>{
                                                         const conversasAtualizadas = prev.map(con=>
@@ -1393,7 +1374,7 @@ export default function Chats() {
                                                     mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
                                                     return;
                                                 }
-                                                const msge = await enviarMensagem(mensagemEnvio, usuario, conversaAtualId);
+                                                const msge = await enviarMensagem(mensagemEnvio, conversaAtualId);
                                                 const el = textareaRef.current;
                                                 if (el) el.style.height = "auto";
                                                 if(msge.success){
@@ -1730,18 +1711,16 @@ export default function Chats() {
                                     if(actionRes.success) {
                                         switch (action) {
                                             case 'block': {
+                                                if(valor==='true') socket.emit('leaveRoom', chatId);
+                                                else {
+                                                    socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:', chatId), ()=>mostrarErroTopo('Erro ao entrar no chat.'), chatId);
+                                                }
                                                 setDadosConversas(prev=> {
                                                     return prev.map((con)=>
                                                         con.id === chatId ?
                                                         {...con, bloqueadoStatus: valor==='true'?true:false, bloqueador: valor==='true'?usuario.tipo:con.bloqueador, statusRemetente: valor==='true'?'Offline':con.statusRemetente}
                                                         : con
                                                     )
-                                                });
-                                                if(valor==='true') socket.emit('leaveRoom', chatId);
-                                                else socket.emit('joinChat', chatId, callback=>{
-                                                    if(callback.status==='error') {
-                                                        mostrarErroTopo(callback.message);
-                                                    }
                                                 });
                                                 break;
                                             }
@@ -1756,6 +1735,7 @@ export default function Chats() {
                                                 break;
                                             }
                                             case 'remove': {
+                                                socket.emit('leaveRoom', chatId);
                                                 const chatToRemove = dadosConversas.find(c=>c.id===chatId);
                                                 if(receberEmail) mostrarSucessoTopo('Email com as mensagens da conversa enviado com sucesso!');
                                                 if(chatToRemove?.favoritada) setContadorFavoritos(e=>e-1);
@@ -1772,7 +1752,6 @@ export default function Chats() {
                                                         id: chatId
                                                     }
                                                 });
-                                                socket.emit('leaveRoom', chatId);
                                                 break;
                                             }               
                                             case 'save': {

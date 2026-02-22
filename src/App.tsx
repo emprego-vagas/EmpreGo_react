@@ -31,6 +31,10 @@ import SystemNotice from './components/SystemNotice';
 function App() {
   const usuario = DadosUsuario.getUsuario();
   useEffect(()=>{
+    if(usuario){
+      socket.emit('joinNotifications', {tipo: usuario.tipo, id: usuario.id});
+    }
+    
     function receivedNotification(newNotification: NotificationEG){
       novaNotificacaoLocalStorage(newNotification);
     }

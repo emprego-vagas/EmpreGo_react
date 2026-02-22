@@ -913,6 +913,7 @@ export default function Login() {
                                                 campo: "forgotEmail",
                                                 mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,
                                             });
+                                            forgotEmail.email = '';
                                         } catch (erro) {
                                             if(erro.status && erro.status===409){
                                                 mostrarErroTopo("Já existe uma solicitação de troca em andamento para este email.");
