@@ -22,34 +22,28 @@ export const socketAuthEmit = (event: string, success: ()=>void, error: ()=>void
     // * Tenta emitir o evento
     socket.emit(event, ...args, (res)=>{
         // * Se deu erro vai ler a causa do erro
-        if (res.status==='error'){
+        if(res.status==='success') success();
+        else {
             // * Verifica se é pra tentar reconectar
-            if(res.message==='try-reconnect'){
+            if(res.message!=='try-reconnect') error();
+            else {
                 // * Listenner único para o evento emitido depois de se conectar
                 socket.once('you-are-connected', (res2)=>{
                     // * Verifica se conseguiu criar a nova sessão
-                    if(res2.authenticated){
+                    if(!res2.authenticated) error();
+                    else {
                         // * Se conseguiu emite o evento de novo
                         socket.emit(event, ...args, (res3)=>{
                             // * Se deu erro de novo desiste
-                            if (res3.status==='error'){
-                                error();
-                            } else {
-                                success();
-                            }
+                            if(res3.status==='success') success();
+                            else error();
                         })
-                    } else {
-                        error();
                     }
                 });
                 // * Disconecta e conecta de novo pra pedir uma nova sessão e consequente o 'you-are-connected' vai ser emitido
                 socket.disconnect();
                 socket.connect();
-            } else {
-                error();
             }
-        } else {
-            success();
         }
     });
 }

@@ -32,11 +32,11 @@ function App() {
   const usuario = DadosUsuario.getUsuario();
   useEffect(()=>{
     if(usuario){
-      socket.emit('joinNotifications', {tipo: usuario.tipo, id: usuario.id});
+      socket.emit('joinNotifications', {type: usuario.tipo, id: usuario.id});
     }
     
     function receivedNotification(newNotification: NotificationEG){
-      novaNotificacaoLocalStorage(newNotification);
+      novaNotificacaoLocalStorage(newNotification.data);
     }
 
     socket.on('receivedNotification', receivedNotification);
@@ -44,7 +44,7 @@ function App() {
     return () => {
       socket.off('receivedNotification', receivedNotification);
     };
-  }, [])
+  }, [usuario])
   
   return (
     <BrowserRouter>

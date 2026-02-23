@@ -128,68 +128,69 @@ export default function Chats() {
 
         function receivedNotification(notif: NotificationEG){
             console.log(notif)
-            if(!notif.object) return;
-            const object = notif.object;
-            if(notif.tipo==='Solicitação de Conversa'){
-                if(object.action==='criar'){
-                    const {id, user_id, user_name, user_image} = object as {
-                        id: string;
-                        user_id: string;
-                        user_name: string;
-                        user_image: string;
-                    };
-                    if(!id) return;
+            if(!notif.event) return;
+            const {event} = notif;
+            const object = event.chat ? {
+                ...event.chat,
+                eventType: 'Chat'
+            } : event.chat_request ? {
+                ...event.chat_request,
+                eventType: 'ChatRequest'
+            } : null;
+            if(!object) return;
+
+            if(object.eventType==='ChatRequest'){
+                const sender = notif.sender;
+                if(object.action==='create'){
+                    const solicitacaoId = object.id;
+                    if(!solicitacaoId) return;
                     setSolicitacoes(prev=> [
                         {
-                            id: id,
-                            usuario_id: user_id,
-                            usuario_nome: user_name,
-                            usuario_foto: user_image,
+                            id: solicitacaoId,
+                            usuario_id: sender.id,
+                            usuario_nome: sender.name,
+                            usuario_foto: sender.image,
                             tipo: 'recebida',
                             status: 'pendente'
                         },
                         ...prev
                     ])
                 }
-                if(object.action==='recusar'||object.action==='cancelar'){
-                    const { id } = object as { id: string };
+                if(object.action==='refuse'||object.action==='cancel'){
+                    const solicitacaoId = object.id;
                     setSolicitacoes(prev => prev.filter(sol => 
-                        sol.id !== id
+                        sol.id !== solicitacaoId
                     ));
                 }
-                if(object.action==='aceitar'){
-                    const {id, user_id, user_name, user_image, newChatId} = object as {
-                        id: string;
-                        user_id: string;
-                        user_name: string;
-                        user_image: string;
-                        newChatId: string;
-                    };
+                if(object.action==='accept'){
+                    const {id: solicitacaoId, chatId} = object;
+                    if(!solicitacaoId) return;
                     setSolicitacoes(prev => prev.filter(sol => 
                         sol.id !== id
                     ));
+                    if(!chatId) return;
                     const novaConversa = {
-                        id: newChatId,
+                        id: chatId,
                         bloqueadoStatus: false,
                         bloqueador: null,
-                        remetente: user_id,
+                        remetente: sender.id,
                         statusRemetente: 'Offline',
-                        nome: user_name,
+                        nome: sender.name,
                         ultimaMensagem: '',
                         hora: '',
                         naoLidas: 0,
-                        avatar: user_image,
+                        avatar: sender.image,
                         favoritada: false,
                         mensagens: [],
                         contadorMensagens: 0
                     };
                     setTimeout(()=>{
                         setDadosConversas(prev=>[novaConversa, ...prev]);
-                        socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:',newChatId), ()=>mostrarErroTopo('Erro ao entrar no chat.'), newChatId);
+                        socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:',chatId), ()=>mostrarErroTopo('Erro ao entrar no chat.'), chatId);
                     }, 500)
                 }
-            } else if(notif.tipo==='Conversa'){
-                if(object.action==='deletar'){
+            } else if(object.eventType==='Chat'){
+                if(object.action==='delete'){
                     if(conversaAtualIdRef.current===object.id) setConversaAtualId('0');
 
                     // * Tudo dentro do set para pegar os status atualizados
@@ -1374,7 +1375,7 @@ export default function Chats() {
                                                     mostrarErroTopo('Você não pode mandar mensagem para este chat, pois ele está bloqueado.')
                                                     return;
                                                 }
-                                                const msge = await enviarMensagem(mensagemEnvio, conversaAtualId);
+                                                const msge = await enviarMensagem(mensagemEnvio.trim(), conversaAtualId);
                                                 const el = textareaRef.current;
                                                 if (el) el.style.height = "auto";
                                                 if(msge.success){

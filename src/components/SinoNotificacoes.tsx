@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
-import { carregarNotificacoes, lerNotificacao, lerTodasNotificacoes, type NotificationEG } from "../ts/sinoNotificacoesFunctions";
+import { carregarNotificacoes, lerNotificacao, lerTodasNotificacoes, type NotificationData, type NotificationEG } from "../ts/sinoNotificacoesFunctions";
 import genPfp from '../assets/imgs/genPfp.png';
 import { useNavigate } from "react-router-dom";
 import { DadosUsuario } from "../utils/globalFunctions";
@@ -31,7 +31,7 @@ export default function SinoNotificacoes() {
 
         function receivedNotification(newNotification: NotificationEG){
             console.log('Recebi Notificação Componente')
-            setNotifications(prev=>[newNotification, ...prev]);
+            setNotifications(prev=>[newNotification.data, ...prev]);
         }
 
         socket.on('receivedNotification', receivedNotification);
@@ -45,20 +45,20 @@ export default function SinoNotificacoes() {
     const [dropdownPosition, setDropdownPosition] = useState('left-0');
     const buttonRef = useRef(null);
     const dropdownRef = useRef(null);
-    const [notifications, setNotifications] = useState<NotificationEG[]|null>(null);
+    const [notifications, setNotifications] = useState<NotificationData[]|null>(null);
     
-    const unreadCount = notifications?.filter((n) => !n.lida).length;
+    const unreadCount = notifications?.filter((n) => !n.read).length;
 
     const marcarComoLida = async(id) => {
         setNotifications(notifications?.map(notificacao => 
-            notificacao.id === id ? { ...notificacao, lida: true } : notificacao
+            notificacao.id === id ? { ...notificacao, read: true } : notificacao
         ));
         await lerNotificacao(id);
     };
 
     const marcarTodasComoLidas = async() => {
         setNotifications(notifications?.map(notificacao => 
-            ({ ...notificacao, lida: true })
+            ({ ...notificacao, read: true })
         ));
         await lerTodasNotificacoes();
     };
@@ -132,7 +132,7 @@ export default function SinoNotificacoes() {
                             <div
                                 key={n.id}
                                 className={`p-3 rounded-lg border relative group ${
-                                    n.lida
+                                    n.read
                                     ? "border-gray-700 bg-gray-800/50"
                                     : "border-blue-600 bg-blue-600/10"
                                 }`}
@@ -141,7 +141,7 @@ export default function SinoNotificacoes() {
                                     {/* Container da imagem */}
                                     <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-700 flex items-center justify-center">
                                         <img 
-                                            src={n.imagem==='genPfp.png'?genPfp:n.imagem} 
+                                            src={n.image==='genPfp.png'?genPfp:n.image} 
                                             alt=""
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
@@ -154,10 +154,10 @@ export default function SinoNotificacoes() {
                                     {/* Conteúdo da notificação */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start">
-                                            <h5 className="text-white font-medium break-words pr-8">{n.titulo}</h5>
+                                            <h5 className="text-white font-medium break-words pr-8">{n.title}</h5>
                                             
                                             {/* Botão para marcar como lida */}
-                                            {!n.lida && (
+                                            {!n.read && (
                                                 <button
                                                     onClick={() => marcarComoLida(n.id)}
                                                     className="flex-shrink-0 bg-green-600 hover:bg-green-500 text-white w-6 h-6 flex items-center justify-center rounded-full transition-all opacity-100 group-hover:opacity-100 shadow-lg ml-2"
@@ -168,12 +168,12 @@ export default function SinoNotificacoes() {
                                             )}
                                         </div>
                                         
-                                        <p className="text-gray-300 text-sm mt-1 break-words">{n.texto}</p>
+                                        <p className="text-gray-300 text-sm mt-1 break-words">{n.text}</p>
                                         
                                         <div className="flex justify-between items-center mt-2">
-                                            <span className="text-xs text-gray-400">{n.tipo}</span>
+                                            <span className="text-xs text-gray-400">{n.category}</span>
                                             <div className="flex items-center gap-2">
-                                                {n.lida ? (
+                                                {n.read ? (
                                                     <span className="text-xs text-green-400 flex items-center gap-1">
                                                         <FontAwesomeIcon icon={faCheck} className="text-xs" />
                                                         Lida
