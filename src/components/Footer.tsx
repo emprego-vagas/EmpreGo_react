@@ -78,7 +78,7 @@ export default function Footer () {
 
                 <div className="border-t border-gray-800 hover:border-primary-500 pt-8 text-center">
                     <p className="text-gray-500">
-                        &copy; 2025 EmpreGo. Todos os direitos reservados.
+                        &copy; {new Date().getFullYear()} EmpreGo. Todos os direitos reservados.
                     </p>
                 </div>
             </div>

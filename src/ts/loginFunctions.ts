@@ -28,6 +28,7 @@ export async function candidatoLogin(e: MouseEvent<HTMLButtonElement>, candLogin
         const response = await axiosWe.post("/auth/login", { email, password: senha, rememberMe: candLogin.lembreMe, visitorId });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+        DadosUsuario.setarLoginKey(response.data.loginKey);
 
         return true;
     } catch (erro) {
@@ -133,6 +134,7 @@ export async function empresaLogin(e: MouseEvent<HTMLButtonElement>, empLogin: {
         const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: empLogin.lembreMe, visitorId });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
+        DadosUsuario.setarLoginKey(response.data.loginKey);
 
         return true;
     } catch (erro) {
@@ -196,6 +198,7 @@ export async function empresaRegister(e: MouseEvent<HTMLButtonElement>, empRegis
         const response = await axiosWe.post('/auth/logincompany', { cnpj: cnpjClean, password: senha, rememberMe: true, visitorId });
         const user = response.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'empresa', user.level, user.image, user.email);
+        DadosUsuario.setarLoginKey(response.data.loginKey);
 
         mostrarSucessoTopo("Empresa cadastrada com SUCESSO!");
         return {success: true};

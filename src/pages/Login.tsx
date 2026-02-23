@@ -65,14 +65,11 @@ export default function Login() {
     const [googleState, setGoogleState] = useState("");
    
     const loginComGoogle = useGoogleLogin({
-        flow: "auth-code",
-        redirect_uri: window.location.origin + "/login", // volta pra mesma tela
-        ux_mode: "redirect",
-        // onSuccess: (tokenResponse) => {
-        //     console.log("Resultado do Google:", tokenResponse);
-        // },
+        flow: 'auth-code',
+        redirect_uri: window.location.origin + '/login', // volta pra mesma tela
+        ux_mode: 'redirect',
         onError: () => {
-            mostrarErroTopo("Falha no login com Google");
+            mostrarErroTopo('Falha no login com Google');
         },
         state: googleState,
     });
@@ -83,6 +80,7 @@ export default function Login() {
         console.log("Login Google OK:", res.data);
         const user = res.data.user;
         DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+        DadosUsuario.setarLoginKey(res.data.loginKey);
         window.location.href = '/';
     }
 
@@ -915,6 +913,7 @@ export default function Login() {
                                                 campo: "forgotEmail",
                                                 mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,
                                             });
+                                            forgotEmail.email = '';
                                         } catch (erro) {
                                             if(erro.status && erro.status===409){
                                                 mostrarErroTopo("Já existe uma solicitação de troca em andamento para este email.");
