@@ -126,19 +126,19 @@ export default function PerfilCandidato() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     <div id="impInfo"
-                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <img id="fotoUsuario" src={candPerfil.image==='genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
                             className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
                                     <FontAwesomeIcon icon={faIdCard} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cpfUsuario" className="text-sm">{candPerfil.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")}</span>
                                 </div>
                             )}
                             {candPerfil.birth_date && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
                                     <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-card dark:text-professional-accent mr-2" />
                                     {(()=>{
                                         const dataISO = candPerfil.birth_date.split('T')[0];
@@ -148,25 +148,25 @@ export default function PerfilCandidato() {
                                 </div>
                             )}
                             {candPerfil.pronouns && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
                                     <FontAwesomeIcon icon={faUser} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="pronUsuario" className="text-sm">{candPerfil.pronouns}</span>
                                 </div>
                             )}
                             {candPerfil.current_position && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
                                     <FontAwesomeIcon icon={faBriefcase} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cargoUsuario" className="text-sm">{candPerfil.current_position}</span>
                                 </div>
                             )}
                             {candPerfil.current_company && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
                                     <FontAwesomeIcon icon={faBuilding} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="empresaUsuario" className="text-sm">{candPerfil.current_company}</span>
                                 </div>
                             )}
                             {candPerfil.state && (
-                                <div id="divLocalizacao" className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Localização">
+                                <div id="divLocalizacao" className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Localização">
                                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
                                     <span id="estadoUsuario" className="text-sm">{`Estado: (${candPerfil.state})`}</span><br/>
@@ -203,7 +203,7 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
-                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h1 id="nomUsuario" className="text-professional-dark dark:text-gray-100 text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.name}</h1>
                         <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
                             <FontAwesomeIcon icon={faEnvelope} className="text-professional-card dark:text-professional-accent mr-2" />
@@ -211,7 +211,7 @@ export default function PerfilCandidato() {
                                 className="text-lg text-professional-card dark:text-professional-subtitle">{candPerfil.email}</a>
                         </div>
 
-                        <div className="bg-white dark:bg-professional-gray rounded-lg p-4 mb-6">
+                        <div className="bg-gray-100 dark:bg-professional-gray rounded-lg p-4 mb-6">
                             <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
@@ -225,7 +225,7 @@ export default function PerfilCandidato() {
 
 
                         <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Portfólio">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Portfólio">
                                 <FontAwesomeIcon icon={faMagic} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.portfolio && (
                                 <a id="portUsuario" href={candPerfil.portfolio}
@@ -236,7 +236,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="GitHub">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="GitHub">
                                 <FontAwesomeIcon icon={faGithub} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.github && (
                                 <a id="gitUsuario" href={candPerfil.github}
@@ -247,7 +247,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Currículo">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Currículo">
                                 <FontAwesomeIcon icon={faFileInvoice} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.resume && (
                                 <a id="curriculoUsuario" href={candPerfil.resume}
@@ -268,7 +268,7 @@ export default function PerfilCandidato() {
                                 })()}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Instagram">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Instagram">
                                 <FontAwesomeIcon icon={faInstagram} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.instagram && (
                                 <a id="instUsuario" href={candPerfil.instagram}
@@ -279,7 +279,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Site Pessoal">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Site Pessoal">
                                 <FontAwesomeIcon icon={faGlobe} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.personal_site && (
                                 <a id="siteUsuario" href={candPerfil.personal_site}
@@ -290,7 +290,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Twitter/X">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Twitter/X">
                                 <FontAwesomeIcon icon={faXTwitter} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.twitter && (
                                 <a id="twtUsuario" href={candPerfil.twitter}
@@ -302,9 +302,9 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
 
-                        <div id="formacaoInfo" className="dark:bg-professional-gray bg-white rounded-lg p-4">
+                        <div id="formacaoInfo" className="dark:bg-professional-gray bg-gray-100 rounded-lg p-4">
 
-                            <h2 className="text-lg text-center font-semibold mb-2 dark:bg-professional-gray  text-professional-card bg-white dark:text-professional-accent relative pb-3
+                            <h2 className="text-lg text-center font-semibold mb-2 dark:bg-professional-gray  text-professional-card dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded">
                                 Formação Acadêmica</h2>
@@ -340,13 +340,13 @@ export default function PerfilCandidato() {
                 {/* <!-- Coluna direita - Habilidades e Estatísticas --> */}
                 <div id="bodyTags" className="lg:col-span-4 space-y-6">
                     <div
-                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                             {`Habilidades & Competências${customPerfil.candTagsTotal>0?` (${customPerfil.candTagsTotal})`:''}`}</h1>
                         <div id="boxTags"
-                            className="bg-white border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
+                            className="bg-gray-100 border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
                                 {customPerfil.candTagsTotal>0 && customPerfil.candTags.map(tag=>{
@@ -383,31 +383,31 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Estatísticas --> */}
                     <div
-                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h2 className="text-lg text-center font-semibold mb-2 dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded text-professional-dark">
                             Métricas Profissionais</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div
-                                className="bg-white  dark:bg-professional-gray  rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray  rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div id="experienciasCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">
                                     {customPerfil.experiencesTotal}</div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Experiências</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div className="text-[2rem] font-bold  text-professional-dark dark:text-professional-accent mb-1">15</div>
                                 <div className="text-smtext-professional-card text-professional-card dark:text-professional-subtitle">Certificações</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div id="projetosCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">{customPerfil.candProjectsTotal}
                                 </div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Projetos</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">4</div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Formações</div>
                             </div>
@@ -416,7 +416,7 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Idiomas --> */}
                     <div
-                        className="bg-gray-100  dark:bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
@@ -542,7 +542,7 @@ export default function PerfilCandidato() {
                     <div id="experiencias" className="tab-pane active">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bodyBottom">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/experiencias/criar')}}>
                                 <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
@@ -552,7 +552,7 @@ export default function PerfilCandidato() {
                             </div>
                             {customPerfil.experiencesTotal>0 && customPerfil.experiences.map(expe=>(
                                 <div key={expe.id}
-                                    className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
+                                    className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>

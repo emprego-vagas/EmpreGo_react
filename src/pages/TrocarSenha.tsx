@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useSearchParams } from "react-router-dom";
-import ParticlesBackgroundComponent from './ParticlesBackground';
+import ParticlesBackgroundComponent from '../animation/ParticlesBackground';
 
 // * CSS
 import '../css/login.css';

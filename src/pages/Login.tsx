@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
-import ParticlesBackgroundComponent from './ParticlesBackground';
+import ParticlesBackgroundComponent from '../animation/ParticlesBackground';
 // import backgroundroxo from '../assets/imgs/purpleBG.png'
 
 // * Funções
@@ -119,7 +119,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 flex justify-center items-center p-5">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex justify-center items-center p-5">
             <ParticlesBackgroundComponent />
             
             {/* Botão de voltar à tela inicial */}
