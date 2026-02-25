@@ -981,7 +981,7 @@ export default function PerfilEmpresaPublico() {
                     <div className="flex items-start">
                       <FontAwesomeIcon icon={faBuilding} className="text-professional-accent mr-3 mt-1" />
                       <div>
-                        <h3 className="font-bold text-white">Sede Principal</h3>
+                        <h3 className="font-bold text-black dark:text-white">Sede Principal</h3>
 
                         {empPerfil.city && empPerfil.state ? (
                           <p className="text-dark-700 dark:text-professional-subtitle">

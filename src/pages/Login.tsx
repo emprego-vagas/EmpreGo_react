@@ -7,7 +7,8 @@ import ParticlesBackgroundComponent from '../animation/ParticlesBackground';
 // import backgroundroxo from '../assets/imgs/purpleBG.png'
 
 // * Funções
-import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, formatarTelefone, validarCep } from '../ts/loginFunctions'
+import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCnpj, formatarData, formatarCep, formatarTelefone, validarCep } from '../ts/loginFunctions'
+//imports apagados { formatarCep, formatarTelefone, validarCep}
 
 // * CSS
 import '../css/login.css'
@@ -117,7 +118,7 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex justify-center items-center p-5">
+        <div className="min-h-screen bg-gradient-to-br bg-white dark:bg-black flex justify-center items-center p-5">
             <ParticlesBackgroundComponent />
             
             {/* Botão de voltar à tela inicial */}

@@ -405,7 +405,7 @@ export default function Index() {
                             <p className="text-primary-500 dark:text-primary-400 text-center mb-4 ">Front-end</p>
                             <p className="text-gray-600 dark:text-gray-400 text-center">
                                 Alec Vinícius é um desenvolvedor front-end, tendo a obrigação de criar interfaces intuitivas e
-                                responsivas. Com experiência em HTML, CSS, tailwindcss, anime.js e JavaScript.
+                                responsivas. Com experiência em React vite, vue e Native, tailwindcss, anime.js, Three.js, JavaScript, TypeScript...
                             </p>
                         </div>
 
