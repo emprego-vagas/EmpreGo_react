@@ -7,7 +7,7 @@ export interface NotificationEG {
         name: string;
         type: 'candidato' | 'empresa';
         image: string;
-    };
+    } | 'Sistema';
     recipient: {
         id: string;
         type: 'candidato' | 'empresa';
@@ -16,7 +16,7 @@ export interface NotificationEG {
     event?: {
         chat_request?: {
             action: 'create'|'accept'|'refuse'|'cancel';
-            id?: string;
+            id: string;
             chatId?: string;
         };
         chat?: {
@@ -32,7 +32,7 @@ export interface NotificationData {
     category: string;
     text: string;
     read: boolean;
-    image: string | null;
+    image?: string | null;
     createdAt: Date;
 }
 

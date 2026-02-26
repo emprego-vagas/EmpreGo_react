@@ -151,6 +151,7 @@ export class DadosUsuario {
     static clearUsuario(){
         localStorage.removeItem('dadosUsuario');
         localStorage.removeItem('VSLoginKey');
+        localStorage.removeItem('NotificacoesEmpreGo');
     }
 
     static setarLoginKey(loginKey: string){
