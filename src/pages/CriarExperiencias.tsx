@@ -14,7 +14,7 @@ export default function CriarExperiencias() {
 
     const [descricao, setDescricao] = useState('');
     const descricaoLength = descricao.length;
-    let corDescricaoLength = 'text-professional-subtitle';
+    let corDescricaoLength = 'text-professional-dark dark:text-professional-subtitle';
     if(descricaoLength>2990) corDescricaoLength = 'text-red-500';
     else if (descricaoLength>2900) corDescricaoLength = 'text-yellow-500';
 
@@ -69,19 +69,19 @@ export default function CriarExperiencias() {
                 </div>
 
                 <div id="caixaNova"
-                    className="rounded-2xl p-10 border border-professional-card shadow-xl mb-8 animate-fade-in bg-white dark:bg-professional-dark transition-colors duration-300">
+                    className="rounded-2xl p-10 border border-professional-card shadow-xl mb-8 animate-fade-in bg-white dark:bg-black transition-colors duration-300">
                 {/* <!-- Título --> */}
                 <div className="mb-6">
                     <label htmlFor="inputTitulo" className="block mb-2 font-medium text-professional-dark dark:text-professional-subtitle">Título Profissional *</label>
                     <input id="inputTitulo" type="text" maxLength={50} placeholder="Ex: Gerente de Projetos" value={titulo} onChange={(e)=>setTitulo(e.target.value)}
-                        className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-xl font-semibold text-professional-text dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText dark:placeholder-professional-subtitleText"/>
+                        className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-xl text-professional-text dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"/>
                 </div>
 
                 {/* <!-- Empresa --> */}
                 <div className="mb-6">
                     <label htmlFor="inputEmpresa" className="block mb-2 font-medium text-professional-dark dark:text-professional-subtitle">Empresa *</label>
                     <input id="inputEmpresa" type="text" maxLength={50} placeholder="Ex: Tech Solutions Ltda" value={nome} onChange={(e)=>setNome(e.target.value)}
-                        className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-text dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText dark:placeholder-professional-subtitleText" />
+                        className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-text dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText" />
                 </div>
 
                 {/* <!-- Datas e Atual --> */}
@@ -100,13 +100,13 @@ export default function CriarExperiencias() {
                             Data de Fim *
                         </label>
                         <input id="dataFim" type="month" ref={dataFimRef} value={dataFim} onChange={(e)=>setDataFim(e.target.value)} min={`${anoMinimo}-01`} max={`${anoAtual}-12`}
-                            className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-text dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
+                            className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-dark dark:text-white transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
                     </div>
 
                     <div className="flex items-end">
                         <div className="flex items-center">
                             <input id="checkAtual" type="checkbox" ref={checkAtualRef} checked={checkAtual} onChange={(e)=>{handleCheckAtual();setCheckAtual(e.target.checked)}}
-                                className="w-5 h-5 appearance-none rounded-full border border-professional-card bg-white dark:bg-professional-dark checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
+                                className="w-5 h-5 appearance-none rounded-full border border-professional-card checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
                             <label htmlFor="checkAtual"
                                 className="ml-2 font-medium select-none transform -translate-y-4 text-professional-dark dark:text-professional-subtitle">Atualmente trabalho aqui</label>
                         </div>
@@ -119,14 +119,14 @@ export default function CriarExperiencias() {
                     <textarea id="caixaText"
                         placeholder="Descreva suas responsabilidades, conquistas, tecnologias utilizadas e resultados alcançados nesta experiência. Seja específico e use métricas quando possível."
                         maxLength={3000} value={descricao} onChange={(e)=>setDescricao(e.target.value)}
-                        className="w-full h-48 p-6 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-dark dark:text-white resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-subtitleText dark:placeholder-professional-subtitleText"></textarea>
-                    <div className={`char-counter text-right ${corDescricaoLength} text-sm mt-2`} id="charCounter">{`${descricaoLength}/3000 caracteres`}</div>
+                        className="w-full h-48 p-6 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-professional-dark dark:text-white resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"></textarea>
+                    <div className={`char-counter text-right ${corDescricaoLength} text-sm mt-2 `} id="charCounter">{`${descricaoLength}/3000 caracteres`}</div>
                 </div>
 
                 {/* <!-- Habilidades --> */}
                 <div className="mb-6">
                     <label htmlFor="inputHabilidades" className="block mb-2 font-medium text-professional-dark dark:text-professional-subtitle">Habilidades</label>
-                    <div className="flex flex-wrap items-center bg-professional-dark dark:bg-professional-card border border-professional-card rounded-xl px-4 py-3 transition-all focus-within:border-professional-accent focus-within:ring-3 focus-within:ring-professional-accent/20">
+                    <div className="flex flex-wrap items-center bg-white dark:bg-professional-card border border-professional-card rounded-xl px-4 py-3 transition-all focus-within:border-professional-accent focus-within:ring-3 focus-within:ring-professional-accent/20">
                         <div id="tagsContainer" className="flex flex-wrap items-center">
                             {tags.length>0 && tags.map((tag, index)=>(
                                 <div className="tag inline-flex items-center bg-professional-gray dark:bg-professional-lightaccent text-slate-300 dark:text-white px-3 py-1 rounded-md text-xs mr-2 mb-2" key={tag}>
@@ -138,9 +138,9 @@ export default function CriarExperiencias() {
                             ))}
                         </div>
                         <input id="inputHabilidades" type="text" placeholder="Digite uma habilidade e pressione Enter" onKeyDown={(e)=>handleKeyDownTag(e)}
-                            className="flex-1 bg-transparent border-0 outline-0 text-professional-text dark:text-white placeholder-professional-subtitleText dark:placeholder-professional-subtitleText" />
+                            className="flex-1 bg-transparent border-0 outline-0 text-professional-text dark:text-white placeholder-professional-gray dark:placeholder-professional-subtitleText" />
                     </div>
-                    <p className="text-professional-subtitle dark:text-professional-subtitleText text-xs mt-2">Pressione Enter ou vírgula para adicionar uma habilidade</p>
+                    <p className="text-professional-dark dark:text-professional-subtitleText text-xs mt-2">Pressione Enter ou vírgula para adicionar uma habilidade</p>
                 </div>
                 </div>
 
