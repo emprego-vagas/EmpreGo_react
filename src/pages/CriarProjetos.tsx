@@ -73,12 +73,12 @@ export default function CriarProjetos() {
 
     const handleFile = (file: File) => {
         if (!file.type.startsWith("image/")) {
-        alert("Por favor, selecione uma imagem.");
-        return;
+            alert("Por favor, selecione uma imagem.");
+            return;
         }
         if (file.size > 5 * 1024 * 1024) {
-        alert("O arquivo deve ter no máximo 5MB.");
-        return;
+            alert("O arquivo deve ter no máximo 5MB.");
+            return;
         }
         setImagem(file);
     };

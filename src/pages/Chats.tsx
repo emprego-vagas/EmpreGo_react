@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo, sendNotification } from '../utils/globalFunctions';
+import { DadosUsuario, fileDownload, mostrarErroTopo, mostrarSucessoTopo } from '../utils/globalFunctions';
 import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUsers, faStar, faGear, faReply, faBriefcase, faLock, faSearch, faEllipsisVertical, faCircleInfo, faXmark, faBan, faTrash, faTrashCan, faChevronUp, faChevronDown, faTimes, faFile, faImage, faCamera, faPaperclip, faPaperPlane, faFileZipper, faDownload, faClock, faCheck, faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
@@ -366,59 +366,37 @@ export default function Chats() {
         }
     ]);
 
-    const aceitarSolicitacao = async(id: string, destinatarioid: string) => {
+    const aceitarSolicitacao = async(id: string) => {
         setSolicitacoes(prev => prev.map(sol => 
-        sol.id === id ? { ...sol, status: 'aceita' } : sol
+            sol.id === id ? { ...sol, status: 'aceita' } : sol
         ));
         try {
             const response = await axiosWe.post('/chat', {requestId: id});
             const novaConversa: Conversa = conversaConstructor(usuario.tipo, response.data);
             setDadosConversas([novaConversa, ...dadosConversas]);
             socketAuthEmit('joinChat', ()=>console.log('Entrou no chat:',novaConversa.id), ()=>mostrarErroTopo('Erro ao entrar no chat.'), novaConversa.id);
-            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-            sendNotification({id: destinatarioid, type: recipientType}, {
-                solicitacao_conversa: {
-                    action: 'aceitar',
-                    newChatId: novaConversa.id,
-                    id
-                }
-            })
         } catch (erro) {
             console.error('Erro ao aceitar solicitação:',erro)
         }
     };
 
-    const recusarSolicitacao = async(id: string, destinatarioid: string) => {
+    const recusarSolicitacao = async(id: string) => {
         setSolicitacoes(prev => prev.map(sol => 
         sol.id === id ? { ...sol, status: 'recusada' } : sol
         ));
         try {
             if(usuario.tipo==='candidato') await axiosWe.delete(`/chat/request/${id}/candidate`);
             else await axiosWe.delete(`/chat/request/${id}/company`);
-            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-            sendNotification({id: destinatarioid, type: recipientType}, {
-                solicitacao_conversa: {
-                    action: 'recusar',
-                    id
-                }
-            })
         } catch (erro) {
             console.error('Erro ao recusar solicitação:',erro)
         }
     };
 
-    const cancelarSolicitacao = async(id: string, destinatarioid: string) => {
+    const cancelarSolicitacao = async(id: string) => {
         setSolicitacoes(prev => prev.filter(sol => sol.id !== id));
         try {
             if(usuario.tipo==='candidato') await axiosWe.delete(`/chat/request/${id}/company`);
             else await axiosWe.delete(`/chat/request/${id}/candidate`);
-            const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato'
-            sendNotification({id: destinatarioid, type: recipientType}, {
-                solicitacao_conversa: {
-                    action: 'cancelar',
-                    id
-                }
-            })
         } catch (erro) {
             console.error('Erro ao cancelar solicitação:',erro)
         }
@@ -609,14 +587,14 @@ export default function Chats() {
                                     
                                     <div className="flex gap-1">
                                     <button
-                                        onClick={() => aceitarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                        onClick={() => aceitarSolicitacao(solicitacao.id)}
                                         className="p-2 text-green-400 hover:bg-green-400 hover:text-white rounded transition-colors"
                                         title="Aceitar"
                                     >
                                         <FontAwesomeIcon icon={faCheck} />
                                     </button>
                                     <button
-                                        onClick={() => recusarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                        onClick={() => recusarSolicitacao(solicitacao.id)}
                                         className="p-2 text-red-400 hover:bg-red-400 hover:text-white rounded transition-colors"
                                         title="Recusar"
                                     >
@@ -656,7 +634,7 @@ export default function Chats() {
                                     </div>
                                     
                                     <button
-                                    onClick={() => cancelarSolicitacao(solicitacao.id, solicitacao.usuario_id)}
+                                    onClick={() => cancelarSolicitacao(solicitacao.id)}
                                     className="p-2 text-red-400 hover:bg-red-400 hover:text-white rounded transition-colors"
                                     title="Cancelar solicitação"
                                     >
@@ -1752,13 +1730,6 @@ export default function Chats() {
                                                     )
                                                 });
                                                 setConversaAtualId('0');
-                                                const recipientType = usuario.tipo === 'candidato' ? 'empresa' : 'candidato';
-                                                sendNotification({id: chatToRemove.remetente, type: recipientType}, {
-                                                    conversa: {
-                                                        action: 'deletar',
-                                                        id: chatId
-                                                    }
-                                                });
                                                 break;
                                             }               
                                             case 'save': {
@@ -1832,13 +1803,6 @@ export default function Chats() {
                                         const enviou = await enviarSolicitacaoConversa(usuario.tipo, novaSolicitacao.id);
                                         if(enviou.foi) {
                                             mostrarSucessoTopo('Solicitação de conversa enviada com sucesso!');
-                                            const recipientType = novaSolicitacao.tipo.toLowerCase() as 'empresa'|'candidato';
-                                            sendNotification({id: novaSolicitacao.id, type: recipientType}, {
-                                                solicitacao_conversa: {
-                                                    action: 'criar',
-                                                    id: enviou.solicitacaoId!
-                                                }
-                                            })
                                             setSolicitacoes([{
                                                 id: enviou.solicitacaoId!,
                                                 usuario_id: novaSolicitacao.id,

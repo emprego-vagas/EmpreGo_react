@@ -112,7 +112,7 @@ axiosWe.interceptors.response.use(function (config) {
   // }
 
   if(erroTopo) mostrarErroTopo(msg);
-  return Promise.reject({ message: msg, status: status, originalError: originalError });
+  return Promise.reject({ message: msg, status: status, originalError: originalError, type });
 });
 
 export interface AxiosWeError {
