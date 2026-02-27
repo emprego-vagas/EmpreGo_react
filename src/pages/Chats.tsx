@@ -141,6 +141,7 @@ export default function Chats() {
 
             if(object.eventType==='ChatRequest'){
                 const sender = notif.sender;
+                if(sender==='Sistema') return;
                 if(object.action==='create'){
                     const solicitacaoId = object.id;
                     if(!solicitacaoId) return;
@@ -1284,15 +1285,16 @@ export default function Chats() {
                                         </div>
                                         <div className="flex justify-center space-x-3">
                                             <button id="btnCancelarEnvio" onClick={()=>{
-                                                inputDocRef.current.value = '';
-                                                inputImgRef.current.value = '';
-                                                inputCamRef.current.value = '';
+                                                if (inputDocRef.current) inputDocRef.current.value = '';
+                                                if (inputImgRef.current) inputImgRef.current.value = '';
+                                                if (inputCamRef.current) inputCamRef.current.value = '';
                                                 setFileData({name: '', size: '', tipo: ''});
                                                 setMostrarModalConfirmacao(false);
                                             }}
                                                 className="px-4 py-2 rounded-lg bg-dark-600 text-gray-300 hover:bg-dark-500 transition-colors cursor-pointer">Cancelar</button>
                                             <button id="btnConfirmarEnvio" onClick={async(e)=>{
                                                 e.currentTarget.disabled = true;
+                                                e.currentTarget.textContent = 'Enviando...';
                                                 const fileDataTipo = fileData.tipo;
                                                 const arquivoSelecionado = fileDataTipo === 'documento' ? inputDocRef.current.files[0] : fileDataTipo === 'foto' ? inputImgRef.current.files[0] : inputCamRef.current.files[0];
                                                 const formData = new FormData();
@@ -1327,9 +1329,13 @@ export default function Chats() {
                                                 } catch (erro) {
                                                     console.error(erro);
                                                 } finally {
+                                                    if (inputDocRef.current) inputDocRef.current.value = '';
+                                                    if (inputImgRef.current) inputImgRef.current.value = '';
+                                                    if (inputCamRef.current) inputCamRef.current.value = '';
                                                     setFileData({name: '', size: '', tipo: ''});
                                                     setMostrarModalConfirmacao(false);
                                                     e.currentTarget.disabled = false;
+                                                    e.currentTarget.textContent = 'Confirmar';
                                                 }
                                             }}
                                                 className="px-4 py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer">Confirmar</button>
