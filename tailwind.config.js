@@ -26,7 +26,7 @@ module.exports = {
 
         professional: {
           dark: "#0A0A0B",
-          gray: "#1A1A1D",
+          gray: "#333337",
           card: "#242428",
           accent: "#7C3AED",
           lightaccent: "#8B5CF6",
