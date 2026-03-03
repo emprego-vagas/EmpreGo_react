@@ -8,7 +8,9 @@ import Teste from './pages/teste';
 import Chats from './pages/Chats';
 import PerfilCandidato from './pages/PerfilCandidato';
 import CriarExperiencias from './pages/CriarExperiencias';
+import CriarCertificacoes from './pages/CriarCertificacoes';
 import CriarProjetos from './pages/CriarProjetos';
+import CriarFormacoes from './pages/CriarFormacoes';
 import EditarPerfilCandidato from './pages/EditarPerfilCandidato';
 import Suporte from './pages/Suporte';
 import Loader from './components/Loader';
@@ -69,6 +71,8 @@ function App() {
         <Route path='/perfil/empresa/editar' element={<EditarPerfilEmpresa/>} />
         <Route path='/experiencias/criar'element={<CriarExperiencias/>} />
         <Route path='/projetos/criar'element={<CriarProjetos/>} />
+        <Route path='/certificacoes/criar'element={<CriarCertificacoes/>} />
+        <Route path='/formacoes/criar'element={<CriarFormacoes/>} />
         <Route path='/empresas' element={<CandVagas />} />
         <Route path='/candidatos' element={<ViewCandidatos />} />
         <Route path='/empresa/:id' element={<EmpresasPF />} />

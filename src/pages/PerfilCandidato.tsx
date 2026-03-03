@@ -589,8 +589,9 @@ export default function PerfilCandidato() {
                     <div id="certificacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card dark:border-professional-card hover:border-professional-dark duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px]">
-                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                onClick={()=>{navigate('/certificacoes/criar')}}>
+                                <Link to="/certificacoes/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-dark dark:text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novas Certificações
                                     </p>
@@ -644,7 +645,7 @@ export default function PerfilCandidato() {
                     <div id="projetos" className="tab-pane">
                         <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/projetos/criar')}}>
                                 <Link to="/projetos/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
@@ -716,8 +717,9 @@ export default function PerfilCandidato() {
                     <div id="formacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent">
-                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                onClick={()=>{navigate('/formacoes/criar')}}>
+                                <Link to="/formacoes/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
                                 </Link>

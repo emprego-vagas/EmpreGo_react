@@ -120,7 +120,7 @@ export default function CriarProjetos() {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen bg-white dark:bg-black transition-colors duration-300">
+        <div className="flex flex-col min-h-screen bg-white dark:bg-dark-600 transition-colors duration-300">
             <HeaderProfiles />
             <div id="main" className="flex-1 max-w-4xl mx-auto w-full px-6 py-8">
                 <div className="page-header text-center mb-10">
@@ -136,7 +136,7 @@ export default function CriarProjetos() {
                         <label htmlFor="inputTitulo" className="block text-black dark:text-professional-subtitle mb-2 font-medium">Título do Projeto
                             *</label>
                         <input id="inputTitulo" type="text" maxLength={50} placeholder="Ex: Sistema de Gestão Empresarial" value={titulo} onChange={(e)=>setTitulo(e.target.value)}
-                            className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-text text-xl font-semibold transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText "/>
+                            className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"/>
                     </div>
 
                     {/* <!-- Empresa/Cliente --> */}
@@ -144,7 +144,7 @@ export default function CriarProjetos() {
                         <label htmlFor="inputEmpresa" className="block text-black dark:text-professional-subtitle mb-2 font-medium">Empresa/Cliente
                             *</label>
                         <input id="inputEmpresa" type="text" maxLength={50} placeholder="Ex: Tech Solutions Ltda" value={nome} onChange={(e)=>setNome(e.target.value)}
-                            className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"/>
+                            className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"/>
                     </div>
 
                     {/* <!-- Status do Projeto --> */}
@@ -153,10 +153,10 @@ export default function CriarProjetos() {
                             Status do Projeto *
                         </label>
                         <select id="selectStatus" value={status} onChange={(e)=>setStatus(e.target.value)}
-                            className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-subtitle transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
+                            className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20">
 
                             {/* <!-- Opção padrão --> */}
-                            <option value="" disabled selected className="text-black dark:text-professional-subtitle">Adicione os status do seu projeto</option>
+                            <option value="" disabled className="text-black dark:text-professional-subtitle">Adicione os status do seu projeto</option>
 
                             <option value="Concluído" className="bg-white dark:bg-professional-dark">Concluído</option>
                             <option value="Em Andamento" className="bg-white dark:bg-professional-dark">Em Andamento</option>
@@ -173,7 +173,7 @@ export default function CriarProjetos() {
                                 Data de Início *
                             </label>
                             <input id="dataInicio" type="month" value={dataInicio} onChange={(e)=>setDataInicio(e.target.value)} min={`${anoMinimo}-01`} max={`${anoAtual}-12`}
-                                className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
+                                className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
                         </div>
 
                         <div id="dataFimContainer" className={dataFimContainerOpacity}>
@@ -181,13 +181,13 @@ export default function CriarProjetos() {
                                 Data de Fim <span id="labelASt">*</span>
                             </label>
                             <input id="dataFim" type="month" ref={dataFimRef} value={dataFim} onChange={(e)=>setDataFim(e.target.value)} min={`${anoMinimo}-01`} max={`${anoAtual}-12`}
-                                className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
+                                className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20" />
                         </div>
 
                         <div className="flex items-end">
                             <div className="flex items-center">
                                 <input id="checkAtual" type="checkbox" ref={checkAtualRef} checked={checkAtual} onChange={(e)=>{handleCheckAtual();setCheckAtual(e.target.checked)}}
-                                    className="w-5 h-5 appearance-none rounded-full border border-professional-card bg-white dark:bg-professional-dark checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
+                                    className="w-5 h-5 appearance-none rounded-full border border-professional-card checked:bg-professional-accent checked:border-professional-accent transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-professional-accent/50 transform -translate-y-4" />
                                 <label htmlFor="checkAtual"
                                     className="ml-2 text-black dark:text-professional-subtitle font-medium select-none transform -translate-y-4">Sem data de conclusão</label>
                             </div>
@@ -201,7 +201,7 @@ export default function CriarProjetos() {
                         <textarea id="caixaText"
                             placeholder="Descreva o projeto, suas funcionalidades, seu papel no desenvolvimento, tecnologias utilizadas e resultados alcançados. Seja específico e use métricas quando possível."
                             maxLength={3000} value={descricao} onChange={(e)=>setDescricao(e.target.value)}
-                            className="w-full h-48 p-6 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-subtitle resize-y transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText"></textarea>
+                            className="w-full h-48 px-6 py-4 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20"></textarea>
                         <div className={`char-counter text-right ${corDescricaoLength} text-sm mt-2`} id="charCounter">{`${descricaoLength}/3000
                             caracteres`}</div>
                     </div>
@@ -211,10 +211,10 @@ export default function CriarProjetos() {
                         <label htmlFor="inputHabilidades" className="block text-black dark:text-professional-subtitle mb-2 font-medium">Tecnologias
                             Utilizadas (Opcional)</label>
                         <div
-                            className="flex flex-wrap items-center bg-white dark:bg-professional-dark border border-professional-card rounded-xl px-4 py-3 transition-all focus-within:border-professional-accent focus-within:ring-3 focus-within:ring-professional-accent/20">
+                            className="flex flex-wrap items-center bg-white dark:bg-professional-card border border-professional-dark rounded-xl px-4 py-3 transition-all focus-within:border-professional-accent focus-within:ring-3 focus-within:ring-professional-accent/20">
                             <div id="tagsContainer" className="flex flex-wrap items-center">
                                 {tags.length>0 && tags.map((tag, index)=>(
-                                    <div className="tag inline-flex items-center bg-professional-gray text-slate-300 px-3 py-1 rounded-md text-xs mr-2 mb-2" key={tag}>
+                                    <div className="tag inline-flex items-center bg-black text-slate-300 px-3 py-1 rounded-md text-xs mr-2 mb-2" key={tag}>
                                         {tag} 
                                         <span className="tag-remove ml-2 cursor-pointer text-slate-300 hover:text-slate-50" onClick={()=>setTags((prev)=>prev.filter((_, i)=>i!==index))}>
                                             <FontAwesomeIcon icon={faXmark} />
@@ -223,7 +223,7 @@ export default function CriarProjetos() {
                                 ))}
                             </div>
                             <input id="inputHabilidades" type="text" placeholder="Digite uma tecnologia e pressione Enter" onKeyDown={(e)=>handleKeyDownTag(e)}
-                                className="flex-1 bg-transparent border-0 outline-0 text-professional-text placeholder-professional-gray dark:placeholder-professional-subtitleText " />
+                                className="flex-1 bg-transparent border-0 outline-0 text-black dark:text-professional-text placeholder-professional-gray dark:placeholder-professional-subtitleText " />
                         </div>
                         <p className="text-black dark:text-professional-subtitle text-xs mt-2">Pressione Enter ou vírgula para adicionar uma
                             tecnologia</p>
@@ -234,7 +234,7 @@ export default function CriarProjetos() {
                         <label htmlFor="inputLink" className="block text-black dark:text-professional-subtitle mb-2 font-medium">Link do Projeto
                             (Opcional)</label>
                         <input id="inputLink" type="url" placeholder="https://meuprojeto.com" value={linkProjeto} onChange={(e)=>setLinkProjeto(e.target.value)}
-                            className="w-full px-6 py-4 bg-white dark:bg-professional-dark border border-professional-card rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText" />
+                            className="w-full px-4 py-3 bg-white dark:bg-professional-card border border-professional-dark rounded-xl text-black dark:text-professional-text transition-all focus:outline-none focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-professional-gray dark:placeholder-professional-subtitleText" />
                     </div>
 
                     {/* <!-- Imagem --> */}
@@ -257,7 +257,7 @@ export default function CriarProjetos() {
                                 ? "border-professional-accent bg-professional-accent/5"
                                 : dragOver
                                 ? "border-professional-accent bg-professional-accent/10"
-                                : "border-professional-card bg-white dark:bg-professional-dark/50 hover:border-professional-accent hover:bg-professional-accent/5"
+                                : "border-professional-card bg-white dark:bg-professional-card hover:border-professional-accent hover:bg-professional-accent/5"
                             }`}
                         >
                             {!preview ? (

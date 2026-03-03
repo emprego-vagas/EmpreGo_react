@@ -1018,7 +1018,7 @@ export default function PerfilEmpresaPublico() {
                         <div className="flex items-start">
                           <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-accent mr-3 mt-1" />
                           <div>
-                            <h3 className="font-bold text-white">
+                            <h3 className="font-bold text-dark-700 dark:text-white">
                               {filial.category || 'Unidade'} - {filial.city}
                             </h3>
                             <p className="text-dark-700 dark:text-professional-subtitle">{filial.state}</p>
