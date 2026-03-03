@@ -9,7 +9,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import Loader from "../components/Loader";
-import type { Candidato, CustomCand, Idioma, Tag } from "../utils/utilsInterfaces";
+import type { Candidato, CustomCand, Experiencia, Idioma, Tag } from "../utils/utilsInterfaces";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -64,6 +64,14 @@ export default function PerfilCandidato() {
 
     const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; city?: string; email?: string;} | null>(null);
     const [customPerfil, setCustomPerfil] = useState<CustomCand | null>(null);
+    const [customLoadings, setCustomLoadings] = useState({
+        experiencias: false,
+        experiencias_page: 1,
+        certificacoes: false,
+        projetos: false,
+        formacoes: false
+    });
+
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
     const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
     const mostrarMaisTagsRef = useRef(null);
@@ -550,37 +558,97 @@ export default function PerfilCandidato() {
                                         profissional</p>
                                 </Link>
                             </div>
-                            {customPerfil.experiencesTotal>0 && customPerfil.experiences.map(expe=>(
-                                <div key={expe.id}
-                                    className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
-                                            <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                            {customPerfil.experiencesTotal>0 && (()=>{
+                                let experiencesToExib: Experiencia[];
+                                const inMemoryLength = customPerfil.experiences.length;
+                                if(inMemoryLength!==customPerfil.experiencesTotal){
+                                    experiencesToExib = customPerfil.experiences.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                } else {
+                                    experiencesToExib = customPerfil.experiences
+                                }
+                                return experiencesToExib.map(expe=>(
+                                    <div key={expe.id}
+                                        className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
+                                                <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                                            </div>
+                                            {expe.period.split(' - ')[1] === 'Presente' && (
+                                                <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
+                                            )}
                                         </div>
-                                        {expe.period.split(' - ')[1] === 'Presente' && (
-                                            <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
-                                        )}
+                                        <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
+                                        <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {expe.experiences_tags[0] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
+                                            )}
+                                            {expe.experiences_tags[1] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
+                                            )}
+                                            {expe.experiences_tags[2] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
-                                    <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {expe.experiences_tags[0] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
-                                        )}
-                                        {expe.experiences_tags[1] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
-                                        )}
-                                        {expe.experiences_tags[2] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            })()}
 
                             {/* <!-- Experiências adicionadas aparecerão aqui --> */}
                             
                         </div>
+
+                        {customPerfil.experiencesTotal !== customPerfil.experiences.length && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.experiencias}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, experiencias: true}));
+                                    try {
+                                        const response = await axiosWe(`/experience/candidate/${candPerfil.id}?page=${customLoadings.experiencias_page+1}`);
+                                        const data = response.data as Experiencia[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            experiences: [...new Set([...prev.experiences, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, experiencias: false, experiencias_page: prev.experiencias_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, experiencias: false}));
+                                        console.error('Erro ao carregar mais experiencias:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.experiencias?'Carregando...':'Mostrar mais experiências'}</span>
+                                </button>
+                            </div>
+                            )}
                     </div>
                     )}
 
