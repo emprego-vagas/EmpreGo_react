@@ -28,11 +28,11 @@ export default function HeaderInit(){
 
                     {/* Navegação */}
                     <nav className="links hidden md:flex items-center space-x-8">
-                        <Link to="/#home"
+                        <Link to="/inicio/#home"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Início</Link>
-                        <Link to="/#servicos"
+                        <Link to="/inicio/#servicos"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Serviços</Link>
-                        <Link to="/#biografias"
+                        <Link to="/inicio/#biografias"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Biografias</Link>
                         <Link to="/sobre"
                             className="text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors link-underline">Sobre</Link>
@@ -74,9 +74,9 @@ export default function HeaderInit(){
                     mobileOpen ? "block" : "hidden"
                 }`}
                 >
-                    <Link to="#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
-                    <Link to="#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</Link>
-                    <Link to="#biografias"
+                    <Link to="/inicio/#home" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Início</Link>
+                    <Link to="/inicio/#servicos" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Serviços</Link>
+                    <Link to="/inicio/#biografias"
                         className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Biografias</Link>
                     <Link to="/sobre" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Sobre</Link>
                     <Link to="/suporte" className="block text-gray-600 hover:text-primary-500 dark:text-gray-300 dark:hover:text-primary-400 transition-colors">Suporte</Link>

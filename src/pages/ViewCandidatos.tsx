@@ -209,7 +209,7 @@ const Main: React.FC = () => {
     const [usuario] = useState(DadosUsuario.getUsuario(true, 'empresa'));
     if (!usuario) {
         setTimeout(() => {
-            navigate('/')
+            navigate('/inicio')
         }, 3000)
     };
 

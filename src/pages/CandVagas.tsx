@@ -210,7 +210,7 @@ const Main: React.FC = () => {
     const [usuario] = useState(DadosUsuario.getUsuario(true, 'candidato'));
     if (!usuario) {
         setTimeout(() => {
-            navigate('/')
+            navigate('/inicio')
         }, 3000)
     };
 

@@ -39,11 +39,11 @@ export default function Footer () {
                     <div>
                         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-400 mb-4">Links Rápidos</h3>
                         <ul className="space-y-2">
-                            <li><Link to="/#home" className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Início</Link>
+                            <li><Link to="/inicio/#home" className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Início</Link>
                             </li>
-                            <li><Link to="/#servicos"
+                            <li><Link to="/inicio/#servicos"
                                 className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Serviços</Link></li>
-                            <li><Link to="/#biografias"
+                            <li><Link to="/inicio/#biografias"
                                 className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Biografias</Link></li>
                             <li><Link to="/sobre" className=" text-gray-700 dark:text-gray-400 hover:text-primary-400 transition-colors">Sobre</Link>
                             </li>
