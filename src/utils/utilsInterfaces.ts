@@ -17,6 +17,8 @@ export interface Candidato {
     current_position: string | null;
     current_company: string | null;
     created_at: Date;
+    contact_email: string | null;
+    city: string | null;
 }
 
 export interface CustomCand {

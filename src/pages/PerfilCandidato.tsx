@@ -9,7 +9,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import Loader from "../components/Loader";
-import type { Candidato, CustomCand, Experiencia, Idioma, Tag } from "../utils/utilsInterfaces";
+import type { Candidato, CustomCand, Experiencia, Idioma, ProjetoCand, Tag } from "../utils/utilsInterfaces";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -68,8 +68,11 @@ export default function PerfilCandidato() {
         experiencias: false,
         experiencias_page: 1,
         certificacoes: false,
+        certificacoes_page: 1,
         projetos: false,
-        formacoes: false
+        projetos_page: 1,
+        formacoes: false,
+        formacoes_page: 1
     });
 
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
@@ -191,14 +194,14 @@ export default function PerfilCandidato() {
                             id="btnVerPerfilPublico"
                             onClick={() => navigate(`/candidato/${usuario?.id}`)}
                             className="group flex items-center justify-center gap-2
-                                        bg-transparent border border-professional-card
-                                        dark:border-professional-accent
-                                        text-professional-gray dark:text-white
-                                        font-medium py-2.5 px-5 rounded-lg w-full mt-3
-                                        transition-all duration-200 ease-in-out
-                                        hover:bg-professional-card
-                                        dark:hover:bg-professional-accent
-                                        hover:text-white"
+                                bg-transparent border border-professional-card
+                                dark:border-professional-accent
+                                text-professional-gray dark:text-white
+                                font-medium py-2.5 px-5 rounded-lg w-full mt-3
+                                transition-all duration-200 ease-in-out
+                                hover:bg-professional-card
+                                dark:hover:bg-professional-accent
+                                hover:text-white"
                             title="Ver perfil público"
                             >
                             <FontAwesomeIcon
@@ -720,63 +723,122 @@ export default function PerfilCandidato() {
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novos projetos</p>
                                 </Link>
                             </div>
-                            {customPerfil.candProjectsTotal>0 && customPerfil.candProjects.map(proj=>(
-                                <div key={proj.id}
-                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
+                            {customPerfil.candProjectsTotal>0 && (()=>{
+                                let projectsToExib: ProjetoCand[];
+                                const inMemoryLength = customPerfil.candProjects.length;
+                                if(inMemoryLength!==customPerfil.candProjectsTotal){
+                                    projectsToExib = customPerfil.candProjects.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                } else {
+                                    projectsToExib = customPerfil.candProjects
+                                }
+                                return projectsToExib.map(proj=>(
+                                    <div key={proj.id}
+                                        className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
 
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
-                                            <p className="text-professional-accent font-medium">{proj.name}</p>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
+                                                <p className="text-professional-accent font-medium">{proj.name}</p>
+                                            </div>
+                                            <span
+                                                className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
+                                                {proj.status}
+                                            </span>
                                         </div>
-                                        <span
-                                            className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
-                                            {proj.status}
-                                        </span>
+
+                                        <p className="text-professional-subtitle mb-2">{proj.period}</p>
+
+                                        <div className="relative mb-4">
+                                            <img src={proj.image} alt="Imagem do projeto"
+                                                className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
+
+                                            {proj.link && (
+                                                <Link to={proj.link} target="_blank" rel="noopener noreferrer"
+                                                    className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
+                                                    title="Visitar site">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                        stroke-width="1" stroke="currentColor" className="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
+                                                    </svg>
+                                                </Link>
+                                            )}
+                                        </div>
+
+                                        {/* <!-- Descrição --> */}
+                                        <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
+                                            {proj.description}
+                                        </p>
+
+                                        {/* <!-- Tags --> */}
+                                        <div className="flex flex-wrap gap-2">
+                                            {proj.cand_projects_tags[0] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[0].name}</span>
+                                            )}
+                                            {proj.cand_projects_tags[1] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[1].name}</span>
+                                            )}
+                                            {proj.cand_projects_tags[2] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[2].name}</span>
+                                            )}
+                                        </div>
                                     </div>
-
-                                    <p className="text-professional-subtitle mb-2">{proj.period}</p>
-
-                                    <div className="relative mb-4">
-                                        <img src={proj.image} alt="Imagem do projeto"
-                                            className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
-
-                                        {proj.link && (
-                                            <Link to={proj.link} target="_blank" rel="noopener noreferrer"
-                                                className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
-                                                title="Visitar site">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke-width="1" stroke="currentColor" className="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
-                                                </svg>
-                                            </Link>
-                                        )}
-                                    </div>
-
-                                    {/* <!-- Descrição --> */}
-                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
-                                        {proj.description}
-                                    </p>
-
-                                    {/* <!-- Tags --> */}
-                                    <div className="flex flex-wrap gap-2">
-                                        {proj.cand_projects_tags[0] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[0].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[1] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[1].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[2] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[2].name}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            })()}
                         </div>
+                        {customPerfil.candProjectsTotal !== customPerfil.candProjects.length && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.projetos}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, projetos: true}));
+                                    try {
+                                        const response = await axiosWe(`/candproject/candidate/${candPerfil.id}?page=${customLoadings.projetos_page+1}`);
+                                        const data = response.data as ProjetoCand[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            candProjects: [...new Set([...prev.candProjects, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, projetos: false, projetos_page: prev.projetos_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, projetos: false}));
+                                        console.error('Erro ao carregar mais projetos:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.projetos?'Carregando...':'Mostrar mais projetos'}</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     )}
 
