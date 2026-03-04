@@ -147,12 +147,10 @@ export default function Login() {
                         visitorId
                     });
 
-                    console.log(res.data)
-
-                    // const user = res.data.user;
-                    // DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
-                    // DadosUsuario.setarLoginKey(res.data.loginKey);
-                    // window.location.href = "/";
+                    const user = res.data.user;
+                    DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+                    DadosUsuario.setarLoginKey(res.data.loginKey);
+                    window.location.href = "/";
                 });
             });
         } catch (err) {

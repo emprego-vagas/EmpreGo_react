@@ -41,9 +41,6 @@ importers:
       boxicons:
         specifier: ^2.1.4
         version: 2.1.4
-      dexie:
-        specifier: ^4.3.0
-        version: 4.3.0
       faceapi:
         specifier: ^1.0.1
         version: 1.0.1
@@ -886,9 +883,6 @@ packages:
 
   detect-touch-events@2.0.2:
     resolution: {integrity: sha512-g8GWBkJLiIDRJfRXEdrd1wMXpNyGId2DkbfuwFahSb4OCvn717hyRJtAcEDISfp3zkwEhZ4Y4woHPA6DeyB3Fw==}
-
-  dexie@4.3.0:
-    resolution: {integrity: sha512-5EeoQpJvMKHe6zWt/FSIIuRa3CWlZeIl6zKXt+Lz7BU6RoRRLgX9dZEynRfXrkLcldKYCBiz7xekTEylnie1Ug==}
 
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -2315,8 +2309,6 @@ snapshots:
   detect-pointer@1.0.3: {}
 
   detect-touch-events@2.0.2: {}
-
-  dexie@4.3.0: {}
 
   didyoumean@1.2.2: {}
 

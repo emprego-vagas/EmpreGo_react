@@ -21,7 +21,6 @@
     "animejs": "^4.2.2",
     "axios": "^1.12.2",
     "boxicons": "^2.1.4",
-    "dexie": "^4.3.0",
     "faceapi": "^1.0.1",
     "framer-motion": "^12.31.0",
     "gsap": "^3.13.0",

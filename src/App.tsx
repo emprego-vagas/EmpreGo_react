@@ -28,7 +28,6 @@ import ViewCandidatos from './pages/ViewCandidatos';
 import { DadosUsuario } from './utils/globalFunctions'
 import EmpresasPF from './pages/EmpresasPF';
 import CandidatosPF from './pages/CandidatosPF'
-import SystemNotice from './components/SystemNotice';
 
 function App() {
   const usuario = DadosUsuario.getUsuario();
@@ -51,7 +50,6 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToHash />
-      <SystemNotice />
       <Routes>
         <Route path='*' element={<NotFound />} />
         <Route path='/timeout' element={<TimeOut />} />

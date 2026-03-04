@@ -1454,7 +1454,7 @@ const Main: React.FC = () => {
                                     onClick={() => {
                                         setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 })
                                         window.scrollTo(0, 0);
-                                    }}>
+                                    }} disabled={filtroAtual.loading}>
                                     Tudo
                                 </button>
                                 {filtrosRecomendados.map((f) => (
@@ -1463,7 +1463,7 @@ const Main: React.FC = () => {
                                             if (filtroAtual.name === f.categoria) return;
                                             setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: f.categoria, page: 1 })
                                             window.scrollTo(0, 0);
-                                        }}>
+                                        }} disabled={filtroAtual.loading}>
                                         {f.nome}
                                     </button>
                                 ))}
