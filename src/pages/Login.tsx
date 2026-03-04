@@ -16,6 +16,7 @@ import axiosWe from '../utils/axiosInstance';
 import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import { useGoogleLogin } from '@react-oauth/google';
 import { getFingerprint } from '../utils/fingerprint';
+import { msalInstance } from '../utils/microsoftLogin';
 // import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 // import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
@@ -116,6 +117,49 @@ export default function Login() {
             loginComGoogle();
         }, 100);
     };
+
+    const handleMicrosoftLogin = async () => {
+        try {
+            await msalInstance.initialize().then(async()=>{
+                await msalInstance.loginRedirect({
+                    scopes: ["openid", "profile", "email"],
+                    prompt: "select_account"
+                });
+            })
+        } catch (err) {
+            console.error("Erro login Microsoft:", err);
+            mostrarErroTopo("Falha no login com Microsoft");
+        }
+    };
+
+    useEffect(() => {
+        try {
+            msalInstance.initialize().then(() => {
+                msalInstance.handleRedirectPromise().then(async (response) => {
+                    if (!response) return;
+
+                    const idToken = response.idToken;
+
+                    const visitorId = await getFingerprint();
+
+                    const res = await axiosWe.post("/auth/microsoft", {
+                        idToken,
+                        visitorId
+                    });
+
+                    console.log(res.data)
+
+                    // const user = res.data.user;
+                    // DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+                    // DadosUsuario.setarLoginKey(res.data.loginKey);
+                    // window.location.href = "/";
+                });
+            });
+        } catch (err) {
+            console.error("Erro login Microsoft:", err);
+            mostrarErroTopo("Falha no login com Microsoft");
+        }
+    }, []);
 
     return (
         <div className="min-h-screen bg-gradient-to-br bg-white dark:bg-black flex justify-center items-center p-5">
@@ -233,6 +277,18 @@ export default function Login() {
                                     className="w-5 h-5"
                                 />
                                 Iniciar com o Google
+                                </button>
+                                <button
+                                type="button"
+                                onClick={handleMicrosoftLogin}
+                                className="w-full flex items-center justify-center gap-3 py-3 bg-white text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-md cursor-pointer mt-3"
+                                >
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
+                                    alt="Microsoft"
+                                    className="w-5 h-5"
+                                />
+                                Iniciar com Microsoft
                                 </button>
                             </form>
                             

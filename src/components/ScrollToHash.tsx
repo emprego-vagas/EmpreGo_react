@@ -5,7 +5,7 @@ export default function ScrollToHash() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    if (hash) {
+    if (hash && !hash.startsWith("#code=") && !hash.startsWith("#state=")) {
       const el = document.querySelector(hash);
       if (el) el.scrollIntoView({ behavior: "smooth" });
     }
