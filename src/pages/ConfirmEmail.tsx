@@ -41,7 +41,7 @@ export default function ConfirmEmail(){
                     Código de verificação <span className="text-gradient">enviado!</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-400 mb-2" id="hero-subtitle">
-                    Um email com um código de verificação foi enviado para <span className="text-primary-500" id="email">{email}</span>
+                    Um email com um código de verificação foi enviado para <span className="text-primary-500" id="email">{email}</span> (Verifique a caixa de SPAM)
                 </p>            
                 <p className="text-xl md:text-1x4 text-gray-400 mb-4" id="hero-subtitle">
                     O Código expira em <span className="text-gradient" id="timer">15 minutos</span>.

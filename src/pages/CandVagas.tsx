@@ -318,6 +318,14 @@ const Main: React.FC = () => {
         console.log("Filtro mudou")
     }, [filtroAtual.name])
 
+    const [erroAoCarregar, setErroAoCarregar] = useState(false);
+    useEffect(()=>{
+        const redirect = setTimeout(() => {
+            if(erroAoCarregar) window.location.href = '/';
+        }, 3*1000);
+        return ()=> clearTimeout(redirect);
+    }, [erroAoCarregar])
+
     useEffect(() => {
         if (!usuario) return;
         async function carregarDados() {
@@ -413,6 +421,7 @@ const Main: React.FC = () => {
                 setFiltrosRecomendados(data.randomCategories.map((c, i) => ({ id: i, nome: formatarCategoria(c), categoria: c })));
                 setCarregandoDados(false);
             } catch (erro) {
+                setErroAoCarregar(true);
                 console.error("Erro ao carregar empresas:", erro)
             }
 

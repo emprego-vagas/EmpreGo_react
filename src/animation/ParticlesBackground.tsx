@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ParticlesBackground } from '../css/particles';
+import { ParticlesBackground } from '../ts/particles';
 
 const ParticlesBackgroundComponent: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,8 +20,8 @@ const ParticlesBackgroundComponent: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
-      style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #9333EA 100%)' }}
+      className="fixed top-0 left-0  w-full h-full pointer-events-none z-0"
+      // style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #9333EA 100%)' }}
     />
   );
 };

@@ -9,7 +9,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import Loader from "../components/Loader";
-import type { Candidato, CustomCand, Idioma, Tag } from "../utils/utilsInterfaces";
+import type { Candidato, CustomCand, Experiencia, Idioma, ProjetoCand, Tag } from "../utils/utilsInterfaces";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -64,6 +64,17 @@ export default function PerfilCandidato() {
 
     const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; city?: string; email?: string;} | null>(null);
     const [customPerfil, setCustomPerfil] = useState<CustomCand | null>(null);
+    const [customLoadings, setCustomLoadings] = useState({
+        experiencias: false,
+        experiencias_page: 1,
+        certificacoes: false,
+        certificacoes_page: 1,
+        projetos: false,
+        projetos_page: 1,
+        formacoes: false,
+        formacoes_page: 1
+    });
+
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
     const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
     const mostrarMaisTagsRef = useRef(null);
@@ -126,19 +137,19 @@ export default function PerfilCandidato() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     <div id="impInfo"
-                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <img id="fotoUsuario" src={candPerfil.image==='genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
                             className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
                             title="Foto de Perfil"/>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
                                     <FontAwesomeIcon icon={faIdCard} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cpfUsuario" className="text-sm">{candPerfil.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/,"$1.$2.$3-$4")}</span>
                                 </div>
                             )}
                             {candPerfil.birth_date && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Data de Nascimento">
                                     <FontAwesomeIcon icon={faBirthdayCake} className="text-professional-card dark:text-professional-accent mr-2" />
                                     {(()=>{
                                         const dataISO = candPerfil.birth_date.split('T')[0];
@@ -148,25 +159,25 @@ export default function PerfilCandidato() {
                                 </div>
                             )}
                             {candPerfil.pronouns && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Pronomes">
                                     <FontAwesomeIcon icon={faUser} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="pronUsuario" className="text-sm">{candPerfil.pronouns}</span>
                                 </div>
                             )}
                             {candPerfil.current_position && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Cargo Atual">
                                     <FontAwesomeIcon icon={faBriefcase} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="cargoUsuario" className="text-sm">{candPerfil.current_position}</span>
                                 </div>
                             )}
                             {candPerfil.current_company && (
-                                <div className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
+                                <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Empresa Atual">
                                     <FontAwesomeIcon icon={faBuilding} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="empresaUsuario" className="text-sm">{candPerfil.current_company}</span>
                                 </div>
                             )}
                             {candPerfil.state && (
-                                <div id="divLocalizacao" className="bg-white text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Localização">
+                                <div id="divLocalizacao" className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="Localização">
                                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-professional-card dark:text-professional-accent mr-2" />
                                     <span id="localizacaoUsuario" className="text-sm">Localização</span><br/>
                                     <span id="estadoUsuario" className="text-sm">{`Estado: (${candPerfil.state})`}</span><br/>
@@ -183,14 +194,14 @@ export default function PerfilCandidato() {
                             id="btnVerPerfilPublico"
                             onClick={() => navigate(`/candidato/${usuario?.id}`)}
                             className="group flex items-center justify-center gap-2
-                                        bg-transparent border border-professional-card
-                                        dark:border-professional-accent
-                                        text-professional-gray dark:text-white
-                                        font-medium py-2.5 px-5 rounded-lg w-full mt-3
-                                        transition-all duration-200 ease-in-out
-                                        hover:bg-professional-card
-                                        dark:hover:bg-professional-accent
-                                        hover:text-white"
+                                bg-transparent border border-professional-card
+                                dark:border-professional-accent
+                                text-professional-gray dark:text-white
+                                font-medium py-2.5 px-5 rounded-lg w-full mt-3
+                                transition-all duration-200 ease-in-out
+                                hover:bg-professional-card
+                                dark:hover:bg-professional-accent
+                                hover:text-white"
                             title="Ver perfil público"
                             >
                             <FontAwesomeIcon
@@ -203,7 +214,7 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Informações centrais --> */}
                     <div id="bodyMid"
-                        className=" bg-gray-100 dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-2/3 flex flex-col transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h1 id="nomUsuario" className="text-professional-dark dark:text-gray-100 text-3xl font-bold mb-2 text-center lg:text-left">{candPerfil.name}</h1>
                         <div className="flex items-center justify-center lg:justify-start mb-4" title="Email">
                             <FontAwesomeIcon icon={faEnvelope} className="text-professional-card dark:text-professional-accent mr-2" />
@@ -211,7 +222,7 @@ export default function PerfilCandidato() {
                                 className="text-lg text-professional-card dark:text-professional-subtitle">{candPerfil.email}</a>
                         </div>
 
-                        <div className="bg-white dark:bg-professional-gray rounded-lg p-4 mb-6">
+                        <div className="bg-gray-100 dark:bg-professional-gray rounded-lg p-4 mb-6">
                             <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
@@ -225,7 +236,7 @@ export default function PerfilCandidato() {
 
 
                         <div id="conexoes" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Portfólio">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Portfólio">
                                 <FontAwesomeIcon icon={faMagic} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.portfolio && (
                                 <a id="portUsuario" href={candPerfil.portfolio}
@@ -236,7 +247,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="GitHub">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="GitHub">
                                 <FontAwesomeIcon icon={faGithub} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.github && (
                                 <a id="gitUsuario" href={candPerfil.github}
@@ -247,7 +258,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Currículo">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Currículo">
                                 <FontAwesomeIcon icon={faFileInvoice} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.resume && (
                                 <a id="curriculoUsuario" href={candPerfil.resume}
@@ -268,7 +279,7 @@ export default function PerfilCandidato() {
                                 })()}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Instagram">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Instagram">
                                 <FontAwesomeIcon icon={faInstagram} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.instagram && (
                                 <a id="instUsuario" href={candPerfil.instagram}
@@ -279,7 +290,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Site Pessoal">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Site Pessoal">
                                 <FontAwesomeIcon icon={faGlobe} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.personal_site && (
                                 <a id="siteUsuario" href={candPerfil.personal_site}
@@ -290,7 +301,7 @@ export default function PerfilCandidato() {
                                 )}
                             </div>
 
-                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-white rounded-lg p-3" title="Twitter/X">
+                            <div className="flex items-center dark:bg-professional-gray dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-lg p-3" title="Twitter/X">
                                 <FontAwesomeIcon icon={faXTwitter} className="text-professional-card dark:text-professional-accent mr-3 text-xl" />
                                 {candPerfil.twitter && (
                                 <a id="twtUsuario" href={candPerfil.twitter}
@@ -302,9 +313,9 @@ export default function PerfilCandidato() {
                             </div>
                         </div>
 
-                        <div id="formacaoInfo" className="dark:bg-professional-gray bg-white rounded-lg p-4">
+                        <div id="formacaoInfo" className="dark:bg-professional-gray bg-gray-100 rounded-lg p-4">
 
-                            <h2 className="text-lg text-center font-semibold mb-2 dark:bg-professional-gray  text-professional-card bg-white dark:text-professional-accent relative pb-3
+                            <h2 className="text-lg text-center font-semibold mb-2 dark:bg-professional-gray  text-professional-card dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded">
                                 Formação Acadêmica</h2>
@@ -340,13 +351,13 @@ export default function PerfilCandidato() {
                 {/* <!-- Coluna direita - Habilidades e Estatísticas --> */}
                 <div id="bodyTags" className="lg:col-span-4 space-y-6">
                     <div
-                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h1 id="tituloTags" className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
                             {`Habilidades & Competências${customPerfil.candTagsTotal>0?` (${customPerfil.candTagsTotal})`:''}`}</h1>
                         <div id="boxTags"
-                            className="bg-white border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
+                            className="bg-gray-100 border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
                                 {customPerfil.candTagsTotal>0 && customPerfil.candTags.map(tag=>{
@@ -383,31 +394,31 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Estatísticas --> */}
                     <div
-                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-gray-100 rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="dark:bg-professional-card dark:text-professional-subtitle text-professional-card bg-white rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h2 className="text-lg text-center font-semibold mb-2 dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-card dark:after:bg-professional-accent after:rounded text-professional-dark">
                             Métricas Profissionais</h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div
-                                className="bg-white  dark:bg-professional-gray  rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray  rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div id="experienciasCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">
                                     {customPerfil.experiencesTotal}</div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Experiências</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div className="text-[2rem] font-bold  text-professional-dark dark:text-professional-accent mb-1">15</div>
                                 <div className="text-smtext-professional-card text-professional-card dark:text-professional-subtitle">Certificações</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div id="projetosCount" className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">{customPerfil.candProjectsTotal}
                                 </div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Projetos</div>
                             </div>
                             <div
-                                className="bg-white  dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
+                                className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
                                 <div className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">4</div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Formações</div>
                             </div>
@@ -416,7 +427,7 @@ export default function PerfilCandidato() {
 
                     {/* <!-- Idiomas --> */}
                     <div
-                        className="bg-gray-100  dark:bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
+                        className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 transition-all duration-300 ease-in-out dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
                         <h2 className="text-lg text-center font-semibold mb-2 text-professional-dark dark:text-professional-accent relative pb-3
                             after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 
                             after:w-10 after:h-0.5 after:bg-professional-gray dark:after:bg-professional-accent after:rounded">
@@ -542,7 +553,7 @@ export default function PerfilCandidato() {
                     <div id="experiencias" className="tab-pane active">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bodyBottom">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/experiencias/criar')}}>
                                 <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
@@ -550,37 +561,97 @@ export default function PerfilCandidato() {
                                         profissional</p>
                                 </Link>
                             </div>
-                            {customPerfil.experiencesTotal>0 && customPerfil.experiences.map(expe=>(
-                                <div key={expe.id}
-                                    className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
-                                            <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                            {customPerfil.experiencesTotal>0 && (()=>{
+                                let experiencesToExib: Experiencia[];
+                                const inMemoryLength = customPerfil.experiences.length;
+                                if(inMemoryLength!==customPerfil.experiencesTotal){
+                                    experiencesToExib = customPerfil.experiences.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                } else {
+                                    experiencesToExib = customPerfil.experiences
+                                }
+                                return experiencesToExib.map(expe=>(
+                                    <div key={expe.id}
+                                        className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
+                                                <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                                            </div>
+                                            {expe.period.split(' - ')[1] === 'Presente' && (
+                                                <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
+                                            )}
                                         </div>
-                                        {expe.period.split(' - ')[1] === 'Presente' && (
-                                            <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
-                                        )}
+                                        <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
+                                        <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {expe.experiences_tags[0] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
+                                            )}
+                                            {expe.experiences_tags[1] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
+                                            )}
+                                            {expe.experiences_tags[2] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
-                                    <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {expe.experiences_tags[0] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
-                                        )}
-                                        {expe.experiences_tags[1] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
-                                        )}
-                                        {expe.experiences_tags[2] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            })()}
 
                             {/* <!-- Experiências adicionadas aparecerão aqui --> */}
                             
                         </div>
+
+                        {customPerfil.experiencesTotal !== customPerfil.experiences.length && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.experiencias}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, experiencias: true}));
+                                    try {
+                                        const response = await axiosWe(`/experience/candidate/${candPerfil.id}?page=${customLoadings.experiencias_page+1}`);
+                                        const data = response.data as Experiencia[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            experiences: [...new Set([...prev.experiences, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, experiencias: false, experiencias_page: prev.experiencias_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, experiencias: false}));
+                                        console.error('Erro ao carregar mais experiencias:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.experiencias?'Carregando...':'Mostrar mais experiências'}</span>
+                                </button>
+                            </div>
+                            )}
                     </div>
                     )}
 
@@ -589,8 +660,9 @@ export default function PerfilCandidato() {
                     <div id="certificacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card dark:border-professional-card hover:border-professional-dark duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px]">
-                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                onClick={()=>{navigate('/certificacoes/criar')}}>
+                                <Link to="/certificacoes/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-4xl text-professional-dark dark:text-professional-accent mb-3" />
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novas Certificações
                                     </p>
@@ -644,70 +716,129 @@ export default function PerfilCandidato() {
                     <div id="projetos" className="tab-pane">
                         <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent"
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
                                 onClick={()=>{navigate('/projetos/criar')}}>
                                 <Link to="/projetos/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novos projetos</p>
                                 </Link>
                             </div>
-                            {customPerfil.candProjectsTotal>0 && customPerfil.candProjects.map(proj=>(
-                                <div key={proj.id}
-                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
+                            {customPerfil.candProjectsTotal>0 && (()=>{
+                                let projectsToExib: ProjetoCand[];
+                                const inMemoryLength = customPerfil.candProjects.length;
+                                if(inMemoryLength!==customPerfil.candProjectsTotal){
+                                    projectsToExib = customPerfil.candProjects.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                } else {
+                                    projectsToExib = customPerfil.candProjects
+                                }
+                                return projectsToExib.map(proj=>(
+                                    <div key={proj.id}
+                                        className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
 
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
-                                            <p className="text-professional-accent font-medium">{proj.name}</p>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
+                                                <p className="text-professional-accent font-medium">{proj.name}</p>
+                                            </div>
+                                            <span
+                                                className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
+                                                {proj.status}
+                                            </span>
                                         </div>
-                                        <span
-                                            className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
-                                            {proj.status}
-                                        </span>
+
+                                        <p className="text-professional-subtitle mb-2">{proj.period}</p>
+
+                                        <div className="relative mb-4">
+                                            <img src={proj.image} alt="Imagem do projeto"
+                                                className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
+
+                                            {proj.link && (
+                                                <Link to={proj.link} target="_blank" rel="noopener noreferrer"
+                                                    className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
+                                                    title="Visitar site">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                        stroke-width="1" stroke="currentColor" className="w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
+                                                    </svg>
+                                                </Link>
+                                            )}
+                                        </div>
+
+                                        {/* <!-- Descrição --> */}
+                                        <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
+                                            {proj.description}
+                                        </p>
+
+                                        {/* <!-- Tags --> */}
+                                        <div className="flex flex-wrap gap-2">
+                                            {proj.cand_projects_tags[0] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[0].name}</span>
+                                            )}
+                                            {proj.cand_projects_tags[1] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[1].name}</span>
+                                            )}
+                                            {proj.cand_projects_tags[2] && (
+                                                <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                {proj.cand_projects_tags[2].name}</span>
+                                            )}
+                                        </div>
                                     </div>
-
-                                    <p className="text-professional-subtitle mb-2">{proj.period}</p>
-
-                                    <div className="relative mb-4">
-                                        <img src={proj.image} alt="Imagem do projeto"
-                                            className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
-
-                                        {proj.link && (
-                                            <Link to={proj.link} target="_blank" rel="noopener noreferrer"
-                                                className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
-                                                title="Visitar site">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke-width="1" stroke="currentColor" className="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
-                                                </svg>
-                                            </Link>
-                                        )}
-                                    </div>
-
-                                    {/* <!-- Descrição --> */}
-                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
-                                        {proj.description}
-                                    </p>
-
-                                    {/* <!-- Tags --> */}
-                                    <div className="flex flex-wrap gap-2">
-                                        {proj.cand_projects_tags[0] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[0].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[1] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[1].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[2] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[2].name}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            })()}
                         </div>
+                        {customPerfil.candProjectsTotal !== customPerfil.candProjects.length && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.projetos}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, projetos: true}));
+                                    try {
+                                        const response = await axiosWe(`/candproject/candidate/${candPerfil.id}?page=${customLoadings.projetos_page+1}`);
+                                        const data = response.data as ProjetoCand[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            candProjects: [...new Set([...prev.candProjects, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, projetos: false, projetos_page: prev.projetos_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, projetos: false}));
+                                        console.error('Erro ao carregar mais projetos:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.projetos?'Carregando...':'Mostrar mais projetos'}</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     )}
 
@@ -716,8 +847,9 @@ export default function PerfilCandidato() {
                     <div id="formacoes" className="tab-pane">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-gray-100 dark:bg-professional-card border-gray-100 dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-dark dark:hover:border-professional-accent">
-                                <Link to="/experiencias/criar" className="flex flex-col items-center text-center">
+                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                onClick={()=>{navigate('/formacoes/criar')}}>
+                                <Link to="/formacoes/criar" className="flex flex-col items-center text-center">
                                     <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
                                     <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
                                 </Link>

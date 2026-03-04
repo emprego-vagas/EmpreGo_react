@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBuilding, faEye, faEyeSlash, faExclamationCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from "react-router-dom";
-import ParticlesBackgroundComponent from './ParticlesBackground';
+import ParticlesBackgroundComponent from '../animation/ParticlesBackground';
 // import backgroundroxo from '../assets/imgs/purpleBG.png'
 
 // * Funções
-import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCep, formatarCnpj, formatarData, formatarTelefone, validarCep } from '../ts/loginFunctions'
+import { candidatoLogin, candidatoRegister, empresaLogin, empresaRegister, formatarCnpj, formatarData, formatarCep, formatarTelefone, validarCep } from '../ts/loginFunctions'
+//imports apagados { formatarCep, formatarTelefone, validarCep}
 
 // * CSS
 import '../css/login.css'
@@ -15,6 +16,7 @@ import axiosWe from '../utils/axiosInstance';
 import { DadosUsuario, mostrarErroTopo } from '../utils/globalFunctions';
 import { useGoogleLogin } from '@react-oauth/google';
 import { getFingerprint } from '../utils/fingerprint';
+import { msalInstance } from '../utils/microsoftLogin';
 // import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 // import { mostrarSucessoTopo } from '../utils/globalFunctions';
 
@@ -116,8 +118,51 @@ export default function Login() {
         }, 100);
     };
 
+    const handleMicrosoftLogin = async () => {
+        try {
+            await msalInstance.initialize().then(async()=>{
+                await msalInstance.loginRedirect({
+                    scopes: ["openid", "profile", "email"],
+                    prompt: "select_account"
+                });
+            })
+        } catch (err) {
+            console.error("Erro login Microsoft:", err);
+            mostrarErroTopo("Falha no login com Microsoft");
+        }
+    };
+
+    useEffect(() => {
+        try {
+            msalInstance.initialize().then(() => {
+                msalInstance.handleRedirectPromise().then(async (response) => {
+                    if (!response) return;
+
+                    const idToken = response.idToken;
+
+                    const visitorId = await getFingerprint();
+
+                    const res = await axiosWe.post("/auth/microsoft", {
+                        idToken,
+                        visitorId
+                    });
+
+                    console.log(res.data)
+
+                    // const user = res.data.user;
+                    // DadosUsuario.setarUsuario(user.id, user.name, 'candidato', user.level, user.image, user.email);
+                    // DadosUsuario.setarLoginKey(res.data.loginKey);
+                    // window.location.href = "/";
+                });
+            });
+        } catch (err) {
+            console.error("Erro login Microsoft:", err);
+            mostrarErroTopo("Falha no login com Microsoft");
+        }
+    }, []);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-700 flex justify-center items-center p-5">
+        <div className="min-h-screen bg-gradient-to-br bg-white dark:bg-black flex justify-center items-center p-5">
             <ParticlesBackgroundComponent />
             
             {/* Botão de voltar à tela inicial */}
@@ -232,6 +277,18 @@ export default function Login() {
                                     className="w-5 h-5"
                                 />
                                 Iniciar com o Google
+                                </button>
+                                <button
+                                type="button"
+                                onClick={handleMicrosoftLogin}
+                                className="w-full flex items-center justify-center gap-3 py-3 bg-white text-gray-800 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-md cursor-pointer mt-3"
+                                >
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
+                                    alt="Microsoft"
+                                    className="w-5 h-5"
+                                />
+                                Iniciar com Microsoft
                                 </button>
                             </form>
                             
@@ -913,6 +970,7 @@ export default function Login() {
                                                 campo: "forgotEmail",
                                                 mensagem: `Enviamos as instruções para: ${forgotEmail.email} (Lembre de verificar a caixa de spam)`,
                                             });
+                                            forgotEmail.email = '';
                                         } catch (erro) {
                                             if(erro.status && erro.status===409){
                                                 mostrarErroTopo("Já existe uma solicitação de troca em andamento para este email.");

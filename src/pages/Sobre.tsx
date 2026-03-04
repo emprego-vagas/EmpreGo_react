@@ -65,7 +65,7 @@ export default function Sobre() {
                                 <p className="text-dark-900 dark:text-dark-50 mb-4">Desenvolvedor Front-end</p>
                                 <div className="flex items-center text-dark-900 dark:text-dark-50">
                                     <i className='bx bx-code-alt mr-2'></i>
-                                    <span>HTML, CSS, tailwindcss, anime.js, JavaScript</span>
+                                    <span>React vite, vue e Native, tailwindcss, anime.js, Three.js, JavaScript, TypeScript...</span>
                                 </div>
                             </div>
 

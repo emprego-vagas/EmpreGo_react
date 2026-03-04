@@ -53,6 +53,10 @@ export class ParticlesBackground {
     this.particles = [];
     const particleCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000));
 
+    // Detect Tailwind theme
+    const isDark = document.documentElement.classList.contains('dark');
+    const baseColor = isDark ? '255,255,255' : '0,0,0';
+
     for (let i = 0; i < particleCount; i++) {
       this.particles.push({
         x: Math.random() * this.canvas.width,
@@ -60,7 +64,7 @@ export class ParticlesBackground {
         vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
         radius: Math.random() * 2 + 1,
-        color: `rgba(000, 000, 000, ${Math.random() * 0.3 + 0.1})`
+        color: `rgba(${baseColor}, ${Math.random() * 0.3 + 0.1})`
       });
     }
   }
@@ -116,7 +120,10 @@ export class ParticlesBackground {
 
   private drawLines() {
     const maxDistance = 150;
-    
+    // Detect Tailwind theme
+    const isDark = document.documentElement.classList.contains('dark');
+    const baseColor = isDark ? '255,255,255' : '0,0,0';
+
     for (let i = 0; i < this.particles.length; i++) {
       for (let j = i + 1; j < this.particles.length; j++) {
         const dx = this.particles[i].x - this.particles[j].x;
@@ -126,7 +133,7 @@ export class ParticlesBackground {
         if (distance < maxDistance) {
           const opacity = 1 - (distance / maxDistance);
           this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(000, 000, 000 , ${opacity * 0.2})`;
+          this.ctx.strokeStyle = `rgba(${baseColor}, ${opacity * 0.2})`;
           this.ctx.lineWidth = 0.5;
           this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
           this.ctx.lineTo(this.particles[j].x, this.particles[j].y);

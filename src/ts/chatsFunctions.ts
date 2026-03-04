@@ -1,6 +1,5 @@
 import axiosWe from "../utils/axiosInstance";
 import { mostrarAvisoTopo } from "../utils/globalFunctions";
-import socket from "../utils/socketsConnection";
 
 export interface Mensagem {
     id: string;
@@ -39,17 +38,16 @@ export interface ConversaDesabilitada {
 }
 
 export interface MessageSocket {
-    author: string;
-    message: string;
-    room: string;
-    type: string;
-    idMsg: string;
+    text: string;
+    id: string;
+    chatId: string;
+    userType: 'candidato' | 'empresa';
 }
 
 export interface UserStatusSocket {
     status: string;
-    socket: string;
-    room: string;
+    userId?: string;
+    chatId: string;
 };
 
 export interface NovaSolicitacaoConversa {
@@ -252,7 +250,7 @@ interface EnviarMensagemResponse {
     hora?: string;
     id?: string;
 }
-export async function enviarMensagem(mensagem: string, usuario:{id: string, nome: string, tipo: string, nivel: string, foto: string}, conversaAtualId: string): Promise<EnviarMensagemResponse> {
+export async function enviarMensagem(mensagem: string, conversaAtualId: string): Promise<EnviarMensagemResponse> {
     try {
         const response = await axiosWe.post('/message', {
             message: mensagem,
@@ -261,14 +259,14 @@ export async function enviarMensagem(mensagem: string, usuario:{id: string, nome
         const agora = new Date();
         const hora = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
         const novaMensagem = { success: true, texto: mensagem, remetente: 'usuario', hora, id: response.data.id };
-        const messageObject = {
-            author: usuario.nome,
-            message: mensagem,
-            room: conversaAtualId,
-            type: usuario.tipo,
-            idMsg: response.data.id
-        };
-        socket.emit('sendMessage', messageObject);
+        // const messageObject = {
+        //     author: usuario.nome,
+        //     message: mensagem,
+        //     room: conversaAtualId,
+        //     type: usuario.tipo,
+        //     idMsg: response.data.id
+        // };
+        // socket.emit('sendMessage', messageObject);
         return novaMensagem;
     } catch (erro) {
         console.error(erro);
