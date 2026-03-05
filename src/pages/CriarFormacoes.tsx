@@ -1,13 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useRef, useState } from "react";
-import { mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
+import { mostrarErroTopo } from "../utils/globalFunctions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 // import { cadastrarFormacao } from "../ts/criarFormacoesFunctions"; // você precisará criar essa função
 
 export default function CriarFormacoes() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const anoAtual = new Date().getFullYear();
     const anoMinimo = anoAtual - 100;
@@ -138,7 +138,7 @@ export default function CriarFormacoes() {
     const handleSalvar = async () => {
         const regexNomeCurso = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-()]+$/;
         const regexInstituicao = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-.&()]+$/;
-        const regexUrl = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?$/;
+        const regexUrl = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-./?%&=]*)?$/;
 
         if (!nomeCurso.trim()) {
             mostrarErroTopo("O nome do curso é obrigatório.");
