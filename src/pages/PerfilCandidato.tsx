@@ -22,13 +22,13 @@ export default function PerfilCandidato() {
 
     const handleMostrarTodasTags = async()=>{
         try {
-            if(customPerfil.candTagsTotal<=6) {
+            if(customPerfil.candTagsTotal<=15) {
                 setMostrarMaisTags(false);
                 setMostrarMaisTagsExib(false);
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tag/cand/candidate/${usuario.id}?skip=6`) as {data: Tag[]};
+            const response = await axiosWe(`/tag/cand/candidate/${usuario.id}?skip=${customPerfil.candTags.length}`) as {data: Tag[]};
             setCustomPerfil(prev=>({...prev, candTags: [...prev.candTags, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
@@ -360,7 +360,8 @@ export default function PerfilCandidato() {
                             className="bg-gray-100 border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
-                                {customPerfil.candTagsTotal>0 && customPerfil.candTags.map(tag=>{
+                                {customPerfil.candTagsTotal>0 && customPerfil.candTags.map((tag, idx)=>{
+                                    if(idx>=15 && mostrarMaisTagsExib) return null;
                                     return (
                                         <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-card dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out dark:hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                             key={tag.id} title={`Tag: ${tag.name}`} onClick={()=>{
@@ -371,7 +372,7 @@ export default function PerfilCandidato() {
                                         </div>
                                     )
                                 })}
-                                {(mostrarMaisTagsExib&&customPerfil.candTagsTotal>6) && (
+                                {(mostrarMaisTagsExib&&customPerfil.candTagsTotal>15) && (
                                     <button id="maisTags"
                                         className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-accent text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                         title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async()=>{

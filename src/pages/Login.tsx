@@ -118,8 +118,6 @@ export default function Login() {
         }, 100);
     };
 
-    console.log("microsoft client ",import.meta.env.VITE_MICROSOFT_CLIENT_ID)
-
     const handleMicrosoftLogin = async () => {
         try {
             await msalInstance.initialize().then(async()=>{
