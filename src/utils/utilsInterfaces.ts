@@ -19,6 +19,7 @@ export interface Candidato {
     created_at: Date;
     contact_email: string | null;
     city: string | null;
+    verified: boolean;
 }
 
 export interface CustomCand {

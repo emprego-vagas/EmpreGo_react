@@ -62,7 +62,7 @@ export default function PerfilCandidato() {
         }
     }
 
-    const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; city?: string; email?: string;} | null>(null);
+    const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; email?: string;} | null>(null);
     const [customPerfil, setCustomPerfil] = useState<CustomCand | null>(null);
     const [customLoadings, setCustomLoadings] = useState({
         experiencias: false,
@@ -138,9 +138,22 @@ export default function PerfilCandidato() {
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     <div id="impInfo"
                         className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <img id="fotoUsuario" src={candPerfil.image==='genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
-                            className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
-                            title="Foto de Perfil"/>
+                        <div className="relative mb-4">
+                            <img
+                                id="fotoUsuario"
+                                src={candPerfil.image === 'genPfp.png' ? genPfp : candPerfil.image}
+                                alt="Foto de perfil"
+                                className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover"
+                                title="Foto de Perfil"
+                            />
+
+                            {Math.random() > 0.5 && (
+                                <div className="absolute top-1 right-1 bg-purple-400 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg border-2 border-white dark:border-professional-card"
+                                    title="Usuário Verificado">
+                                    <FontAwesomeIcon icon={faStar} />
+                                </div>
+                            )}
+                        </div>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
                                 <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
