@@ -245,7 +245,7 @@ export default function PerfilCandidatoPF() {
       setIsLoadingMoreIdiomas(true);
 
       const response = await axiosWe(
-        `/language/candidate/${candPerfil.id}?skip=${customPerfil.languages.length}`
+        `/language/candidate/${candPerfil.id}?skip=${customPerfil.languages.length}&inen=end`
       ) as { data: Idioma[] };
 
       setCustomPerfil(prev => {
