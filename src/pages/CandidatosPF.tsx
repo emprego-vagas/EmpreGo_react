@@ -54,7 +54,7 @@ export default function PerfilCandidatoPF() {
 
   // Função para carregar primeira página de experiências
   const carregarPrimeiraPaginaExperiencias = async () => {
-    if (!candPerfil || hasLoadedFirstPageExperiencias || isLoadingExperiencias) return;
+    if (!candPerfil || hasLoadedFirstPageExperiencias || isLoadingExperiencias || !customPerfil.academicBackgroundsTotal) return;
     
     try {
       setIsLoadingExperiencias(true);
@@ -81,7 +81,7 @@ export default function PerfilCandidatoPF() {
 
   // Função para carregar primeira página de projetos
   const carregarPrimeiraPaginaProjetos = async () => {
-    if (!candPerfil || hasLoadedFirstPageProjetos || isLoadingProjetos) return;
+    if (!candPerfil || hasLoadedFirstPageProjetos || isLoadingProjetos || !customPerfil.candProjects) return;
     
     try {
       setIsLoadingProjetos(true);
@@ -108,7 +108,7 @@ export default function PerfilCandidatoPF() {
 
   // Função para carregar primeira página de formações acadêmicas
   const carregarPrimeiraPaginaFormacoes = async () => {
-    if (!candPerfil || hasLoadedFirstPageFormacoes || isLoadingFormacoes) return;
+    if (!candPerfil || hasLoadedFirstPageFormacoes || isLoadingFormacoes || !customPerfil.academicBackgroundsTotal) return;
     
     try {
       setIsLoadingFormacoes(true);
@@ -157,7 +157,7 @@ export default function PerfilCandidatoPF() {
           experiences: [...prev.experiences, ...response.data],
         };
       });
-
+      
       setPageExperiencias(nextPage);
     } catch (err) {
       console.error('Erro ao carregar experiências', err);
