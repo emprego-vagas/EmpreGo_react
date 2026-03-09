@@ -1,13 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HeaderProfiles from "../components/HeaderProfiles";
 import { useEffect, useRef, useState } from "react";
-import { mostrarErroTopo } from "../utils/globalFunctions";
+import { mostrarErroTopo, mostrarSucessoTopo } from "../utils/globalFunctions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { formatarData } from "../ts/criarExperienciasFunctions";
+import axiosWe from "../utils/axiosInstance";
 // import { cadastrarFormacao } from "../ts/criarFormacoesFunctions"; // você precisará criar essa função
 
 export default function CriarFormacoes() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const anoAtual = new Date().getFullYear();
     const anoMinimo = anoAtual - 100;
@@ -191,6 +193,28 @@ export default function CriarFormacoes() {
         }
 
         setCadastrando(true);
+        let cadastrou = false;
+
+        try {
+            const formData = new FormData();
+            formData.append('name', nomeCurso);
+            formData.append('instituition', instituicao);
+            formData.append('category', tipo);
+            formData.append('status', status);
+            formData.append('period', `${formatarData(dataInicio)} - ${cursandoAtual?'Presente':formatarData(dataConclusao)}`);
+            formData.append('description', descricao);
+            if(cargaHoraria) formData.append('workload', cargaHoraria.toString())
+            if(mediaFinal) formData.append('cra', mediaFinal.toString());
+            if(linkInstituicao) formData.append('institution_link', linkInstituicao);
+            if(competencias.length) formData.append('tags', JSON.stringify(competencias));
+            if(imagem) formData.append('image', imagem);
+
+            await axiosWe.post('/academicbackground', formData);
+
+            cadastrou = true;
+        } catch (err) {
+            console.error('Erro ao cadastrar formação:',err);
+        }
         // boa sorte no backend :) 
         //     tipo,
         //     status,
@@ -203,17 +227,18 @@ export default function CriarFormacoes() {
         //     competencias,
         //     linkInstituicao || null,
         //     imagem
-        // if (!cadastrou) {
-        //     setCadastrando(false);
-        // } else {
-        //     mostrarSucessoTopo('Formação cadastrada com sucesso!');
-        //     setTimeout(() => { navigate('/perfil/candidato'); }, 3000);
-        // }
+
+        if (!cadastrou) {
+            setCadastrando(false);
+        } else {
+            mostrarSucessoTopo('Formação cadastrada com sucesso!');
+            setTimeout(() => { navigate('/perfil/candidato'); }, 3000);
+        }
     };
 
     const getStatusBadge = () => {
-        if (status === 'Em andamento') {
-            return <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Em andamento</span>;
+        if (status === 'Em Andamento') {
+            return <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Em Andamento</span>;
         }
         if (status === 'Concluído') {
             return <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Concluído</span>;
@@ -308,7 +333,7 @@ export default function CriarFormacoes() {
                             >
                                 <option value="" disabled>Selecione o status</option>
                                 <option value="Concluído" className="bg-white dark:bg-professional-dark">Concluído</option>
-                                <option value="Em andamento" className="bg-white dark:bg-professional-dark">Em andamento</option>
+                                <option value="Em Andamento" className="bg-white dark:bg-professional-dark">Em Andamento</option>
                                 <option value="Trancado" className="bg-white dark:bg-professional-dark">Trancado</option>
                                 <option value="Cancelado" className="bg-white dark:bg-professional-dark">Cancelado</option>
                             </select>

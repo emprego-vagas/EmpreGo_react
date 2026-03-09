@@ -31,6 +31,40 @@ export interface CustomCand {
     candTagsTotal: number;
     languages: Idioma[];
     languagesTotal: number;
+    academicBackgrounds: Formacao[];
+    academicBackgroundsTotal: number;
+}
+
+export interface PublicCustomCand {
+    experiences?: Experiencia[];
+    experiencesTotal: number;
+    candProjects?: ProjetoCand[];
+    candProjectsTotal: number;
+    candTags?: Tag[];
+    candTagsTotal: number;
+    languages?: Idioma[];
+    languagesTotal: number;
+    academicBackgrounds?: Formacao[];
+    academicBackgroundsTotal: number;
+}
+
+export interface Formacao {
+    id: string;
+    name: string;
+    instituition: string;
+    category: string;
+    status: string;
+    period: string;
+    workload: number | null;
+    cra: number | null;
+    description: string;
+    image: string | null;
+    instituition_link: string | null;
+    created_at: Date;
+    academic_backgrounds_tags: {
+        id: string;
+        name: string;
+    }[];
 }
 
 export interface Experiencia {

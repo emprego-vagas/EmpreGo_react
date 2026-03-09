@@ -122,8 +122,8 @@ export default function CriarCertificacoes() {
     const handleSalvar = async () => {
         const regexNome = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-()]+$/;
         const regexInstituicao = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s\-.&()]+$/;
-        const regexUrl = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?$/;
-        const regexCredential = /^[A-Za-z0-9\-]+$/;
+        const regexUrl = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-./?%&=]*)?$/;
+        const regexCredential = /^[A-Za-z0-9-]+$/;
 
         if (!nomeCertificacao.trim()) {
             mostrarErroTopo("O nome da certificação é obrigatório.");
