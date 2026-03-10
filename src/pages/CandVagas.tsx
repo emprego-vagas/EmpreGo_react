@@ -210,7 +210,7 @@ const Main: React.FC = () => {
   const [usuario] = useState(DadosUsuario.getUsuario(true, 'candidato'));
   if (!usuario) {
     setTimeout(() => {
-      navigate('/')
+      navigate('/inicio')
     }, 3000)
   };
 
@@ -1581,124 +1581,113 @@ const Main: React.FC = () => {
                       <div className="flex justify-center items-center py-8 sm:py-10 lg:py-12">
                         <div className="flex flex-col items-center gap-3 sm:gap-4">
                           <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
-                          <p className="text-xs sm:text-sm text-gray-400">Carregando mais empresas...</p>
+                          <p className="text-xs sm:text-sm text-gray-400">
+                            Carregando mais empresas...
+                          </p>
                         </div>
                       </div>
                     )}
+                    {!searchData.active && (
+                      <div
+                        className={`recommended-filters-wrapper relative flex gap-6 overflow-x-auto scrollbar-hide pl-28 pr-6 py-2 transition-all duration-300
+                            ${isSidebarOpen ? "ml-[8rem]" : "ml-0"}`}>
+                        <button onClick={() => scrollFiltros("left")} className="absolute left-24 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                          <i className="bx bx-chevron-left text-xl"></i>
+                        </button>
 
-                    {/* Mensagem de fim dos resultados */}
-                    {filtroAtual.limit && (
-                      <div className="text-center py-6 sm:py-8">
-                        <p className="text-xs sm:text-sm text-gray-500">Não há mais resultados.</p>
+                        <div
+                          ref={filtrosContainerRef}
+                          className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
+                          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                          <button ref={homeCategoriaRef} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === 'Tudo' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                            onClick={() => {
+                              setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 })
+                              window.scrollTo(0, 0);
+                            }} disabled={filtroAtual.loading}>
+                            Tudo
+                          </button>
+                          {filtrosRecomendados.map((f) => (
+                            <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name === f.categoria ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}`}
+                              onClick={() => {
+                                if (filtroAtual.name === f.categoria) return;
+                                setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: f.categoria, page: 1 })
+                                window.scrollTo(0, 0);
+                              }} disabled={filtroAtual.loading}>
+                              {f.nome}
+                            </button>
+                          ))}
+                        </div>
+
+                        <button onClick={() => scrollFiltros("right")} className="absolute right-2 top-1/2 -translate-y-1/2 z-20  w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white  hover:bg-black/80 hover:scale-110 transition">
+                          <i className="bx bx-chevron-right text-xl"></i>
+                        </button>
                       </div>
+                      // </div>
                     )}
-                  </>
+
+                {/* Mensagem de fim dos resultados */}
+                {filtroAtual.limit && (
+                  <div className="text-center py-6 sm:py-8">
+                    <p className="text-xs sm:text-sm text-gray-500">Não há mais resultados.</p>
+                  </div>
+                )}
+              </>
+              ) : (
+              /* Estado vazio ou carregando */
+              <div className="text-center py-10 sm:py-12">
+                {filtroAtual.loading ? (
+                  <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
+                    <p className="text-xs sm:text-sm text-gray-400">Carregando empresas...</p>
+                  </div>
                 ) : (
-                  /* Estado vazio ou carregando */
-                  <div className="text-center py-10 sm:py-12">
-                    {filtroAtual.loading ? (
-                      <div className="flex flex-col items-center gap-3 sm:gap-4">
-                        <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
-                        <p className="text-xs sm:text-sm text-gray-400">Carregando empresas...</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-3 sm:gap-4">
-                        <i className="bx bx-search text-3xl sm:text-4xl text-gray-400"></i>
-                        <p className="text-sm sm:text-base text-gray-500">Nenhuma empresa encontrada.</p>
-                      </div>
-                    )}
+                  <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    <i className="bx bx-search text-3xl sm:text-4xl text-gray-400"></i>
+                    <p className="text-sm sm:text-base text-gray-500">Nenhuma empresa encontrada.</p>
                   </div>
                 )}
               </div>
+                )}
+            </div>
             </section>
-          ) : !searchData.active && filtroAtual.name === 'Tudo' ? (
-            /* Conteúdo padrão (home) */
-            <>
-              {/* Slider de depoimentos responsivo */}
-              <Slider
-                slides={slides}
-                currentSlide={currentSlide}
-                setCurrentSlide={setCurrentSlide}
-                threeContainerRef={threeContainerRef}
-                slidesContainerRef={slidesContainerRef}
-              />
+        ) : !searchData.active && filtroAtual.name === 'Tudo' ? (
+        /* Conteúdo padrão (home) */
+        <>
+          {/* Slider de depoimentos responsivo */}
+          <Slider
+            slides={slides}
+            currentSlide={currentSlide}
+            setCurrentSlide={setCurrentSlide}
+            threeContainerRef={threeContainerRef}
+            slidesContainerRef={slidesContainerRef}
+          />
 
-              {/* Seções de empresas por categoria */}
-              <section className="empresas-section w-full">
-                {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
-                  const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
-                  const recolher = obj.recolher;
+          {/* Seções de empresas por categoria */}
+          <section className="empresas-section w-full">
+            {Object.entries(empresasPorCategoria).map(([categoria, obj]) => {
+              const empresasParaMostrar = obj.recolher ? obj.empresasRecolhidas() : obj.empresas;
+              const recolher = obj.recolher;
 
-                  return (
-                    <div key={categoria} className="categoria-empresas mb-8 sm:mb-10 lg:mb-12">
-                      <h2 className="categoria-label text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-5 lg:mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
-                        {categoria}
-                      </h2>
+              return (
+                <div key={categoria} className="categoria-empresas mb-8 sm:mb-10 lg:mb-12">
+                  <h2 className="categoria-label text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-5 lg:mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
+                    {categoria}
+                  </h2>
 
-                      <div className="
+                  <div className="
                 empresas-grid
                 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5
                 gap-4 sm:gap-5 lg:gap-6
                 w-full
               ">
-                        {empresasParaMostrar.map(empresa => (
-                          <EmpresaCard
-                            key={empresa.id}
-                            logo={empresa.logo}
-                            nome={empresa.nome}
-                            descricao={empresa.descricao}
-                            tags={empresa.tags}
-                            favoritada={empresa.favoritada}
-                            onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                            onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
-                            setor={empresa.setor}
-                            estado={empresa.estado}
-                            banner={empresa.banner}
-                          />
-                        ))}
-                      </div>
-
-                      <div className="flex justify-center gap-4 mt-4 sm:mt-5 lg:mt-6">
-                        <button
-                          onClick={() => {
-                            setEmpresasPorCategoria({
-                              ...empresasPorCategoria,
-                              [categoria]: {
-                                ...empresasPorCategoria[categoria],
-                                recolher: !recolher,
-                              },
-                            });
-                          }}
-                          className="ver-mais-btn flex items-center gap-1 sm:gap-2 hover:bg-dark-600 text-dark-900 dark:text-twitch-purple hover:text-white dark:hover:text-white transition-colors font-medium py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg border border-dark-900 hover:border-dark-500 dark:border-twitch-purple dark:hover:border-twitch-lightpurple dark:hover:bg-twitch-purple text-sm sm:text-base"
-                        >
-                          {recolher ? 'Exibir' : 'Recolher'}
-                          <i className={`bx bx-chevron-${recolher ? 'down' : 'up'} text-lg sm:text-xl`} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Seção "Mais Empresas" (sem label) */}
-                <div className="categoria-empresas mb-8 sm:mb-10 lg:mb-12">
-                  <h2 className="categoria-label text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-5 lg:mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
-                    Mais Empresas
-                  </h2>
-
-                  <div className="
-            empresas-grid
-            grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5
-            gap-4 sm:gap-5 lg:gap-6
-            w-full
-          ">
-                    {empresasSemLabel.map((empresa) => (
+                    {empresasParaMostrar.map(empresa => (
                       <EmpresaCard
                         key={empresa.id}
                         logo={empresa.logo}
                         nome={empresa.nome}
                         descricao={empresa.descricao}
-                        favoritada={empresa.favoritada}
                         tags={empresa.tags}
+                        favoritada={empresa.favoritada}
                         onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
                         onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
                         setor={empresa.setor}
@@ -1708,84 +1697,134 @@ const Main: React.FC = () => {
                     ))}
                   </div>
 
-                  {carregando && (
-                    <div className="flex justify-center items-center py-8 sm:py-10 lg:py-12">
-                      <div className="flex flex-col items-center gap-3 sm:gap-4">
-                        <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
-                        <p className="text-xs sm:text-sm text-gray-400">Carregando mais empresas...</p>
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex justify-center gap-4 mt-4 sm:mt-5 lg:mt-6">
+                    <button
+                      onClick={() => {
+                        setEmpresasPorCategoria({
+                          ...empresasPorCategoria,
+                          [categoria]: {
+                            ...empresasPorCategoria[categoria],
+                            recolher: !recolher,
+                          },
+                        });
+                      }}
+                      className="ver-mais-btn flex items-center gap-1 sm:gap-2 hover:bg-dark-600 text-dark-900 dark:text-twitch-purple hover:text-white dark:hover:text-white transition-colors font-medium py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg border border-dark-900 hover:border-dark-500 dark:border-twitch-purple dark:hover:border-twitch-lightpurple dark:hover:bg-twitch-purple text-sm sm:text-base"
+                    >
+                      {recolher ? 'Exibir' : 'Recolher'}
+                      <i className={`bx bx-chevron-${recolher ? 'down' : 'up'} text-lg sm:text-xl`} />
+                    </button>
+                  </div>
                 </div>
-              </section>
-            </>
-          ) : (
-            /* Seção de resultados de busca */
-            <section className="empresas-section w-full min-h-screen pt-14">
-              <div className={`categoria-empresas transition-all duration-300 ${isSidebarOpen ? 'mt-16 md:mt-20' : 'mt-4'
-                }`}>
-                {searchData.empresas.length > 0 ? (
-                  <>
-                    <div className="
+              );
+            })}
+
+            {/* Seção "Mais Empresas" (sem label) */}
+            <div className="categoria-empresas mb-8 sm:mb-10 lg:mb-12">
+              <h2 className="categoria-label text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-5 lg:mb-6 dark:text-gray-200 text-dark-900 border-b border-gray-600 pb-2">
+                Mais Empresas
+              </h2>
+
+              <div className="
+            empresas-grid
+            grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5
+            gap-4 sm:gap-5 lg:gap-6
+            w-full
+          ">
+                {empresasSemLabel.map((empresa) => (
+                  <EmpresaCard
+                    key={empresa.id}
+                    logo={empresa.logo}
+                    nome={empresa.nome}
+                    descricao={empresa.descricao}
+                    favoritada={empresa.favoritada}
+                    tags={empresa.tags}
+                    onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                    onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
+                    setor={empresa.setor}
+                    estado={empresa.estado}
+                    banner={empresa.banner}
+                  />
+                ))}
+              </div>
+
+              {carregando && (
+                <div className="flex justify-center items-center py-8 sm:py-10 lg:py-12">
+                  <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
+                    <p className="text-xs sm:text-sm text-gray-400">Carregando mais empresas...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+        ) : (
+        /* Seção de resultados de busca */
+        <section className="empresas-section w-full min-h-screen pt-14">
+          <div className={`categoria-empresas transition-all duration-300 ${isSidebarOpen ? 'mt-16 md:mt-20' : 'mt-4'
+            }`}>
+            {searchData.empresas.length > 0 ? (
+              <>
+                <div className="
               empresas-grid
               grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5
               gap-4 sm:gap-5 lg:gap-6
               w-full
             ">
-                      {searchData.empresas.map((empresa) => (
-                        <EmpresaCard
-                          key={empresa.id}
-                          logo={empresa.logo}
-                          nome={empresa.nome}
-                          descricao={empresa.descricao}
-                          favoritada={empresa.favoritada}
-                          tags={empresa.tags}
-                          onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
-                          onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
-                          setor={empresa.setor}
-                          estado={empresa.estado}
-                          banner={empresa.banner}
-                        />
-                      ))}
+                  {searchData.empresas.map((empresa) => (
+                    <EmpresaCard
+                      key={empresa.id}
+                      logo={empresa.logo}
+                      nome={empresa.nome}
+                      descricao={empresa.descricao}
+                      favoritada={empresa.favoritada}
+                      tags={empresa.tags}
+                      onClickFavorito={() => handleAlterarStatusFavorito(empresa.favoritada, { id: empresa.id, foto: empresa.logo, nome_fant: empresa.nome, setor: empresa.setor })}
+                      onClickVerMais={() => navigate(`/empresa/${empresa.id}`)}
+                      setor={empresa.setor}
+                      estado={empresa.estado}
+                      banner={empresa.banner}
+                    />
+                  ))}
+                </div>
+
+                {/* Loader more */}
+                {searchData.loadingMore && (
+                  <div className="flex justify-center items-center py-8 sm:py-10 lg:py-12">
+                    <div className="flex flex-col items-center gap-3 sm:gap-4">
+                      <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
+                      <p className="text-xs sm:text-sm text-gray-400">Carregando mais empresas...</p>
                     </div>
+                  </div>
+                )}
 
-                    {/* Loader more */}
-                    {searchData.loadingMore && (
-                      <div className="flex justify-center items-center py-8 sm:py-10 lg:py-12">
-                        <div className="flex flex-col items-center gap-3 sm:gap-4">
-                          <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
-                          <p className="text-xs sm:text-sm text-gray-400">Carregando mais empresas...</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Fim dos resultados */}
-                    {searchData.limit && searchData.empresas.length > 0 && (
-                      <div className="text-center py-6 sm:py-8">
-                        <p className="text-xs sm:text-sm text-gray-500">Não há mais resultados.</p>
-                      </div>
-                    )}
-                  </>
+                {/* Fim dos resultados */}
+                {searchData.limit && searchData.empresas.length > 0 && (
+                  <div className="text-center py-6 sm:py-8">
+                    <p className="text-xs sm:text-sm text-gray-500">Não há mais resultados.</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-10 sm:py-12">
+                {searchData.loading ? (
+                  <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
+                    <p className="text-xs sm:text-sm text-gray-400">Carregando empresas...</p>
+                  </div>
                 ) : (
-                  <div className="text-center py-10 sm:py-12">
-                    {searchData.loading ? (
-                      <div className="flex flex-col items-center gap-3 sm:gap-4">
-                        <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-twitch-purple"></div>
-                        <p className="text-xs sm:text-sm text-gray-400">Carregando empresas...</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-3 sm:gap-4">
-                        <i className="bx bx-search text-3xl sm:text-4xl text-gray-400"></i>
-                        <p className="text-sm sm:text-base text-gray-500">Nenhuma empresa encontrada.</p>
-                      </div>
-                    )}
+                  <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    <i className="bx bx-search text-3xl sm:text-4xl text-gray-400"></i>
+                    <p className="text-sm sm:text-base text-gray-500">Nenhuma empresa encontrada.</p>
                   </div>
                 )}
               </div>
-            </section>
+            )}
+          </div>
+        </section>
           )}
-        </main>
-      </div>
+      </main>
+    </div >
     </>
   );
 };

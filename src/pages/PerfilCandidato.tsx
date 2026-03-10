@@ -9,7 +9,7 @@ import genPfp from '../assets/imgs/genPfp.png';
 import { carregarPorcentagemPeloNivel, carregarTextoDoNivel } from "../ts/perfilCandidatoFunctions";
 import HeaderProfiles from "../components/HeaderProfiles";
 import Loader from "../components/Loader";
-import type { Candidato, CustomCand, Idioma, Tag } from "../utils/utilsInterfaces";
+import type { Candidato, CustomCand, Experiencia, Idioma, ProjetoCand, Tag, Formacao } from "../utils/utilsInterfaces";
 
 export default function PerfilCandidato() {
     const navigate = useNavigate();
@@ -22,13 +22,13 @@ export default function PerfilCandidato() {
 
     const handleMostrarTodasTags = async()=>{
         try {
-            if(customPerfil.candTagsTotal<=6) {
+            if(customPerfil.candTagsTotal<=15) {
                 setMostrarMaisTags(false);
                 setMostrarMaisTagsExib(false);
                 return;
             };
             setMostrarMaisTags(false);
-            const response = await axiosWe(`/tag/cand/candidate/${usuario.id}?skip=6`) as {data: Tag[]};
+            const response = await axiosWe(`/tag/cand/candidate/${usuario.id}?skip=${customPerfil.candTags.length}&inen=end`) as {data: Tag[]};
             setCustomPerfil(prev=>({...prev, candTags: [...prev.candTags, ...response.data]}));
             setMostrarMaisTagsExib(false);
         } catch (erro) {
@@ -45,7 +45,7 @@ export default function PerfilCandidato() {
                 return;
             };
             setMostrarMaisIdiomas(false);
-            const response = await axiosWe(`/language/candidate/${usuario.id}?skip=3`) as {data: Idioma[]};
+            const response = await axiosWe(`/language/candidate/${usuario.id}?skip=${customPerfil.languages.length}&inen=end`) as {data: Idioma[]};
             setCustomPerfil(prev=>({...prev, languages: [...prev.languages, ...response.data]}));
             setMostrarMaisIdiomasExib(false);
         } catch (erro) {
@@ -62,8 +62,19 @@ export default function PerfilCandidato() {
         }
     }
 
-    const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; city?: string; email?: string;} | null>(null);
+    const [candPerfil, setCandPerfil] = useState<Candidato & {cpf?: string; birth_date?: string; email?: string;} | null>(null);
     const [customPerfil, setCustomPerfil] = useState<CustomCand | null>(null);
+    const [customLoadings, setCustomLoadings] = useState({
+        experiencias: false,
+        experiencias_page: 1,
+        certificacoes: false,
+        certificacoes_page: 1,
+        projetos: false,
+        projetos_page: 1,
+        formacoes: false,
+        formacoes_page: 1
+    });
+
     const [mostrarMaisTags, setMostrarMaisTags] = useState(true);
     const [mostrarMaisTagsExib, setMostrarMaisTagsExib] = useState(true);
     const mostrarMaisTagsRef = useRef(null);
@@ -86,13 +97,26 @@ export default function PerfilCandidato() {
         async function loadCand(){
             if(!usuario) return;
             try {
-                const response = await axiosWe('/custom/meu-perfil-candidato') as {data: {user: Candidato, custom: CustomCand}};
+                const response = await axiosWe('/custom/meu-perfil-candidato') as {data: {user: Candidato, custom: {
+                    experiences: Experiencia[];
+                    experiencesTotal: number;
+                    candProjectsTotal: number;
+                    candTags: Tag[];
+                    candTagsTotal: number;
+                    languages: Idioma[];
+                    languagesTotal: number;
+                    academicBackgroundsTotal: number;
+                }}};
                 const data = response.data;
                 const { user, custom } = data;
                 DadosUsuario.setarFoto(user.image);
                 DadosUsuario.setarNome(user.name);
                 setCandPerfil(user);
-                setCustomPerfil(custom);
+                setCustomPerfil({
+                    ...custom, 
+                    candProjects: [],
+                    academicBackgrounds: []
+                });
             } catch (erro) {
                 console.error("Erro ao carregar perfil do candidato:", erro);
             }
@@ -115,6 +139,27 @@ export default function PerfilCandidato() {
         }
     }, [mostrarMaisIdiomas])
 
+    useEffect(()=>{
+        if(tabAtual==='projetos' && customPerfil.candProjectsTotal > 0 && customPerfil.candProjects.length === 0 && !customLoadings.projetos){
+            setCustomLoadings(prev=>({...prev, projetos: true}));
+            axiosWe(`/candproject/candidate/${candPerfil.id}?page=1`)
+            .then(res=>{
+                setCustomPerfil(prev=>({...prev, candProjects: res.data}));
+            }).finally(()=>setCustomLoadings(prev=>({...prev, projetos: false})));
+        }
+    }, [tabAtual])
+
+    // Efeito para carregar formações acadêmicas quando a aba for ativada
+    useEffect(()=>{
+        if(tabAtual==='formacoes' && customPerfil?.academicBackgroundsTotal > 0 && customPerfil?.academicBackgrounds?.length === 0 && !customLoadings.formacoes){
+            setCustomLoadings(prev=>({...prev, formacoes: true}));
+            axiosWe(`/academicbackground/candidate/${candPerfil.id}?page=1`)
+            .then(res=>{
+                setCustomPerfil(prev=>({...prev, academicBackgrounds: res.data}));
+            }).finally(()=>setCustomLoadings(prev=>({...prev, formacoes: false})));
+        }
+    }, [tabAtual])
+
     if (!candPerfil) return (<Loader />);
 
     return (
@@ -127,9 +172,22 @@ export default function PerfilCandidato() {
                 <div id="bodyLeft" className="lg:col-span-8 flex flex-col lg:flex-row gap-6">
                     <div id="impInfo"
                         className="bg-white dark:bg-professional-card rounded-xl border border-professional-card p-6 lg:w-1/3 flex flex-col items-center transition-all duration-300 ease-in-out hover:border-professional-card dark:hover:border-professional-accent hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]">
-                        <img id="fotoUsuario" src={candPerfil.image==='genPfp.png'?genPfp:candPerfil.image} alt="Foto de perfil"
-                            className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover mb-4"
-                            title="Foto de Perfil"/>
+                        <div className="relative mb-4">
+                            <img
+                                id="fotoUsuario"
+                                src={candPerfil.image === 'genPfp.png' ? genPfp : candPerfil.image}
+                                alt="Foto de perfil"
+                                className="w-40 h-40 rounded-full border-4 border-professional-card dark:border-professional-accent object-cover"
+                                title="Foto de Perfil"
+                            />
+
+                            {Math.random() > 0.5 && (
+                                <div className="absolute top-1 right-1 bg-purple-400 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg border-2 border-white dark:border-professional-card"
+                                    title="Usuário Verificado">
+                                    <FontAwesomeIcon icon={faStar} />
+                                </div>
+                            )}
+                        </div>
                         <div className="w-full space-y-2 mb-6">
                             {candPerfil.cpf && (
                                 <div className="bg-gray-100 text-professional-gray dark:text-gray-100 dark:bg-professional-gray rounded-lg p-3" title="CPF">
@@ -183,14 +241,14 @@ export default function PerfilCandidato() {
                             id="btnVerPerfilPublico"
                             onClick={() => navigate(`/candidato/${usuario?.id}`)}
                             className="group flex items-center justify-center gap-2
-                                        bg-transparent border border-professional-card
-                                        dark:border-professional-accent
-                                        text-professional-gray dark:text-white
-                                        font-medium py-2.5 px-5 rounded-lg w-full mt-3
-                                        transition-all duration-200 ease-in-out
-                                        hover:bg-professional-card
-                                        dark:hover:bg-professional-accent
-                                        hover:text-white"
+                                bg-transparent border border-professional-card
+                                dark:border-professional-accent
+                                text-professional-gray dark:text-white
+                                font-medium py-2.5 px-5 rounded-lg w-full mt-3
+                                transition-all duration-200 ease-in-out
+                                hover:bg-professional-card
+                                dark:hover:bg-professional-accent
+                                hover:text-white"
                             title="Ver perfil público"
                             >
                             <FontAwesomeIcon
@@ -349,7 +407,8 @@ export default function PerfilCandidato() {
                             className="bg-gray-100 border-gray-100 dark:bg-professional-gray rounded-lg p-4 border dark:border-professional-card min-h-[120px]">
                             <div id="Tags" className="flex flex-wrap gap-3">
                                 {/* <!-- Tags serão adicionadas aqui dinamicamente --> */}
-                                {customPerfil.candTagsTotal>0 && customPerfil.candTags.map(tag=>{
+                                {customPerfil.candTagsTotal>0 && customPerfil.candTags.map((tag, idx)=>{
+                                    if(idx>=15 && mostrarMaisTagsExib) return null;
                                     return (
                                         <div className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-card dark:text-professional-text text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out dark:hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                             key={tag.id} title={`Tag: ${tag.name}`} onClick={()=>{
@@ -360,7 +419,7 @@ export default function PerfilCandidato() {
                                         </div>
                                     )
                                 })}
-                                {(mostrarMaisTagsExib&&customPerfil.candTagsTotal>6) && (
+                                {(mostrarMaisTagsExib&&customPerfil.candTagsTotal>15) && (
                                     <button id="maisTags"
                                         className="inline-flex items-center gap-1.5 py-2 px-4 bg-linear-to-br from-professional-gray to-professional-card text-professional-accent text-sm font-medium rounded-lg border border-professional-card transition-all duration-200 ease-in-out hover:border-professional-accent hover:-translate-y-0.5 cursor-pointer"
                                         title="Carregar mais Habilidades" ref={mostrarMaisTagsRef} onClick={async()=>{
@@ -408,7 +467,7 @@ export default function PerfilCandidato() {
                             </div>
                             <div
                                 className="bg-gray-100 dark:bg-professional-gray rounded-lg p-5 text-center border dark:border-professional-gray">
-                                <div className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">4</div>
+                                <div className="text-[2rem] font-bold text-professional-dark dark:text-professional-accent mb-1">{customPerfil.academicBackgroundsTotal || 0}</div>
                                 <div className="text-sm text-professional-card dark:text-professional-subtitle">Formações</div>
                             </div>
                         </div>
@@ -499,28 +558,6 @@ export default function PerfilCandidato() {
                                 </div>
                             </button>
                         </li>
-                        {/* <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
-                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="solicitacoes" style={tabAtual==='solicitacoes'?{color: '#7c3aed'}:{}}
-                            onClick={()=>setTabAtual('solicitacoes')}>
-                                <div className="relative">
-                                    <FontAwesomeIcon icon={faHandshake} className="mr-2" />Solicitações
-                                </div>
-                            </button>
-                        </li> */}
-                        {/* <li className="mr-2">
-                            <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
-                            after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
-                            dark:after:bg-professional-accent after:rounded after:scale-x-0 after:opacity-0
-                            after:transition-all after:duration-300 after:ease-out" data-tab="notificacoes" style={tabAtual==='notificacoes'?{color: '#7c3aed'}:{}}
-                            onClick={()=>setTabAtual('notificacoes')}>
-                                <div className="relative">
-                                    <FontAwesomeIcon icon={faBell} className="mr-2" />Notificações
-                                </div>
-                            </button>
-                        </li> */}
                         <li className="mr-2">
                             <button className="tab-button relative inline-block p-4 text-gray-600 hover:text-gray-900 dark:text-professional-subtitle dark:hover:text-professional-accent
                             after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 cursor-pointer after:bg-professional-gray
@@ -550,37 +587,97 @@ export default function PerfilCandidato() {
                                         profissional</p>
                                 </Link>
                             </div>
-                            {customPerfil.experiencesTotal>0 && customPerfil.experiences.map(expe=>(
-                                <div key={expe.id}
-                                    className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
-                                            <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                            {customPerfil.experiencesTotal>0 && (()=>{
+                                let experiencesToExib: Experiencia[];
+                                const inMemoryLength = customPerfil.experiences.length;
+                                if(inMemoryLength!==customPerfil.experiencesTotal){
+                                    experiencesToExib = customPerfil.experiences.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                } else {
+                                    experiencesToExib = customPerfil.experiences
+                                }
+                                return experiencesToExib.map(expe=>(
+                                    <div key={expe.id}
+                                        className="bg-white border-professional-dark after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5  transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-professional-dark dark:text-white">{expe.title}</h3>
+                                                <p className="text-professional-dark dark:text-professional-accent font-medium">{expe.name}</p>
+                                            </div>
+                                            {expe.period.split(' - ')[1] === 'Presente' && (
+                                                <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
+                                            )}
                                         </div>
-                                        {expe.period.split(' - ')[1] === 'Presente' && (
-                                            <span className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Atual</span>
-                                        )}
+                                        <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
+                                        <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {expe.experiences_tags[0] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
+                                            )}
+                                            {expe.experiences_tags[1] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
+                                            )}
+                                            {expe.experiences_tags[2] && (
+                                                <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-professional-gray dark:text-professional-subtitle mb-4">{expe.period}</p>
-                                    <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">{expe.description}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {expe.experiences_tags[0] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[0].name}</span>
-                                        )}
-                                        {expe.experiences_tags[1] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">{expe.experiences_tags[1].name}</span>
-                                        )}
-                                        {expe.experiences_tags[2] && (
-                                            <span className="bg-white text-professional-gray dark:bg-professional-gray dark:text-professional-subtitle   text-xs px-2 py-1 rounded">{expe.experiences_tags[2].name}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            })()}
 
                             {/* <!-- Experiências adicionadas aparecerão aqui --> */}
                             
                         </div>
+
+                        {customPerfil.experiencesTotal !== customPerfil.experiences.length && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.experiencias}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, experiencias: true}));
+                                    try {
+                                        const response = await axiosWe(`/experience/candidate/${candPerfil.id}?page=${customLoadings.experiencias_page+1}`);
+                                        const data = response.data as Experiencia[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            experiences: [...new Set([...prev.experiences, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, experiencias: false, experiencias_page: prev.experiencias_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, experiencias: false}));
+                                        console.error('Erro ao carregar mais experiencias:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.experiencias?'Carregando...':'Mostrar mais experiências'}</span>
+                                </button>
+                            </div>
+                            )}
                     </div>
                     )}
 
@@ -597,45 +694,6 @@ export default function PerfilCandidato() {
                                     </p>
                                 </Link>
                             </div>
-                            {/* <div
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">PMP - Project Management Professional
-                                    </h3>
-                                    <span
-                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2022</span>
-                                </div>
-                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Project Management Institute</p>
-                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação internacional em
-                                    gerenciamento de
-                                    projetos reconhecida globalmente.</p>
-                            </div>
-
-                            <div
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Scrum Master Certified</h3>
-                                    <span
-                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2021</span>
-                                </div>
-                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Scrum Alliance</p>
-                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação em metodologias ágeis e
-                                    framework
-                                    Scrum.</p>
-                            </div>
-
-                            <div
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Google Analytics Certification</h3>
-                                    <span
-                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">2020</span>
-                                </div>
-                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Google</p>
-                                <p className="text-professional-card dark:text-professional-subtitle text-sm">Certificação em análise de dados e
-                                    métricas
-                                    digitais.</p>
-                            </div> */}
                         </div>
                     </div>
                     )}
@@ -643,133 +701,332 @@ export default function PerfilCandidato() {
                     {/* <!-- Aba Projetos --> */}
                     {tabAtual==='projetos' && (
                     <div id="projetos" className="tab-pane">
-                        <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
-                                onClick={()=>{navigate('/projetos/criar')}}>
-                                <Link to="/projetos/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
-                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novos projetos</p>
-                                </Link>
-                            </div>
-                            {customPerfil.candProjectsTotal>0 && customPerfil.candProjects.map(proj=>(
-                                <div key={proj.id}
-                                    className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
-
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
-                                            <p className="text-professional-accent font-medium">{proj.name}</p>
-                                        </div>
-                                        <span
-                                            className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
-                                            {proj.status}
-                                        </span>
-                                    </div>
-
-                                    <p className="text-professional-subtitle mb-2">{proj.period}</p>
-
-                                    <div className="relative mb-4">
-                                        <img src={proj.image} alt="Imagem do projeto"
-                                            className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
-
-                                        {proj.link && (
-                                            <Link to={proj.link} target="_blank" rel="noopener noreferrer"
-                                                className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
-                                                title="Visitar site">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke-width="1" stroke="currentColor" className="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
-                                                </svg>
-                                            </Link>
-                                        )}
-                                    </div>
-
-                                    {/* <!-- Descrição --> */}
-                                    <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
-                                        {proj.description}
-                                    </p>
-
-                                    {/* <!-- Tags --> */}
-                                    <div className="flex flex-wrap gap-2">
-                                        {proj.cand_projects_tags[0] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[0].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[1] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[1].name}</span>
-                                        )}
-                                        {proj.cand_projects_tags[2] && (
-                                            <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
-                                            {proj.cand_projects_tags[2].name}</span>
-                                        )}
-                                    </div>
+                        {!customLoadings.projetos ? (
+                            <div id="projetosExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div id="boxCriar"
+                                    className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                    onClick={()=>{navigate('/projetos/criar')}}>
+                                    <Link to="/projetos/criar" className="flex flex-col items-center text-center">
+                                        <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
+                                        <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar novos projetos</p>
+                                    </Link>
                                 </div>
-                            ))}
-                        </div>
+                                {customPerfil.candProjectsTotal>0 && (()=>{
+                                    let projectsToExib: ProjetoCand[];
+                                    const inMemoryLength = customPerfil.candProjects.length;
+                                    if(inMemoryLength!==customPerfil.candProjectsTotal){
+                                        projectsToExib = customPerfil.candProjects.slice(0, inMemoryLength - (inMemoryLength+1)%9);
+                                    } else {
+                                        projectsToExib = customPerfil.candProjects
+                                    }
+                                    return projectsToExib.map(proj=>(
+                                        <div key={proj.id}
+                                            className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
+
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-white">{proj.title}</h3>
+                                                    <p className="text-professional-accent font-medium">{proj.name}</p>
+                                                </div>
+                                                <span
+                                                    className="bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">
+                                                    {proj.status}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-professional-subtitle mb-2">{proj.period}</p>
+
+                                            <div className="relative mb-4">
+                                                <img src={proj.image} alt="Imagem do projeto"
+                                                    className="w-full h-48 object-contain rounded-lg  bg-professional-gray/10" />
+
+                                                {proj.link && (
+                                                    <Link to={proj.link} target="_blank" rel="noopener noreferrer"
+                                                        className="absolute bottom-32 right-3 bg-professional-accent text-white p-1.5 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
+                                                        title="Visitar site">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                            strokeWidth="1" stroke="currentColor" className="w-5 h-5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round"
+                                                                d="M13.828 10.172a4 4 0 010 5.656l-3.535 3.535a4 4 0 01-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 015.657 5.657l-3.535 3.535a4 4 0 01-5.657-5.657l1.414-1.414" />
+                                                        </svg>
+                                                    </Link>
+                                                )}
+                                            </div>
+
+                                            {/* <!-- Descrição --> */}
+                                            <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
+                                                {proj.description}
+                                            </p>
+
+                                            {/* <!-- Tags --> */}
+                                            <div className="flex flex-wrap gap-2">
+                                                {proj.cand_projects_tags[0] && (
+                                                    <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                    {proj.cand_projects_tags[0].name}</span>
+                                                )}
+                                                {proj.cand_projects_tags[1] && (
+                                                    <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                    {proj.cand_projects_tags[1].name}</span>
+                                                )}
+                                                {proj.cand_projects_tags[2] && (
+                                                    <span className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded">
+                                                    {proj.cand_projects_tags[2].name}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                })()}
+                            </div>
+                        ):(
+                            <div className="flex flex-col items-center justify-center py-16">
+                                <div className="relative">
+                                    <div className="w-16 h-16 border-4 border-professional-gray/30 border-t-professional-accent rounded-full animate-spin"></div>
+                                </div>
+                                <p className="mt-6 text-professional-subtitle font-medium">
+                                    Carregando projetos...
+                                </p>
+                            </div>
+                        )}
+                        
+                        {customPerfil.candProjectsTotal !== customPerfil.candProjects.length && !customLoadings.projetos && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                className="
+                                    group
+                                    flex items-center gap-2
+                                    px-6 py-3
+                                    rounded-xl
+                                    border border-professional-accent
+                                    text-professional-accent
+                                    font-semibold
+                                    transition-all duration-300 ease-in-out
+
+                                    hover:bg-professional-accent
+                                    hover:text-white
+                                    hover:shadow-lg
+                                    hover:-translate-y-1
+
+                                    dark:border-professional-accent
+                                    dark:text-professional-accent
+                                    dark:hover:bg-professional-accent
+                                    dark:hover:text-white
+
+                                    focus:outline-none
+                                    focus:ring-2
+                                    focus:ring-professional-accent
+                                    focus:ring-offset-2
+                                "
+                                disabled={customLoadings.projetos}
+                                onClick={async()=>{
+                                    setCustomLoadings(prev=>({...prev, projetos: true}));
+                                    try {
+                                        const response = await axiosWe(`/candproject/candidate/${candPerfil.id}?page=${customLoadings.projetos_page+1}`);
+                                        const data = response.data as ProjetoCand[];
+                                        setCustomPerfil(prev=>({
+                                            ...prev,
+                                            candProjects: [...new Set([...prev.candProjects, ...data])]
+                                        }));
+                                        setCustomLoadings(prev=>({...prev, projetos: false, projetos_page: prev.projetos_page+1}));
+                                    } catch (err) {
+                                        setCustomLoadings(prev=>({...prev, projetos: false}));
+                                        console.error('Erro ao carregar mais projetos:',err);
+                                    }
+                                    
+                                }}
+                                >
+                                <span>{customLoadings.projetos?'Carregando...':'Mostrar mais projetos'}</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                     )}
 
                     {/* <!-- Aba formações --> */}
                     {tabAtual==='formacoes' && (
-                    <div id="formacoes" className="tab-pane">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div id="boxCriar"
-                                className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
-                                onClick={()=>{navigate('/formacoes/criar')}}>
-                                <Link to="/formacoes/criar" className="flex flex-col items-center text-center">
-                                    <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
-                                    <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
-                                </Link>
-                            </div>
-                            {/* <div
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Sistema de Gestão Empresarial</h3>
-                                    <span
-                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Concluído</span>
-                                </div>
-                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Tech Solutions Ltda • 2022</p>
-                                <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4">Desenvolvimento de sistema integrado
-                                    para
-                                    gestão de processos empresariais, resultando em aumento de 30% na eficiência
-                                    operacional.</p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Java</span>
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Spring
-                                        Boot</span>
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">PostgreSQL</span>
-                                </div>
-                            </div> */}
+                        <div id="formacoes" className="tab-pane">
+                            {!customLoadings.formacoes ? (
+                                <div id="formacoesExib" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div id="boxCriar"
+                                        className="duration-300 ease-in-out hover:-translate-y-1 bg-white dark:bg-professional-card border-professional-dark dark:border-professional-gray after:bg-professional-card rounded-xl border-2 border-dashed p-5 flex flex-col items-center justify-center transition-colors cursor-pointer h-full min-h-[200px] hover:border-professional-accent dark:hover:border-professional-accent"
+                                        onClick={()=>{navigate('/formacoes/criar')}}>
+                                        <Link to="/formacoes/criar" className="flex flex-col items-center text-center">
+                                            <FontAwesomeIcon icon={faPlusCircle} className="text-professional-dark dark:text-professional-accent mb-3 text-4xl" />
+                                            <p id="textCriar" className="text-professional-card dark:text-professional-subtitle">Adicionar uma nova formação</p>
+                                        </Link>
+                                    </div>
+                                    {customPerfil.academicBackgroundsTotal > 0 && customPerfil.academicBackgrounds?.map(form => (
+                                        <div key={form.id}
+                                            className="bg-professional-card rounded-xl border border-professional-card p-5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:border-professional-accent">
+                                            
+                                            {/* Imagem da formação */}
+                                            <div className="relative mb-4">
+                                                {form.image ? (
+                                                    <img 
+                                                        src={form.image} 
+                                                        alt={`Imagem da formação ${form.name}`}
+                                                        className="w-full h-48 object-contain rounded-lg bg-professional-gray/10"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-48 flex items-center justify-center bg-professional-gray/10 rounded-lg">
+                                                        <FontAwesomeIcon icon={faBook} className="text-5xl text-professional-subtitle/30" />
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Link da instituição como ícone flutuante (opcional) */}
+                                                {form.instituition_link && (
+                                                    <a 
+                                                        href={form.instituition_link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="absolute bottom-2 right-2 bg-professional-accent text-white p-2 rounded-full shadow-md hover:bg-professional-accent/80 transition-colors"
+                                                        title="Visitar site da instituição"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 0 1 0 5.656l-3.535 3.535a4 4 0 0 1-5.656-5.656l1.414-1.414m4.95-4.95a4 4 0 0 1 5.657 5.657l-3.535 3.535a4 4 0 0 1-5.657-5.657l1.414-1.414" />
+                                                        </svg>
+                                                    </a>
+                                                )}
+                                            </div>
 
-                            {/* <div
-                                className="bg-gray-100 border-gray-100 after:bg-professional-card dark:bg-professional-card rounded-xl border dark:border-professional-card p-5 hover:border-professional-dark transition-all duration-300 ease-in-out hover:-translate-y-1 dark:hover:border-professional-accent cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-semibold text-professional-dark dark:text-white">Plataforma de E-learning</h3>
-                                    <span
-                                        className="bg-professional-dark dark:bg-professional-accent text-white text-xs font-medium px-2.5 py-0.5 rounded">Em
-                                        Andamento</span>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-white">{form.name}</h3>
+                                                    <p className="text-professional-accent font-medium">{form.instituition}</p>
+                                                </div>
+                                                {form.status && (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                        form.status === 'Concluído' ? 'bg-green-500/20 text-green-400' :
+                                                        form.status === 'Em andamento' ? 'bg-blue-500/20 text-blue-400' :
+                                                        'bg-yellow-500/20 text-yellow-400'
+                                                    }`}>
+                                                        {form.status}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                                {form.category && (
+                                                    <div>
+                                                        <div className="text-xs text-professional-subtitle font-medium">Categoria</div>
+                                                        <div className="text-sm text-white">{form.category}</div>
+                                                    </div>
+                                                )}
+                                                {form.period && (
+                                                    <div>
+                                                        <div className="text-xs text-professional-subtitle font-medium">Período</div>
+                                                        <div className="text-sm text-white">{form.period}</div>
+                                                    </div>
+                                                )}
+                                                {form.workload && (
+                                                    <div>
+                                                        <div className="text-xs text-professional-subtitle font-medium">Carga Horária</div>
+                                                        <div className="text-sm text-white">{form.workload}h</div>
+                                                    </div>
+                                                )}
+                                                {form.cra && (
+                                                    <div>
+                                                        <div className="text-xs text-professional-subtitle font-medium">CRA</div>
+                                                        <div className="text-sm text-white">{form.cra}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {form.description && (
+                                                <p className="text-professional-subtitle text-sm mb-4 line-clamp-4 text-justify">
+                                                    {form.description}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Link da instituição como texto (caso queira manter além do ícone) */}
+                                            {form.instituition_link && (
+                                                <a
+                                                    href={form.instituition_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center text-professional-accent hover:text-professional-lightaccent transition-colors mb-4 text-sm"
+                                                >
+                                                    <FontAwesomeIcon icon={faGlobe} className="mr-2" />
+                                                    {form.instituition_link.replace(/^https?:\/\/(www\.)?/, '').substring(0, 30)}...
+                                                </a>
+                                            )}
+                                            
+                                            {form.academic_backgrounds_tags && form.academic_backgrounds_tags.length > 0 && (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {form.academic_backgrounds_tags.slice(0, 3).map(tag => (
+                                                        <span
+                                                            key={tag.id}
+                                                            className="bg-professional-gray text-professional-subtitle text-xs px-2 py-1 rounded"
+                                                        >
+                                                            {tag.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                                <p className="text-professional-gray dark:text-professional-subtitle mb-4">Inovação Digital S.A. • 2023</p>
-                                <p className="text-professional-card dark:text-professional-subtitle text-sm mb-4">Desenvolvimento de plataforma
-                                    educacional
-                                    com foco em experiência do usuário e acessibilidade.</p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">React</span>
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">Node.js</span>
-                                    <span
-                                        className="bg-white text-professional-dark dark:bg-professional-gray dark:text-professional-subtitle text-xs px-2 py-1 rounded">MongoDB</span>
+                            ):(
+                                <div className="flex flex-col items-center justify-center py-16">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 border-4 border-professional-gray/30 border-t-professional-accent rounded-full animate-spin"></div>
+                                    </div>
+                                    <p className="mt-6 text-professional-subtitle font-medium">
+                                        Carregando formações acadêmicas...
+                                    </p>
                                 </div>
-                            </div> */}
+                            )}
+                            
+                            {customPerfil.academicBackgroundsTotal !== customPerfil.academicBackgrounds?.length && !customLoadings.formacoes && (
+                                <div className="flex justify-center mt-8">
+                                    <button
+                                    className="
+                                        group
+                                        flex items-center gap-2
+                                        px-6 py-3
+                                        rounded-xl
+                                        border border-professional-accent
+                                        text-professional-accent
+                                        font-semibold
+                                        transition-all duration-300 ease-in-out
+
+                                        hover:bg-professional-accent
+                                        hover:text-white
+                                        hover:shadow-lg
+                                        hover:-translate-y-1
+
+                                        dark:border-professional-accent
+                                        dark:text-professional-accent
+                                        dark:hover:bg-professional-accent
+                                        dark:hover:text-white
+
+                                        focus:outline-none
+                                        focus:ring-2
+                                        focus:ring-professional-accent
+                                        focus:ring-offset-2
+                                    "
+                                    disabled={customLoadings.formacoes}
+                                    onClick={async()=>{
+                                        setCustomLoadings(prev=>({...prev, formacoes: true}));
+                                        try {
+                                            const response = await axiosWe(`/academic-background/candidate/${candPerfil.id}?page=${customLoadings.formacoes_page+1}`);
+                                            const data = response.data as Formacao[];
+                                            setCustomPerfil(prev=>({
+                                                ...prev,
+                                                academicBackgrounds: [...new Set([...prev.academicBackgrounds, ...data])]
+                                            }));
+                                            setCustomLoadings(prev=>({...prev, formacoes: false, formacoes_page: prev.formacoes_page+1}));
+                                        } catch (err) {
+                                            setCustomLoadings(prev=>({...prev, formacoes: false}));
+                                            console.error('Erro ao carregar mais formações:',err);
+                                        }
+                                        
+                                    }}
+                                    >
+                                    <span>{customLoadings.formacoes?'Carregando...':'Mostrar mais formações'}</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    </div>
                     )}
 
                     {/* <!-- Aba Recomendações --> */}

@@ -1,5 +1,5 @@
 import { faGithub, faInstagram, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faFile, faFileAlt, faFileInvoice, faFlag, faGlobe, faIdCard, faImage, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faBuilding, faCamera, faCancel, faCity, faEdit, faEnvelope, faFile, faFileAlt, faFileInvoice, faFlag, faGlobe, faImage, faMagic, faMapMarkerAlt, faSave, faShareAlt, faSignature, faTimes, faTrashAlt, faUndo, faUser, faUserTag, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
@@ -33,17 +33,16 @@ export default function EditarPerfilCandidato () {
         async function loadCand(){
             if(!usuario) return;
             try {
-                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {user: Candidato & {cpf?: string; city?: string;}}};
+                const response = await axiosWe('/custom/perfil-candidato-editar') as {data: {user: Candidato}};
                 const user = response.data.user;
                 DadosUsuario.setarFoto(user.image);
                 DadosUsuario.setarNome(user.name);
                 const { 
-                    name, image, description, cpf, state, city, instagram, github,
+                    name, image, description, state, city, instagram, github,
                     twitter, pronouns, personal_site, resume, current_position,
-                    portfolio, current_company, resume_file, banner
+                    portfolio, current_company, resume_file, banner, contact_email
                 } = user;
                 setNomeInfo({cached: name, value: name, disabled: true});
-                if(cpf) setCpfInfo({cached: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), value: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"), disabled: true});
                 if(pronouns) {
                     const pronomesDoSelect = ["Ela/Dela", "Ele/Dele", "Elu/Delu", "Prefiro não informar"];
                     if(!pronomesDoSelect.includes(pronouns)){
@@ -64,7 +63,8 @@ export default function EditarPerfilCandidato () {
                 if(current_company) setEmpresa_atualInfo({cached: current_company, value: current_company, disabled: true});
                 if(description) setDescricaoInfo({cached: description, value: description, disabled: true});
                 if(resume_file) setCurriculo_fileInfo({cached: resume_file, value: null, disabled: true, truncate: false});
-                if (banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
+                if(banner) setBannerInfo({ cached: banner, value: null, disabled: true, truncate: false });
+                if(contact_email) setContact_emailInfo({cached: contact_email, value: contact_email, disabled: true})
 
                 setDataLoaded(true);
             } catch (erro) {
@@ -76,7 +76,6 @@ export default function EditarPerfilCandidato () {
 
     const initialState = {cached: '', value: '', disabled: false};
     const [nomeInfo, setNomeInfo] = useState<CampoEditCandFace>(initialState);
-    const [cpfInfo, setCpfInfo] = useState<CampoEditCandFace>(initialState);
     const [pronomesInfo, setPronomesInfo] = useState<CampoEditCandFace>(initialState);
     const [pronomesPersonalizadosInfo, setPronomesPersonalizadosInfo] = useState<CampoEditCandFace>(initialState);
     const [portfolioInfo, setPortfolioInfo] = useState<CampoEditCandFace>(initialState);
@@ -101,6 +100,7 @@ export default function EditarPerfilCandidato () {
         disabled: false,
         truncate: false
     });
+    const [contact_emailInfo, setContact_emailInfo] = useState<CampoEditCandFace>(initialState);
 
     const [previewSrcFoto, setPreviewSrcFoto] = useState(genPfp);
     const inputFotoPerfilOcultRef = useRef(null);
@@ -283,7 +283,7 @@ export default function EditarPerfilCandidato () {
                                             placeholder="Ex: João Silva Santos" />
                                     </div>
 
-                                    <div>
+                                    {/* <div>
                                         <label htmlFor="cpf"
                                             className="text-gray-600 dark:text-professional-subtitle mb-2 font-medium flex items-center">
                                             <FontAwesomeIcon icon={faIdCard} className="text-professional-dark dark:text-professional-accent mr-2" />
@@ -308,7 +308,54 @@ export default function EditarPerfilCandidato () {
                                             disabled={cpfInfo.disabled}
                                             className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-gray-300 dark:border-professional-card rounded-xl text-gray-800 dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-gray-400 dark:placeholder-professional-subtitleText"
                                             placeholder="Ex: 000.000.000-00" />
-                                    </div>
+                                    </div> */}
+
+                                    <div>
+                                        <label htmlFor="contact_email"
+                                            className="text-gray-600 dark:text-professional-subtitle mb-2 font-medium flex items-center">
+                                            <FontAwesomeIcon icon={faEnvelope} className="text-professional-dark dark:text-professional-accent mr-2" />
+                                            Email de contato
+
+                                            {contact_emailInfo.cached && (
+                                            contact_emailInfo.disabled ? (
+                                                <FontAwesomeIcon
+                                                icon={faEdit}
+                                                className="text-gray-600 dark:text-professional-accent ml-2 hover:text-gray-800 dark:hover:text-professional-subtitleText cursor-pointer"
+                                                onClick={() =>
+                                                    setContact_emailInfo(prev => ({ ...prev, disabled: false }))
+                                                }
+                                                />
+                                            ) : (
+                                                <FontAwesomeIcon
+                                                icon={faCancel}
+                                                className="text-gray-600 dark:text-professional-accent ml-2 hover:text-gray-800 dark:hover:text-professional-subtitleText cursor-pointer"
+                                                onClick={() =>
+                                                    setContact_emailInfo(prev => ({
+                                                    ...prev,
+                                                    value: prev.cached,
+                                                    disabled: true
+                                                    }))
+                                                }
+                                                />
+                                            )
+                                            )}
+                                        </label>
+
+                                        <input
+                                            type="email"
+                                            id="contact_email"
+                                            value={contact_emailInfo.value}
+                                            onChange={(e) =>
+                                            setContact_emailInfo(prev => ({
+                                                ...prev,
+                                                value: e.target.value
+                                            }))
+                                            }
+                                            disabled={contact_emailInfo.disabled}
+                                            className="w-full px-4 py-3 bg-white dark:bg-professional-dark border border-gray-300 dark:border-professional-card rounded-xl text-gray-800 dark:text-professional-text transition-all focus:outline-none focus:border-professional-dark focus:border-2 dark:focus:border-professional-accent focus:ring-3 focus:ring-professional-accent/20 placeholder-gray-400 dark:placeholder-professional-subtitleText"
+                                            placeholder="Ex: email@exemplo.com"
+                                        />
+</div>
 
                                     <div>
                                         <label htmlFor="pronomes"
@@ -669,16 +716,16 @@ export default function EditarPerfilCandidato () {
                             onClick={async () => {
                                 setSalvandoEdicao(true);
                                 const editou = await salvarEdicaoCandidato(
-                                    nomeInfo, cpfInfo, pronomesInfo, pronomesPersonalizadosInfo,
+                                    nomeInfo, pronomesInfo, pronomesPersonalizadosInfo,
                                     portfolioInfo, githubInfo, curriculoInfo, instagramInfo,
                                     site_pessoalInfo, twitterInfo, cidadeInfo, estadoInfo,
                                     cargo_atualInfo, empresa_atualInfo, descricaoInfo,
-                                    fotoInfo, curriculo_fileInfo, bannerInfo
+                                    fotoInfo, curriculo_fileInfo, bannerInfo, contact_emailInfo
                                 );
                                 if (!editou) setSalvandoEdicao(false);
                                 else {
                                     mostrarSucessoTopo('Perfil editado com sucesso!');
-                                    setTimeout(() => { navigate('/perfil/candidato') }, 3000);
+                                    setTimeout(() => { navigate('/perfil/candidato') }, 1500);
                                 }
                             }}>
                             <FontAwesomeIcon icon={faSave} />

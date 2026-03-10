@@ -15,7 +15,7 @@ export interface FileEditCandFace {
     truncate: boolean;
 }
 
-export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo: CampoEditCandFace, pronomesInfo: CampoEditCandFace, pronomesPersonalizadosInfo: CampoEditCandFace, portfolioInfo: CampoEditCandFace, githubInfo: CampoEditCandFace, curriculoInfo: CampoEditCandFace, instagramInfo: CampoEditCandFace, site_pessoalInfo: CampoEditCandFace, twitterInfo: CampoEditCandFace, cidadeInfo: CampoEditCandFace, estadoInfo: CampoEditCandFace, cargo_atualInfo: CampoEditCandFace, empresa_atualInfo: CampoEditCandFace, descricaoInfo: CampoEditCandFace, fotoInfo: FileEditCandFace, curriculo_fileInfo: FileEditCandFace, bannerInfo: FileEditCandFace): Promise<boolean> {
+export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, pronomesInfo: CampoEditCandFace, pronomesPersonalizadosInfo: CampoEditCandFace, portfolioInfo: CampoEditCandFace, githubInfo: CampoEditCandFace, curriculoInfo: CampoEditCandFace, instagramInfo: CampoEditCandFace, site_pessoalInfo: CampoEditCandFace, twitterInfo: CampoEditCandFace, cidadeInfo: CampoEditCandFace, estadoInfo: CampoEditCandFace, cargo_atualInfo: CampoEditCandFace, empresa_atualInfo: CampoEditCandFace, descricaoInfo: CampoEditCandFace, fotoInfo: FileEditCandFace, curriculo_fileInfo: FileEditCandFace, bannerInfo: FileEditCandFace, contact_emailInfo: CampoEditCandFace): Promise<boolean> {
     const formData = new FormData();
     if(!nomeInfo.disabled && nomeInfo.value && nomeInfo.value!==nomeInfo.cached) {
         const newName = nomeInfo.value;
@@ -24,14 +24,6 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
             return false;
         }
         formData.append('name', newName);
-    };
-    if(!cpfInfo.disabled && cpfInfo.value && cpfInfo.value!==cpfInfo.cached) {
-        const newCpf = cpfInfo.value
-        if(!validarCPF(newCpf)) {
-            mostrarErroTopo("CPF inválido");
-            return false;
-        }
-        formData.append('cpf', newCpf);
     };
     if((!pronomesInfo.disabled || !pronomesPersonalizadosInfo.disabled) && (pronomesInfo.value !== pronomesInfo.cached || pronomesPersonalizadosInfo.value !== pronomesPersonalizadosInfo.cached)) {
         const pronSelect = pronomesInfo.value;
@@ -118,6 +110,9 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     if(bannerInfo.value || (bannerInfo.cached!=='fundoroxo' && bannerInfo.truncate)) {
         formData.append('banner', bannerInfo.value || null);
     };
+    if(!contact_emailInfo.disabled && (contact_emailInfo.value || contact_emailInfo.cached) && contact_emailInfo.value!==contact_emailInfo.cached) {
+        formData.append('contact_email', contact_emailInfo.value?.trim() || null);
+    };
     
     if (formData.entries().next().done) return true; // * Valida se nada foi editado
 
@@ -130,41 +125,41 @@ export async function salvarEdicaoCandidato(nomeInfo: CampoEditCandFace, cpfInfo
     }
 };
 
-function validarCPF(cpf: string): boolean {
-    if (!cpf) {
-        return false;
-    };
+// function validarCPF(cpf: string): boolean {
+//     if (!cpf) {
+//         return false;
+//     };
 
-    cpf = cpf.replace(/[^\d]+/g, ""); // Remove pontos e traços
+//     cpf = cpf.replace(/[^\d]+/g, ""); // Remove pontos e traços
 
-    if (cpf.length !== 11) {
-        return false;
-    } else if (/^(\d)\1{10}$/.test(cpf)) {
-        return false;
-    }
+//     if (cpf.length !== 11) {
+//         return false;
+//     } else if (/^(\d)\1{10}$/.test(cpf)) {
+//         return false;
+//     }
 
-    let soma = 0;
-    for (let i = 0; i < 9; i++) {
-        soma += parseInt(cpf.charAt(i)) * (10 - i);
-    }
-    let digito1 = 11 - (soma % 11);
-    if (digito1 > 9) digito1 = 0;
-    if (digito1 != parseInt(cpf.charAt(9))) {
-        return false;
-    };
+//     let soma = 0;
+//     for (let i = 0; i < 9; i++) {
+//         soma += parseInt(cpf.charAt(i)) * (10 - i);
+//     }
+//     let digito1 = 11 - (soma % 11);
+//     if (digito1 > 9) digito1 = 0;
+//     if (digito1 != parseInt(cpf.charAt(9))) {
+//         return false;
+//     };
 
-    soma = 0;
-    for (let i = 0; i < 10; i++) {
-        soma += parseInt(cpf.charAt(i)) * (11 - i);
-    }
-    let digito2 = 11 - (soma % 11);
-    if (digito2 > 9) digito2 = 0;
-    if (digito2 != parseInt(cpf.charAt(10))) {
-        return false;
-    };
+//     soma = 0;
+//     for (let i = 0; i < 10; i++) {
+//         soma += parseInt(cpf.charAt(i)) * (11 - i);
+//     }
+//     let digito2 = 11 - (soma % 11);
+//     if (digito2 > 9) digito2 = 0;
+//     if (digito2 != parseInt(cpf.charAt(10))) {
+//         return false;
+//     };
 
-    return true;
-}
+//     return true;
+// }
 
 function validarLink(link: string, campo = 'Link') {
     if (campo !== 'Link' && !link.includes(campo.toLowerCase())) {
