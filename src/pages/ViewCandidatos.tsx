@@ -270,6 +270,8 @@ const Main: React.FC = () => {
 
             if(loading || loadingMore || limit) return;
 
+            setBuscandoPorCategoria(true);
+
             const pagina = filtroAtualPageRef.current;
             console.log(pagina)
             setFiltroAtual(prev=>({
@@ -303,8 +305,12 @@ const Main: React.FC = () => {
             console.log(response.data)
         } catch (erro) {
             console.error('Erro ao buscar candidato por categoria:',erro);
+        } finally {
+            setBuscandoPorCategoria(false);
         }
     }
+
+    const [buscandoPorCategoria, setBuscandoPorCategoria] = useState(false);
 
     useEffect(()=>{
         const categoria = filtroAtual.name;
@@ -1427,7 +1433,9 @@ const Main: React.FC = () => {
                                 className="flex gap-3 overflow-x-auto scrollbar-hide px-8 py-2"
                                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                                 <button ref={homeCategoriaRef} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name==='Tudo'?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
+                                    disabled={buscandoPorCategoria}
                                     onClick={()=>{
+                                        if(buscandoPorCategoria) return;
                                         setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: 'Tudo', page: 1});
                                         window.scrollTo(0, 0);
                                     }}>
@@ -1435,8 +1443,9 @@ const Main: React.FC = () => {
                                 </button>
                                 {filtrosRecomendados.map((f) => (
                                     <button key={f.id} className={`text-white px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all hover:scale-105 flex-shrink-0 ${filtroAtual.name===f.categoria?'bg-primary-500 hover:bg-primary-700':'bg-dark-500 hover:bg-dark-400'}`}
+                                        disabled={buscandoPorCategoria}
                                         onClick={()=>{
-                                            if(filtroAtual.name===f.categoria) return;
+                                            if(filtroAtual.name===f.categoria || buscandoPorCategoria) return;
                                             setFiltroAtual({candidatos: [], limit:false, loading: false, loadingMore: false, name: f.categoria, page: 1})
                                             window.scrollTo(0, 0);
                                         }}>

@@ -271,6 +271,8 @@ const Main: React.FC = () => {
 
       if (loading || loadingMore || limit) return;
 
+      setBuscandoPorCategoria(true);
+
       const pagina = filtroAtualPageRef.current;
       console.log(pagina)
       setFiltroAtual(prev => ({
@@ -305,8 +307,12 @@ const Main: React.FC = () => {
       console.log(response.data)
     } catch (erro) {
       console.error('Erro ao buscar empresa por categoria:', erro);
+    } finally {
+      setBuscandoPorCategoria(false);
     }
   }
+
+  const [buscandoPorCategoria, setBuscandoPorCategoria] = useState(false);
 
   useEffect(() => {
     const categoria = filtroAtual.name;
@@ -1393,7 +1399,9 @@ const Main: React.FC = () => {
             whitespace-nowrap transition-all hover:scale-105 flex-shrink-0
             ${filtroAtual.name === 'Tudo' ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}
           `}
+                  disabled={buscandoPorCategoria}
                   onClick={() => {
+                    if(buscandoPorCategoria) return;
                     setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: 'Tudo', page: 1 });
                     window.scrollTo(0, 0);
                   }}
@@ -1408,8 +1416,9 @@ const Main: React.FC = () => {
               whitespace-nowrap transition-all hover:scale-105 flex-shrink-0
               ${filtroAtual.name === f.categoria ? 'bg-primary-500 hover:bg-primary-700' : 'bg-dark-500 hover:bg-dark-400'}
             `}
+                    disabled={buscandoPorCategoria}
                     onClick={() => {
-                      if (filtroAtual.name === f.categoria) return;
+                      if (filtroAtual.name === f.categoria || buscandoPorCategoria) return;
                       setFiltroAtual({ empresas: [], limit: false, loading: false, loadingMore: false, name: f.categoria, page: 1 });
                       window.scrollTo(0, 0);
                     }}
@@ -1587,7 +1596,7 @@ const Main: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    {!searchData.active && (
+                    {/* {!searchData.active && (
                       <div
                         className={`recommended-filters-wrapper relative flex gap-6 overflow-x-auto scrollbar-hide pl-28 pr-6 py-2 transition-all duration-300
                             ${isSidebarOpen ? "ml-[8rem]" : "ml-0"}`}>
@@ -1623,7 +1632,7 @@ const Main: React.FC = () => {
                         </button>
                       </div>
                       // </div>
-                    )}
+                    )} */}
 
                 {/* Mensagem de fim dos resultados */}
                 {filtroAtual.limit && (
