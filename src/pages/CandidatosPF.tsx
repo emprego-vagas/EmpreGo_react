@@ -144,7 +144,7 @@ export default function PerfilCandidatoPF() {
     try {
       setIsLoadingMoreExperiencias(true);
 
-      const nextPage = pageExperiencias + 1;
+      const nextPage = pageExperiencias + 1
 
       const response = await axiosWe(
         `/experience/candidate/${candPerfil.id}?page=${nextPage}`
