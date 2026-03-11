@@ -54,7 +54,7 @@ export default function PerfilCandidatoPF() {
 
   // Função para carregar primeira página de experiências
   const carregarPrimeiraPaginaExperiencias = async () => {
-    if (!candPerfil || hasLoadedFirstPageExperiencias || isLoadingExperiencias || !customPerfil.academicBackgroundsTotal) return;
+    if (!candPerfil || hasLoadedFirstPageExperiencias || isLoadingExperiencias || !customPerfil?.experiencesTotal) return;
     
     try {
       setIsLoadingExperiencias(true);
