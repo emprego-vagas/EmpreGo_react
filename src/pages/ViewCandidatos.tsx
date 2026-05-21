@@ -1265,6 +1265,7 @@ const Main: React.FC = () => {
                                 </button>
 
                                 <button className="bg-twitch-purple text-white px-4 py-2 flex items-center justify-center hover:bg-twitch-lightpurple transition" 
+                                    disabled={buscandoPorCategoria}
                                     onClick={handleSearch} ref={searchButtonRef}>
                                     <img src={lupa} className="w-5 h-5 filter brightness-0 invert" />
                                 </button>
